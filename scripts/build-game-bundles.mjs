@@ -19,6 +19,7 @@ const boot=String.raw`
  const save=()=>emit('save',{schemaVersion:1,stores,resultIds});
  const storage={getItem:key=>Object.hasOwn(stores,key)?stores[key]:null,setItem(key,value){const next={...stores,[key]:String(value)};if(JSON.stringify(next).length>524288)throw new DOMException('Save limit exceeded','QuotaExceededError');stores=next;save();},removeItem(key){delete stores[key];save();},clear(){stores={};save();},key:index=>Object.keys(stores)[index]??null,get length(){return Object.keys(stores).length;}};
  Object.defineProperty(window,'localStorage',{value:storage,configurable:false});
+ window.__STATOZ_MESSAGE_ORIGIN__=parent===window?location.origin:(boot.origin||location.origin);
  const originalPost=window.postMessage.bind(window);window.postMessage=(message,target,transfer)=>originalPost(message,target==='null'?'*':target,transfer);
  const api={emit,save,sessionId,command:null,result(payload){const id=String(payload?.id||payload?.sessionId||'');if(!id||resultIds.includes(id))return;resultIds=[...resultIds,id].slice(-1000);let records=[];try{records=JSON.parse(stores['statoz.bundle.results']||'[]');}catch{}stores['statoz.bundle.results']=JSON.stringify([...records,payload].slice(-20));save();emit('result',payload);}};
  window.__STATOZ_HOST__=api;
@@ -69,6 +70,9 @@ for(const gameId of ids){
   const external=[...html.matchAll(/<script\b([^>]*?)src=["']([^"']+)["']([^>]*)><\/script>/g)];
   for(const match of external){const local=path.resolve(sourceRoot,match[2]);if(!local.startsWith(sourceRoot+path.sep))throw Error('External game script');const js=(await fs.readFile(local,'utf8')).replaceAll('import.meta.url',JSON.stringify(`https://statoz-demo.invalid/${gameId}/bundle.js`));html=html.replace(match[0],()=>'<script'+match[1]+match[3]+'>'+js.replaceAll('</script','<\\/script')+'</script>');}
   html=html.replace(/new URLSearchParams\((?:window\.)?location.search\)/g,`new URLSearchParams('host=web&session='+window.__STATOZ_HOST__.sessionId)`);
+  // srcdoc has an opaque location.origin even though its inherited message
+  // origin is the host's origin. Keep the legacy engines' same-origin bridge.
+  html=html.replace(/(?:window\.)?location\.origin\b/g,'window.__STATOZ_MESSAGE_ORIGIN__');
   const start=html.indexOf('<script');const injection=prelude(gameId)+await assetShim(sourceRoot);html=html.slice(0,start)+injection+html.slice(start);
   if(gameId.startsWith('designer-'))html+='<script>window.__STATOZ_HOST__.emit("ready");</script>';
  }
