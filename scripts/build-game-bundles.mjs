@@ -9,6 +9,8 @@ const output=path.join(root,'public','embedded-games');
 const ids=['retro-hoops','retro-circuit','retro-football','retro-innings'];
 const customRoot=path.join(root,'public/assets/games/designer');
 for(const entry of await fs.readdir(customRoot,{withFileTypes:true}).catch(()=>[])) if(entry.isDirectory()&&/^[a-f0-9-]{36}$/.test(entry.name)) ids.push('designer-'+entry.name);
+const selected=process.argv.find(arg=>arg.startsWith('--game='))?.slice(7);
+if(selected&&!ids.includes(selected))throw Error('Unknown game selection');
 const digest=b=>createHash('sha256').update(b).digest('hex');
 async function walk(dir){const out=[];for(const e of await fs.readdir(dir,{withFileTypes:true})){if(e.isSymbolicLink())throw Error('Linked game asset');const p=path.join(dir,e.name);if(e.isDirectory())out.push(...await walk(p));else out.push(p);}return out;}
 const boot=String.raw`
@@ -20,11 +22,11 @@ const boot=String.raw`
  const storage={getItem:key=>Object.hasOwn(stores,key)?stores[key]:null,setItem(key,value){const next={...stores,[key]:String(value)};if(JSON.stringify(next).length>524288)throw new DOMException('Save limit exceeded','QuotaExceededError');stores=next;save();},removeItem(key){delete stores[key];save();},clear(){stores={};save();},key:index=>Object.keys(stores)[index]??null,get length(){return Object.keys(stores).length;}};
  Object.defineProperty(window,'localStorage',{value:storage,configurable:false});
  window.__STATOZ_MESSAGE_ORIGIN__=parent===window?location.origin:(boot.origin||location.origin);
- const originalPost=window.postMessage.bind(window);window.postMessage=(message,target,transfer)=>originalPost(message,target==='null'?'*':target,transfer);
+ const originalPost=window.postMessage.bind(window);if(gameId!=='retro-circuit')window.postMessage=(message,target,transfer)=>originalPost(message,target==='null'?'*':target,transfer);
  const api={emit,save,sessionId,command:null,result(payload){const id=String(payload?.id||payload?.sessionId||'');if(!id||resultIds.includes(id))return;resultIds=[...resultIds,id].slice(-1000);let records=[];try{records=JSON.parse(stores['statoz.bundle.results']||'[]');}catch{}stores['statoz.bundle.results']=JSON.stringify([...records,payload].slice(-20));save();emit('result',payload);}};
  window.__STATOZ_HOST__=api;
  if(gameId==='retro-football'){
-  window.RetroFootballHost={postMessage(raw){if(typeof raw!=='string'||raw.length>600000)return;let message;try{message=JSON.parse(raw);}catch{return;}if(message.gameId!==gameId||message.protocolVersion!==1)return;if(message.type==='result')api.result({id:message.payload?.resultId,...message.payload?.result});else emit(message.type,message.payload);}};
+  window.RetroFootballHost={postMessage(raw){if(typeof raw!=='string'||raw.length>600000)return;let message;try{message=JSON.parse(raw);}catch{return;}if(message.gameId!==gameId||message.protocolVersion!==1)return;if(message.type==='ready'){const engineSession=message.sessionId;api.command=type=>window.retroFootballHostV1?.receive({protocolVersion:1,gameId,sessionId:engineSession,type,payload:{}});window.retroFootballHostV1?.receive({protocolVersion:1,gameId,sessionId:engineSession,type:'launch',payload:{music:0,sfx:.5}});}if(message.type==='result')api.result({id:message.payload?.resultId,...message.payload?.result});else emit(message.type,message.payload);}};
  }
  if(gameId==='retro-football'||gameId==='retro-innings')api.command=command=>{const buttons=[...document.querySelectorAll('button')],resume=buttons.find(button=>button.textContent.trim().toLowerCase().startsWith('resume'));if(command==='resume')resume?.click();else if((command==='pause'||command==='dispose')&&!resume)buttons.find(button=>button.textContent.trim().toLowerCase().startsWith('pause'))?.click();if(command==='dispose'&&gameId==='retro-innings')window.threeCricket?.dispose?.();};
  const apply=command=>{if(command==='dispose'){api.command?.('dispose');disposed=true;}else api.command?.(command);};
@@ -39,12 +41,13 @@ const boot=String.raw`
  addEventListener('visibilitychange',()=>{if(document.hidden)apply('pause');});
  addEventListener('error',()=>emit('error',{message:'The demo game could not continue.'}));
 })();`;
+if(!selected||selected==='retro-circuit')execFileSync(process.execPath,['scripts/build-retro-circuit-assets.mjs'],{cwd:root,stdio:'inherit'});
 const fontStyle=`@font-face{font-family:'Space Grotesk';src:url(data:font/ttf;base64,${(await fs.readFile(path.join(root,'src/app/fonts/space-grotesk-variable.ttf'))).toString('base64')}) format('truetype');font-weight:300 700;font-display:swap}@font-face{font-family:Orbitron;src:url(data:font/woff2;base64,${(await fs.readFile(path.join(root,'src/app/fonts/orbitron-latin-variable.woff2'))).toString('base64')}) format('woff2');font-weight:400 900;font-display:swap}:root{--font-space-grotesk:'Space Grotesk';--font-orbitron:Orbitron}body,button,input{font-family:'Space Grotesk',sans-serif}`;
 const prelude=()=>`<style>${fontStyle}</style><script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
 const style='html,body,#root{margin:0;width:100%;height:100%;background:#0d111a;color:white;overflow:hidden}*{box-sizing:border-box}button{touch-action:manipulation}canvas{image-rendering:pixelated}';
 const entries={
  'retro-hoops':`import React from 'react';import{createRoot}from'react-dom/client';import{HoopsGame}from'./src/features/games/retro-hoops/game';const host=window.__STATOZ_HOST__;let commandId=0;const render=command=>createRootOnce.render(<HoopsGame assetBase="assets" onExit={()=>host.emit('exit')} hostCommand={command?{id:++commandId,type:command}:undefined} onEvent={event=>{if(event.type==='result')host.result(event.payload);else host.emit(event.type,event.payload);}}/>);const createRootOnce=createRoot(document.getElementById('root'));host.command=command=>{if(command==='dispose')createRootOnce.unmount();else render(command);};render();`,
- 'retro-circuit':`import{mountCircuit}from'./src/features/games/retro-circuit/mount';import'./src/features/games/retro-circuit/circuit.css';const host=window.__STATOZ_HOST__,session=mountCircuit(document.getElementById('root'),{onExit:()=>host.emit('exit'),onResult:result=>host.result(result)});host.command=command=>session[command]?.();host.emit('ready');`,
+ 'retro-circuit':`import{mountCircuit}from'./src/features/games/retro-circuit/mount';import{loadReferenceAssets}from'./src/features/games/retro-circuit/reference-assets';import'./src/features/games/retro-circuit/circuit.css';const host=window.__STATOZ_HOST__;let session,disposed=false;host.command=command=>{if(command==='dispose'){disposed=true;session?.dispose();}else if(command==='pause'){session?.pause();}else if(command==='resume'){session?.resume();}};loadReferenceAssets().then(()=>{if(disposed)return;session=mountCircuit(document.getElementById('root'),{onExit:()=>host.emit('exit'),onResult:result=>host.result(result)});host.emit('ready');}).catch(()=>host.emit('error',{message:'Retro Circuit assets could not load'}));`,
 };
 async function assetShim(directory){
  const map={};
@@ -56,9 +59,10 @@ async function assetShim(directory){
  return `<script>(()=>{const assets=${JSON.stringify(map)},resolve=value=>{let text=String(value);if(text.startsWith('data:')||text.startsWith('blob:'))return text;text=text.split(/[?#]/)[0];const key=Object.keys(assets).find(key=>text===key||text.endsWith('/'+key));return key?assets[key]:null;};const fetchOriginal=fetch.bind(window);window.fetch=(value,options)=>{const request=typeof value==='string'?value:value instanceof URL?value.href:value.url;const url=resolve(request);return url?fetchOriginal(url,options):Promise.reject(Error('Remote resource blocked in offline game: '+String(request)));};for(const proto of [HTMLImageElement.prototype,HTMLMediaElement.prototype]){const descriptor=Object.getOwnPropertyDescriptor(proto,'src');if(descriptor?.set)Object.defineProperty(proto,'src',{...descriptor,set(value){descriptor.set.call(this,resolve(value)||value);}});}})();</script>`;
 }
 await fs.mkdir(output,{recursive:true});
-const manifest={schemaVersion:1,protocolVersion:1,sourceSha:'uncommitted',games:[]};
+const previous=selected?JSON.parse(await fs.readFile(path.join(output,'manifest.json'),'utf8')):null;
+const manifest={schemaVersion:1,protocolVersion:1,sourceSha:'uncommitted',games:previous?previous.games.filter(game=>game.id!==selected):[]};
 try{manifest.sourceSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}
-for(const gameId of ids){
+for(const gameId of selected?[selected]:ids){
  const dir=path.join(output,gameId);await fs.mkdir(dir,{recursive:true});let html;
  if(entries[gameId]){
   const result=await build({stdin:{contents:"import './src/design-system/styles/tokens.css';import './src/design-system/styles/typography.css';"+entries[gameId],resolveDir:root,loader:'tsx'},bundle:true,write:false,outdir:'bundle',format:'iife',platform:'browser',target:'es2020',minify:true,jsx:'automatic',loader:{'.png':'dataurl','.svg':'dataurl','.woff2':'dataurl','.ttf':'dataurl'},tsconfig:path.join(root,'tsconfig.json')});
@@ -81,5 +85,5 @@ for(const gameId of ids){
  console.log(`${gameId}: ${(Buffer.byteLength(html)/1048576).toFixed(1)} MiB offline bundle`);
 }
 await fs.writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-const notices=[];for(const file of ['node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
+const notices=[];for(const file of ['node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt','public/games/retro-circuit/reference/NOTICE.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
 await fs.writeFile(path.join(output,'LICENSES.txt'),notices.join('\n\n---\n\n'));

@@ -1,3 +1,5 @@
+> Current local candidate: [movement v2](retro-hoops-movement-v2.md), rules1.4.0. The published handheld1.3 release below is historical; this movement pass has not been pushed or deployed.
+
 # Retro Hoops web release
 
 Retro Hoops is a separate full-court 3v3 basketball game at `/play/retro-hoops`. The existing authenticated launcher owns entry and return routing. It needs no deck and awards no currency or XP. Two fictional teams play one three-minute period; draws are allowed. Settings and the latest 20 results use the isolated `statoz.games.web.retro-hoops.v1` namespace.

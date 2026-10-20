@@ -1,0 +1,1324 @@
+{
+  "schemaVersion": 1,
+  "id": "retro-circuit-demo-reference-v2",
+  "approval": "reference",
+  "productionEligible": false,
+  "notice": "Temporary commercial Top Gear SNES car/pit recording crops. Not original StatOz car art, no rights clearance or endorsement. Original scenery is separate.",
+  "sources": [
+    "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+    "https://www.youtube.com/watch?v=E9QJZSBpvg0",
+    "https://www.youtube.com/watch?v=gFMgYrdlTF8"
+  ],
+  "assets": [
+    {
+      "id": "white-straight",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Rear-facing neutral silhouette. Dark wheel clusters retained. Underbody inter-wheel road excluded at last two rows. Canvas registration shifts crop origin one study pixel upward to align last wheel pixels with the proposed ground edge y34; source RGB unchanged. Horizontal crop registration centres observed tyre pair around x40; no sprite rescaling.",
+      "file": "white-straight.png",
+      "maskFile": "masks/white-straight.png",
+      "rawFile": "raw/white-straight-study-grid.png",
+      "rawSha256": "06ce1458e29e7dc87e1702f464b680e76df9449e5e5c6dcb970d73e5ded1ea49",
+      "maskSha256": "0172c9a68c76c9b40afeafc6e66a155b0458cc75a5dfa2128551c56b76346e9a",
+      "recordingCropFile": "raw/white-straight-recording.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "groundAnchor": [
+        40,
+        34
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "d238aaf40e78d17bee0b7ba7ae5b2767be388e341c033a4469469b30f72f6dd0",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-046.png",
+        "frameSha256": "4b51590c0b20da044cde1209fca2e115e6deb4c0fe73f9b89f9572ea5821e14f",
+        "sampleHz": 2,
+        "frameSample": 46,
+        "approxSeconds": 70.5,
+        "recordingCrop": [
+          458,
+          198,
+          740,
+          339
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          88,
+          53,
+          80,
+          40
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/white-straight",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "white-left-visible",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Left vehicle flank visible. Steering input unknown; observed side geometry only. Canvas registration shifts crop origin one study pixel upward to align last wheel pixels with the proposed ground edge y34; source RGB unchanged. Horizontal crop registration centres observed tyre pair around x40; no sprite rescaling.",
+      "file": "white-left-visible.png",
+      "maskFile": "masks/white-left-visible.png",
+      "rawFile": "raw/white-left-visible-study-grid.png",
+      "rawSha256": "2951e974c1df7d22ffc5a4cd7a4efe9b972c925aa57ad48e6e66e50da2b31ed0",
+      "maskSha256": "e3fd033b3832fe833e3886e6ad2c7c37b4ef22e9ec9f05127cb702bb989d8f73",
+      "recordingCropFile": "raw/white-left-visible-recording.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "groundAnchor": [
+        40,
+        34
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "15dbdc2b0cd4dcb348c71c5f5998c677100705f3af56ce5ae1ba64240cf5b7d8",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-031.png",
+        "frameSha256": "8469e53789adc182d32e09f833e7f393a7ea87b44474232fd4bde3f2d20755e8",
+        "sampleHz": 2,
+        "frameSample": 31,
+        "approxSeconds": 63,
+        "recordingCrop": [
+          458,
+          198,
+          740,
+          339
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          88,
+          53,
+          80,
+          40
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/white-left-visible",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "white-right-visible",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Right vehicle flank visible in a later course. Car identity retained; no mirroring. Canvas registration shifts crop origin one study pixel upward to align last wheel pixels with the proposed ground edge y34; source RGB unchanged. Horizontal crop registration centres observed tyre pair around x40; no sprite rescaling.",
+      "file": "white-right-visible.png",
+      "maskFile": "masks/white-right-visible.png",
+      "rawFile": "raw/white-right-visible-study-grid.png",
+      "rawSha256": "ed23fefac5125eafb024be68322d445242589e806ba6aa363b11e99f294c4d9f",
+      "maskSha256": "b77c5f7fd5b3b43dee6c5f6e7554366aeb6c7169f5a05e0027b42d7494550d89",
+      "recordingCropFile": "raw/white-right-visible-recording.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "groundAnchor": [
+        40,
+        34
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "a3fe61084bc87eee378ba9d8682da2d3df3c87ae967e38958f66a1aed5ccdbd1",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-180-210/excerpt.mp4",
+        "clipSha256": "77bd3148175be401a803ba73e38f6b08af795e9325bb7ec2741f98adf610112a",
+        "frame": "research/video-180-210/frame-006.png",
+        "frameSha256": "d528895711b35eb7b4273f89e65354d09fb195e6cc1a47cf30abcd22109c55a0",
+        "sampleHz": 2,
+        "frameSample": 6,
+        "approxSeconds": 182.5,
+        "recordingCrop": [
+          458,
+          198,
+          740,
+          339
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          88,
+          53,
+          80,
+          40
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/white-right-visible",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "purple-straight",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Purple lower-view player car used as observed opponent variety; no recolouring. Canvas registration shifts crop origin one study pixel upward to align last wheel pixels with the proposed ground edge y34; source RGB unchanged. Horizontal crop registration centres observed tyre pair around x40; no sprite rescaling.",
+      "file": "purple-straight.png",
+      "maskFile": "masks/purple-straight.png",
+      "rawFile": "raw/purple-straight-study-grid.png",
+      "rawSha256": "8ec735584ca42f8ed8f7435346fdc3448513015f3f769c847839deb0172cc099",
+      "maskSha256": "ad7dfa718ddbf09ea4ffd44360643794e62a1c41728fb71236f2bad5324b6452",
+      "recordingCropFile": "raw/purple-straight-recording.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "groundAnchor": [
+        40,
+        34
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "c8d326e43027938b5e816ed6369c28ad9051207d5fd685b993f6cad1f9e240e3",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-046.png",
+        "frameSha256": "4b51590c0b20da044cde1209fca2e115e6deb4c0fe73f9b89f9572ea5821e14f",
+        "sampleHz": 2,
+        "frameSample": 46,
+        "approxSeconds": 70.5,
+        "recordingCrop": [
+          458,
+          558,
+          740,
+          699
+        ],
+        "view": "lower",
+        "studyGridCrop": [
+          88,
+          53,
+          80,
+          40
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/purple-straight",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "orange-near",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Unobscured nearby orange opponent at ~103s; source rear/flank proportions preserved. Replaced earlier crop that admitted a fuel-HUD edge.",
+      "file": "orange-near.png",
+      "maskFile": "masks/orange-near.png",
+      "rawFile": "raw/orange-near-study-grid.png",
+      "rawSha256": "0605d7fc901bac096998fef944a08097e65418c9008c014faf219b14bba1bace",
+      "maskSha256": "86d571aef0eeee499b614b3a1a0f2452e41d26947ea3a0282f100c74c68578eb",
+      "recordingCropFile": "raw/orange-near-recording.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "groundAnchor": [
+        40,
+        34
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "b9383bd48044ec3e467d447d0f659f8daf7f3f74bcf90a8a3644db82ac4374d1",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-78-108/excerpt.mp4",
+        "clipSha256": "17c7061bd6b7457f2d6d666d062c13bd89b0254c918b4cc7af569c59c107dd9d",
+        "frame": "research/video-78-108/frame-051.png",
+        "frameSha256": "7b82cc238d3d3b5943b78c2125c512a1ad0910bc205b4816aebaefa7b38c6a46",
+        "sampleHz": 2,
+        "frameSample": 51,
+        "approxSeconds": 103,
+        "recordingCrop": [
+          690,
+          160,
+          972,
+          300
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          154,
+          42,
+          80,
+          40
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/orange-near",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "black-near",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Close black opponent observed in lower screen. Its near-side flank differs from neutral white vehicle. Canvas registration shifts crop origin one study pixel upward to align last wheel pixels with the proposed ground edge y34; source RGB unchanged. Horizontal crop registration centres observed tyre pair around x40; no sprite rescaling.",
+      "file": "black-near.png",
+      "maskFile": "masks/black-near.png",
+      "rawFile": "raw/black-near-study-grid.png",
+      "rawSha256": "a91bd16867a70b8a4d3c1fbf892c4d7a92e3a2cc964f44d802221a5b7d1e7b86",
+      "maskSha256": "0b0a1923a0b573e46a6441e51c8c99ae45841a7b0ddfb5e008fffc47afb8d121",
+      "recordingCropFile": "raw/black-near-recording.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "groundAnchor": [
+        40,
+        34
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "1980b34f191553b174bcb2459d100dde89a1912a30ab0bc2df22c719f44bd352",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-011.png",
+        "frameSha256": "005a363ae0664bb90b5336cf31bc86077c628c6fb6b78d99ef0cb657dfe3f6b3",
+        "sampleHz": 2,
+        "frameSample": 11,
+        "approxSeconds": 53,
+        "recordingCrop": [
+          655,
+          509,
+          937,
+          650
+        ],
+        "view": "lower",
+        "studyGridCrop": [
+          144,
+          39,
+          80,
+          40
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/black-near",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "black-distant",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Separate observed distant detail level; not generated by downscaling a near car.",
+      "file": "black-distant.png",
+      "maskFile": "masks/black-distant.png",
+      "rawFile": "raw/black-distant-study-grid.png",
+      "rawSha256": "20d0755332b890137b003fd4c6956495b7fb83d90194ba9948a5246d86f27df3",
+      "maskSha256": "0e6a59fb339ef4142998d43b6bb2a756fe397f74be193181f55f850d2cc21825",
+      "recordingCropFile": "raw/black-distant-recording.png",
+      "width": 32,
+      "height": 20,
+      "anchor": [
+        16,
+        17
+      ],
+      "groundAnchor": [
+        16,
+        17
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "859d8ddb9b98ece8536c355da9caee5ae6a0020600adedec7073c1690fa3e8b5",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-026.png",
+        "frameSha256": "b74d615b8830206761529f0f9dbafab9802ce59ae63a6401af58b82ad4e121b7",
+        "sampleHz": 2,
+        "frameSample": 26,
+        "approxSeconds": 60.5,
+        "recordingCrop": [
+          331,
+          481,
+          445,
+          552
+        ],
+        "view": "lower",
+        "studyGridCrop": [
+          52,
+          31,
+          32,
+          20
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/black-distant",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "orange-distant",
+      "kind": "car",
+      "confidence": "medium",
+      "notes": "Separate observed distant orange silhouette.",
+      "file": "orange-distant.png",
+      "maskFile": "masks/orange-distant.png",
+      "rawFile": "raw/orange-distant-study-grid.png",
+      "rawSha256": "9f33afa0c937db1088f5cc6bff715459f7a7f04b7bd75afc837e52cc367aecab",
+      "maskSha256": "11d09f4304bd894179751fb447fc6a9194ed1c3fd0d777202a27ff248dd867e1",
+      "recordingCropFile": "raw/orange-distant-recording.png",
+      "width": 36,
+      "height": 20,
+      "anchor": [
+        18,
+        18
+      ],
+      "groundAnchor": [
+        18,
+        18
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "79284e4034992aae5fb496f89baf232b2f978745fd19c846bf23a9bd26bf082f",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-026.png",
+        "frameSha256": "b74d615b8830206761529f0f9dbafab9802ce59ae63a6401af58b82ad4e121b7",
+        "sampleHz": 2,
+        "frameSample": 26,
+        "approxSeconds": 60.5,
+        "recordingCrop": [
+          444,
+          495,
+          571,
+          566
+        ],
+        "view": "lower",
+        "studyGridCrop": [
+          84,
+          35,
+          36,
+          20
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/orange-distant",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "desert-mountain-patch",
+      "kind": "panorama",
+      "confidence": "high",
+      "notes": "One uninterrupted HUD-free central background patch. Not a complete panorama or seamless tile; do not imply missing scenery was recovered.",
+      "file": "desert-mountain-patch.png",
+      "maskFile": "masks/desert-mountain-patch.png",
+      "rawFile": "raw/desert-mountain-patch-study-grid.png",
+      "rawSha256": "6a0a75c2b33b16f83944a8385d60c459cac4f4c68f66c0888ce613fd8e28b529",
+      "maskSha256": "ee6f8b218e8b4888c4c19ceefa257f3d4079be665d851a9eba8c3573797cc329",
+      "recordingCropFile": "raw/desert-mountain-patch-recording.png",
+      "width": 110,
+      "height": 24,
+      "anchor": [
+        55,
+        24
+      ],
+      "groundAnchor": [
+        55,
+        24
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "e27a83e5e86ddbe466418d995b1c8c8ccb7ae83ce64acc63c7fa72100a4782d3",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-046.png",
+        "frameSha256": "4b51590c0b20da044cde1209fca2e115e6deb4c0fe73f9b89f9572ea5821e14f",
+        "sampleHz": 2,
+        "frameSample": 46,
+        "approxSeconds": 70.5,
+        "recordingCrop": [
+          317,
+          13,
+          705,
+          97
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          48,
+          0,
+          110,
+          24
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/desert-mountain-patch",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "desert-cactus",
+      "kind": "prop",
+      "confidence": "medium",
+      "notes": "Source green pixels admitted inside editable row envelope; tan background removed. Checker shadow treated separately, not reconstructed.",
+      "file": "desert-cactus.png",
+      "maskFile": "masks/desert-cactus.png",
+      "rawFile": "raw/desert-cactus-study-grid.png",
+      "rawSha256": "eb2d113f43c9f88b8841e84c25e3481c7faa298b3d5fd5e427ff5609eb41e7e6",
+      "maskSha256": "ecd80ed43769d93f4303fae03cec9e2cbc7ae6c1654441e20266b1d16524b10a",
+      "recordingCropFile": "raw/desert-cactus-recording.png",
+      "width": 25,
+      "height": 33,
+      "anchor": [
+        12,
+        29
+      ],
+      "groundAnchor": [
+        12,
+        29
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "41623be4b2bd0b3d90268ae4c40fb759114460e60b9fdb554365f00ef23757b7",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-036.png",
+        "frameSha256": "b2218b27c641ccbb433bd39d6a5510a9ec19ab07d6c081616e34fb7dd7bed306",
+        "sampleHz": 2,
+        "frameSample": 36,
+        "approxSeconds": 65.5,
+        "recordingCrop": [
+          746,
+          93,
+          835,
+          209
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          170,
+          23,
+          25,
+          33
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/desert-cactus",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "desert-bush",
+      "kind": "prop",
+      "confidence": "medium",
+      "notes": "",
+      "file": "desert-bush.png",
+      "maskFile": "masks/desert-bush.png",
+      "rawFile": "raw/desert-bush-study-grid.png",
+      "rawSha256": "9d0a3e679ba17b26b414f7e25dc20faf1145ec83d3438ce1b342f666bfc7c89e",
+      "maskSha256": "f87d727ec9c248b511e008aa426ba91ed332e4d2736b694c3ee7518416e7d533",
+      "recordingCropFile": "raw/desert-bush-recording.png",
+      "width": 15,
+      "height": 16,
+      "anchor": [
+        5,
+        11
+      ],
+      "groundAnchor": [
+        5,
+        11
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "1e66ea6c4c6ea28126b07ce25c161edfd93ee6d9bae723d41fe958eefb029380",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-036.png",
+        "frameSha256": "b2218b27c641ccbb433bd39d6a5510a9ec19ab07d6c081616e34fb7dd7bed306",
+        "sampleHz": 2,
+        "frameSample": 36,
+        "approxSeconds": 65.5,
+        "recordingCrop": [
+          676,
+          114,
+          730,
+          171
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          150,
+          29,
+          15,
+          16
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/desert-bush",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "chevron-left",
+      "kind": "prop",
+      "confidence": "medium",
+      "notes": "Left chevron board, posts and checker shadow admitted from desert lower screen. Source RGB preserved.",
+      "file": "chevron-left.png",
+      "maskFile": "masks/chevron-left.png",
+      "rawFile": "raw/chevron-left-study-grid.png",
+      "rawSha256": "7c5d8d4bafa2a554c64c8b95cc76e67948a901d82e493112d00a1a8681ab0466",
+      "maskSha256": "fe5a08ae59a12ffcd155b69a7ed94200eafd5145774cd9861f4cd8d9bae86619",
+      "recordingCropFile": "raw/chevron-left-recording.png",
+      "width": 31,
+      "height": 30,
+      "anchor": [
+        18,
+        28
+      ],
+      "groundAnchor": [
+        18,
+        28
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "ba0fb04d3f138faf4dd9c598408bf3fe202655a8b765c05a91f73fe11952afc1",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-48-78/excerpt.mp4",
+        "clipSha256": "827ea5f488c79b42fd43402acdc52f8974fcdf4948ef24c60ba82ad14952a0a6",
+        "frame": "research/video-48-78/frame-036.png",
+        "frameSha256": "b2218b27c641ccbb433bd39d6a5510a9ec19ab07d6c081616e34fb7dd7bed306",
+        "sampleHz": 2,
+        "frameSample": 36,
+        "approxSeconds": 65.5,
+        "recordingCrop": [
+          841,
+          502,
+          951,
+          608
+        ],
+        "view": "lower",
+        "studyGridCrop": [
+          197,
+          37,
+          31,
+          30
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/chevron-left",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "chevron-right",
+      "kind": "prop",
+      "confidence": "medium",
+      "notes": "Right chevron from later course; not mirrored from left.",
+      "file": "chevron-right.png",
+      "maskFile": "masks/chevron-right.png",
+      "rawFile": "raw/chevron-right-study-grid.png",
+      "rawSha256": "e080b08dcdceba27d61be167ae7880fde8b2ad071d272fb3958aea387e4421c4",
+      "maskSha256": "49e82cc3e06ad6d0a53e9f1a6bad41a0239984db463182048084d8583cd2841f",
+      "recordingCropFile": "raw/chevron-right-recording.png",
+      "width": 30,
+      "height": 28,
+      "anchor": [
+        13,
+        25
+      ],
+      "groundAnchor": [
+        13,
+        25
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "18cde33baa7698c88a5df37a4e2a717f8b0e0d2cf26de0a901ed8cf81cf856f4",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-180-210/excerpt.mp4",
+        "clipSha256": "77bd3148175be401a803ba73e38f6b08af795e9325bb7ec2741f98adf610112a",
+        "frame": "research/video-180-210/frame-006.png",
+        "frameSha256": "d528895711b35eb7b4273f89e65354d09fb195e6cc1a47cf30abcd22109c55a0",
+        "sampleHz": 2,
+        "frameSample": 6,
+        "approxSeconds": 182.5,
+        "recordingCrop": [
+          159,
+          146,
+          266,
+          244
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          3,
+          38,
+          30,
+          28
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "editable-envelopes.json#assets/chevron-right",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "white-overhead-composite",
+      "kind": "car-overhead",
+      "confidence": "medium",
+      "notes": "Explicit same-pose multisample composite. Left/rear80columns from sample50; right/front64columns from sample48 after observed60-study-pixel longitudinal registration. No hidden pixel fill, mirroring, recolouring or anatomy invention. Original near-vertical overhead pit car faces right. Alpha boundary remains proposed.",
+      "file": "white-overhead-composite.png",
+      "maskFile": "masks/white-overhead-composite.png",
+      "rawFile": "raw/white-overhead-composite-study-grid.png",
+      "rawSha256": "94d2e55f4b126d0ec3fcdf6c13f29ac410937afd6e3efb9c55336ad9a91c97ee",
+      "maskSha256": "fd0fa8474e5f8712a0f503de3663cc6b754e8bd47e24d93f26cdc4f3449cc12a",
+      "recordingCropFile": "raw/white-overhead-composite-recording.png",
+      "width": 144,
+      "height": 64,
+      "anchor": [
+        72,
+        32
+      ],
+      "groundAnchor": [
+        72,
+        60
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "2af6ec52c80ab2b2c15c93576518ed8f695c7de2e846ecb29ec47f0e96f37216",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-1200-1230/excerpt.mp4",
+        "clipSha256": "13303d54c243d326ab43f26e25bd3bde54ddc415cf62d13ec087ca4cb60cbe47",
+        "frame": "research/video-1200-1230/frame-050.png",
+        "frameSha256": "3e9caf404743567e26488b48aa49f0f540cb71febf230375dd581baefe4d1202",
+        "sampleHz": 2,
+        "frameSample": 50,
+        "approxSeconds": 1224.5,
+        "recordingCrop": [
+          317,
+          44,
+          824,
+          269
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          48,
+          9,
+          144,
+          64
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "pit-composite-registration.json#white-overhead-composite",
+      "sourceParts": [
+        {
+          "file": "raw/pit-overhead-part-50.png",
+          "sha256": "d01975a39dbad567a13255057f00e91de2a135fbc93334471dd97813ca87d034",
+          "source": {
+            "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+            "clip": "research/video-1200-1230/excerpt.mp4",
+            "clipSha256": "13303d54c243d326ab43f26e25bd3bde54ddc415cf62d13ec087ca4cb60cbe47",
+            "frame": "research/video-1200-1230/frame-050.png",
+            "frameSha256": "3e9caf404743567e26488b48aa49f0f540cb71febf230375dd581baefe4d1202",
+            "sampleHz": 2,
+            "frameSample": 50,
+            "approxSeconds": 1224.5,
+            "recordingCrop": [
+              317,
+              44,
+              824,
+              269
+            ],
+            "view": "upper",
+            "studyGridCrop": [
+              48,
+              9,
+              144,
+              64
+            ],
+            "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+            "timing": "Recording samples, not native game frames; input state unknown"
+          },
+          "admittedRegion": [
+            0,
+            0,
+            80,
+            64
+          ],
+          "destination": [
+            0,
+            0
+          ],
+          "matrix": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "file": "raw/pit-overhead-part-48.png",
+          "sha256": "c8d926927d781134928d2d35d6dd79411c0ac528257ca5e301127d6554bb322e",
+          "source": {
+            "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+            "clip": "research/video-1200-1230/excerpt.mp4",
+            "clipSha256": "13303d54c243d326ab43f26e25bd3bde54ddc415cf62d13ec087ca4cb60cbe47",
+            "frame": "research/video-1200-1230/frame-048.png",
+            "frameSha256": "6c1c7ecf75410955bc0caead662e2c0da3492db65528426724dd2f95b2b8767f",
+            "sampleHz": 2,
+            "frameSample": 48,
+            "approxSeconds": 1223.5,
+            "recordingCrop": [
+              106,
+              44,
+              614,
+              269
+            ],
+            "view": "upper",
+            "studyGridCrop": [
+              -12,
+              9,
+              144,
+              64
+            ],
+            "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+            "timing": "Recording samples, not native game frames; input state unknown"
+          },
+          "admittedRegion": [
+            80,
+            0,
+            64,
+            64
+          ],
+          "destination": [
+            80,
+            0
+          ],
+          "matrix": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        }
+      ],
+      "pitBayPlacement": [
+        48,
+        9,
+        144,
+        64
+      ],
+      "timing": "Static cutaway pose; native hold not measured.",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "pit-bay-topdown",
+      "kind": "pit-cutaway",
+      "confidence": "medium",
+      "notes": "Observed static overhead pit-bay frame with recorded car, wheels, jack and tools. HUD areas erased to alpha, not reconstructed. The HUD covers part of upper-right car nose; overlay the explicit observed-parts overhead composite at [48,9] to restore only visible sampled car geometry. Plain runtime floor behind erased HUD is an original adaptation, not recovered source. No crew is visible; no crew animation claimed.",
+      "file": "pit-bay-topdown.png",
+      "maskFile": "masks/pit-bay-topdown.png",
+      "rawFile": "raw/pit-bay-topdown-study-grid.png",
+      "rawSha256": "6dd8ddedf38ae4e28604805d941e0bdd718d10b8111ca7bbd3ce4ca6a638823e",
+      "maskSha256": "26cb7cbd567f5db5e96695badac510d63c3f3847b3812d64761407ad5938729d",
+      "recordingCropFile": "raw/pit-bay-topdown-recording.png",
+      "width": 256,
+      "height": 96,
+      "anchor": [
+        128,
+        96
+      ],
+      "groundAnchor": [
+        128,
+        96
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "635dd317f82d85520c88e1dabe636ae82980a446cdc1e0e6cdb71822aea3dae2",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-1200-1230/excerpt.mp4",
+        "clipSha256": "13303d54c243d326ab43f26e25bd3bde54ddc415cf62d13ec087ca4cb60cbe47",
+        "frame": "research/video-1200-1230/frame-050.png",
+        "frameSha256": "3e9caf404743567e26488b48aa49f0f540cb71febf230375dd581baefe4d1202",
+        "sampleHz": 2,
+        "frameSample": 50,
+        "approxSeconds": 1224.5,
+        "recordingCrop": [
+          149,
+          13,
+          1049,
+          349
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          0,
+          0,
+          256,
+          96
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "pit-composite-registration.json#pit-bay-topdown",
+      "carPlacement": [
+        48,
+        9,
+        144,
+        64
+      ],
+      "hudAlphaCutouts": [
+        [
+          4,
+          3,
+          61,
+          44
+        ],
+        [
+          0,
+          69,
+          57,
+          96
+        ],
+        [
+          159,
+          0,
+          256,
+          34
+        ],
+        [
+          239,
+          39,
+          256,
+          96
+        ],
+        [
+          207,
+          78,
+          239,
+          96
+        ]
+      ],
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "pit-floor-patch",
+      "kind": "pit-floor",
+      "confidence": "medium",
+      "notes": "Uninterrupted observed pit floor patch before the car occupies the centre. Not a complete empty bay or seamless tile; repeating, stretching or filling elsewhere remains a runtime adaptation.",
+      "file": "pit-floor-patch.png",
+      "maskFile": "masks/pit-floor-patch.png",
+      "rawFile": "raw/pit-floor-patch-study-grid.png",
+      "rawSha256": "cd6b9fb891c9a8c4eb27589420c652af2d1d4abf343f107e6065d3c66f30580c",
+      "maskSha256": "36c98e8347ece88cb7f5e0bb800365a552e5bff3adab228867add45581a78dca",
+      "recordingCropFile": "raw/pit-floor-patch-recording.png",
+      "width": 84,
+      "height": 24,
+      "anchor": [
+        42,
+        24
+      ],
+      "groundAnchor": [
+        42,
+        24
+      ],
+      "classification": "observed/source-derived",
+      "usage": "reference-only",
+      "approval": "reference",
+      "sha256": "3883e0c8897f8a069f9b96d831ba799617f1b85f540a3b387b79a2fccc8498da",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=ZxS5F2FhNfE",
+        "clip": "research/video-1200-1230/excerpt.mp4",
+        "clipSha256": "13303d54c243d326ab43f26e25bd3bde54ddc415cf62d13ec087ca4cb60cbe47",
+        "frame": "research/video-1200-1230/frame-046.png",
+        "frameSha256": "7ab677e91f06cfb32a3f968738a11a0ee81ae478c72155807cc9f4ecbdb34d49",
+        "sampleHz": 2,
+        "frameSample": 46,
+        "approxSeconds": 1222.5,
+        "recordingCrop": [
+          381,
+          55,
+          677,
+          139
+        ],
+        "view": "upper",
+        "studyGridCrop": [
+          66,
+          12,
+          84,
+          24
+        ],
+        "region": "Unconfirmed; USA/NTSC is the target, not established by this recording",
+        "timing": "Recording samples, not native game frames; input state unknown"
+      },
+      "editableEnvelope": "pit-composite-registration.json#pit-floor-patch",
+      "sourcePack": "source-pack-v1"
+    },
+    {
+      "id": "purple-left-visible",
+      "file": "purple-left-visible.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "sha256": "1361e0de62bfd2d6b583eeb78e5c64d7d2c10534be6908a6e3dadab97ff84cb2",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=E9QJZSBpvg0",
+        "file": "source-study-v2/E9QJZSBpvg0-900-930/sample-001.png",
+        "sha256": "85106083432f124d29027f348b8ca56648557e6a7c5942d7381be289f288929b",
+        "approxSeconds": 900,
+        "recordingCrop": [
+          320,
+          578,
+          215,
+          119
+        ],
+        "contour": [
+          [
+            8,
+            79
+          ],
+          [
+            17,
+            48
+          ],
+          [
+            43,
+            40
+          ],
+          [
+            58,
+            23
+          ],
+          [
+            92,
+            18
+          ],
+          [
+            147,
+            19
+          ],
+          [
+            171,
+            30
+          ],
+          [
+            190,
+            33
+          ],
+          [
+            205,
+            49
+          ],
+          [
+            204,
+            94
+          ],
+          [
+            188,
+            99
+          ],
+          [
+            173,
+            96
+          ],
+          [
+            171,
+            110
+          ],
+          [
+            121,
+            109
+          ],
+          [
+            106,
+            99
+          ],
+          [
+            57,
+            106
+          ],
+          [
+            23,
+            109
+          ],
+          [
+            14,
+            99
+          ]
+        ],
+        "nearestScale": 0.26262626262626265,
+        "placement": [
+          14,
+          10
+        ]
+      },
+      "classification": "observed-static-pose",
+      "approval": "reference",
+      "productionEligible": false,
+      "notes": "Visible flank does not establish controller direction. Normalization, mask and action mapping are study choices. No native holds recovered.",
+      "sourcePack": "source-pack-v2-rivals"
+    },
+    {
+      "id": "purple-right-visible",
+      "file": "purple-right-visible.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "sha256": "7de6d3e0f1de76766ac458093276f7c271db50cfac2fe080909e7834519bbc86",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=E9QJZSBpvg0",
+        "file": "source-study-v2/E9QJZSBpvg0-900-930/sample-056.png",
+        "sha256": "fdebf37daf81523870066d773a195e59a9ca27ea618d11cfb090fed773bf0e14",
+        "approxSeconds": 927.5,
+        "recordingCrop": [
+          319,
+          585,
+          220,
+          112
+        ],
+        "contour": [
+          [
+            10,
+            63
+          ],
+          [
+            17,
+            42
+          ],
+          [
+            28,
+            40
+          ],
+          [
+            29,
+            22
+          ],
+          [
+            48,
+            17
+          ],
+          [
+            100,
+            15
+          ],
+          [
+            134,
+            22
+          ],
+          [
+            156,
+            33
+          ],
+          [
+            187,
+            37
+          ],
+          [
+            207,
+            48
+          ],
+          [
+            207,
+            98
+          ],
+          [
+            180,
+            103
+          ],
+          [
+            153,
+            105
+          ],
+          [
+            143,
+            99
+          ],
+          [
+            73,
+            100
+          ],
+          [
+            59,
+            106
+          ],
+          [
+            24,
+            105
+          ],
+          [
+            12,
+            94
+          ]
+        ],
+        "nearestScale": 0.26262626262626265,
+        "placement": [
+          14,
+          10
+        ]
+      },
+      "classification": "observed-static-pose",
+      "approval": "reference",
+      "productionEligible": false,
+      "notes": "Visible flank does not establish controller direction. Normalization, mask and action mapping are study choices. No native holds recovered.",
+      "sourcePack": "source-pack-v2-rivals"
+    },
+    {
+      "id": "orange-left-visible",
+      "file": "orange-left-visible.png",
+      "width": 80,
+      "height": 40,
+      "anchor": [
+        40,
+        34
+      ],
+      "sha256": "330b93548d8d36d7c32674d5c134dfef0551f3aa65e978f2bcf7fb938f3870ce",
+      "source": {
+        "url": "https://www.youtube.com/watch?v=E9QJZSBpvg0",
+        "file": "source-study-v2/E9QJZSBpvg0-110-140/sample-006.png",
+        "sha256": "cf0104b595c5ad206e8bc328d68b8d90ef067af08a72e8a9d399707764b0eafd",
+        "approxSeconds": 112.5,
+        "recordingCrop": [
+          579,
+          558,
+          198,
+          112
+        ],
+        "contour": [
+          [
+            10,
+            66
+          ],
+          [
+            14,
+            37
+          ],
+          [
+            26,
+            31
+          ],
+          [
+            47,
+            22
+          ],
+          [
+            57,
+            11
+          ],
+          [
+            99,
+            9
+          ],
+          [
+            136,
+            16
+          ],
+          [
+            153,
+            29
+          ],
+          [
+            177,
+            34
+          ],
+          [
+            189,
+            48
+          ],
+          [
+            188,
+            89
+          ],
+          [
+            178,
+            101
+          ],
+          [
+            149,
+            101
+          ],
+          [
+            137,
+            95
+          ],
+          [
+            68,
+            97
+          ],
+          [
+            55,
+            103
+          ],
+          [
+            25,
+            103
+          ],
+          [
+            15,
+            91
+          ]
+        ],
+        "nearestScale": 0.28888888888888886,
+        "placement": [
+          14,
+          7
+        ]
+      },
+      "classification": "observed-static-pose",
+      "approval": "reference",
+      "productionEligible": false,
+      "notes": "Visible flank does not establish controller direction. Normalization, mask and action mapping are study choices. No native holds recovered.",
+      "sourcePack": "source-pack-v2-rivals"
+    }
+  ]
+}

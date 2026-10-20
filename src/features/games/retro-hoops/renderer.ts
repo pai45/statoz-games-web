@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { COURT, type Match } from "./simulation";
-import { poseFor, type Pictures } from "./presentation";
+import { poseFor,overlayFor, type Pictures } from "./presentation";
 
 /** Three owns presentation only. No outcome or possession changes occur here. */
 export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
@@ -17,6 +17,7 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
   const sprite=(key:string,w:number,h:number)=>{const sp=new THREE.Sprite(materials[key]);sp.scale.set(w,h,1);scene.add(sp);return sp;};
   const floor=sprite("court",900,360);floor.position.set(450,180,0);floor.renderOrder=-100;
   const actors=Array.from({length:6},()=>sprite("navy-s-ready-source",144,128));
+  const arms=Array.from({length:6},()=>sprite("navy-dribble-arm-00-source",144,128));
   const ball=sprite("ball",11,11),left=sprite("left",47,75),right=sprite("right",92,75);
   left.position.set(85-31+47/2,360-(COURT.rimY-COURT.rimZ-48+75/2),0);right.position.set(815-13+46,360-(COURT.rimY-COURT.rimZ-48+37.5),0);
   left.renderOrder=right.renderOrder=1000;
@@ -32,7 +33,7 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
   let disposed=false;
   return {
     draw(s:Match){if(disposed)return;camera.left=Math.max(0,Math.min(900-width,Math.round(s.camera+(480-width)/2)));camera.right=camera.left+width;camera.updateProjectionMatrix();
-      for(const a of s.actors){const sp=actors[a.id];sp.material=materials[poseFor(s,a)];sp.position.set(Math.round(a.x),360-Math.round(a.y-a.z-52),0);sp.renderOrder=a.y;const shadow=shadows[a.id],size=Math.max(.55,1-a.z/250);shadow.position.set(Math.round(a.x),360-Math.round(a.y),0);shadow.scale.set(40*size,12*size,1);shadow.renderOrder=a.y-.3;}
+      for(const a of s.actors){const sp=actors[a.id];sp.material=materials[poseFor(s,a)];sp.position.set(Math.round(a.x),360-Math.round(a.y-a.z-52),0);sp.renderOrder=a.y;const overlay=overlayFor(s,a),arm=arms[a.id];arm.visible=!!overlay;if(overlay){arm.material=materials[overlay.key];arm.position.copy(sp.position);arm.position.y-=overlay.y;arm.renderOrder=a.y+.01;}const shadow=shadows[a.id],size=Math.max(.55,1-a.z/250);shadow.position.set(Math.round(a.x),360-Math.round(a.y),0);shadow.scale.set(40*size,12*size,1);shadow.renderOrder=a.y-.3;}
       ball.position.set(Math.round(s.ball.x),360-Math.round(s.ball.y-s.ball.z),0);ball.renderOrder=s.ball.y+.1;
       const ballShadow=shadows[6];ballShadow.position.set(s.ball.x,360-s.ball.y,0);ballShadow.scale.set(12,4,1);ballShadow.renderOrder=s.ball.y-.2;
       const a=s.actors[s.selected];ring.position.set(a.x,360-(a.y+1),0);ring.renderOrder=a.y-.1;

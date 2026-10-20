@@ -1,0 +1,6319 @@
+{
+  "version": "2.0.0",
+  "classification": "reference-derived torso; authored limbs and motion",
+  "nativeTimingRecovered": false,
+  "canvas": [
+    144,
+    128
+  ],
+  "feet": [
+    72,
+    116
+  ],
+  "source": "../assets/{team}-neutral-a-source.png",
+  "torsoMask": [
+    [
+      66,
+      42
+    ],
+    [
+      74,
+      42
+    ],
+    [
+      77,
+      46
+    ],
+    [
+      78,
+      54
+    ],
+    [
+      77,
+      76
+    ],
+    [
+      65,
+      77
+    ],
+    [
+      64,
+      65
+    ],
+    [
+      64,
+      58
+    ],
+    [
+      58,
+      57
+    ],
+    [
+      59,
+      49
+    ],
+    [
+      63,
+      45
+    ],
+    [
+      68,
+      43
+    ],
+    [
+      65,
+      39
+    ],
+    [
+      65,
+      32
+    ],
+    [
+      69,
+      29
+    ],
+    [
+      75,
+      29
+    ],
+    [
+      78,
+      34
+    ],
+    [
+      77,
+      40
+    ],
+    [
+      73,
+      43
+    ]
+  ],
+  "frames": [
+    {
+      "file": "navy-run-00-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            55,
+            100
+          ],
+          [
+            88,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "de204b6d5fce870a11a7c2f07b09acca729e4388b5680a8baa4c92e3a5d82fe9"
+    },
+    {
+      "file": "navy-run-00-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            89,
+            100
+          ],
+          [
+            56,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "d55aeaf3b15729810f8d03f01aec8e66f1190184d064f08a43b67f4406b093a9"
+    },
+    {
+      "file": "navy-run-01-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            95
+          ],
+          [
+            83,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "bcf2908c878bf647614a2bf0e402be142eae138433247427075edf93c9bddf9d"
+    },
+    {
+      "file": "navy-run-01-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            95
+          ],
+          [
+            61,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "c34880f1da75d9768aaceca71b6d4fac7065a0e9c5ed5c51f68562331b8b883a"
+    },
+    {
+      "file": "navy-run-02-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            95
+          ],
+          [
+            79,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "bc39deaeec7693be318907c307c817c383d15d457f676adacba6aa2798f26e80"
+    },
+    {
+      "file": "navy-run-02-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            95
+          ],
+          [
+            65,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "98934b233fead1b2c443b17569f5a1fed400d2467c827273bbf91e347d068bdf"
+    },
+    {
+      "file": "navy-run-03-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            73,
+            99
+          ],
+          [
+            74,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "ad4dc221f2c955b9da156e0f406fcd467678cf15703e2a38d63dfff80db2d0f7"
+    },
+    {
+      "file": "navy-run-03-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            71,
+            99
+          ],
+          [
+            70,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "4794a7ea38cfefabecd1f23358de2d5fb8316aff472a61ecd39c373d9e9e0b6d"
+    },
+    {
+      "file": "navy-run-04-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            104
+          ],
+          [
+            69,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "93468c2008ff5ef6d392506f4a4a1276e435eecdfad2c20e3fff88776d57f40b"
+    },
+    {
+      "file": "navy-run-04-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            104
+          ],
+          [
+            75,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "113646f06f4fd6966f7e3b5c25b765bcdb0592ab6776c6061361b55bd41b5183"
+    },
+    {
+      "file": "navy-run-05-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            108
+          ],
+          [
+            63,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "eddd5256303301dad351569e0e2366ebebd20ec50baa5519ad59b07c6511eef4"
+    },
+    {
+      "file": "navy-run-05-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            108
+          ],
+          [
+            81,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "aece4fd8ca4795a9a31fae4ebc22959b02d6195a2e35c15bcf466ea46ecca063"
+    },
+    {
+      "file": "navy-run-06-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            111
+          ],
+          [
+            55,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "d2a77225380f563c60e6fa566c489a2169c2fd9feb805ccd36eab8509cc7a986"
+    },
+    {
+      "file": "navy-run-06-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            111
+          ],
+          [
+            89,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "88a93d1b358118facbba447710fc3c3bd4df9fded20ba3321139be737dfe8bfe"
+    },
+    {
+      "file": "navy-run-07-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            111
+          ],
+          [
+            57,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "28eb5b92938099bccb7e19d7660fffa0230ef9757fc1d7cc2ba0bafd38277cc9"
+    },
+    {
+      "file": "navy-run-07-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            111
+          ],
+          [
+            87,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "f2e47b08af81ff2c2d335991966b1be9517b288d7e4700433961cf27c7a2e4b1"
+    },
+    {
+      "file": "navy-run-08-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 8,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            79,
+            111
+          ],
+          [
+            63,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "d44e71c28c2ebb3e38bbc9ba074df295297080cb6489356e1278688583ddb713"
+    },
+    {
+      "file": "navy-run-08-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 8,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            65,
+            111
+          ],
+          [
+            81,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "162c460d0d3aa6d09ac20d1d4e986bf1ed99eac680561e65240e9778975cc0e7"
+    },
+    {
+      "file": "navy-run-09-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 9,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            74,
+            111
+          ],
+          [
+            73,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "8a5fcc042a2d1b0a65eb5264922f6aee71ea2abc6cf2b944adeb2443fbee26c6"
+    },
+    {
+      "file": "navy-run-09-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 9,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            70,
+            111
+          ],
+          [
+            71,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "5fe3dc8c2fb56e8ab02d8bf5bd75ca455a37f81347b05b7a7b99c80b22f69d83"
+    },
+    {
+      "file": "navy-run-10-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 10,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            69,
+            108
+          ],
+          [
+            83,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "ce8dae24446bfe5ea6f5ca41caca0841afbcdaef5d91898e3fca3b28dfb40aa2"
+    },
+    {
+      "file": "navy-run-10-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 10,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            75,
+            108
+          ],
+          [
+            61,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "13fd88330ef7c7273d8a5552ef118eb4d8ca9c4a2d00d9fd773291070b086c30"
+    },
+    {
+      "file": "navy-run-11-source.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 11,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            105
+          ],
+          [
+            88,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "c2443ab31330d15c9eeaedc8bcc5505ef19d3d77d8f6ee4e58c9c61c889ae1ee"
+    },
+    {
+      "file": "navy-run-11-mirrored.png",
+      "team": "navy",
+      "clip": "run",
+      "frame": 11,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            105
+          ],
+          [
+            56,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "4a4eb4bd8d66611837da95765435112b7973999c71c44e1a542e14fa06b3b9b4"
+    },
+    {
+      "file": "navy-dribble-body-00-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            55,
+            100
+          ],
+          [
+            88,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "1217d7499dc2223af79a98799612b128dab22731bff0941203ddea17f61aa33d"
+    },
+    {
+      "file": "navy-dribble-body-00-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            89,
+            100
+          ],
+          [
+            56,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "d98c7c94f4dc2b9816a04e234a69cecd471363c29fa2e24a6e7f2183c7213231"
+    },
+    {
+      "file": "navy-dribble-body-01-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            95
+          ],
+          [
+            83,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "52be50683b1facce4bac7be1fd75d32fc0c3686c770d9a0ccf290564926a9942"
+    },
+    {
+      "file": "navy-dribble-body-01-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            95
+          ],
+          [
+            61,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "9bf26e9e189409a92d7a7bc293682064ae56341097879032735b8982e3844a3d"
+    },
+    {
+      "file": "navy-dribble-body-02-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            95
+          ],
+          [
+            79,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "3312d3a544f7615eac23cdc9a62793d83a75ec7166a7744e43587051529391a2"
+    },
+    {
+      "file": "navy-dribble-body-02-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            95
+          ],
+          [
+            65,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "4f89e2921846514901deb2683918f754a58b413dfa7e59a894b0ec763ee55a80"
+    },
+    {
+      "file": "navy-dribble-body-03-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            73,
+            99
+          ],
+          [
+            74,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "a9cf337b49c2ff7b50830595890acdb280881a6e19e044d341b0463b5a86740a"
+    },
+    {
+      "file": "navy-dribble-body-03-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            71,
+            99
+          ],
+          [
+            70,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "c63ce193e292ee49a10fee0a1c434e7f3277173811b242e99aa8e516ac39205f"
+    },
+    {
+      "file": "navy-dribble-body-04-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            104
+          ],
+          [
+            69,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "4ca6bb29d41503e844dd4da574fbca2805aa239165ff46b08e1911ef40de1719"
+    },
+    {
+      "file": "navy-dribble-body-04-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            104
+          ],
+          [
+            75,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "b8da862fa5592377a1b4428cd6fab7f947dbc62c86685fadf49320f5ef25bfcb"
+    },
+    {
+      "file": "navy-dribble-body-05-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            108
+          ],
+          [
+            63,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "247227d56f2a38132fab62f48bd999a26173b241afb5de03a47012e77b2925e7"
+    },
+    {
+      "file": "navy-dribble-body-05-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            108
+          ],
+          [
+            81,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "38bae5259569fd76d2f7e5fe8cb0bde40ad3ec2c2548593cb3b509ff62375f24"
+    },
+    {
+      "file": "navy-dribble-body-06-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            111
+          ],
+          [
+            55,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "22457a0b251d3d4de5c384747094c4fd1a934c03a63a5455996c20986cd11e63"
+    },
+    {
+      "file": "navy-dribble-body-06-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            111
+          ],
+          [
+            89,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "6d782f56c5e12537f9655afdfffda537fdc6ea1aa7910bf40b08738318c79532"
+    },
+    {
+      "file": "navy-dribble-body-07-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            111
+          ],
+          [
+            57,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "83bd752e43cf677057923e9034f479d66e505e28c18c4e48b407d0b9572b77e9"
+    },
+    {
+      "file": "navy-dribble-body-07-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            111
+          ],
+          [
+            87,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "59898b7902e2d2b26f6ed9b534e442563f4e21556741ee31e8f4d7c6a7f36ffa"
+    },
+    {
+      "file": "navy-dribble-body-08-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 8,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            79,
+            111
+          ],
+          [
+            63,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "d4520f25a79845ef0e79404dff6c00b9406e5f8b657cc5815ce71bfb91e42b65"
+    },
+    {
+      "file": "navy-dribble-body-08-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 8,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            65,
+            111
+          ],
+          [
+            81,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "980cd801e8ce25cd838257a584fb36eead8bc661e7b5a4095c4fd43091c532ea"
+    },
+    {
+      "file": "navy-dribble-body-09-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 9,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            74,
+            111
+          ],
+          [
+            73,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "85f633fea90a1c1eda6321da5254b34b71b14f7bde2881c7220909307f16a731"
+    },
+    {
+      "file": "navy-dribble-body-09-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 9,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            70,
+            111
+          ],
+          [
+            71,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "6aa51c874b1c44b442eb8af86cbfb7f5aeadf92a5e069b3d42063edb34b5915e"
+    },
+    {
+      "file": "navy-dribble-body-10-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 10,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            69,
+            108
+          ],
+          [
+            83,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "9ecc371c019a42478af2bc88230273ff9943d189166a1867087cdf1bc8ca9d4a"
+    },
+    {
+      "file": "navy-dribble-body-10-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 10,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            75,
+            108
+          ],
+          [
+            61,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "63c06fc5254c6f131e5657e7db913599382998fa751dd84f90a8b2078bfec44c"
+    },
+    {
+      "file": "navy-dribble-body-11-source.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 11,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            105
+          ],
+          [
+            88,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "8f4a71ff9378357ccf7ecad3adc355d0a421a96e249fed5a6982b10cfa6ae48f"
+    },
+    {
+      "file": "navy-dribble-body-11-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-body",
+      "frame": 11,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            105
+          ],
+          [
+            56,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "73e7550dbacc48f9c9578b70891d2eecdf1154ed7904a290148bfc3d5e9b483c"
+    },
+    {
+      "file": "navy-defend-00-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            111
+          ],
+          [
+            87,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "821af267636bfd45a519caf385cd134a98f3a591ff9b13663cc4015a41940bdf"
+    },
+    {
+      "file": "navy-defend-00-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            111
+          ],
+          [
+            57,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "f885b13c9c5552856edf73f82bad389ef9d46fa39873225a667671a64de593c7"
+    },
+    {
+      "file": "navy-defend-01-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            68,
+            84
+          ],
+          [
+            76,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            108
+          ],
+          [
+            90,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "e74cbd8d1413c57bb5fc4acdb258df529a11589af1863bc7f82c862abc949cc9"
+    },
+    {
+      "file": "navy-defend-01-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            76,
+            84
+          ],
+          [
+            68,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            108
+          ],
+          [
+            54,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "c924117534ee42d84563ae32a2bf8893255215f87cc50d53e91b83bcfbfa05c1"
+    },
+    {
+      "file": "navy-defend-02-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            50,
+            107
+          ],
+          [
+            94,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "e6c38f0810f7dffb6378e94f9b1abaca75915428ef6e9740c3d72c6797d389f5"
+    },
+    {
+      "file": "navy-defend-02-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            94,
+            107
+          ],
+          [
+            50,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "e6423b1884c9a54171414f89918fbe0bbf774e8152c1aef513d7ff94d4a378e3"
+    },
+    {
+      "file": "navy-defend-03-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            68,
+            82
+          ],
+          [
+            76,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            108
+          ],
+          [
+            90,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "d4bb8c2d794dffcd27136739aa78b9835f7b4c9c1a0b2b22e6e39ed4774ab9ff"
+    },
+    {
+      "file": "navy-defend-03-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            76,
+            82
+          ],
+          [
+            68,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            108
+          ],
+          [
+            54,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "cebb1a8800bc6a23f1f7418674e932a96c6db23fae8c1d704a971e2d3dad5e84"
+    },
+    {
+      "file": "navy-defend-04-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            111
+          ],
+          [
+            87,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "821af267636bfd45a519caf385cd134a98f3a591ff9b13663cc4015a41940bdf"
+    },
+    {
+      "file": "navy-defend-04-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            111
+          ],
+          [
+            57,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "f885b13c9c5552856edf73f82bad389ef9d46fa39873225a667671a64de593c7"
+    },
+    {
+      "file": "navy-defend-05-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            68,
+            84
+          ],
+          [
+            76,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            111
+          ],
+          [
+            90,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "cf74f6fa6037855f95ab285f769c22c3c728b9eb57bfe9685b81358971e31b09"
+    },
+    {
+      "file": "navy-defend-05-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            76,
+            84
+          ],
+          [
+            68,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            111
+          ],
+          [
+            54,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "60ea7681f320767e7de94d37c6929b56b333d46a7e62449974a4a27351572371"
+    },
+    {
+      "file": "navy-defend-06-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            50,
+            111
+          ],
+          [
+            94,
+            107
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "c2b85c31cea5463eb2c228c36afaf35195008cccaaf4c2756c75476f1ff78670"
+    },
+    {
+      "file": "navy-defend-06-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            94,
+            111
+          ],
+          [
+            50,
+            107
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "34840f908ba89f4f6e0ea696ae5bbaf01b1e87bd02932b17c65132afffd59cf6"
+    },
+    {
+      "file": "navy-defend-07-source.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            68,
+            82
+          ],
+          [
+            76,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            111
+          ],
+          [
+            90,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "2a3f83de053e88617b0357267a572f5b08766173992f53cdc81e3b778981ef3e"
+    },
+    {
+      "file": "navy-defend-07-mirrored.png",
+      "team": "navy",
+      "clip": "defend",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            76,
+            82
+          ],
+          [
+            68,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            111
+          ],
+          [
+            54,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "8e79d9779d81d039c87177c7bf33479e786c2d25692ea249805ed477432edbcc"
+    },
+    {
+      "file": "navy-brake-00-source.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            111
+          ],
+          [
+            88,
+            111
+          ]
+        ],
+        "lean": 6
+      },
+      "sha256": "15690a0e862d40764209028847320735df77f249598159c762c43c16dc3f1d34"
+    },
+    {
+      "file": "navy-brake-00-mirrored.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            111
+          ],
+          [
+            56,
+            111
+          ]
+        ],
+        "lean": 6
+      },
+      "sha256": "6f21ab28624d6d71aa051613b1424f7ed0a35bce3effe1303b9e63fdc9c9f2a7"
+    },
+    {
+      "file": "navy-brake-01-source.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            59,
+            111
+          ],
+          [
+            84,
+            111
+          ]
+        ],
+        "lean": 2
+      },
+      "sha256": "888ac3613c0c1b7a99ab1da3a32ea9ed21cdf4899977f3ca87d8c7149f9ee181"
+    },
+    {
+      "file": "navy-brake-01-mirrored.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            85,
+            111
+          ],
+          [
+            60,
+            111
+          ]
+        ],
+        "lean": 2
+      },
+      "sha256": "d443a6429dbef850a68ef44d7eb13d3d750a2a8edc5847f8b8f8711743bc2a65"
+    },
+    {
+      "file": "navy-brake-02-source.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": 1,
+        "hips": [
+          [
+            68,
+            79
+          ],
+          [
+            76,
+            79
+          ]
+        ],
+        "ankles": [
+          [
+            65,
+            111
+          ],
+          [
+            80,
+            111
+          ]
+        ],
+        "lean": -2
+      },
+      "sha256": "11486a1dc77abc07016f1cc0d444b81646d4bf245c10ea6cd98e47f1ec1895ed"
+    },
+    {
+      "file": "navy-brake-02-mirrored.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 1,
+        "hips": [
+          [
+            76,
+            79
+          ],
+          [
+            68,
+            79
+          ]
+        ],
+        "ankles": [
+          [
+            79,
+            111
+          ],
+          [
+            64,
+            111
+          ]
+        ],
+        "lean": -2
+      },
+      "sha256": "c3d1c45313e6517456a4160bafb2fefd7a81e62e4bb82988f99f7acf16ef44bb"
+    },
+    {
+      "file": "navy-brake-03-source.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            69,
+            110
+          ],
+          [
+            76,
+            111
+          ]
+        ],
+        "lean": 0
+      },
+      "sha256": "387beda686cd725e71b80075d22e112d8eb40bef1ec86905b061ee6a4c248bc4"
+    },
+    {
+      "file": "navy-brake-03-mirrored.png",
+      "team": "navy",
+      "clip": "brake",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            75,
+            110
+          ],
+          [
+            68,
+            111
+          ]
+        ],
+        "lean": 0
+      },
+      "sha256": "0af748340c06f47b18f56bdebb420c34c925b4977ce7c62ce71d76a0f02a4a09"
+    },
+    {
+      "file": "navy-dribble-arm-00-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          60,
+          76
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          60.0,
+          80.0
+        ]
+      },
+      "sha256": "b258f7fefa898210d0f3de6cbab8f15ae2db6aa17e53f240ac0b54dc40a26c0c"
+    },
+    {
+      "file": "navy-dribble-arm-00-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          84,
+          76
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          84.0,
+          80.0
+        ]
+      },
+      "sha256": "21f29ac90c61ea394b4f6d796f94277e73ff87021a1bdc5de336d6802faa0685"
+    },
+    {
+      "file": "navy-dribble-arm-01-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          61,
+          79
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          61.48148148148148,
+          83.33333333333334
+        ]
+      },
+      "sha256": "9079440adb24d1d0347f3691d4266170b074f5b6d7760bc990aa57c26096978c"
+    },
+    {
+      "file": "navy-dribble-arm-01-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          83,
+          79
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          82.51851851851852,
+          83.33333333333334
+        ]
+      },
+      "sha256": "f45d3afbbb362755ec667303651d74fd44f25b727167a6153dedd3d24f62c1a0"
+    },
+    {
+      "file": "navy-dribble-arm-02-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          65,
+          83
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          65.18518518518519,
+          86.66666666666667
+        ]
+      },
+      "sha256": "b3073a6cdfe653f30b8ff0e4cff213c81ee21f1278466a015f7fbe9ce9915196"
+    },
+    {
+      "file": "navy-dribble-arm-02-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          79,
+          83
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          78.81481481481481,
+          86.66666666666667
+        ]
+      },
+      "sha256": "7355e2df444f3dd1766bfb83d075fd15aac4608b019feaacfc0f80318b534645"
+    },
+    {
+      "file": "navy-dribble-arm-03-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          70,
+          86
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          70.0,
+          90.0
+        ]
+      },
+      "sha256": "71508df9330e62eb2fd5b8e421b7adc56b36ec915183a6890515a06aa56cff35"
+    },
+    {
+      "file": "navy-dribble-arm-03-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          74,
+          86
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          74.0,
+          90.0
+        ]
+      },
+      "sha256": "26d0bf7982d986adc8d73ab1a7a1d31dca7738e8252ff972cfd7864d8da70db8"
+    },
+    {
+      "file": "navy-dribble-arm-04-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          75,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          74.81481481481481,
+          93.33333333333333
+        ]
+      },
+      "sha256": "de0a33bb153540a5c9b2c20ffcf1d1c40134126dc76636596aff6a50d05719b6"
+    },
+    {
+      "file": "navy-dribble-arm-04-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          69,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          69.18518518518519,
+          93.33333333333333
+        ]
+      },
+      "sha256": "776c4017b9ecb8338b6e66c14c44ea37167b3d2d54c6fe3104dd22dd0796384d"
+    },
+    {
+      "file": "navy-dribble-arm-05-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          79,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          78.51851851851852,
+          96.66666666666667
+        ]
+      },
+      "sha256": "4e73c7457b7760d38505785987788195b69572e7b64287ccb93111277eca0f11"
+    },
+    {
+      "file": "navy-dribble-arm-05-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          65,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          65.48148148148148,
+          96.66666666666667
+        ]
+      },
+      "sha256": "1e3e297c3a029a7ab4804ea31decd7a93b46475e80aab09c3a3a9c5d787d9b06"
+    },
+    {
+      "file": "navy-dribble-arm-06-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          80,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          80.0,
+          100.0
+        ]
+      },
+      "sha256": "d03423b684357550bf74c9ce397906dfa15f7e2f52964f8d02f5e46f7a2f468d"
+    },
+    {
+      "file": "navy-dribble-arm-06-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          64,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          64.0,
+          100.0
+        ]
+      },
+      "sha256": "2c5a6dfbce6f85bcdd43fb2ac69666a3c33c9c3c729f7b0ce236da56ee533be5"
+    },
+    {
+      "file": "navy-dribble-arm-07-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          78,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          77.92592592592592,
+          103.33333333333333
+        ]
+      },
+      "sha256": "a9e5c4a9023384b8b3e2dd142de9c108a0c915dc8d6419a38ef1ace88a3a6b74"
+    },
+    {
+      "file": "navy-dribble-arm-07-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          66,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          66.07407407407408,
+          103.33333333333333
+        ]
+      },
+      "sha256": "5f1748e32010fc314b15514ef323fa91538496d55ff24e63de13a0fb5435c09b"
+    },
+    {
+      "file": "navy-dribble-arm-08-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 8,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          73,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          72.74074074074075,
+          106.66666666666666
+        ]
+      },
+      "sha256": "bad6d31a7a63a763607679d4fda70dd00af437181aa7e081af54b9bb76dc22da"
+    },
+    {
+      "file": "navy-dribble-arm-08-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 8,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          71,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          71.25925925925925,
+          106.66666666666666
+        ]
+      },
+      "sha256": "62cdb248fb8d833fc2fb000ec41b52e5b33b6b849d1a8f4f1f1ddca032188afe"
+    },
+    {
+      "file": "navy-dribble-arm-09-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 9,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          66,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          66.0,
+          110.0
+        ]
+      },
+      "sha256": "2fd59472b1bbefedbaa95df02033210aed4f78215818ed322ec2efc725bdb534"
+    },
+    {
+      "file": "navy-dribble-arm-09-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 9,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          78,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          78.0,
+          110.0
+        ]
+      },
+      "sha256": "76544478441fe736a7a3ab5031311494237cc7929d7849635e349121138eabad"
+    },
+    {
+      "file": "navy-dribble-arm-10-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 10,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          59,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          59.25925925925926,
+          106.66666666666666
+        ]
+      },
+      "sha256": "c04dc86f9c52fb9ae8fe01354932721a61b9ab209eaafc6aad08356b2fa6eaf5"
+    },
+    {
+      "file": "navy-dribble-arm-10-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 10,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          85,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          84.74074074074073,
+          106.66666666666666
+        ]
+      },
+      "sha256": "c9ef9837e0ed8136d187a8baf3f5ea6f4d224b5814160f2436514e034d9017eb"
+    },
+    {
+      "file": "navy-dribble-arm-11-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 11,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          54,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          54.07407407407407,
+          103.33333333333333
+        ]
+      },
+      "sha256": "6ff50e558e5bddece8a219418541ddcc12e86df1725742f2698f06529009d6df"
+    },
+    {
+      "file": "navy-dribble-arm-11-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 11,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          90,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          89.92592592592592,
+          103.33333333333333
+        ]
+      },
+      "sha256": "8ec1dfcccecb056171d8bef90907cb5f927bc083e79c0b423bcdcc8312ac36ef"
+    },
+    {
+      "file": "navy-dribble-arm-12-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 12,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          52,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          52.0,
+          100.0
+        ]
+      },
+      "sha256": "d200c855939adb7703d3025342ba8ffde15a61ac4f6494427c2c72b5795aee62"
+    },
+    {
+      "file": "navy-dribble-arm-12-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 12,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          92,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          92.0,
+          100.0
+        ]
+      },
+      "sha256": "f873ea5616b15ed8ac0512842dbd565353b42851d9fc46ef64032bfb0e65f64f"
+    },
+    {
+      "file": "navy-dribble-arm-13-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 13,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          53,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          52.592592592592595,
+          96.66666666666667
+        ]
+      },
+      "sha256": "fcd2037908eb514bf14abbf7149ab47e4dfa9f1faba6d20603817f9759815017"
+    },
+    {
+      "file": "navy-dribble-arm-13-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 13,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          91,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          91.4074074074074,
+          96.66666666666667
+        ]
+      },
+      "sha256": "b47b9bf1db48fb7c6da7ed655c52a6fe457ff90cde39e73e493879b0e6a3cd2d"
+    },
+    {
+      "file": "navy-dribble-arm-14-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 14,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          54,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          54.074074074074076,
+          93.33333333333333
+        ]
+      },
+      "sha256": "6ff50e558e5bddece8a219418541ddcc12e86df1725742f2698f06529009d6df"
+    },
+    {
+      "file": "navy-dribble-arm-14-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 14,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          90,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          89.92592592592592,
+          93.33333333333333
+        ]
+      },
+      "sha256": "8ec1dfcccecb056171d8bef90907cb5f927bc083e79c0b423bcdcc8312ac36ef"
+    },
+    {
+      "file": "navy-dribble-arm-15-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 15,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          56,
+          86
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          56.0,
+          90.0
+        ]
+      },
+      "sha256": "d5ae010892f170d64c99c024a29fff4bcf9552a0756ac72a2a716fca44870438"
+    },
+    {
+      "file": "navy-dribble-arm-15-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 15,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          88,
+          86
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          88.0,
+          90.0
+        ]
+      },
+      "sha256": "12d4242ed7fdaf9165b719a6d42abd36639d008e0edca997569fcfd139d666ff"
+    },
+    {
+      "file": "navy-dribble-arm-16-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 16,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          58,
+          83
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          57.925925925925924,
+          86.66666666666667
+        ]
+      },
+      "sha256": "569cca20a2afca79a8546cd4bee257e2c7a6d83e1c0edd51d600e990718d4eac"
+    },
+    {
+      "file": "navy-dribble-arm-16-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 16,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          86,
+          83
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          86.07407407407408,
+          86.66666666666667
+        ]
+      },
+      "sha256": "d77cf8156fb6a52ef6a9944a29e954ed1aa4dd1dfa451aec26c7db1f892a7bb6"
+    },
+    {
+      "file": "navy-dribble-arm-17-source.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 17,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          59,
+          79
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          59.407407407407405,
+          83.33333333333334
+        ]
+      },
+      "sha256": "beb7edc4ed1421bddae9ffda8f9760a5dc67ba92606b65c12ca6114b3c932a41"
+    },
+    {
+      "file": "navy-dribble-arm-17-mirrored.png",
+      "team": "navy",
+      "clip": "dribble-arm",
+      "frame": 17,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          85,
+          79
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          84.5925925925926,
+          83.33333333333334
+        ]
+      },
+      "sha256": "9c225607da8c406d2b679c6bcb2e199f8787d298ba87f290716361f66a16621b"
+    },
+    {
+      "file": "amber-run-00-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            55,
+            100
+          ],
+          [
+            88,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "3cf8395de5955fa39110a1fa891ee1c157a8980794ae70e21f50d7398adacb50"
+    },
+    {
+      "file": "amber-run-00-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            89,
+            100
+          ],
+          [
+            56,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "a36bb4fbd9ae8cdf0371b1deba54ba47a4c381653a0035b909b56addf6bb9505"
+    },
+    {
+      "file": "amber-run-01-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            95
+          ],
+          [
+            83,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "7c4a00d3a5cdd134cdfa45b261788e4351c4dfb104baf285d4e1c2736e7aed97"
+    },
+    {
+      "file": "amber-run-01-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            95
+          ],
+          [
+            61,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "71b3a537d20acda05d593628cf8b8e7f096e7d968063b297da6d0bdeee10b8d7"
+    },
+    {
+      "file": "amber-run-02-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            95
+          ],
+          [
+            79,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "2d1db520dc16bce8b2527724fb4baecc35ae656ad6f36208f12eaa7d3392b09e"
+    },
+    {
+      "file": "amber-run-02-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            95
+          ],
+          [
+            65,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "92f780901f843c9132ad375112add1126f27b43e0239f06618aa2e1495d84e6b"
+    },
+    {
+      "file": "amber-run-03-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            73,
+            99
+          ],
+          [
+            74,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "10296d97e12509bf3f4ef82ee974dcab729a7ad8ec051168cab14da84bd46bc5"
+    },
+    {
+      "file": "amber-run-03-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            71,
+            99
+          ],
+          [
+            70,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "4eaa04b06fcf8033843967c0794db058d8e5f1261eaa4f26b689e759f8c4193c"
+    },
+    {
+      "file": "amber-run-04-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            104
+          ],
+          [
+            69,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "341d1f6e678046aaace03ea4ff3fd9d4e7f1f0049e5490ad4916c1a663819bc3"
+    },
+    {
+      "file": "amber-run-04-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            104
+          ],
+          [
+            75,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "ec171f91a5ba1f3b4856d33ded1926566239efdfdacfca241a34251fded7506f"
+    },
+    {
+      "file": "amber-run-05-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            108
+          ],
+          [
+            63,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "171e7a23e253a61cf21c311357d796e3cb9eac783443bd19ccceef123773342b"
+    },
+    {
+      "file": "amber-run-05-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            108
+          ],
+          [
+            81,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "865cae029ea8009e21ae5e7c76525751dfd358bafbfdd56a97cb88f304fcbb58"
+    },
+    {
+      "file": "amber-run-06-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            111
+          ],
+          [
+            55,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "3e94169801a9e7be1a28509c8a7be624ba48f3e0b7eb2e83e2ef1bc18f126a29"
+    },
+    {
+      "file": "amber-run-06-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            111
+          ],
+          [
+            89,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "0102b614d9d09cee8bf002b658ea0304de44412c28b2055de4165ec2c471d752"
+    },
+    {
+      "file": "amber-run-07-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            111
+          ],
+          [
+            57,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "5e14d1c253dd106361d676fb55fbe5443add68be2008ee192d66da8d19e73a96"
+    },
+    {
+      "file": "amber-run-07-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            111
+          ],
+          [
+            87,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "ed862ccb59ec026e202eead66220a8296a321e98db177298f9bb02c7294cb3c8"
+    },
+    {
+      "file": "amber-run-08-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 8,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            79,
+            111
+          ],
+          [
+            63,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "f804002be50dea005d9b8eec7ef5ef2594ba69ceaef54bec96c48b826df41c98"
+    },
+    {
+      "file": "amber-run-08-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 8,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            65,
+            111
+          ],
+          [
+            81,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "311315294fbb2674358569a4c49cdbde33cae8d728cf0cdd3a6047b0628842e2"
+    },
+    {
+      "file": "amber-run-09-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 9,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            74,
+            111
+          ],
+          [
+            73,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "e062f5a19e90b0afa8e67880a88201271216e4d4774a6b1c647d6db353d1544f"
+    },
+    {
+      "file": "amber-run-09-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 9,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            70,
+            111
+          ],
+          [
+            71,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "aaf8cf7f133d58997bfa64aa5c93e30a8560a4b0e257949305e37561dfec4fab"
+    },
+    {
+      "file": "amber-run-10-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 10,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            69,
+            108
+          ],
+          [
+            83,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "634849eefa6745c4c0a3423e97857a114470b0182ac043c42596079110527f96"
+    },
+    {
+      "file": "amber-run-10-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 10,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            75,
+            108
+          ],
+          [
+            61,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "765ed915906a0a9f7b29348cbf4632909e0c50112747117f2945fc1e3c635004"
+    },
+    {
+      "file": "amber-run-11-source.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 11,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            105
+          ],
+          [
+            88,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "efeae8d6f19da06a5fd82b9135e34a6bec15d2950b3510db15f427a38ea2dee7"
+    },
+    {
+      "file": "amber-run-11-mirrored.png",
+      "team": "amber",
+      "clip": "run",
+      "frame": 11,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            105
+          ],
+          [
+            56,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "f9b9523cd61f8f7fa41282c5f29baa767a9476c573e6de8cd8f27e4cf15d61bf"
+    },
+    {
+      "file": "amber-dribble-body-00-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            55,
+            100
+          ],
+          [
+            88,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "db51ecc47a1dadc44d90d49ab7ae187453be80c9e8eb0e7fc7c7a2b59763edd7"
+    },
+    {
+      "file": "amber-dribble-body-00-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            89,
+            100
+          ],
+          [
+            56,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "4514dc04a13e5848a9ae3bda6c72ae2f669b1aa496db9827ef53f1da6d94d42f"
+    },
+    {
+      "file": "amber-dribble-body-01-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            95
+          ],
+          [
+            83,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "2ee6ca1b269ef3381f8b0f68c5a5c3016b062dce0acd12cc45e2e9d82c457bea"
+    },
+    {
+      "file": "amber-dribble-body-01-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            95
+          ],
+          [
+            61,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "fc8e04cb20941643995410f807b6c1f01ee6a2d0f7d9c8fecfc7a0ee18131826"
+    },
+    {
+      "file": "amber-dribble-body-02-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            95
+          ],
+          [
+            79,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "0bf8de13291417d498fb1eb0d7fed658fcddc667fd480b343a3abdaffdc4fcd3"
+    },
+    {
+      "file": "amber-dribble-body-02-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            95
+          ],
+          [
+            65,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "607d63d053ac1d142ab68d8a7809a99155d5b5433dfc85b85f7533f3789a4ef3"
+    },
+    {
+      "file": "amber-dribble-body-03-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            73,
+            99
+          ],
+          [
+            74,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "6057b8dd5d67e6dd8ea9830c7ee7caa5296db16f49e3186296ab1c06cc1a1c88"
+    },
+    {
+      "file": "amber-dribble-body-03-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            71,
+            99
+          ],
+          [
+            70,
+            111
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "12dccca439db07236bf7bf4ee41fc8292ad830794d85e5d270cdc20407e0738b"
+    },
+    {
+      "file": "amber-dribble-body-04-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            104
+          ],
+          [
+            69,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "2b2f9193c8ec0df644b6c773944677835f51e0887de6a3a6a72f22348a031c33"
+    },
+    {
+      "file": "amber-dribble-body-04-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            104
+          ],
+          [
+            75,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "f669a4edfe05f61473a580d53e826cca543debcf865d0242b04d5c4dd7117fba"
+    },
+    {
+      "file": "amber-dribble-body-05-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            108
+          ],
+          [
+            63,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "ccc692a2118e54853c17f034bd5ad98e21e3a98689efac7a65f8c4f8fa04f84a"
+    },
+    {
+      "file": "amber-dribble-body-05-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            108
+          ],
+          [
+            81,
+            105
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "9307f939832fb71a306a82d670a579a153bc92d2ee023077a8521cf71943054d"
+    },
+    {
+      "file": "amber-dribble-body-06-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            88,
+            111
+          ],
+          [
+            55,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "01f0b2da1bedaca7d3a409d20da21820c0464ae313f7eb412439876e8848e8d1"
+    },
+    {
+      "file": "amber-dribble-body-06-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            56,
+            111
+          ],
+          [
+            89,
+            100
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "94cef04af34c9d29c5c5c92b2ca66dfa8b4af72bce43b50139a2b3b131482e48"
+    },
+    {
+      "file": "amber-dribble-body-07-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            83,
+            111
+          ],
+          [
+            57,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "d4fc6b0a444faaee4bcf696d6ce8e02b525a0db0a605cea5f05735284a3bd8c8"
+    },
+    {
+      "file": "amber-dribble-body-07-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            61,
+            111
+          ],
+          [
+            87,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "825518ac7060f5fcfe591b2624d529ee33c1fe8a9888c34269e406d3205c8a33"
+    },
+    {
+      "file": "amber-dribble-body-08-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 8,
+      "facing": "source",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            68,
+            76
+          ],
+          [
+            76,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            79,
+            111
+          ],
+          [
+            63,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "25d69b8854ea5e11bd09732d4ec7778e7af8f4ae60268262eb5739bd190f4261"
+    },
+    {
+      "file": "amber-dribble-body-08-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 8,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": -2,
+        "hips": [
+          [
+            76,
+            76
+          ],
+          [
+            68,
+            76
+          ]
+        ],
+        "ankles": [
+          [
+            65,
+            111
+          ],
+          [
+            81,
+            95
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "32c4671d3d71375ffb02ef386224a51df4467cfde27505eb19bf95354323bab6"
+    },
+    {
+      "file": "amber-dribble-body-09-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 9,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            74,
+            111
+          ],
+          [
+            73,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "5ce2be83042aed3f98e00fe4303aa10b6ab3a9fe9c6068a52e7a4b2e540ad684"
+    },
+    {
+      "file": "amber-dribble-body-09-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 9,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            70,
+            111
+          ],
+          [
+            71,
+            99
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "02ce12be43a8f88234b469c729c18381677aafd6c235a4e5a99bb988fe0874f2"
+    },
+    {
+      "file": "amber-dribble-body-10-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 10,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            69,
+            108
+          ],
+          [
+            83,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "8ded279f11d0fd80e4ca71376b70466ff5f5ed4179b8db9c3ba1021ae4143999"
+    },
+    {
+      "file": "amber-dribble-body-10-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 10,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            75,
+            108
+          ],
+          [
+            61,
+            104
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "afb1a1656edfbe2aa51eeee64b7c29465f5027728b5553f3fdd7777a7b40c471"
+    },
+    {
+      "file": "amber-dribble-body-11-source.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 11,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            63,
+            105
+          ],
+          [
+            88,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "b4723de6d65e6cce0174c90bb030b1347e73710b31482fb6b324e8d4fd70a010"
+    },
+    {
+      "file": "amber-dribble-body-11-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-body",
+      "frame": 11,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            81,
+            105
+          ],
+          [
+            56,
+            108
+          ]
+        ],
+        "lean": 10
+      },
+      "sha256": "d0f21cef4eb01236d6fbcd73d4e6978552ca6e33933d1c5330df862782bea89b"
+    },
+    {
+      "file": "amber-defend-00-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            111
+          ],
+          [
+            87,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "f6cd8955111212a2e42af6e4a3375f1ccefba435fb5a55e4bb34156ebbbb158b"
+    },
+    {
+      "file": "amber-defend-00-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            111
+          ],
+          [
+            57,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "88d2349e5d4f399ea9284777e67ec76855bdba062456cdf8cd049029e79ba8ea"
+    },
+    {
+      "file": "amber-defend-01-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            68,
+            84
+          ],
+          [
+            76,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            108
+          ],
+          [
+            90,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "5327c81baa7affb683819946f8b0a2c8dc30f99ecc27de43fff862cc636b570b"
+    },
+    {
+      "file": "amber-defend-01-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            76,
+            84
+          ],
+          [
+            68,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            108
+          ],
+          [
+            54,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "a2b9137780220cf67506ddac2fa95131c27eff2ae85bbcc5228174a9c1b5d139"
+    },
+    {
+      "file": "amber-defend-02-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            50,
+            107
+          ],
+          [
+            94,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "d1fbc6dd848afa56851636e51e07548789121b5ecc06d6651376203680ffd27f"
+    },
+    {
+      "file": "amber-defend-02-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            94,
+            107
+          ],
+          [
+            50,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "feb52a9e8c830e352cd6039ca17d99b39f2e230eda9bcb4b7d0d856666749fad"
+    },
+    {
+      "file": "amber-defend-03-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            68,
+            82
+          ],
+          [
+            76,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            108
+          ],
+          [
+            90,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "d83749601cf88b5e0916fbc71c244dc97c6b778d8de13ba49609bf8c98a45d18"
+    },
+    {
+      "file": "amber-defend-03-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            76,
+            82
+          ],
+          [
+            68,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            108
+          ],
+          [
+            54,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "35247b681fffe4b972d3889a685df01dbdd2153632f2d142467ad408f2725ffc"
+    },
+    {
+      "file": "amber-defend-04-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            57,
+            111
+          ],
+          [
+            87,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "f6cd8955111212a2e42af6e4a3375f1ccefba435fb5a55e4bb34156ebbbb158b"
+    },
+    {
+      "file": "amber-defend-04-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            87,
+            111
+          ],
+          [
+            57,
+            111
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "88d2349e5d4f399ea9284777e67ec76855bdba062456cdf8cd049029e79ba8ea"
+    },
+    {
+      "file": "amber-defend-05-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            68,
+            84
+          ],
+          [
+            76,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            111
+          ],
+          [
+            90,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "c948f6069d16aa49fa0b3144ea025bb22233fd67d86fb7be016f19598e3033ce"
+    },
+    {
+      "file": "amber-defend-05-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 6,
+        "hips": [
+          [
+            76,
+            84
+          ],
+          [
+            68,
+            84
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            111
+          ],
+          [
+            54,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "71adcd4089264f5f1d27b20cbffdbbcfc1928ca60df197a80412134aa676ad26"
+    },
+    {
+      "file": "amber-defend-06-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            68,
+            83
+          ],
+          [
+            76,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            50,
+            111
+          ],
+          [
+            94,
+            107
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "55d282ecf28da8e1526551ef18f62a427ac0315ab4bcfb2d2c85c633e47707e4"
+    },
+    {
+      "file": "amber-defend-06-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 5,
+        "hips": [
+          [
+            76,
+            83
+          ],
+          [
+            68,
+            83
+          ]
+        ],
+        "ankles": [
+          [
+            94,
+            111
+          ],
+          [
+            50,
+            107
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "bda1b2bafa185a8f8bf86d12e9a75400b06e0952709ee539b34dd79f8e9407d7"
+    },
+    {
+      "file": "amber-defend-07-source.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            68,
+            82
+          ],
+          [
+            76,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            111
+          ],
+          [
+            90,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "6aa548dd5ac8f28058744a350b99d832e7b7c6c4a68f129aacd87840c1cb3cfc"
+    },
+    {
+      "file": "amber-defend-07-mirrored.png",
+      "team": "amber",
+      "clip": "defend",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 4,
+        "hips": [
+          [
+            76,
+            82
+          ],
+          [
+            68,
+            82
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            111
+          ],
+          [
+            54,
+            108
+          ]
+        ],
+        "lean": 9
+      },
+      "sha256": "4617852a8da8626b1fcf40fd9cca81dc9e60303832c5ad9f38fcc37c54ca3a4b"
+    },
+    {
+      "file": "amber-brake-00-source.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            54,
+            111
+          ],
+          [
+            88,
+            111
+          ]
+        ],
+        "lean": 6
+      },
+      "sha256": "b7f9e0b4758776180d5da9e7de85aaba8278defd9405d36e6a2cd6a54c99ea1e"
+    },
+    {
+      "file": "amber-brake-00-mirrored.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            90,
+            111
+          ],
+          [
+            56,
+            111
+          ]
+        ],
+        "lean": 6
+      },
+      "sha256": "62094609edbccef7df5ea355acf816e0e43bc3897b1470f7bd3f5f96853a8236"
+    },
+    {
+      "file": "amber-brake-01-source.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            68,
+            80
+          ],
+          [
+            76,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            59,
+            111
+          ],
+          [
+            84,
+            111
+          ]
+        ],
+        "lean": 2
+      },
+      "sha256": "14194635d63c2131358aab14f678fb49c561a5dad8de93b637e092bb2491a746"
+    },
+    {
+      "file": "amber-brake-01-mirrored.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 2,
+        "hips": [
+          [
+            76,
+            80
+          ],
+          [
+            68,
+            80
+          ]
+        ],
+        "ankles": [
+          [
+            85,
+            111
+          ],
+          [
+            60,
+            111
+          ]
+        ],
+        "lean": 2
+      },
+      "sha256": "764bd73055efec7b05a4091db186c8589ebeb46ced5a88540edf2e1096849a6e"
+    },
+    {
+      "file": "amber-brake-02-source.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "bob": 1,
+        "hips": [
+          [
+            68,
+            79
+          ],
+          [
+            76,
+            79
+          ]
+        ],
+        "ankles": [
+          [
+            65,
+            111
+          ],
+          [
+            80,
+            111
+          ]
+        ],
+        "lean": -2
+      },
+      "sha256": "ce7c4724ffecf493886c991acf1cc8ec2f7a449269d63f9df3dd95732f5ff013"
+    },
+    {
+      "file": "amber-brake-02-mirrored.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 1,
+        "hips": [
+          [
+            76,
+            79
+          ],
+          [
+            68,
+            79
+          ]
+        ],
+        "ankles": [
+          [
+            79,
+            111
+          ],
+          [
+            64,
+            111
+          ]
+        ],
+        "lean": -2
+      },
+      "sha256": "ab6e0036c42f4bc3cdf4e9820c0157bed3479e665a9bf872bb4a05d17da73db6"
+    },
+    {
+      "file": "amber-brake-03-source.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            68,
+            78
+          ],
+          [
+            76,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            69,
+            110
+          ],
+          [
+            76,
+            111
+          ]
+        ],
+        "lean": 0
+      },
+      "sha256": "c9dfc957d0ce5af6655b02953698d56b3750826e45f92541428ba4c093c51da6"
+    },
+    {
+      "file": "amber-brake-03-mirrored.png",
+      "team": "amber",
+      "clip": "brake",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "bob": 0,
+        "hips": [
+          [
+            76,
+            78
+          ],
+          [
+            68,
+            78
+          ]
+        ],
+        "ankles": [
+          [
+            75,
+            110
+          ],
+          [
+            68,
+            111
+          ]
+        ],
+        "lean": 0
+      },
+      "sha256": "2135acf302a4f7e292466b5fa8563875a28fa667befeb82c79df234aefdfa7e0"
+    },
+    {
+      "file": "amber-dribble-arm-00-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 0,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          60,
+          76
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          60.0,
+          80.0
+        ]
+      },
+      "sha256": "b258f7fefa898210d0f3de6cbab8f15ae2db6aa17e53f240ac0b54dc40a26c0c"
+    },
+    {
+      "file": "amber-dribble-arm-00-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 0,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          84,
+          76
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          84.0,
+          80.0
+        ]
+      },
+      "sha256": "21f29ac90c61ea394b4f6d796f94277e73ff87021a1bdc5de336d6802faa0685"
+    },
+    {
+      "file": "amber-dribble-arm-01-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 1,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          61,
+          79
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          61.48148148148148,
+          83.33333333333334
+        ]
+      },
+      "sha256": "9079440adb24d1d0347f3691d4266170b074f5b6d7760bc990aa57c26096978c"
+    },
+    {
+      "file": "amber-dribble-arm-01-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 1,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          83,
+          79
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          82.51851851851852,
+          83.33333333333334
+        ]
+      },
+      "sha256": "f45d3afbbb362755ec667303651d74fd44f25b727167a6153dedd3d24f62c1a0"
+    },
+    {
+      "file": "amber-dribble-arm-02-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 2,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          65,
+          83
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          65.18518518518519,
+          86.66666666666667
+        ]
+      },
+      "sha256": "b3073a6cdfe653f30b8ff0e4cff213c81ee21f1278466a015f7fbe9ce9915196"
+    },
+    {
+      "file": "amber-dribble-arm-02-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 2,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          79,
+          83
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          78.81481481481481,
+          86.66666666666667
+        ]
+      },
+      "sha256": "7355e2df444f3dd1766bfb83d075fd15aac4608b019feaacfc0f80318b534645"
+    },
+    {
+      "file": "amber-dribble-arm-03-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 3,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          70,
+          86
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          70.0,
+          90.0
+        ]
+      },
+      "sha256": "71508df9330e62eb2fd5b8e421b7adc56b36ec915183a6890515a06aa56cff35"
+    },
+    {
+      "file": "amber-dribble-arm-03-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 3,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          74,
+          86
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          74.0,
+          90.0
+        ]
+      },
+      "sha256": "26d0bf7982d986adc8d73ab1a7a1d31dca7738e8252ff972cfd7864d8da70db8"
+    },
+    {
+      "file": "amber-dribble-arm-04-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 4,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          75,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          74.81481481481481,
+          93.33333333333333
+        ]
+      },
+      "sha256": "de0a33bb153540a5c9b2c20ffcf1d1c40134126dc76636596aff6a50d05719b6"
+    },
+    {
+      "file": "amber-dribble-arm-04-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 4,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          69,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          69.18518518518519,
+          93.33333333333333
+        ]
+      },
+      "sha256": "776c4017b9ecb8338b6e66c14c44ea37167b3d2d54c6fe3104dd22dd0796384d"
+    },
+    {
+      "file": "amber-dribble-arm-05-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 5,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          79,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          78.51851851851852,
+          96.66666666666667
+        ]
+      },
+      "sha256": "4e73c7457b7760d38505785987788195b69572e7b64287ccb93111277eca0f11"
+    },
+    {
+      "file": "amber-dribble-arm-05-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 5,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          65,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          65.48148148148148,
+          96.66666666666667
+        ]
+      },
+      "sha256": "1e3e297c3a029a7ab4804ea31decd7a93b46475e80aab09c3a3a9c5d787d9b06"
+    },
+    {
+      "file": "amber-dribble-arm-06-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 6,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          80,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          80.0,
+          100.0
+        ]
+      },
+      "sha256": "d03423b684357550bf74c9ce397906dfa15f7e2f52964f8d02f5e46f7a2f468d"
+    },
+    {
+      "file": "amber-dribble-arm-06-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 6,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          64,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          64.0,
+          100.0
+        ]
+      },
+      "sha256": "2c5a6dfbce6f85bcdd43fb2ac69666a3c33c9c3c729f7b0ce236da56ee533be5"
+    },
+    {
+      "file": "amber-dribble-arm-07-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 7,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          78,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          77.92592592592592,
+          103.33333333333333
+        ]
+      },
+      "sha256": "a9e5c4a9023384b8b3e2dd142de9c108a0c915dc8d6419a38ef1ace88a3a6b74"
+    },
+    {
+      "file": "amber-dribble-arm-07-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 7,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          66,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          66.07407407407408,
+          103.33333333333333
+        ]
+      },
+      "sha256": "5f1748e32010fc314b15514ef323fa91538496d55ff24e63de13a0fb5435c09b"
+    },
+    {
+      "file": "amber-dribble-arm-08-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 8,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          73,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          72.74074074074075,
+          106.66666666666666
+        ]
+      },
+      "sha256": "bad6d31a7a63a763607679d4fda70dd00af437181aa7e081af54b9bb76dc22da"
+    },
+    {
+      "file": "amber-dribble-arm-08-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 8,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          71,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          71.25925925925925,
+          106.66666666666666
+        ]
+      },
+      "sha256": "62cdb248fb8d833fc2fb000ec41b52e5b33b6b849d1a8f4f1f1ddca032188afe"
+    },
+    {
+      "file": "amber-dribble-arm-09-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 9,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          66,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          66.0,
+          110.0
+        ]
+      },
+      "sha256": "2fd59472b1bbefedbaa95df02033210aed4f78215818ed322ec2efc725bdb534"
+    },
+    {
+      "file": "amber-dribble-arm-09-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 9,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          78,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          78.0,
+          110.0
+        ]
+      },
+      "sha256": "76544478441fe736a7a3ab5031311494237cc7929d7849635e349121138eabad"
+    },
+    {
+      "file": "amber-dribble-arm-10-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 10,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          59,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          59.25925925925926,
+          106.66666666666666
+        ]
+      },
+      "sha256": "c04dc86f9c52fb9ae8fe01354932721a61b9ab209eaafc6aad08356b2fa6eaf5"
+    },
+    {
+      "file": "amber-dribble-arm-10-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 10,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          85,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          84.74074074074073,
+          106.66666666666666
+        ]
+      },
+      "sha256": "c9ef9837e0ed8136d187a8baf3f5ea6f4d224b5814160f2436514e034d9017eb"
+    },
+    {
+      "file": "amber-dribble-arm-11-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 11,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          54,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          54.07407407407407,
+          103.33333333333333
+        ]
+      },
+      "sha256": "6ff50e558e5bddece8a219418541ddcc12e86df1725742f2698f06529009d6df"
+    },
+    {
+      "file": "amber-dribble-arm-11-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 11,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          90,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          89.92592592592592,
+          103.33333333333333
+        ]
+      },
+      "sha256": "8ec1dfcccecb056171d8bef90907cb5f927bc083e79c0b423bcdcc8312ac36ef"
+    },
+    {
+      "file": "amber-dribble-arm-12-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 12,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          52,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          52.0,
+          100.0
+        ]
+      },
+      "sha256": "d200c855939adb7703d3025342ba8ffde15a61ac4f6494427c2c72b5795aee62"
+    },
+    {
+      "file": "amber-dribble-arm-12-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 12,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          92,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          92.0,
+          100.0
+        ]
+      },
+      "sha256": "f873ea5616b15ed8ac0512842dbd565353b42851d9fc46ef64032bfb0e65f64f"
+    },
+    {
+      "file": "amber-dribble-arm-13-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 13,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          53,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          52.592592592592595,
+          96.66666666666667
+        ]
+      },
+      "sha256": "fcd2037908eb514bf14abbf7149ab47e4dfa9f1faba6d20603817f9759815017"
+    },
+    {
+      "file": "amber-dribble-arm-13-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 13,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          91,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          91.4074074074074,
+          96.66666666666667
+        ]
+      },
+      "sha256": "b47b9bf1db48fb7c6da7ed655c52a6fe457ff90cde39e73e493879b0e6a3cd2d"
+    },
+    {
+      "file": "amber-dribble-arm-14-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 14,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          54,
+          87
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          54.074074074074076,
+          93.33333333333333
+        ]
+      },
+      "sha256": "6ff50e558e5bddece8a219418541ddcc12e86df1725742f2698f06529009d6df"
+    },
+    {
+      "file": "amber-dribble-arm-14-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 14,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          90,
+          87
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          89.92592592592592,
+          93.33333333333333
+        ]
+      },
+      "sha256": "8ec1dfcccecb056171d8bef90907cb5f927bc083e79c0b423bcdcc8312ac36ef"
+    },
+    {
+      "file": "amber-dribble-arm-15-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 15,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          56,
+          86
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          56.0,
+          90.0
+        ]
+      },
+      "sha256": "d5ae010892f170d64c99c024a29fff4bcf9552a0756ac72a2a716fca44870438"
+    },
+    {
+      "file": "amber-dribble-arm-15-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 15,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          88,
+          86
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          88.0,
+          90.0
+        ]
+      },
+      "sha256": "12d4242ed7fdaf9165b719a6d42abd36639d008e0edca997569fcfd139d666ff"
+    },
+    {
+      "file": "amber-dribble-arm-16-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 16,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          58,
+          83
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          57.925925925925924,
+          86.66666666666667
+        ]
+      },
+      "sha256": "569cca20a2afca79a8546cd4bee257e2c7a6d83e1c0edd51d600e990718d4eac"
+    },
+    {
+      "file": "amber-dribble-arm-16-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 16,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          86,
+          83
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          86.07407407407408,
+          86.66666666666667
+        ]
+      },
+      "sha256": "d77cf8156fb6a52ef6a9944a29e954ed1aa4dd1dfa451aec26c7db1f892a7bb6"
+    },
+    {
+      "file": "amber-dribble-arm-17-source.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 17,
+      "facing": "source",
+      "anchors": {
+        "wrist": [
+          59,
+          79
+        ],
+        "shoulder": [
+          67,
+          51
+        ],
+        "ball": [
+          59.407407407407405,
+          83.33333333333334
+        ]
+      },
+      "sha256": "beb7edc4ed1421bddae9ffda8f9760a5dc67ba92606b65c12ca6114b3c932a41"
+    },
+    {
+      "file": "amber-dribble-arm-17-mirrored.png",
+      "team": "amber",
+      "clip": "dribble-arm",
+      "frame": 17,
+      "facing": "mirrored",
+      "anchors": {
+        "wrist": [
+          85,
+          79
+        ],
+        "shoulder": [
+          77,
+          51
+        ],
+        "ball": [
+          84.5925925925926,
+          83.33333333333334
+        ]
+      },
+      "sha256": "9c225607da8c406d2b679c6bcb2e199f8787d298ba87f290716361f66a16621b"
+    }
+  ],
+  "notes": [
+    "Retains existing reference head/jersey pixels. New limb geometry, shading, poses, timing and mirrors are authored adaptations, not recovered source frames.",
+    "Separate body and dribbling arm layers share ground and shoulder anchors.",
+    "No entire-person rotations, scaled character variants or stretch tweening. Torso inclines as one articulated body segment; every limb is posed separately."
+  ],
+  "sourceHashes": {
+    "navy": "45c878d78dfa6709bbecfe380eef5e1cc5385980f45316a5c43fc0bc7f3cf1a7",
+    "amber": "71d3ae0889a2f504d49a8d9e8cddef9f568e7b5c7cc950e29bec6f5e8594483a"
+  },
+  "clips": {
+    "run": {
+      "frames": 12,
+      "cycleWorldDistance": 56
+    },
+    "dribble-body": {
+      "frames": 12,
+      "cycleWorldDistance": 56
+    },
+    "defend": {
+      "frames": 8,
+      "cycleWorldDistance": 28
+    },
+    "brake": {
+      "frames": 4,
+      "holdTicks": 2
+    },
+    "dribble-arm": {
+      "frames": 18,
+      "holdTicks": 1,
+      "clock": "owner.dribbleTick",
+      "overlayOffset": "body bob at current travel phase"
+    }
+  }
+}

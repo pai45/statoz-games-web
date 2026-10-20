@@ -1,3 +1,5 @@
+> **Latest — 2026-10-20:** Future Games Web now includes the enhanced three-track demo, hills/obstacles, faster racing, improved rivals and start/finish sequences. See [current integration and validation](retro-circuit/enhancement-v4.md). Commercial reference cars/pit imagery are temporary demo assets with replacement required before production; earlier original-only descriptions below are historical. Current StatOz and Flutter are unchanged.
+
 # Retro Circuit
 
 New single-player racing title at `/play/retro-circuit`. Three original tracks, four cars, nineteen AI opponents, fuel stops and three nitro charges. Uses existing app authentication; requires no deck and awards no coins or XP. Grand Prix Dash, its `/play/grand-prix` address and its saves remain separate.

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "version": "football-complete-atlas-v1",
+  "version": "football-handheld-atlas-v1",
   "approval": "reference",
   "productionEligible": false,
   "atlasUrl": "./team-atlas.png",
-  "atlasSha256": "bcd5e07a8e18e58c3aab93eea37e98c441beeed65731358fad98ecfae247c85d",
+  "atlasSha256": "5b012bfcf2cf22375c9da8a5638810922b6fbdaeb38026e4f2638695c01cccf6",
   "atlasSize": [
     1024,
     2048
@@ -2069,6 +2069,238 @@
       ],
       "sourceSha256": "7f144063364bafd21a64375e1134dfa1967dce7011df8a7c6829236fcc4873de",
       "sourceAssetId": "b830dbaf-6a61-4a4c-a09d-2a5a53ba434c"
+    },
+    {
+      "id": "run-n-2",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          34,
+          73
+        ],
+        "upperTorso": [
+          36,
+          33
+        ]
+      },
+      "atlas": [
+        4,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "109401e8-2d86-4849-a4f3-b1214be8d36c",
+      "sourceSha256": "96f59952680cbb4200e0bef653429ac4d768520c1100e1243ab97f1ebaca449f",
+      "approval": "reference",
+      "parentSourceAssetId": "94420e8d-0406-413e-81f8-8ac7d5f9031a"
+    },
+    {
+      "id": "orchard-run-n-2",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          34,
+          73
+        ],
+        "upperTorso": [
+          36,
+          33
+        ]
+      },
+      "atlas": [
+        92,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "52a27ea1-5b70-465a-861c-9829a7740895",
+      "sourceSha256": "738dedcc4c63c256c85f7fcfa7066eeabbc960c57c7d2831da85efe579f8cfaf",
+      "approval": "reference",
+      "parentSourceAssetId": "94420e8d-0406-413e-81f8-8ac7d5f9031a"
+    },
+    {
+      "id": "run-n-3",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          31,
+          73
+        ],
+        "upperTorso": [
+          36,
+          31
+        ]
+      },
+      "atlas": [
+        180,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "2933f7e7-d956-4af7-8111-7fe040981068",
+      "sourceSha256": "77b88838fb9acf57f7bad1179cdf95814cc6ccb4b31543b6129aad3dc232b482",
+      "approval": "reference",
+      "parentSourceAssetId": "501b878d-d41d-44e8-bf0d-e7d24a88c79d"
+    },
+    {
+      "id": "orchard-run-n-3",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          31,
+          73
+        ],
+        "upperTorso": [
+          36,
+          31
+        ]
+      },
+      "atlas": [
+        268,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "c3ef09d1-7d8c-47d3-9d60-0ffa940b77dc",
+      "sourceSha256": "1156adee58672187cc622de1657b5599d95a8f640342aa8aca07ad8182e1f406",
+      "approval": "reference",
+      "parentSourceAssetId": "501b878d-d41d-44e8-bf0d-e7d24a88c79d"
+    },
+    {
+      "id": "run-s-2",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          33,
+          73
+        ],
+        "upperTorso": [
+          36,
+          32
+        ]
+      },
+      "atlas": [
+        356,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "3c8343a8-ad9b-465b-b9d6-b516bfc11a14",
+      "sourceSha256": "021f2093d905941ca19cdf74cd51c89100fa66c9590b716645386f2e25ecdf7a",
+      "approval": "reference",
+      "parentSourceAssetId": "ca679b73-4f50-4c60-8fe9-7e11259796a4"
+    },
+    {
+      "id": "orchard-run-s-2",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          33,
+          73
+        ],
+        "upperTorso": [
+          36,
+          32
+        ]
+      },
+      "atlas": [
+        444,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "5ab22ad2-ed58-4146-80d9-ac882c05d819",
+      "sourceSha256": "8fe7d6ec1f7b4cd96b16b1afe24e14e9dd9d5c56b0b0b318b5945afc0098569c",
+      "approval": "reference",
+      "parentSourceAssetId": "ca679b73-4f50-4c60-8fe9-7e11259796a4"
+    },
+    {
+      "id": "run-s-3",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          35,
+          73
+        ],
+        "upperTorso": [
+          38,
+          35
+        ]
+      },
+      "atlas": [
+        532,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "0f0e68aa-c28f-4f52-9c5e-fbffee74437c",
+      "sourceSha256": "84d583c17534db4e8e2902b349a4d051a0fc79d12dd06578a61ead2950c63ca9",
+      "approval": "reference",
+      "parentSourceAssetId": "febece3b-92aa-4d8c-a32b-88b90908083f"
+    },
+    {
+      "id": "orchard-run-s-3",
+      "width": 80,
+      "height": 84,
+      "anchors": {
+        "ground": [
+          36,
+          74
+        ],
+        "foot": [
+          35,
+          73
+        ],
+        "upperTorso": [
+          38,
+          35
+        ]
+      },
+      "atlas": [
+        620,
+        1400,
+        80,
+        84
+      ],
+      "sourceAssetId": "7b75ac97-afcb-4a66-a7a9-229c0f841d87",
+      "sourceSha256": "3f70cde6b8878a27fffdaf4e22f126d2db4c0e659bfc577681b9f7c7216cb25e",
+      "approval": "reference",
+      "parentSourceAssetId": "febece3b-92aa-4d8c-a32b-88b90908083f"
     }
   ],
   "movement": {
@@ -2083,12 +2315,12 @@
           "mirror": false
         },
         {
-          "id": "run-n-0",
-          "mirror": true
+          "id": "run-n-2",
+          "mirror": false
         },
         {
-          "id": "run-n-1",
-          "mirror": true
+          "id": "run-n-3",
+          "mirror": false
         }
       ],
       "S": [
@@ -2101,12 +2333,12 @@
           "mirror": false
         },
         {
-          "id": "run-s-0",
-          "mirror": true
+          "id": "run-s-2",
+          "mirror": false
         },
         {
-          "id": "run-s-1",
-          "mirror": true
+          "id": "run-s-3",
+          "mirror": false
         }
       ],
       "E": [
@@ -2167,7 +2399,7 @@
     },
     "directionPolicy": "Eight movement vectors use four facing families. Dominant-axis selection with previous-facing tie retention is an original bounded prototype choice. Distinct diagonal sprite families remain incomplete.",
     "mirrors": "N/S alternate stride phases mirror only an already observed front/back view. W mirrors observed E art. No mirror is used as evidence for an unseen front/back view.",
-    "timing": "Authored four-pose loops at 3 ticks per pose; reordered/mirrored stride phases are adaptations, not recovered native cycles."
+    "timing": "Distance-based .72 world units per pose. Four authored phases; original two source poses plus counter-strides with stable head/torso. Native timing unverified."
   },
   "parents": {
     "team-chain-v1/index.html": "3b4fea0ba0cd9ffd107de6f22fdbc464127c657240ff7adfce3a079fa1e201b7",
@@ -2178,6 +2410,7 @@
     "opponent-pack-v1/action-coverage.json": "3a9cefb53bb93924ae8d42e3b738dd517caf6633a709c2502298b8df2a8e8190",
     "brief.json": "8699cab86654e12d549d848dc4000ea8860a60cf7de5efd5c3fc74bca3af668b",
     "standingKeeperSelection": "dd7d6d9995fe87feb51629073764bec0de01886459bf7b9a36bf317e434cf865",
-    "actionArt": "4be5fdaa1059e89d71bc7596009295e113adb83f1dfe544303d6e51f4344f4fd"
+    "actionArt": "4be5fdaa1059e89d71bc7596009295e113adb83f1dfe544303d6e51f4344f4fd",
+    "handheld-motion": "docs/retro-football/motion-assets/manifest.json"
   }
 }

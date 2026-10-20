@@ -1,3 +1,5 @@
+> Local movement v2 now provides dedicated authored running, dribbling and defensive clips. See [movement v2](retro-hoops-movement-v2.md). Historical1.3 gaps below describe the prior release; native timing and eight-direction turns remain unverified.
+
 # Retro Hoops source comparison and movement refinement
 
 Scope: Future Games Web only. Rules 1.3.0, motion 1.0.0, handheld-v1. Existing registered reference rasters are reused; no new commercial sprites have been extracted or traced in this pass. This is a source-informed adaptation, not a completed frame-exact recreation.

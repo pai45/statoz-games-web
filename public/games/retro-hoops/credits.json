@@ -1,7 +1,7 @@
 {
   "gameId": "retro-hoops",
-  "rulesVersion": "1.3.0",
-  "buildVersion": "future-games-handheld-v1",
+  "rulesVersion": "1.4.0",
+  "buildVersion": "future-games-movement-v2-local",
   "art": {
     "classification": "reference",
     "sourceTitle": "Street Hoop (Neo Geo)",
@@ -338,5 +338,13 @@
   "viewport": [
     640,
     360
-  ]
+  ],
+  "locomotion": {
+    "manifest": "locomotion-v2/manifest.json",
+    "frames": 216,
+    "approval": "reference",
+    "authorship": "Existing reference head/jersey retained; limbs, pose geometry, shading and timing authored for this candidate",
+    "nativeTimingRecovered": false,
+    "newCommercialFramesExtracted": false
+  }
 }

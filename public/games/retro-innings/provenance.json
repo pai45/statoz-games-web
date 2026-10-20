@@ -1,10 +1,10 @@
 {
   "game": "retro-innings",
-  "version": "three-candidate-v2",
+  "version": "handheld-v1",
   "release": "private-reference-preview",
   "publicReleaseApproved": false,
-  "sha256": "45c3f09f9bb6283596faa70fa6ffd5cbf55495a9e37d7d4aee4330589337dc74",
-  "sourceBundle": "output/retro-innings/three-candidate-v2/index.html",
+  "sha256": "b1856748e994223bc126414983d21fe55a8feaa70cb3f2e0e7b056b44b672ef8",
+  "sourceBundle": "src/features/games/retro-innings/runtime",
   "sourceAssets": "output/retro-innings/three-candidate-v2/assets.json",
   "referenceStudy": "output/retro-innings/reference-study/manifest.json",
   "sources": [
@@ -18,5 +18,13 @@
     "Keeper pursuit, throw and full dive unfinished",
     "Source fidelity and human timing review remain in progress"
   ],
-  "presentation": "Compact red ball, depth-scaled stumps, smaller score plate and selected-fielder shield; authored from saved source frames. Simulation and athlete assets byte-identical to v1."
+  "presentation": "Compact red ball, depth-scaled stumps, smaller score plate and selected-fielder shield; authored from saved source frames. Simulation and athlete assets byte-identical to v1.",
+  "renderer": "Three.js atlas quads, source-palette ground/stadium texture, handheld DOM console",
+  "changes": [
+    "Fullscreen mobile landscape console; native fullscreen user gesture with fitted fallback",
+    "Source-order bowling release/follow-through/recovery and distance-driven running poses",
+    "Source-palette checked outfield, pitch mowing, fence/crowd/sight screens/pavilion outside the legal boundary",
+    "Umpire separated from non-striker without changing player anchors"
+  ],
+  "timing": "Authored holds; sample times establish source order, not native SNES cadence"
 }

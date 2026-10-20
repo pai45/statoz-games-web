@@ -59,7 +59,7 @@ export function RetroFootball({entry}: GameLauncherProps) {
     return () => {active = false;window.clearTimeout(timeout);send("dispose");window.removeEventListener("message", receive);document.removeEventListener("visibilitychange", background);};
   }, [attempt, router, account]);
   return <section className={styles.root} aria-label={entry.title}>
-    {launch && <iframe key={launch.id} ref={frame} src={launch.src} title="Retro Football exhibition" className={styles.frame} allow="autoplay" onError={() => setError("Retro Football could not load. Please retry.")} />}
+    {launch && <iframe key={launch.id} ref={frame} src={launch.src} title="Retro Football exhibition" className={styles.frame} allow="autoplay; fullscreen" allowFullScreen onError={() => setError("Retro Football could not load. Please retry.")} />}
     {(!ready || error) && <div className={styles.notice} role={error ? "alert" : "status"}>
       <p>{error || "LOADING RETRO FOOTBALL…"}</p>
       {error && <button type="button" onClick={() => {setReady(false);setError("");setAttempt(n => n+1);}}>Retry loading</button>}

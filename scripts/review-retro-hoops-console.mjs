@@ -1,6 +1,6 @@
-﻿import fs from 'node:fs/promises';import path from 'node:path';import http from 'node:http';import assert from 'node:assert/strict';import {pathToFileURL}from'node:url';
+import fs from 'node:fs/promises';import path from 'node:path';import http from 'node:http';import assert from 'node:assert/strict';import {pathToFileURL}from'node:url';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE_PATH?pathToFileURL(process.env.PLAYWRIGHT_MODULE_PATH).href:'playwright');
-const root=process.cwd(),out=path.join(root,'test-results/retro-hoops-console-v1');await fs.mkdir(out,{recursive:true});
+const root=process.cwd(),out=path.join(root,'test-results',process.argv[2]||'retro-hoops-console-v1');await fs.mkdir(out,{recursive:true});
 const bundle=(await fs.readFile('public/embedded-games/retro-hoops/index.html','utf8')).replace('/*__STATOZ_BOOT__*/','window.__STATOZ_BOOT__={sessionId:"console-review",origin:location.origin};');
 const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(bundle);});await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}),checks=[],errors=[];const origin='http://127.0.0.1:'+server.address().port;

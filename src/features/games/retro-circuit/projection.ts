@@ -1,17 +1,19 @@
-import { modulo, sampleTrack } from "./data";
+import { modulo, sampleTrack,courseFor,physicalSeparation,terrainHeight } from "./data";
 import type { RaceSnapshot, TrackDefinition } from "./types";
 export type RoadPoint={x:number;y:number;half:number;scale:number;distance:number;curve:number;pit:boolean;stripe:boolean};
 export const CAMERA_TRAIL=22;
-export const cameraDistance=(world:number,player:number)=>world-player+CAMERA_TRAIL;
+export const cameraDistance=(world:number,player:number,length=5400)=>physicalSeparation(world,player,length)+CAMERA_TRAIL;
 /** Original visual elevation, periodic at the lap seam; simulation stays on track distance. */
-export function roadElevation(track:TrackDefinition,distance:number){const angle=modulo(distance,track.length)/track.length*Math.PI*2;return track.id==='coast'?22*Math.sin(angle*2)+10*Math.sin(angle*3):track.id==='desert'?45*Math.sin(angle)+18*Math.sin(angle*3):8*Math.sin(angle*4);}
+export const roadElevation=terrainHeight;
 export function roadProjection(state: RaceSnapshot,track: TrackDefinition): RoadPoint[]{
   const result:RoadPoint[]=[];let offset=0,heading=0;
+  const egoScale=1+(125/149-1)*CAMERA_TRAIL/24;
+  const cameraShift=state.player.x*370*egoScale-Math.max(-160,Math.min(160,state.player.x*130));
   for(let i=0;i<=80;i++){
     const distance=i*24,world=state.player.distance-CAMERA_TRAIL+distance,road=sampleTrack(track,world),scale=125/(125+distance);
-    heading+=road.curve*0.012;offset+=heading;
-    const elevation=(roadElevation(track,world)-roadElevation(track,state.player.distance))*2.1;
-    result.push({x:240+(offset-state.player.x)*290*scale,y:70+(200-elevation)*scale,half:290*scale,scale,distance,curve:road.curve,pit:road.s>=track.pit.start&&road.s<=track.pit.end,stripe:Math.floor(world/45)%2===0});
+    heading+=road.curve*0.0035;offset+=heading;
+    const elevation=(roadElevation(track,world)-roadElevation(track,state.player.distance))*3.2;
+    result.push({x:240+offset*330*scale-cameraShift,y:70+(200-elevation)*scale,half:370*scale,scale,distance,curve:road.curve,pit:road.s>=track.pit.start&&road.s<=track.pit.end,stripe:Math.floor(world/38)%2===0});
   }return result;
 }
 export function projectedCar(distance:number,x:number,points:RoadPoint[]){
@@ -25,10 +27,6 @@ export function projectedCar(distance:number,x:number,points:RoadPoint[]){
  * positive radial envelope keeps the closed course legible without false crossings.
  * Car markers and pit position still use the same ordered track distance as racing.
  */
-export function mapPoints(track:TrackDefinition){
-  const count=192,raw=[];
-  for(let i=0;i<=count;i++){const distance=i/count*track.length,angle=i/count*Math.PI*2-Math.PI/2,curve=[-90,-45,0,45,90].reduce((sum,d)=>sum+sampleTrack(track,distance+d).curve,0)/5,radius=1+curve*.25;raw.push({x:Math.cos(angle)*radius,y:Math.sin(angle)*radius});}
-  const minX=Math.min(...raw.map(p=>p.x)),minY=Math.min(...raw.map(p=>p.y)),w=Math.max(...raw.map(p=>p.x))-minX,h=Math.max(...raw.map(p=>p.y))-minY;
-  return raw.map(p=>({x:8+(p.x-minX)/w*84,y:8+(p.y-minY)/h*52}));
-}
+export function mapPoints(track:TrackDefinition){const courseSamples=courseFor(track).points,minX=Math.min(...courseSamples.map(p=>p.x)),minY=Math.min(...courseSamples.map(p=>p.y)),w=Math.max(...courseSamples.map(p=>p.x))-minX,h=Math.max(...courseSamples.map(p=>p.y))-minY;return courseSamples.map(p=>({x:8+(p.x-minX)/w*84,y:8+(p.y-minY)/h*52}));}
+
 export const localDistance=(world:number,track:TrackDefinition)=>modulo(world,track.length);

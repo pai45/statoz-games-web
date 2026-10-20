@@ -1,13 +1,13 @@
-import {dribbleSample} from "./motion";
-/** Retro Hoops rules 1.3.0. All numerical tuning is original StatOz design.
+import {dribbleSample,bodyBob} from "./motion";
+/** Retro Hoops rules 1.4.0. All numerical tuning is original StatOz design.
  * No rendering, wall clock, platform storage or random global state belongs here. */
-export const RULES_VERSION = "1.3.0";
+export const RULES_VERSION = "1.4.0";
 export const HZ = 60;
 export const COURT = { left: 60, right: 840, top: 164, bottom: 330, rimY: 247, rimZ: 120 } as const;
 export type Team = 0 | 1;
 export type Action = "idle" | "pass" | "receive" | "shoot" | "dunk" | "block" | "steal" | "recoil" | "gather";
 export type Phase = "playing" | "restart" | "result";
-export type Actor = { id: number; team: Team; x: number; y: number; z: number; vz: number; face: 1 | -1; action: Action; until: number; started: number; target: number; nextAI: number; moving?:boolean; travel?:number; dribbleTick?:number };
+export type Actor = { id: number; team: Team; x: number; y: number; z: number; vz: number; face: 1 | -1; action: Action; until: number; started: number; target: number; nextAI: number; moving?:boolean; travel?:number; dribbleTick?:number; lastMoved?:number; stepDistance?:number };
 export type Ball = { x: number; y: number; z: number; owner: number | null; kind: "held" | "pass" | "shot" | "loose"; from: number; to: number; age: number; duration: number; sx: number; sy: number; sz: number; tx: number; ty: number; tz: number; vx: number; vy: number; vz: number; points: number; made: boolean; super: boolean; released: number };
 export type GameEvent = { id: number; tick: number; type: string; team?: Team; actor?: number; value?: number };
 export type Input = { x: number; y: number; shoot: boolean; pass: boolean };
@@ -119,7 +119,7 @@ function move(a:Actor,x:number,y:number,speed=108) {
   const beforeX=a.x,beforeY=a.y;
   a.x=clamp(a.x+x/Math.max(1,len)*speed/HZ,COURT.left,COURT.right);
   a.y=clamp(a.y+y/Math.max(1,len)*speed/HZ,COURT.top,COURT.bottom);if(Math.abs(x)>.1)a.face=x>0?1:-1;
-  const travelled=Math.hypot(a.x-beforeX,a.y-beforeY);a.moving=travelled>1e-6;a.travel=(a.travel??a.id*7)+travelled;
+  const travelled=Math.hypot(a.x-beforeX,a.y-beforeY);a.moving=travelled>1e-6;a.travel=(a.travel??a.id*7)+travelled;a.stepDistance=(a.stepDistance??0)+travelled;
 }
 function ai(s:Match,a:Actor) {
   if(!ready(s,a))return;
@@ -159,7 +159,7 @@ function ai(s:Match,a:Actor) {
 function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
   const b=s.ball;
   if(b.owner!==null) {
-    const a=s.actors[b.owner],dribble=a.action==="idle"&&!!a.moving;
+    const a=s.actors[b.owner],dribble=a.action==="idle"&&(!!a.moving||((a.dribbleTick??-1)>=0&&(a.dribbleTick??0)%18!==0));
     const p=anchor(a,a.z>0?"overhead":dribble?"low":"front");
     if(a.action==="shoot"){
       const age=s.tick-a.started;
@@ -170,7 +170,7 @@ function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
     }
     if(a.action==="pass")Object.assign(p,anchor(a,s.tick-a.started<12?"pass-gather":"pass-release"));
     // Ball travels from hand to ground and back; opaque source dribble poses only.
-    if(dribble){a.dribbleTick=(a.dribbleTick??-1)+1;const cycle=dribbleSample(a.dribbleTick);p.x=a.x+cycle.x*a.face;p.z=a.z+cycle.z;}else a.dribbleTick=-1;
+    if(dribble){a.dribbleTick=(a.dribbleTick??-1)+1;const cycle=dribbleSample(a.dribbleTick);p.x=a.x+cycle.x*a.face;p.z=a.z+cycle.z-bodyBob(a.moving?(a.travel??0):0)*Math.max(0,Math.min(1,(cycle.z-20)/16));}else a.dribbleTick=-1;
     if(a.action==="receive"&&b.age<6){b.age++;const t=b.age/6;p.x=b.sx+(p.x-b.sx)*t;p.y=b.sy+(p.y-b.sy)*t;p.z=b.sz+(p.z-b.sz)*t;}
     Object.assign(b,p);if(dribble&&dribbleSample(a.dribbleTick??0).contact)emit(s,"dribble",a.id,a.team);
     if(a.action==="dunk"&&a.z>0){
@@ -241,7 +241,7 @@ function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
 /** Advance exactly one 60 Hz tick. Inputs are edge actions plus persistent movement. */
 export function step(s:Match,input:Input=NO_INPUT) {
   s.events=[];if(s.phase==="result")return;s.tick++;
-  for(const a of s.actors)a.moving=false;
+  for(const a of s.actors){a.moving=false;a.stepDistance=0;}
   if(s.phase==="restart"){
     for(const a of s.actors){if(a.z>0||a.vz>0){a.vz-=600/HZ;a.z=Math.max(0,a.z+a.vz/HZ);if(a.z===0){a.vz=0;a.until=Math.max(a.until,s.tick+12);emit(s,"land",a.id,a.team);}}if(a.z===0&&a.until<=s.tick)a.action="idle";}
     s.ball.vz-=600/HZ;s.ball.z=Math.max(5.5,s.ball.z+s.ball.vz/HZ);if(s.ball.z===5.5)s.ball.vz=0;
@@ -298,6 +298,8 @@ export function step(s:Match,input:Input=NO_INPUT) {
       if(movableB){b.x=clamp(b.x-dx*k,COURT.left,COURT.right);b.y=clamp(b.y-dy*k,COURT.top,COURT.bottom);}
     }
   }
+  for(const a of s.actors)if(a.action==="idle"&&a.moving){const moved=Math.hypot(a.x-beforeMovement[a.id].x,a.y-beforeMovement[a.id].y);a.travel=(a.travel??a.id*7)-(a.stepDistance??0)+moved;a.moving=moved>1e-6;if(a.moving)a.lastMoved=s.tick;}
+  for(const a of s.actors)if(a.action==="idle"&&s.ball.owner!==null&&s.actors[s.ball.owner].team!==a.team&&Math.hypot(a.x-s.ball.x,a.y-s.ball.y)<180&&Math.abs(s.ball.x-a.x)>4)a.face=s.ball.x>a.x?1:-1;
   updateBall(s,previousHands);
   resolveSteals(s);
   selectDefender(s);

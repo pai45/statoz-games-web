@@ -1,0 +1,3 @@
+Temporary commercial Top Gear SNES car/pit recording crops. Not original StatOz car art, no rights clearance or endorsement. Original scenery is separate.
+
+Local demo/UI reference only. Replacing commercial car/pit art with original or rights-cleared assets remains required before production. Recording region and native timing are unconfirmed. Source RGB, crops, masks and hashes retained in StatOz Designer output/retro-circuit/source-pack-v1 and source-pack-v2-rivals.

@@ -1,23 +1,16 @@
+import {drive} from '../src/features/games/retro-circuit/driver';
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {RaceSimulation} from "../src/features/games/retro-circuit/simulation";
-import {sampleTrack, targetSpeed, tracks, vehicles, vehicleById,roadsideProp,propSpacing} from "../src/features/games/retro-circuit/data";
-import {neutralInput, type RaceInput, type RuntimeOptions} from "../src/features/games/retro-circuit/types";
+import {tracks, vehicles,roadsideProp,propSpacing} from "../src/features/games/retro-circuit/data";
+import {neutralInput, type RuntimeOptions} from "../src/features/games/retro-circuit/types";
 import {defaultSave,addResult,readSave,raceScore,localRecords} from "../src/features/games/retro-circuit/persistence";
 import {roadProjection,projectedCar,cameraDistance} from "../src/features/games/retro-circuit/projection";
 
 const options:RuntimeOptions={trackId:"coast",vehicleId:"vector",seed:42,sessionId:"test"};
 function racing(opts=options){const g=new RaceSimulation(opts);g.start();for(let i=0;i<181;i++)g.update(neutralInput());return g;}
 /** Actual public-input driver: no direct position/fuel manipulation in complete-race coverage. */
-function driver(g:RaceSimulation):RaceInput{
-  const p=g.cars[0],road=sampleTrack(g.track,p.distance),v=vehicleById(p.vehicle);
-  const pit=p.fuel<31&&road.s>g.track.pit.start-260&&road.s<g.track.pit.end;
-  const x=pit?1.2:-0.7;
-  const wanted=pit?(road.s<g.track.pit.start||p.x<1.04?17:0):targetSpeed(g.track,p.distance,v)*.98;
-  const error=x-p.x, feed=road.curve*(p.speed/v.maxSpeed)**2*.95;
-  const correction=error*7+feed;
-  return {left:correction<-.03,right:correction>.03,throttle:p.inPit?p.fuel>=91:p.speed<wanted,brake:p.inPit?p.fuel<91:p.speed>wanted+1,nitro:false};
-}
+const driver=drive;
 test("seeded races reproduce the same simulation with identical public inputs",()=>{
  const a=racing(),b=racing();for(let i=0;i<1800;i++){const input=driver(a);a.update(input);b.update(input);}assert.deepEqual(a.snapshot(),b.snapshot());
 });
@@ -36,7 +29,7 @@ test("running dry coasts to a single DNF event; terminal state cannot advance",(
  const g=racing();g.cars[0].fuel=.001;g.cars[0].speed=3;for(let i=0;i<120;i++)g.update(neutralInput());assert.equal(g.phase,"dnf");assert.equal(g.drainEvents().filter(e=>e.type==="dnf").length,1);const time=g.elapsed;g.update({...neutralInput(),throttle:true});assert.equal(g.elapsed,time);
 });
 test("pit entry enforces low speed and permits a partial-fill departure",()=>{
- const g=racing(),p=g.cars[0];p.distance=400;p.x=1.2;p.speed=40;g.update({...neutralInput(),brake:true});assert.equal(p.inPit,false);p.speed=10;g.update({...neutralInput(),brake:true});assert.equal(p.inPit,true);for(let i=0;i<90;i++)g.update({...neutralInput(),brake:true});const fuel=p.fuel;assert.ok(fuel>66&&fuel<100);g.update({...neutralInput(),throttle:true});assert.equal(p.inPit,false);assert.equal(p.pitStops,1);
+ const g=racing(),p=g.cars[0];p.distance=g.track.pit.start+60;p.x=1.2;p.speed=40;g.update({...neutralInput(),brake:true});assert.equal(p.inPit,false);p.speed=10;g.update({...neutralInput(),brake:true});assert.equal(p.inPit,true);for(let i=0;i<90;i++)g.update({...neutralInput(),brake:true});const fuel=p.fuel;assert.ok(fuel>66&&fuel<100);g.update({...neutralInput(),throttle:true});assert.equal(p.inPit,false);assert.equal(p.pitStops,1);
 });
 test("an AI reaches the pit from the road and leaves with fuel",()=>{
  const g=racing(),ai=g.cars[1];ai.distance=322;ai.x=.32;ai.speed=40;ai.fuel=28;
@@ -83,3 +76,5 @@ test("DNFs, duplicate sessions and malformed persisted races cannot award record
  const loaded=readSave({getItem:()=>JSON.stringify({...save,records:[null,{...finished,elapsed:NaN},finished],results:[{...finished,position:0},dnf]})}).save;
  assert.equal(loaded.results.length,1);assert.equal(loaded.records.length,1);assert.equal(loaded.bestScore?.sessionId,'finish');
 });
+
+test('v2 retains legacy settings and leaves old route records untouched',()=>{const old=JSON.stringify({...defaultSave(),vehicleId:'comet',autoThrottle:true,music:false,results:[record('legacy')]}),values=new Map([['statoz.games.web.retro-circuit:v1',old]]);const {save,temporary}=readSave({getItem:k=>values.get(k)??null});assert.equal(temporary,false);assert.equal(save.vehicleId,'comet');assert.equal(save.music,false);assert.equal(save.autoThrottle,true);assert.deepEqual(save.records,[]);assert.equal(values.get('statoz.games.web.retro-circuit:v1'),old);});

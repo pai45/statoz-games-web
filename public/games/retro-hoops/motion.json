@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "rulesVersion": "1.3.0",
-  "classification": "Authored adaptation using existing reference-classified poses",
+  "version": "2.0.0",
+  "rulesVersion": "1.4.0",
+  "classification": "Retained reference head/jersey with authored articulated limb animation",
   "nativeTimingRecovered": false,
   "canvas": [
     144,
@@ -13,27 +13,24 @@
   ],
   "dribble": {
     "frames": [
-      "d-push",
-      "d-low",
-      "d-down"
+      "dribble-body-00..11",
+      "dribble-arm-00..17"
     ],
-    "holdTicks": [
-      6,
-      6,
-      6
-    ],
-    "clock": "Owned idle movement advances owner-local tick only; stationary resets to carry",
+    "clock": "Legs use travelled distance; arm uses owner-local dribbleTick; body bob shared with ball near grip",
     "ballPath": "Continuous eased horizontal offsets -12,8,-20,-12; hand36 -> floor6 at tick9 -> hand36",
-    "event": "One dribble event at phase9 per18ticks"
+    "event": "One dribble event at phase9 per18ticks",
+    "bodyFrames": 12,
+    "armFrames": 18,
+    "armHoldTicks": 1,
+    "bodyCycleWorldDistance": 56,
+    "stop": "Finish the current bounce at rest before returning to carry; do not snap a floor ball to the hand"
   },
   "offBallGait": {
-    "frames": [
-      "d-push",
-      "d-low",
-      "d-down"
-    ],
-    "advance": "One pose per10.8 world units travelled; actor offsets prevent synchronized running",
-    "limits": "Repurposed dribble poses, not a recovered dedicated off-ball run/backpedal set"
+    "frames": 12,
+    "pack": "locomotion-v2/manifest.json",
+    "cycleWorldDistance": 56,
+    "advance": "Travel after collision resolution; stationary actors stop advancing",
+    "limits": "Authored run cycle inspired by observed source movement; native frames/timing not recovered"
   },
   "dunk": {
     "owned": "Gather before age15; contact after age15",
@@ -71,13 +68,23 @@
     "scoreCallout": "55 simulation ticks; does not stop or change rules"
   },
   "remainingGaps": [
-    "Dedicated off-ball sprint and direction-specific defensive slides",
-    "Observed receiving/turning variants and airborne passing",
-    "Full native animation cadence and input stream",
-    "Source-specific crowd/net deformation and impact animation"
+    "Native Street Hoop cadence/input stream not recovered",
+    "Dedicated planted turn-in-place and eight-direction torso variants",
+    "Detailed aerial receiving/pass variants and contact-reaction artwork"
   ],
   "sourceVideos": [
     "https://www.youtube.com/watch?v=6fyRg0wTEYY",
     "https://www.youtube.com/watch?v=Q6ThHgZ4Lnk"
-  ]
+  ],
+  "defense": {
+    "frames": 8,
+    "cycleWorldDistance": 28,
+    "facing": "Close idle defenders face the ball while moving or backing away"
+  },
+  "stop": {
+    "frames": 4,
+    "holdTicks": 2,
+    "durationTicks": 8,
+    "behavior": "Cosmetic settle clip only; input/actions remain immediately available"
+  }
 }

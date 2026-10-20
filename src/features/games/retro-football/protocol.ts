@@ -20,11 +20,12 @@ export function readSettings(value: unknown): FootballSettings | null {
   return typeof music === "number" && Number.isFinite(music) && music >= 0 && music <= 1 && typeof sfx === "number" && Number.isFinite(sfx) && sfx >= 0 && sfx <= 1 ? { music, sfx } : null;
 }
 export function readResult(value: unknown): FootballResult | null {
-  if (!object(value) || value.schemaVersion !== 2 || value.gameId !== FOOTBALL_ID || value.mode !== "exhibition" || value.halves !== 2 || value.activeSeconds !== 180 || value.runtimeVersion !== "0.5.0" || value.rulesVersion !== "exhibition-complete-v1" || value.assetVersion !== "football-complete-atlas-v1") return null;
+  if (!object(value) || value.schemaVersion !== 2 || value.gameId !== FOOTBALL_ID || value.mode !== "exhibition" || value.halves !== 2 || value.activeSeconds !== 180) return null;
+  if (!(value.runtimeVersion === "0.5.0" && value.rulesVersion === "exhibition-complete-v1" && value.assetVersion === "football-complete-atlas-v1") && !(value.runtimeVersion === "0.6.0" && value.rulesVersion === "exhibition-handheld-v1" && value.assetVersion === "football-handheld-atlas-v1")) return null;
   const pair = (v: unknown, max: number): v is [number, number] => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n) && n >= 0 && n <= max);
   if (!pair(value.score, 200) || !pair(value.airContacts, 10000) || !pair(value.airCollections, 10000) || !pair(value.passes, 10000) || !pair(value.shots, 10000) || !pair(value.saves, 10000)) return null;
   const expected = value.score[0] === value.score[1] ? "draw" : value.score[0] > value.score[1] ? "win" : "loss";
   if (value.outcome !== expected) return null;
   // Keep only game-owned fields, never an incoming reward or economy field.
-  return {schemaVersion: 2, gameId: FOOTBALL_ID, mode: "exhibition", outcome: expected, score: [...value.score], airContacts: [...value.airContacts], airCollections: [...value.airCollections], passes: [...value.passes], shots: [...value.shots], saves: [...value.saves], halves: 2, activeSeconds: 180, rulesVersion: value.rulesVersion, runtimeVersion: value.runtimeVersion, assetVersion: value.assetVersion};
+  return {schemaVersion: 2, gameId: FOOTBALL_ID, mode: "exhibition", outcome: expected, score: [...value.score], airContacts: [...value.airContacts], airCollections: [...value.airCollections], passes: [...value.passes], shots: [...value.shots], saves: [...value.saves], halves: 2, activeSeconds: 180, rulesVersion: value.rulesVersion as string, runtimeVersion: value.runtimeVersion as string, assetVersion: value.assetVersion as string};
 }

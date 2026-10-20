@@ -1,8 +1,8 @@
 {
   "gameId": "retro-hoops",
   "briefVersion": "1.0.0",
-  "rulesVersion": "1.3.0",
-  "buildVersion": "future-games-handheld-v1",
+  "rulesVersion": "1.4.0",
+  "buildVersion": "future-games-movement-v2-local",
   "assetPackVersion": "facing-family-v1+action-family-v2",
   "date": "2026-10-20",
   "reference": {
@@ -93,12 +93,13 @@
     "quote": "auto approve for now",
     "listeningPerformed": false
   },
-  "motionVersion": "1.0.0",
+  "motionVersion": "2.0.0",
   "motionChanges": [
-    "Independent actor travel drives off-ball gait",
-    "Owner-local 18-tick dribble; continuous hand/ground ball path and contact event at phase9",
-    "Post-score dunk retains contact silhouette aloft then landing recovery",
-    "Presentation-only shadows and 55-tick score callout"
+    "Dedicated12frame running and dribbling body cycles",
+    "Independent18frame hand/ball layer and shared bob/contact",
+    "Eight-frame close defensive shuffle; face ball while backpedalling",
+    "Four-frame stop/settle without action locks",
+    "Travel advances from postcollision movement rather than attempted movement"
   ],
   "presentationViewport": [
     640,
