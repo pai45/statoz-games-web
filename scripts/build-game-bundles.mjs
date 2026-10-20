@@ -73,6 +73,7 @@ for(const gameId of ids){
   // srcdoc has an opaque location.origin even though its inherited message
   // origin is the host's origin. Keep the legacy engines' same-origin bridge.
   html=html.replace(/(?:window\.)?location\.origin\b/g,'window.__STATOZ_MESSAGE_ORIGIN__');
+  if(gameId==='retro-innings')html=html.replaceAll('window.parent.postMessage(', 'window.postMessage(');
   const start=html.indexOf('<script');const injection=prelude(gameId)+await assetShim(sourceRoot);html=html.slice(0,start)+injection+html.slice(start);
   if(gameId.startsWith('designer-'))html+='<script>window.__STATOZ_HOST__.emit("ready");</script>';
  }
