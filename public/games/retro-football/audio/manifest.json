@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "id": "retro-football-original-audio-v1",
+  "source": "Original deterministic additive/noise synthesis by StatOz; build-original-audio.py; no third-party samples or borrowed tune",
+  "license": "Original project material; no third-party audio rights dependencies",
+  "records": [
+    {
+      "id": "kick",
+      "file": "kick.wav",
+      "duration": 0.18,
+      "sampleRate": 22050,
+      "loop": false,
+      "peak": 0.45193460698588156,
+      "rms": 0.09193107365994,
+      "sha256": "c5da1862f8d5a920921af5d1a8970ae23ffbf0b0898edd60843df64167ceeed8"
+    },
+    {
+      "id": "tackle",
+      "file": "tackle.wav",
+      "duration": 0.28,
+      "sampleRate": 22050,
+      "loop": false,
+      "peak": 0.49091745042261686,
+      "rms": 0.09021430191816812,
+      "sha256": "dd4600c55d3210cd4cfc3beadceb4e99d55744d711288b25eef002089496c053"
+    },
+    {
+      "id": "save",
+      "file": "save.wav",
+      "duration": 0.24,
+      "sampleRate": 22050,
+      "loop": false,
+      "peak": 0.4660683844872652,
+      "rms": 0.08097037794946388,
+      "sha256": "a05f3962feb6c9f602e5ac0717a9606fd13c6cad784afc210f4cd59f2dde7306"
+    },
+    {
+      "id": "whistle",
+      "file": "whistle.wav",
+      "duration": 0.6,
+      "sampleRate": 22050,
+      "loop": false,
+      "peak": 0.33742779597496,
+      "rms": 0.18106683053257736,
+      "sha256": "a2af1dd0a6c2d981949e438a6249e8e8626786d85f6608ec49d47b31e81d6ca5"
+    },
+    {
+      "id": "ui",
+      "file": "ui.wav",
+      "duration": 0.1,
+      "sampleRate": 22050,
+      "loop": false,
+      "peak": 0.16936771972130948,
+      "rms": 0.05217677511866509,
+      "sha256": "3f9dd5ad59822f385756a4b4d17b29e7fafb7009b083faa76f1418822b068055"
+    },
+    {
+      "id": "goal",
+      "file": "goal.wav",
+      "duration": 1.8,
+      "sampleRate": 22050,
+      "loop": false,
+      "peak": 0.3856606062533334,
+      "rms": 0.10196420968739615,
+      "sha256": "4f7f243ac4546e68787880787b6ddd1c2708a6fc7621c9d61e6a2b4254caeb70"
+    },
+    {
+      "id": "result",
+      "file": "result.wav",
+      "duration": 2.8,
+      "sampleRate": 22050,
+      "loop": false,
+      "peak": 0.3194227179237703,
+      "rms": 0.08607456863821197,
+      "sha256": "3baf891646aaf5329cd31945a5dd697e2f44f46c2f71b7d4c48f6ccceeb8ccd1"
+    },
+    {
+      "id": "menu",
+      "file": "menu.wav",
+      "duration": 8.0,
+      "sampleRate": 22050,
+      "loop": true,
+      "peak": 0.21473846117921075,
+      "rms": 0.0586641392198267,
+      "sha256": "5337e632ef8f43845e862973a69816a2cddafb83b558130bf16fcffa110372de"
+    },
+    {
+      "id": "crowd",
+      "file": "crowd.wav",
+      "duration": 4.0,
+      "sampleRate": 22050,
+      "loop": true,
+      "peak": 0.22673245258937114,
+      "rms": 0.03439667195956081,
+      "sha256": "92b13aa346964edcaeaec465ce0556429456860d05e748af65b4c2239fe0d064"
+    }
+  ],
+  "listeningReview": "pending; numeric/decode evidence alone is not listening approval"
+}

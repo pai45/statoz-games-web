@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "source": "statoz_web/src/design-system/components/data-display/discovery-card",
+  "files": {
+    "discovery-card.tsx": "acbdf080872f22d2bdc0d592f850748a6b4d06934cb6bb423ab2953683654c43",
+    "discovery-card.module.css": "5b7acd3195b6a3843a8dc30bf829cdfc1fd2d440cf655872cffcff5eb01da435",
+    "presentation.ts": "eb62a8a20b304084c8a46c83a7b468046be8abdbe2bb008de02cb404f73cd8a2",
+    "index.ts": "06bbf216ddba3d0ce90cfa612227d8ab84cd5d5e51dac63f98a97d0c884ea8a5",
+    "README.md": "ec5054f5fdcca5559b2b24df129e5aedd093d300d9498ff8d8d74d5df6081a0f"
+  }
+}

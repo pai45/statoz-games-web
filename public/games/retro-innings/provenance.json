@@ -1,0 +1,22 @@
+{
+  "game": "retro-innings",
+  "version": "three-candidate-v2",
+  "release": "private-reference-preview",
+  "publicReleaseApproved": false,
+  "sha256": "45c3f09f9bb6283596faa70fa6ffd5cbf55495a9e37d7d4aee4330589337dc74",
+  "sourceBundle": "output/retro-innings/three-candidate-v2/index.html",
+  "sourceAssets": "output/retro-innings/three-candidate-v2/assets.json",
+  "referenceStudy": "output/retro-innings/reference-study/manifest.json",
+  "sources": [
+    "https://www.youtube.com/watch?v=tn2SvnEA9w4",
+    "https://www.youtube.com/watch?v=D2D2t1JfZDk"
+  ],
+  "artwork": "Source-derived reference artwork; existing source licences/provenance preserved in the Designer workspace. No public asset clearance claimed.",
+  "audio": "Optional original synthesized cues; source-game audio excluded.",
+  "limits": [
+    "Private local integration only; no deployment performed",
+    "Keeper pursuit, throw and full dive unfinished",
+    "Source fidelity and human timing review remain in progress"
+  ],
+  "presentation": "Compact red ball, depth-scaled stumps, smaller score plate and selected-fielder shield; authored from saved source frames. Simulation and athlete assets byte-identical to v1."
+}

@@ -1,0 +1,726 @@
+@import "./game-discovery.generated.css";
+
+:root {
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --ds-color-background-primary: #0d111a;
+  --ds-color-background-secondary: #0f172b;
+  --ds-color-background-elevated: #1d293d;
+  --ds-color-background-muted: #070c1f;
+  --ds-color-background-nav: #1a253a;
+  --ds-color-background-quiz-hub: #06152b;
+  --ds-color-background-data: #10192d;
+
+  /* Text */
+  --ds-color-text-default: #ffffff;
+  --ds-color-text-muted: #90a1b9;
+  --ds-color-text-subtle: #cad5e2;
+  --ds-color-text-accent: #5cdfff;
+  --ds-color-text-inverse: #081019;
+  --ds-color-text-disabled: #6a7282;
+
+  /* Borders */
+  --ds-color-border-default: #314158;
+  --ds-color-border-muted: #243654;
+  --ds-color-border-subtle: #20293e;
+  --ds-color-border-strong: #45556c;
+  --ds-color-border-active: rgb(173 70 255 / 50%);
+  --ds-color-border-inactive: #94a3b8;
+
+  /* Accents */
+  --ds-color-accent-white: var(--ds-color-text-default);
+  --ds-color-accent-cyan: #5cdfff;
+  --ds-color-accent-violet: #c27aff;
+  --ds-color-accent-orange: #ff8904;
+  --ds-color-accent-lime: #51ff94;
+  --ds-color-accent-gold: #fdc700;
+  --ds-color-accent-blue: #2b7fff;
+  --ds-color-accent-racing: #f42d29;
+  --ds-color-accent-pink: #ff94c1;
+
+  /* Rarity — collectible card tiers. Gold and platinum reuse the accents the
+     palette already holds rather than growing a second gold. */
+  --ds-color-rarity-bronze-light: #e8a45c;
+  --ds-color-rarity-bronze-base: #cd7f32;
+  --ds-color-rarity-bronze-deep: #5c3a1a;
+  --ds-color-rarity-silver-light: #f1f5f9;
+  --ds-color-rarity-silver-base: #cbd5e1;
+  --ds-color-rarity-silver-deep: #64748b;
+  --ds-color-rarity-gold-light: #ffe9a8;
+  --ds-color-rarity-gold-base: var(--ds-color-accent-gold);
+  --ds-color-rarity-gold-deep: #b8860b;
+  --ds-color-rarity-platinum-light: #b9f6ff;
+  --ds-color-rarity-platinum-base: var(--ds-color-accent-cyan);
+  --ds-color-rarity-platinum-deep: var(--ds-color-accent-violet);
+
+  /* Feedback */
+  --ds-color-success: #05df72;
+  --ds-color-warning: #fdc700;
+  --ds-color-danger: #ff4d4d;
+  --ds-color-info: #3c95da;
+
+  /* Overlays */
+  --ds-color-overlay-subtle: rgb(255 255 255 / 10%);
+  --ds-color-overlay-scrim: rgb(0 0 0 / 84%);
+  --ds-color-overlay-plate: rgb(0 0 0 / 60%);
+  --ds-color-overlay-shop-footer: rgb(0 0 0 / 88%);
+  --ds-color-overlay-shop-ownership: rgb(0 0 0 / 66%);
+
+  /* Fixture-card chrome */
+  --ds-color-fixture-shadow: #04060b;
+  --ds-color-fixture-base: #141c2b;
+  --ds-color-fixture-strip: #0f1826;
+  /* The brighter fill a fixture card's call-to-action strip takes. */
+  --ds-color-fixture-strip-focal: #173a5e;
+  --ds-color-fixture-border: #2a3550;
+  --ds-color-fixture-predicted: #2c7a8c;
+  --ds-color-fixture-kickoff: #c8a45a;
+  --ds-color-fixture-dim-name: #aeb7c5;
+  --ds-color-fixture-score: #9fb0c2;
+  --ds-color-fixture-result: #bac5d3;
+
+  /* Gradients */
+  --ds-gradient-app-background: linear-gradient(135deg, #010916 0%, #0e2646 100%);
+  --ds-gradient-nav-bar: linear-gradient(
+    to top,
+    rgb(14 22 43 / 97.6%) 0%,
+    rgb(28 40 60 / 97.6%) 100%
+  );
+  --ds-gradient-arena-backdrop: linear-gradient(
+    to bottom,
+    #02060f 0%,
+    #06121f 46%,
+    #01040a 100%
+  );
+  --ds-gradient-step-passed: linear-gradient(to right, #00c850 0%, #009865 100%);
+  --ds-gradient-step-current: linear-gradient(to right, #ffb13d 0%, #ff7a1a 100%);
+  --ds-gradient-step-failed: linear-gradient(to right, #ff6b6b 0%, #c81e30 100%);
+  --ds-gradient-pack-headline: linear-gradient(135deg, #5cdfff 0%, #d4ff5c 100%);
+  --ds-gradient-card-nameplate: linear-gradient(to right, #202836 0%, #121824 100%);
+  --ds-gradient-fixture-card: linear-gradient(to bottom, #1b2336 0%, #121a28 100%);
+  --ds-gradient-trending-card: linear-gradient(
+    to bottom,
+    color-mix(
+        in srgb,
+        var(--ds-color-accent-cyan) 4%,
+        var(--ds-color-background-elevated)
+      )
+      0%,
+    var(--ds-color-background-elevated) 100%
+  );
+  --ds-gradient-league-table: linear-gradient(135deg, #121b30 0%, #0e1628 100%);
+  /* The bed a decision sheet is taken on, raked from lit slate to hull dark. */
+  --ds-gradient-hud-sheet: linear-gradient(135deg, #152139 0%, #0b101c 100%);
+  /* The lit top edge of that sheet: cyan into violet, fading at both ends. */
+  --ds-gradient-hud-edge: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--ds-color-accent-cyan) 28%,
+    var(--ds-color-accent-violet) 72%,
+    transparent 100%
+  );
+  --ds-gradient-dock-bar: linear-gradient(
+    to bottom,
+    color-mix(in srgb, #1d293d 88%, transparent) 0%,
+    #17233d 100%
+  );
+  --ds-gradient-streak-milestone: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ds-color-accent-gold) 24%, transparent) 0%,
+    var(--ds-color-background-secondary) 50%,
+    var(--ds-color-background-elevated) 100%
+  );
+
+  /* Elevation */
+  --ds-shadow-hard-drop: 0 4px 0 rgb(0 0 0 / 20%);
+  --ds-shadow-panel: 0 2px 12px rgb(0 0 0 / 35%);
+  --ds-shadow-streak-card: 0 5px 0 var(--ds-color-fixture-shadow);
+
+  /* Shape — StatOz cuts corners instead of rounding them. */
+  --ds-shape-signal-cut: 12px;
+  --ds-shape-signal-notch: 34px;
+  --ds-shape-signal-step: 8px;
+  --ds-shape-signal-lift: 6px;
+  --ds-shape-fixture-cut: 12px;
+  --ds-shape-fixture-notch-width: 96px;
+  --ds-shape-fixture-notch-depth: 22px;
+  --ds-shape-fixture-notch-slope: 12px;
+  --ds-shape-fixture-lift: 6px;
+  --ds-shape-tab-chamfer: 16px;
+  --ds-shape-field-cut: 10px;
+  --ds-shape-panel-cut: 12px;
+  --ds-shape-hud-cut: 14px;
+  --ds-shape-hud-accent-cut: 4px;
+  --ds-shape-hud-sheet-cut: 18px;
+  --ds-shape-hud-sheet-accent-cut: 4px;
+  --ds-shape-compact-hud-cut: 12px;
+  --ds-shape-compact-hud-accent-cut: 3px;
+  /* A card scales its chamfer to its own width; these are the resting values a
+     card overrides. See cardCuts() in design-system/tokens/shape.ts. */
+  --ds-card-cut-big: 14px;
+  --ds-card-cut-small: 7px;
+  --ds-radius-none: 0;
+  --ds-radius-sm: 2px;
+  --ds-radius-md: 4px;
+  --ds-radius-pill: 999px;
+
+  /* Clip paths — kept in sync with design-system/tokens/shape.ts */
+  --ds-clip-signal: polygon(
+    12px 0,
+    calc(100% - 42px) 0,
+    calc(100% - 34px) 8px,
+    100% 8px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px),
+    0 12px
+  );
+  --ds-clip-fixture: polygon(
+    0 0,
+    calc(50% - 60px) 0,
+    calc(50% - 48px) 22px,
+    calc(50% + 48px) 22px,
+    calc(50% + 60px) 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+  --ds-clip-fixture-flat: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+  --ds-plate-cut: 9px;
+  --ds-clip-octagon-plate: polygon(
+    var(--ds-plate-cut) 0,
+    calc(100% - var(--ds-plate-cut)) 0,
+    100% var(--ds-plate-cut),
+    100% calc(100% - var(--ds-plate-cut)),
+    calc(100% - var(--ds-plate-cut)) 100%,
+    var(--ds-plate-cut) 100%,
+    0 calc(100% - var(--ds-plate-cut)),
+    0 var(--ds-plate-cut)
+  );
+  --ds-clip-octagon: polygon(
+    15% 0,
+    85% 0,
+    100% 15%,
+    100% 85%,
+    85% 100%,
+    15% 100%,
+    0 85%,
+    0 15%
+  );
+  --ds-clip-field: polygon(
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px),
+    0 10px
+  );
+  --ds-clip-chip: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    0 calc(100% - 8px),
+    0 8px
+  );
+  --ds-clip-panel: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px),
+    0 12px
+  );
+  --ds-clip-hud: polygon(
+    14px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    4px 100%,
+    0 calc(100% - 4px),
+    0 14px
+  );
+  --ds-clip-hud-sheet: polygon(
+    18px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 18px),
+    calc(100% - 18px) 100%,
+    4px 100%,
+    0 calc(100% - 4px),
+    0 18px
+  );
+  --ds-clip-compact-hud: polygon(
+    12px 0,
+    calc(100% - 3px) 0,
+    100% 3px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    3px 100%,
+    0 calc(100% - 3px),
+    0 12px
+  );
+  /* Only correct at the resting cut sizes above: the cuts in this polygon
+     resolve here on :root, so a card that overrides --ds-card-cut-* must use
+     cardClipPath from design-system/tokens/shape.ts instead. */
+  --ds-clip-card: polygon(
+    var(--ds-card-cut-big) 0,
+    calc(100% - var(--ds-card-cut-small)) 0,
+    100% var(--ds-card-cut-small),
+    100% calc(100% - var(--ds-card-cut-big)),
+    calc(100% - var(--ds-card-cut-big)) 100%,
+    var(--ds-card-cut-small) 100%,
+    0 calc(100% - var(--ds-card-cut-small)),
+    0 var(--ds-card-cut-big)
+  );
+  --ds-clip-tab-plate: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    16px 100%,
+    0 calc(100% - 16px)
+  );
+
+  /* Spacing */
+  --ds-space-0: 0;
+  --ds-space-2: 0.125rem;
+  --ds-space-4: 0.25rem;
+  --ds-space-6: 0.375rem;
+  --ds-space-8: 0.5rem;
+  --ds-space-10: 0.625rem;
+  --ds-space-12: 0.75rem;
+  --ds-space-14: 0.875rem;
+  --ds-space-16: 1rem;
+  --ds-space-20: 1.25rem;
+  --ds-space-24: 1.5rem;
+  --ds-space-28: 1.75rem;
+  --ds-space-32: 2rem;
+  --ds-space-40: 2.5rem;
+  --ds-space-48: 3rem;
+  --ds-space-64: 4rem;
+
+  /* BEGIN GENERATED TYPOGRAPHY */
+  --ds-font-body: var(--font-space-grotesk, "Space Grotesk"), "Space Grotesk", system-ui, sans-serif;
+  --ds-font-display: var(--font-orbitron, "Orbitron"), "Orbitron", var(--font-space-grotesk, "Space Grotesk"), system-ui, sans-serif;
+  --ds-font-mono: ui-monospace, "SFMono-Regular", monospace;
+  --ds-text-nano: 0.5rem;
+  --ds-text-micro: 0.5625rem;
+  --ds-text-2xs: 0.625rem;
+  --ds-text-xs: 0.6875rem;
+  --ds-text-compact: 0.75rem;
+  --ds-text-sm: 0.8125rem;
+  --ds-text-md: 0.875rem;
+  --ds-text-base: 0.875rem;
+  --ds-text-lg: 1rem;
+  --ds-text-badge: 1.125rem;
+  --ds-text-xl: 1.125rem;
+  --ds-text-2xl: 1.5rem;
+  --ds-text-3xl: 1.75rem;
+  --ds-text-hero: 2.625rem;
+  --ds-text-celebration: 3.375rem;
+  --ds-text-countdown: 4.5rem;
+  --ds-size-p0_5: 0.03125rem;
+  --ds-canvas-p0_5: 0.5px;
+  --ds-size-p1_15: 0.071875rem;
+  --ds-canvas-p1_15: 1.15px;
+  --ds-size-p1_1875: 0.07421875rem;
+  --ds-canvas-p1_1875: 1.1875px;
+  --ds-size-p1_2: 0.075rem;
+  --ds-canvas-p1_2: 1.2px;
+  --ds-size-p1_3: 0.08125rem;
+  --ds-canvas-p1_3: 1.3px;
+  --ds-size-p1_35: 0.084375rem;
+  --ds-canvas-p1_35: 1.35px;
+  --ds-size-p1_7: 0.10625rem;
+  --ds-canvas-p1_7: 1.7px;
+  --ds-size-p1_75: 0.109375rem;
+  --ds-canvas-p1_75: 1.75px;
+  --ds-size-p2: 0.125rem;
+  --ds-canvas-p2: 2px;
+  --ds-size-p2_25: 0.140625rem;
+  --ds-canvas-p2_25: 2.25px;
+  --ds-size-p2_4: 0.15rem;
+  --ds-canvas-p2_4: 2.4px;
+  --ds-size-p5: 0.3125rem;
+  --ds-canvas-p5: 5px;
+  --ds-size-p5_5: 0.34375rem;
+  --ds-canvas-p5_5: 5.5px;
+  --ds-size-p5_8: 0.3625rem;
+  --ds-canvas-p5_8: 5.8px;
+  --ds-size-p6: 0.375rem;
+  --ds-canvas-p6: 6px;
+  --ds-size-p6_5: 0.40625rem;
+  --ds-canvas-p6_5: 6.5px;
+  --ds-size-p6_8: 0.425rem;
+  --ds-canvas-p6_8: 6.8px;
+  --ds-size-p7: 0.4375rem;
+  --ds-canvas-p7: 7px;
+  --ds-size-p7_2: 0.45rem;
+  --ds-canvas-p7_2: 7.2px;
+  --ds-size-p7_5: 0.46875rem;
+  --ds-canvas-p7_5: 7.5px;
+  --ds-size-p8: 0.5rem;
+  --ds-canvas-p8: 8px;
+  --ds-size-p8_5: 0.53125rem;
+  --ds-canvas-p8_5: 8.5px;
+  --ds-size-p9: 0.5625rem;
+  --ds-canvas-p9: 9px;
+  --ds-size-p9_5: 0.59375rem;
+  --ds-canvas-p9_5: 9.5px;
+  --ds-size-p10: 0.625rem;
+  --ds-canvas-p10: 10px;
+  --ds-size-p10_5: 0.65625rem;
+  --ds-canvas-p10_5: 10.5px;
+  --ds-size-p11: 0.6875rem;
+  --ds-canvas-p11: 11px;
+  --ds-size-p11_5: 0.71875rem;
+  --ds-canvas-p11_5: 11.5px;
+  --ds-size-p12: 0.75rem;
+  --ds-canvas-p12: 12px;
+  --ds-size-p12_5: 0.78125rem;
+  --ds-canvas-p12_5: 12.5px;
+  --ds-size-p13: 0.8125rem;
+  --ds-canvas-p13: 13px;
+  --ds-size-p13_5: 0.84375rem;
+  --ds-canvas-p13_5: 13.5px;
+  --ds-size-p14: 0.875rem;
+  --ds-canvas-p14: 14px;
+  --ds-size-p14_5: 0.90625rem;
+  --ds-canvas-p14_5: 14.5px;
+  --ds-size-p15: 0.9375rem;
+  --ds-canvas-p15: 15px;
+  --ds-size-p15_5: 0.96875rem;
+  --ds-canvas-p15_5: 15.5px;
+  --ds-size-p16: 1rem;
+  --ds-canvas-p16: 16px;
+  --ds-size-p17: 1.0625rem;
+  --ds-canvas-p17: 17px;
+  --ds-size-p18: 1.125rem;
+  --ds-canvas-p18: 18px;
+  --ds-size-p19: 1.1875rem;
+  --ds-canvas-p19: 19px;
+  --ds-size-p20: 1.25rem;
+  --ds-canvas-p20: 20px;
+  --ds-size-p21: 1.3125rem;
+  --ds-canvas-p21: 21px;
+  --ds-size-p22: 1.375rem;
+  --ds-canvas-p22: 22px;
+  --ds-size-p23: 1.4375rem;
+  --ds-canvas-p23: 23px;
+  --ds-size-p24: 1.5rem;
+  --ds-canvas-p24: 24px;
+  --ds-size-p25: 1.5625rem;
+  --ds-canvas-p25: 25px;
+  --ds-size-p26: 1.625rem;
+  --ds-canvas-p26: 26px;
+  --ds-size-p27: 1.6875rem;
+  --ds-canvas-p27: 27px;
+  --ds-size-p28: 1.75rem;
+  --ds-canvas-p28: 28px;
+  --ds-size-p29: 1.8125rem;
+  --ds-canvas-p29: 29px;
+  --ds-size-p30: 1.875rem;
+  --ds-canvas-p30: 30px;
+  --ds-size-p31: 1.9375rem;
+  --ds-canvas-p31: 31px;
+  --ds-size-p32: 2rem;
+  --ds-canvas-p32: 32px;
+  --ds-size-p33: 2.0625rem;
+  --ds-canvas-p33: 33px;
+  --ds-size-p34: 2.125rem;
+  --ds-canvas-p34: 34px;
+  --ds-size-p35: 2.1875rem;
+  --ds-canvas-p35: 35px;
+  --ds-size-p36: 2.25rem;
+  --ds-canvas-p36: 36px;
+  --ds-size-p38: 2.375rem;
+  --ds-canvas-p38: 38px;
+  --ds-size-p39: 2.4375rem;
+  --ds-canvas-p39: 39px;
+  --ds-size-p40: 2.5rem;
+  --ds-canvas-p40: 40px;
+  --ds-size-p41: 2.5625rem;
+  --ds-canvas-p41: 41px;
+  --ds-size-p42: 2.625rem;
+  --ds-canvas-p42: 42px;
+  --ds-size-p43: 2.6875rem;
+  --ds-canvas-p43: 43px;
+  --ds-size-p44: 2.75rem;
+  --ds-canvas-p44: 44px;
+  --ds-size-p45: 2.8125rem;
+  --ds-canvas-p45: 45px;
+  --ds-size-p46: 2.875rem;
+  --ds-canvas-p46: 46px;
+  --ds-size-p48: 3rem;
+  --ds-canvas-p48: 48px;
+  --ds-size-p49: 3.0625rem;
+  --ds-canvas-p49: 49px;
+  --ds-size-p50: 3.125rem;
+  --ds-canvas-p50: 50px;
+  --ds-size-p52: 3.25rem;
+  --ds-canvas-p52: 52px;
+  --ds-size-p54: 3.375rem;
+  --ds-canvas-p54: 54px;
+  --ds-size-p55: 3.4375rem;
+  --ds-canvas-p55: 55px;
+  --ds-size-p56: 3.5rem;
+  --ds-canvas-p56: 56px;
+  --ds-size-p58: 3.625rem;
+  --ds-canvas-p58: 58px;
+  --ds-size-p60: 3.75rem;
+  --ds-canvas-p60: 60px;
+  --ds-size-p61: 3.8125rem;
+  --ds-canvas-p61: 61px;
+  --ds-size-p62: 3.875rem;
+  --ds-canvas-p62: 62px;
+  --ds-size-p64: 4rem;
+  --ds-canvas-p64: 64px;
+  --ds-size-p66: 4.125rem;
+  --ds-canvas-p66: 66px;
+  --ds-size-p68: 4.25rem;
+  --ds-canvas-p68: 68px;
+  --ds-size-p69: 4.3125rem;
+  --ds-canvas-p69: 69px;
+  --ds-size-p70: 4.375rem;
+  --ds-canvas-p70: 70px;
+  --ds-size-p72: 4.5rem;
+  --ds-canvas-p72: 72px;
+  --ds-size-p74: 4.625rem;
+  --ds-canvas-p74: 74px;
+  --ds-size-p76: 4.75rem;
+  --ds-canvas-p76: 76px;
+  --ds-size-p78: 4.875rem;
+  --ds-canvas-p78: 78px;
+  --ds-size-p80: 5rem;
+  --ds-canvas-p80: 80px;
+  --ds-size-p82: 5.125rem;
+  --ds-canvas-p82: 82px;
+  --ds-size-p83: 5.1875rem;
+  --ds-canvas-p83: 83px;
+  --ds-size-p84: 5.25rem;
+  --ds-canvas-p84: 84px;
+  --ds-size-p86: 5.375rem;
+  --ds-canvas-p86: 86px;
+  --ds-size-p88: 5.5rem;
+  --ds-canvas-p88: 88px;
+  --ds-size-p92: 5.75rem;
+  --ds-canvas-p92: 92px;
+  --ds-size-p96: 6rem;
+  --ds-canvas-p96: 96px;
+  --ds-size-p98: 6.125rem;
+  --ds-canvas-p98: 98px;
+  --ds-size-p100: 6.25rem;
+  --ds-canvas-p100: 100px;
+  --ds-size-p104: 6.5rem;
+  --ds-canvas-p104: 104px;
+  --ds-size-p108: 6.75rem;
+  --ds-canvas-p108: 108px;
+  --ds-size-p110: 6.875rem;
+  --ds-canvas-p110: 110px;
+  --ds-size-p112: 7rem;
+  --ds-canvas-p112: 112px;
+  --ds-size-p124: 7.75rem;
+  --ds-canvas-p124: 124px;
+  --ds-size-p125: 7.8125rem;
+  --ds-canvas-p125: 125px;
+  --ds-size-p128: 8rem;
+  --ds-canvas-p128: 128px;
+  --ds-size-p130: 8.125rem;
+  --ds-canvas-p130: 130px;
+  --ds-size-p132: 8.25rem;
+  --ds-canvas-p132: 132px;
+  --ds-size-p140: 8.75rem;
+  --ds-canvas-p140: 140px;
+  --ds-size-p145: 9.0625rem;
+  --ds-canvas-p145: 145px;
+  --ds-size-p156: 9.75rem;
+  --ds-canvas-p156: 156px;
+  --ds-size-p180: 11.25rem;
+  --ds-canvas-p180: 180px;
+  --ds-size-p210: 13.125rem;
+  --ds-canvas-p210: 210px;
+  --ds-size-p212: 13.25rem;
+  --ds-canvas-p212: 212px;
+  --ds-size-p220: 13.75rem;
+  --ds-canvas-p220: 220px;
+  --ds-size-p240: 15rem;
+  --ds-canvas-p240: 240px;
+  --ds-size-p120: 7.5rem;
+  --ds-canvas-p120: 120px;
+  --ds-size-p142: 8.875rem;
+  --ds-canvas-p142: 142px;
+  --ds-size-p23_2: 1.45rem;
+  --ds-canvas-p23_2: 23.2px;
+  --ds-size-p33_6: 2.1rem;
+  --ds-canvas-p33_6: 33.6px;
+  --ds-size-p19_2: 1.2rem;
+  --ds-canvas-p19_2: 19.2px;
+  --ds-size-p1008: 63rem;
+  --ds-canvas-p1008: 1008px;
+  --ds-size-p1184: 74rem;
+  --ds-canvas-p1184: 1184px;
+  --ds-size-p1104: 69rem;
+  --ds-canvas-p1104: 1104px;
+  --ds-size-p1152: 72rem;
+  --ds-canvas-p1152: 1152px;
+  --ds-size-p18_4: 1.15rem;
+  --ds-canvas-p18_4: 18.4px;
+  --ds-size-p20_8: 1.3rem;
+  --ds-canvas-p20_8: 20.8px;
+  --ds-size-p21_6: 1.35rem;
+  --ds-canvas-p21_6: 21.6px;
+  --ds-size-p1088: 68rem;
+  --ds-canvas-p1088: 1088px;
+  --ds-size-p992: 62rem;
+  --ds-canvas-p992: 992px;
+  --ds-size-p1200: 75rem;
+  --ds-canvas-p1200: 1200px;
+  --ds-size-p27_2: 1.7rem;
+  --ds-canvas-p27_2: 27.2px;
+  --ds-size-p34_4: 2.15rem;
+  --ds-canvas-p34_4: 34.4px;
+  --ds-size-p144: 9rem;
+  --ds-canvas-p144: 144px;
+  --ds-size-p1312: 82rem;
+  --ds-canvas-p1312: 1312px;
+  --ds-size-p38_4: 2.4rem;
+  --ds-canvas-p38_4: 38.4px;
+  --ds-weight-light: 300;
+  --ds-weight-regular: 400;
+  --ds-weight-medium: 500;
+  --ds-weight-semibold: 600;
+  --ds-weight-bold: 700;
+  --ds-weight-extrabold: 800;
+  --ds-weight-black: 900;
+  --ds-leading-compact: 1;
+  --ds-leading-tight: 1.2;
+  --ds-leading-body: 1.4;
+  --ds-leading-relaxed: 1.6;
+  --ds-tracking-normal: 0em;
+  --ds-tracking-tight: 0.02em;
+  --ds-tracking-label: 0.05em;
+  --ds-tracking-wide: 0.07em;
+  --ds-tracking-display: 0.075em;
+  --ds-tracking-ultra: 0.12em;
+  --ds-tracking-mega: 0.2em;
+  --ds-tracking-max: 0.3em;
+  --ds-numeric-tabular: "tnum" 1;
+  --ds-type-caption-family: var(--ds-font-body);
+  --ds-type-caption-size: 0.75rem;
+  --ds-type-caption-weight: 500;
+  --ds-type-caption-leading: 1.35;
+  --ds-type-caption-tracking: 0em;
+  --ds-type-body-family: var(--ds-font-body);
+  --ds-type-body-size: 0.875rem;
+  --ds-type-body-weight: 500;
+  --ds-type-body-leading: 1.4;
+  --ds-type-body-tracking: 0em;
+  --ds-type-lead-family: var(--ds-font-body);
+  --ds-type-lead-size: 1rem;
+  --ds-type-lead-weight: 500;
+  --ds-type-lead-leading: 1.4;
+  --ds-type-lead-tracking: 0em;
+  --ds-type-control-family: var(--ds-font-body);
+  --ds-type-control-size: 0.875rem;
+  --ds-type-control-weight: 600;
+  --ds-type-control-leading: 1.2;
+  --ds-type-control-tracking: 0em;
+  --ds-type-control-small-family: var(--ds-font-body);
+  --ds-type-control-small-size: 0.75rem;
+  --ds-type-control-small-weight: 600;
+  --ds-type-control-small-leading: 1.2;
+  --ds-type-control-small-tracking: 0em;
+  --ds-type-control-large-family: var(--ds-font-body);
+  --ds-type-control-large-size: 1rem;
+  --ds-type-control-large-weight: 600;
+  --ds-type-control-large-leading: 1.2;
+  --ds-type-control-large-tracking: 0em;
+  --ds-type-hud-label-family: var(--ds-font-display);
+  --ds-type-hud-label-size: 0.75rem;
+  --ds-type-hud-label-weight: 800;
+  --ds-type-hud-label-leading: 1;
+  --ds-type-hud-label-tracking: 0.05833333333333333em;
+  --ds-type-subtitle-family: var(--ds-font-display);
+  --ds-type-subtitle-size: 1rem;
+  --ds-type-subtitle-weight: 800;
+  --ds-type-subtitle-leading: 1.2;
+  --ds-type-subtitle-tracking: 0.05em;
+  --ds-type-title-family: var(--ds-font-display);
+  --ds-type-title-size: 1.125rem;
+  --ds-type-title-weight: 800;
+  --ds-type-title-leading: 1.2;
+  --ds-type-title-tracking: 0.05em;
+  --ds-type-heading-family: var(--ds-font-display);
+  --ds-type-heading-size: 1.5rem;
+  --ds-type-heading-weight: 900;
+  --ds-type-heading-leading: 1;
+  --ds-type-heading-tracking: 0.04583333333333334em;
+  --ds-type-display-family: var(--ds-font-display);
+  --ds-type-display-size: 1.75rem;
+  --ds-type-display-weight: 900;
+  --ds-type-display-leading: 1;
+  --ds-type-display-tracking: 0.04285714285714286em;
+  --ds-type-body-small-family: var(--ds-font-body);
+  --ds-type-body-small-size: 0.75rem;
+  --ds-type-body-small-weight: 500;
+  --ds-type-body-small-leading: 1.35;
+  --ds-type-body-small-tracking: 0em;
+  --ds-type-title-small-family: var(--ds-font-display);
+  --ds-type-title-small-size: 0.875rem;
+  --ds-type-title-small-weight: 800;
+  --ds-type-title-small-leading: 1.2;
+  --ds-type-title-small-tracking: 0.05714285714285715em;
+  --ds-type-label-medium-family: var(--ds-font-display);
+  --ds-type-label-medium-size: 0.875rem;
+  --ds-type-label-medium-weight: 800;
+  --ds-type-label-medium-leading: 1;
+  --ds-type-label-medium-tracking: 0.05357142857142857em;
+  --ds-type-label-large-family: var(--ds-font-display);
+  --ds-type-label-large-size: 1rem;
+  --ds-type-label-large-weight: 800;
+  --ds-type-label-large-leading: 1;
+  --ds-type-label-large-tracking: 0.05em;
+  /* END GENERATED TYPOGRAPHY */
+}
+
+/* BEGIN GENERATED TEXT STYLES */
+.ds-type-caption{font-family:var(--ds-type-caption-family);font-size:var(--ds-type-caption-size);font-weight:var(--ds-type-caption-weight);line-height:var(--ds-type-caption-leading);letter-spacing:var(--ds-type-caption-tracking)}
+.ds-type-body{font-family:var(--ds-type-body-family);font-size:var(--ds-type-body-size);font-weight:var(--ds-type-body-weight);line-height:var(--ds-type-body-leading);letter-spacing:var(--ds-type-body-tracking)}
+.ds-type-lead{font-family:var(--ds-type-lead-family);font-size:var(--ds-type-lead-size);font-weight:var(--ds-type-lead-weight);line-height:var(--ds-type-lead-leading);letter-spacing:var(--ds-type-lead-tracking)}
+.ds-type-control{font-family:var(--ds-type-control-family);font-size:var(--ds-type-control-size);font-weight:var(--ds-type-control-weight);line-height:var(--ds-type-control-leading);letter-spacing:var(--ds-type-control-tracking)}
+.ds-type-control-small{font-family:var(--ds-type-control-small-family);font-size:var(--ds-type-control-small-size);font-weight:var(--ds-type-control-small-weight);line-height:var(--ds-type-control-small-leading);letter-spacing:var(--ds-type-control-small-tracking)}
+.ds-type-control-large{font-family:var(--ds-type-control-large-family);font-size:var(--ds-type-control-large-size);font-weight:var(--ds-type-control-large-weight);line-height:var(--ds-type-control-large-leading);letter-spacing:var(--ds-type-control-large-tracking)}
+.ds-type-hud-label{font-family:var(--ds-type-hud-label-family);font-size:var(--ds-type-hud-label-size);font-weight:var(--ds-type-hud-label-weight);line-height:var(--ds-type-hud-label-leading);letter-spacing:var(--ds-type-hud-label-tracking)}
+.ds-type-subtitle{font-family:var(--ds-type-subtitle-family);font-size:var(--ds-type-subtitle-size);font-weight:var(--ds-type-subtitle-weight);line-height:var(--ds-type-subtitle-leading);letter-spacing:var(--ds-type-subtitle-tracking)}
+.ds-type-title{font-family:var(--ds-type-title-family);font-size:var(--ds-type-title-size);font-weight:var(--ds-type-title-weight);line-height:var(--ds-type-title-leading);letter-spacing:var(--ds-type-title-tracking)}
+.ds-type-heading{font-family:var(--ds-type-heading-family);font-size:var(--ds-type-heading-size);font-weight:var(--ds-type-heading-weight);line-height:var(--ds-type-heading-leading);letter-spacing:var(--ds-type-heading-tracking)}
+.ds-type-display{font-family:var(--ds-type-display-family);font-size:var(--ds-type-display-size);font-weight:var(--ds-type-display-weight);line-height:var(--ds-type-display-leading);letter-spacing:var(--ds-type-display-tracking)}
+.ds-type-body-small{font-family:var(--ds-type-body-small-family);font-size:var(--ds-type-body-small-size);font-weight:var(--ds-type-body-small-weight);line-height:var(--ds-type-body-small-leading);letter-spacing:var(--ds-type-body-small-tracking)}
+.ds-type-title-small{font-family:var(--ds-type-title-small-family);font-size:var(--ds-type-title-small-size);font-weight:var(--ds-type-title-small-weight);line-height:var(--ds-type-title-small-leading);letter-spacing:var(--ds-type-title-small-tracking)}
+.ds-type-label-medium{font-family:var(--ds-type-label-medium-family);font-size:var(--ds-type-label-medium-size);font-weight:var(--ds-type-label-medium-weight);line-height:var(--ds-type-label-medium-leading);letter-spacing:var(--ds-type-label-medium-tracking)}
+.ds-type-label-large{font-family:var(--ds-type-label-large-family);font-size:var(--ds-type-label-large-size);font-weight:var(--ds-type-label-large-weight);line-height:var(--ds-type-label-large-leading);letter-spacing:var(--ds-type-label-large-tracking)}
+.ds-type-score{font-family:var(--ds-type-score-family);font-size:var(--ds-type-score-size);font-weight:var(--ds-type-score-weight);line-height:var(--ds-type-score-leading);letter-spacing:var(--ds-type-score-tracking)}
+.ds-type-timer{font-family:var(--ds-type-timer-family);font-size:var(--ds-type-timer-size);font-weight:var(--ds-type-timer-weight);line-height:var(--ds-type-timer-leading);letter-spacing:var(--ds-type-timer-tracking)}
+.ds-type-celebration{font-family:var(--ds-type-celebration-family);font-size:var(--ds-type-celebration-size);font-weight:var(--ds-type-celebration-weight);line-height:var(--ds-type-celebration-leading);letter-spacing:var(--ds-type-celebration-tracking)}
+.ds-type-responsive-game{font-family:var(--ds-type-responsive-game-family);font-size:var(--ds-type-responsive-game-size);font-weight:var(--ds-type-responsive-game-weight);line-height:var(--ds-type-responsive-game-leading);letter-spacing:var(--ds-type-responsive-game-tracking)}
+.ds-type-artwork{font-family:var(--ds-type-artwork-family);font-size:var(--ds-type-artwork-size);font-weight:var(--ds-type-artwork-weight);line-height:var(--ds-type-artwork-leading);letter-spacing:var(--ds-type-artwork-tracking)}
+/* END GENERATED TEXT STYLES */

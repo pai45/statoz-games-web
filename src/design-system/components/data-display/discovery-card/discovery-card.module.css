@@ -1,0 +1,376 @@
+.plate {
+  --sport-accent: var(--ds-color-accent-cyan);
+  --shell: polygon(var(--ed-cut,16px) 0,100% 0,100% calc(100% - var(--ed-cut,16px)),calc(100% - var(--ed-cut,16px)) 100%,0 100%,0 var(--ed-cut,16px));
+  --plate-fill: var(--ds-gradient-fixture-card);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: var(--ed-card,16px);
+  color: var(--ds-color-text-default);
+  background: none;
+  border: 0;
+  text-decoration: none;
+  text-align: left;
+  font-family: var(--ds-font-body);
+  transition: transform 120ms;
+  container-type: inline-size;
+}
+
+.plate::before,.plate::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  clip-path: var(--shell);
+}
+
+.plate::before {
+  inset: 0;
+  background: var(--ds-color-border-default);
+}
+
+.plate::after {
+  inset: 1px;
+  background: var(--plate-fill);
+  box-shadow: inset 0 -3px var(--ds-color-fixture-shadow);
+}
+
+.plate:hover::before,.plate:focus-visible::before,.plate:has(:focus-visible)::before {
+  background: var(--ds-color-accent-cyan);
+}
+
+.plate:focus-visible,.plate:has(:focus-visible) {
+  outline: none;
+}
+
+.plate:focus-visible::after {
+  inset: 2px;
+}
+
+.plate:active {
+  transform: scale(.99);
+}
+
+.chrome {
+  position: absolute;
+  inset: var(--ed-plateInset,5px);
+  pointer-events: none;
+  --etch-cut: calc(var(--ed-cut,16px) - var(--ed-plateInset,5px));
+}
+
+.chrome::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ds-color-border-strong);
+  opacity: var(--ed-etchOpacity,.36);
+  clip-path: polygon(var(--etch-cut) 0,100% 0,100% calc(100% - var(--etch-cut)),calc(100% - var(--etch-cut)) 100%,0 100%,0 var(--etch-cut),var(--etch-cut) 0,calc(var(--etch-cut) + .4px) 1px,1px calc(var(--etch-cut) + .4px),1px calc(100% - 1px),calc(100% - var(--etch-cut) - .4px) calc(100% - 1px),calc(100% - 1px) calc(100% - var(--etch-cut) - .4px),calc(100% - 1px) 1px,calc(var(--etch-cut) + .4px) 1px);
+}
+
+.signalRail {
+  position: absolute;
+  top: calc(1px - var(--ed-plateInset,5px));
+  left: calc(var(--ed-cut,16px) - var(--ed-plateInset,5px));
+  height: 2px;
+  width: var(--ed-signalLength,36px);
+  background: var(--sport-accent);
+  opacity: .6;
+  transform-origin: left;
+}
+
+.statusArea {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  min-width: 0;
+}
+
+.statusArea::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: var(--ds-color-fixture-border);
+}
+
+.marker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 80px;
+  min-width: 0;
+  font-size: var(--ed-support,.75rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ds-color-text-muted);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  overflow-wrap: normal;
+}
+
+.marker svg {
+  color: var(--sport-accent);
+  flex-shrink: 0;
+}
+
+.signal {
+  width: 16px;
+  height: 2px;
+  background: var(--sport-accent);
+  flex-shrink: 0;
+}
+
+.tag {
+  --state: var(--ds-color-text-muted);
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+  min-height: var(--ed-tagMinHeight,24px);
+  padding: 4px 8px;
+  font-size: var(--ed-status,.75rem);
+  font-weight: 600;
+  line-height: 1.3334;
+  color: var(--state);
+  position: absolute;
+  top: calc(-1 * var(--ed-card,16px));
+  right: calc(-1 * var(--ed-card,16px));
+  white-space: nowrap;
+}
+
+.tag::before,.tag::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  clip-path: polygon(0 0,100% 0,100% 100%,4px 100%,0 calc(100% - 4px));
+}
+
+.tag::before {
+  background: color-mix(in srgb,var(--state) 28%,var(--ds-color-fixture-strip));
+}
+
+.tag::after {
+  inset: 1px;
+  background: color-mix(in srgb,var(--state) calc(var(--ed-statusTint,.08) * 100%),var(--ds-color-fixture-strip));
+}
+
+.tag[data-status="live"] {
+  --state: var(--ds-color-danger);
+}
+
+.tag[data-status="upcoming"],.tag[data-status="scheduled"] {
+  --state: var(--ds-color-accent-gold);
+}
+
+.tag[data-status="unresolved"] {
+  --state: var(--ds-color-accent-orange);
+}
+
+.tag[data-status="settled"] {
+  --state: var(--ds-color-success);
+}
+
+.timing {
+  flex-basis: 100%;
+  padding-left: 24px;
+  font-size: var(--ed-support,.75rem);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--ds-color-text-muted);
+}
+
+.outcome {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--ed-outcomeMinHeight,44px);
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  font: 600 var(--ed-name,.875rem)/1.4 var(--ds-font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.outcome::before,.outcome::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  clip-path: polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+}
+
+.outcome::before {
+  background: color-mix(in srgb,var(--outcome-fill) 30%,var(--ds-color-fixture-border));
+}
+
+.outcome::after {
+  inset: 1px;
+  background: linear-gradient(90deg,var(--outcome-fill) 0 2px,transparent 2px),color-mix(in srgb,var(--outcome-fill) calc(var(--ed-outcomeTint,.04) * 100%),var(--ds-color-fixture-strip));
+}
+
+.outcome:not(:disabled):hover::before,.outcome:focus-visible::before {
+  background: var(--outcome-fill);
+}
+
+.outcome:focus-visible {
+  outline: none;
+}
+
+.outcome:focus-visible::after {
+  inset: 2px;
+}
+
+.outcome:disabled {
+  cursor: default;
+  opacity: .65;
+}
+
+.outcome>span:first-child {
+  align-items: center;
+  min-width: 0;
+  padding: 8px 0 8px 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: var(--ed-teamNameLines,2);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  align-self: center;
+}
+
+.priceBadge {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--ed-outcomeWidth,64px);
+  min-height: var(--ed-outcomeMinHeight,44px);
+  padding: 4px 10px;
+  align-self: stretch;
+  flex-shrink: 0;
+  color: var(--outcome-ink);
+  font: 600 var(--ed-name,.875rem)/1.4 var(--ds-font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.priceBadge::before,.priceBadge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  clip-path: polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+}
+
+.priceBadge::before {
+  background: color-mix(in srgb,var(--outcome-fill) 70%,var(--ds-color-text-default));
+}
+
+.priceBadge::after {
+  inset: 1px;
+  background: var(--outcome-fill);
+  box-shadow: inset 0 -2px color-mix(in srgb,var(--outcome-ink) 12%,transparent);
+}
+
+.questionSteps {
+  display: flex;
+  gap: var(--ed-progressGap,4px);
+}
+
+.questionSteps span {
+  height: var(--ed-progressHeight,4px);
+  flex: 1;
+  background: var(--ds-color-border-default);
+}
+
+.questionSteps span[data-complete] {
+  background: var(--ds-color-accent-cyan);
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .plate {
+    transition: none;
+  }
+  .plate:active {
+    transform: none;
+  }
+}
+
+@container (max-width:220px) {
+  .plate>.statusArea {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+  }
+  .plate>.statusArea>.marker {
+    grid-column: 1/-1;
+  }
+  .plate>.statusArea>.tag {
+    grid-column: 2;
+  }
+  .plate>.statusArea>.timing {
+    grid-column: 1/-1;
+  }
+}
+
+.tagSlot {
+  visibility: hidden;
+  flex-shrink: 0;
+  height: 0;
+  padding: 0 8px;
+  font-size: var(--ed-status,.75rem);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@container (max-width:220px) {
+  .plate>.statusArea:has(.tag) {
+    padding-top: max(16px,calc(1.3334 * var(--ed-status,.75rem) + 16px - var(--ed-card,16px)));
+  }
+  .plate>.statusArea>.tagSlot {
+    display: none;
+  }
+}
+
+.versus {
+  flex-shrink: 0;
+  font: 600 var(--ed-support,.75rem)/1.4 var(--ds-font-display);
+  white-space: nowrap;
+}
+
+.name {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--ed-teamNameLines,2);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-width: 0;
+  font-size: var(--ed-name,.875rem);
+  font-weight: var(--ed-nameWeight,600);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.plate[data-quiet] { --plate-fill: var(--ds-color-fixture-strip); }
+.plate[data-quiet] .chrome::before { opacity: .18; }
+
+/* Sport feeds keep only the edge lifecycle dock; reserve its overlap clearance. */
+.plate>.statusArea[data-markerless] {
+  display: block;
+  min-height: max(0px,calc(1.3334 * var(--ed-status,.75rem) + 8px - var(--ed-card,16px) - 4px));
+  padding-top: 0;
+  margin-bottom: 0;
+}
+.statusArea[data-markerless]::after,.statusArea[data-markerless]>.tagSlot { display: none; }

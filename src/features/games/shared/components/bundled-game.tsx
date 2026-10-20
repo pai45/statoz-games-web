@@ -1,0 +1,15 @@
+"use client";
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { publicAsset } from '@/shared/config';
+import { useAuthSession } from '@/features/auth';
+import type { GameLauncherProps } from '../../components/game-launcher';
+export function BundledGame({game,entry}:GameLauncherProps){
+ const frame=useRef<HTMLIFrameElement>(null),router=useRouter(),account=useAuthSession().email;const[error,setError]=useState('');
+ useEffect(()=>{let active=true;const element=frame.current;const sessionId=crypto.randomUUID(),key='statoz.games.web.bundle.'+game+'.'+encodeURIComponent(account||'guest');let save={schemaVersion:1,stores:{},resultIds:[]},invalidSave=false;try{const old=JSON.parse(localStorage.getItem(key)||'null');if(old?.schemaVersion===1)save=old;else if(old!==null)invalidSave=true;}catch{invalidSave=true;}
+ const receive=(event:MessageEvent)=>{const value=event.data;if(!active||event.source!==element?.contentWindow||event.origin!==location.origin||value?.protocolVersion!==1||value.gameId!==game||value.sessionId!==sessionId)return;if(value.type==='exit')router.push('/games/'+(game==='retro-hoops'?'basketball':game==='retro-circuit'?'motorsport':game==='retro-innings'?'cricket':'football'));if(value.type==='save'&&value.payload?.schemaVersion===1&&JSON.stringify(value.payload).length<600000){try{localStorage.setItem(key,JSON.stringify(value.payload));}catch{setError('Progress could not be saved on this device.');}}if(value.type==='error')setError('The demo game could not continue. Return to Games and retry.');};
+ window.addEventListener('message',receive);const abort=new AbortController();void fetch(publicAsset('/embedded-games/'+game+'/index.html'),{signal:abort.signal}).then(r=>{if(!r.ok)throw Error('Missing game bundle');return r.text();}).then(html=>{if(invalidSave){if(active)setError('Saved progress needs a compatible game version. It has been preserved.');return;}if(active&&element)element.srcdoc=html.replace('/*__STATOZ_BOOT__*/','window.__STATOZ_BOOT__='+JSON.stringify({...save,sessionId,origin:location.origin}).replaceAll('<','\\u003c')+';');}).catch(e=>{if(active&&e.name!=='AbortError')setError('The demo bundle could not load. Return to Games and retry.');});
+ const background=()=>{if(document.hidden)element?.contentWindow?.postMessage({protocolVersion:1,gameId:game,sessionId,type:'pause'},location.origin);};document.addEventListener('visibilitychange',background);return()=>{active=false;abort.abort();element?.contentWindow?.postMessage({protocolVersion:1,gameId:game,sessionId,type:'dispose'},location.origin);window.removeEventListener('message',receive);document.removeEventListener('visibilitychange',background);};
+ },[game,account,router]);
+ return <section className="relative h-dvh w-full"><iframe ref={frame} title={entry.title} className="h-full w-full border-0" allow="autoplay; fullscreen"/>{error&&<div role="alert" className="absolute inset-x-0 top-0 bg-background p-4">{error}<button onClick={()=>router.push('/')}>Return to Games</button></div>}</section>;
+}

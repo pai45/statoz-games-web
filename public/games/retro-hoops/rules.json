@@ -1,0 +1,96 @@
+{
+  "gameId": "retro-hoops",
+  "briefVersion": "1.0.0",
+  "rulesVersion": "1.2.0",
+  "buildVersion": "production-v4",
+  "assetPackVersion": "facing-family-v1+action-family-v2",
+  "date": "2026-10-20",
+  "reference": {
+    "title": "Street Hoop",
+    "platform": "Neo Geo",
+    "targetEdition": "Europe",
+    "actualRecordingRevision": "unknown",
+    "sources": [
+      "https://www.youtube.com/watch?v=6fyRg0wTEYY",
+      "https://www.youtube.com/watch?v=Q6ThHgZ4Lnk",
+      "https://www.arcade-museum.com/manuals-videogames/S/Street-Slam--Street-Hoop-Soft-DIP-Settings.pdf"
+    ]
+  },
+  "decisions": [
+    {
+      "rule": "Full-court 3v3 with two contextual buttons",
+      "classification": "observed",
+      "evidence": "evidence.json; instruction and possession studies",
+      "adaptation": "WASD/arrows; J shoot/block; K pass/steal; simultaneous touch equivalents"
+    },
+    {
+      "rule": "180-second single period; draws",
+      "classification": "proposed",
+      "reason": "Explicit StatOz brief. Settings sheet supports selectable periods/times, but this format is not claimed as the source default."
+    },
+    {
+      "rule": "Automatic selection follows navy catches; closest navy defender selected each playing tick including free flight",
+      "classification": "proposed",
+      "reason": "Native selection details not recovered; two-button accessible adaptation"
+    },
+    {
+      "rule": "24-second possession clock, 14 after a missed rim shot; stop during60tick restarts",
+      "classification": "proposed",
+      "reason": "Source reset/timing unresolved; explicit original StatOz tuning"
+    },
+    {
+      "rule": "2 points inside250planar weighted units of rim, 3 outside",
+      "classification": "proposed",
+      "reason": "2/3 retained; arcade geometry and probability are original, not recovered algorithms"
+    },
+    {
+      "rule": "Charge +25 per made shot; at100 next shot automatically consumes charge on release, guarantees unblocked basket",
+      "classification": "proposed",
+      "reason": "Charged super dunks documented by publisher; activation/gain/consumption not recovered. This is an original special-shot adaptation, not a source super-dunk reconstruction. Dedicated dunk animation remains an open art gate."
+    },
+    {
+      "rule": "Shot released before buzzer resolves once; no rebound attempt or pass completion after expiry",
+      "classification": "proposed",
+      "reason": "Original short-match policy. Preparation at buzzer is not a released shot."
+    },
+    {
+      "rule": "Deterministic shot chance, AI movement, steals, physical contact, restarts, bounds and animation holds",
+      "classification": "proposed",
+      "reason": "Seeded original implementation, never recovered source probabilities/timing"
+    },
+    {
+      "rule": "Possession changes on contact only; per-actor recovery; physically held input survives action gates",
+      "classification": "proposed",
+      "reason": "Retains accepted lab constraints; new six-player implementation requires new review"
+    },
+    {
+      "rule": "Possession-clock expiry precedes scheduled release; no friendly shot blocks; acting bodies remain obstacles; steal resolves after movement/separation/held anchoring",
+      "classification": "proposed",
+      "reason": "Fixes for four independently reported code defects. Rules1.1.1 regression tests pass; not source-derived algorithm claims."
+    },
+    {
+      "rule": "J within60units ofrim starts a dunk:6tickgather,250unit/sjump,maximum108unit/s approach; contact must bewithin10units ofrim;2points;opponent3Dhandblock allowed;charge consumesatcontactrelease,notgather;physicaldescentcontinuesduringrestart",
+      "classification": "proposed",
+      "reason": "Original contextual dunk adaptation using observed primary111.9s gather,112.3s contact,114.3-115.1s recovery poses. Not recovered native timing, physics or probability."
+    },
+    {
+      "rule": "Off-ball gait uses three complete-body source poses in6tickholds; stationaryneutral24tickholds; steal uses existinglowreach;recoil low-neutralB-neutralA8ticks each",
+      "classification": "proposed",
+      "reason": "Explicit authored clip adaptation. Originalnativegait and dedicatedsource classifiers remainunknown."
+    }
+  ],
+  "openGates": [
+    "Production action-loop visual review",
+    "Independent production code approval",
+    "Physical-device validation / stated limitations",
+    "Public distribution clearance of reference artwork"
+  ],
+  "releaseApproved": false,
+  "resumedByUser": "Resume from where you left, after rejected team-play-v4",
+  "reviewStatus": "Direct user-requested code correction; no restarted automatic lab correction loop; independent approval pending",
+  "audioApproval": {
+    "status": "user-provisional",
+    "quote": "auto approve for now",
+    "listeningPerformed": false
+  }
+}

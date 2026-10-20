@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "gameId": "retro-hoops",
+  "audio": {
+    "selection": "Original procedural audio only",
+    "thirdPartyAudio": [],
+    "referenceAudioUsed": false,
+    "externalAttributionRequired": false,
+    "basis": "All sounds use Web Audio oscillators and authored envelopes; music uses the original MUSIC_NOTES sequence. No recordings, downloaded samples or reference-game melodies.",
+    "userInstruction": "use copyright free audio alternatives",
+    "legalLabel": "Original project audio; no third-party audio licensing dependency. Not represented as a verified public-domain or CC0 catalogue."
+  },
+  "authorship": "Original procedural synthesis authored for StatOz by Codex; no reference audio samples",
+  "source": "src/features/games/retro-hoops/audio.ts",
+  "approval": "User provisionally approved: auto approve for now",
+  "listeningPerformed": false
+}

@@ -1,0 +1,321 @@
+{
+  "gameId": "retro-hoops",
+  "rulesVersion": "1.2.0",
+  "buildVersion": "production-v4",
+  "art": {
+    "classification": "reference",
+    "sourceTitle": "Street Hoop (Neo Geo)",
+    "sourceVideos": [
+      "https://www.youtube.com/watch?v=6fyRg0wTEYY",
+      "https://www.youtube.com/watch?v=Q6ThHgZ4Lnk"
+    ],
+    "processing": "Source-derived athlete and basket rasters; recoloured fictional kits and explicit mirrored poses. Original drawn court. Authored clip holds and gameplay tuning are StatOz adaptations.",
+    "limits": "No native animation timing recovery or additional source clearance claimed. No publisher or athlete endorsement."
+  },
+  "audio": {
+    "selection": "Original procedural synthesis; no third-party recordings, samples or tracks",
+    "provenance": "audio-provenance.json"
+  },
+  "assets": [
+    {
+      "file": "amber-a-overhead-mirrored.png",
+      "sha256": "15d39be4ac9dbbcf3958c6a375e810ca6b257becbc6a0719ba221b0e40b0aad5"
+    },
+    {
+      "file": "amber-a-overhead-source.png",
+      "sha256": "6bfa146eddb959363833b9061d603ad22222bdeba5031b6a49480e468236fa58"
+    },
+    {
+      "file": "amber-a-reach-mirrored.png",
+      "sha256": "df6866d8956a4e7156d5c0b3e1b6f17b695678c1cf0139126078cc621a2aff09"
+    },
+    {
+      "file": "amber-a-reach-source.png",
+      "sha256": "c4ced024daeb805bae0abb8d7916c289178fc7be10dede31cf2b0666e145045c"
+    },
+    {
+      "file": "amber-carry-front-mirrored.png",
+      "sha256": "1735b63d478254e348515311c392101e449adb0aa45ce85319f8289f0f367491"
+    },
+    {
+      "file": "amber-carry-front-source.png",
+      "sha256": "1e7da1599be0552f62c48eb6c5fed45fd44f7b7e410e9c1cc9d05cf45fb59e08"
+    },
+    {
+      "file": "amber-carry-low-mirrored.png",
+      "sha256": "ec1a59542469d7ce6bac2c767a0ebd0dfa43d441a8ace3b1985de63ea23cbff5"
+    },
+    {
+      "file": "amber-carry-low-source.png",
+      "sha256": "ec040b5e5d2d192c70cc2ba778f5ad0a286eefec14f1a010f78532c282ee4660"
+    },
+    {
+      "file": "amber-d-down-mirrored.png",
+      "sha256": "87f73f3ab29bb3db736a763540719a9e7f88403aa4e90c9c571df519ee035217"
+    },
+    {
+      "file": "amber-d-down-source.png",
+      "sha256": "9b81ca8fc2fb242b22e44f1dbbbfdacd06ff542323f357359a1d0f86f7d57c21"
+    },
+    {
+      "file": "amber-d-low-mirrored.png",
+      "sha256": "1e43edf27e6147939d5a83fab2f1a8d8ca7c3f2a455c51971961b7d6b04ef130"
+    },
+    {
+      "file": "amber-d-low-source.png",
+      "sha256": "76231be4bc291dc8613ce96eb2ddb1a545b5105a2db48d67a947c99557adbaa3"
+    },
+    {
+      "file": "amber-d-push-mirrored.png",
+      "sha256": "a0871e267d9214ae062f0e21c8e178ff42d4cdee22ccc478abf0bc3e63e23f69"
+    },
+    {
+      "file": "amber-d-push-source.png",
+      "sha256": "c122da14b92c7ad9d05bf01ff7a2a504838a3c9910c6f9b6e7825472bef3aff4"
+    },
+    {
+      "file": "amber-dunk-contact-mirrored.png",
+      "sha256": "5fc9d707e790ca53a220bd1954a4e1100cd458ec9cf106fb4a458a0877b33fcb"
+    },
+    {
+      "file": "amber-dunk-contact-source.png",
+      "sha256": "a057132ffa65dbb311e48fda3f35c171cffcf7d7ad312f7df851ca08bfebb976"
+    },
+    {
+      "file": "amber-dunk-gather-mirrored.png",
+      "sha256": "26c71cf40a515614e55fe59b7ff9e499af58dfd6d61d4bc19ea7c3181a3d4ce3"
+    },
+    {
+      "file": "amber-dunk-gather-source.png",
+      "sha256": "dd105a82e28f337e6bf69605b25be4fbffdc7d0f095e5198cd311e26a5700df8"
+    },
+    {
+      "file": "amber-land-recover-mirrored.png",
+      "sha256": "22c1c1543393153818e8f01f5c4da72846812938f55c982e63e5e7f737e32e7f"
+    },
+    {
+      "file": "amber-land-recover-source.png",
+      "sha256": "59fa4aba043c9cb2b74226e02f33b9902ce61974c31f5556ed7ff0e168dc535b"
+    },
+    {
+      "file": "amber-neutral-a-mirrored.png",
+      "sha256": "0df643100f722425f2a38b18f2f0094114efffc8240612b920cd5bbed2392dbd"
+    },
+    {
+      "file": "amber-neutral-a-source.png",
+      "sha256": "71d3ae0889a2f504d49a8d9e8cddef9f568e7b5c7cc950e29bec6f5e8594483a"
+    },
+    {
+      "file": "amber-neutral-b-mirrored.png",
+      "sha256": "46484b705a08dc7237e7f70b881039a66ea94965ed97baf00bcaca71577c2201"
+    },
+    {
+      "file": "amber-neutral-b-source.png",
+      "sha256": "2d0effe227c6560fc93b0d5245c7503b9c1ebd1bf5f2d5ff25173f6b9f48b8a2"
+    },
+    {
+      "file": "amber-p-pass-extend-left-mirrored.png",
+      "sha256": "1ae602eecf6bfa1d3f8f3dfeba478823bbd1c083dc6ddceb88cd8802b2b01ffb"
+    },
+    {
+      "file": "amber-p-pass-extend-left-source.png",
+      "sha256": "903969fc4f1c68544bc5ba7c2faaa3e8ace50cf8c638b18a39a9b51a38e5374a"
+    },
+    {
+      "file": "amber-p-pass-gather-left-mirrored.png",
+      "sha256": "d3b12010bb4b893d80f777a1a3c1b73d2a453ab0c7f1077f0afacbad037a6977"
+    },
+    {
+      "file": "amber-p-pass-gather-left-source.png",
+      "sha256": "c23276c884747b0ea91e35358720e95573cf5b1a95eb29806531cdba504c971b"
+    },
+    {
+      "file": "amber-s-follow-mirrored.png",
+      "sha256": "ae78b25001c0ef01374e96d935a3e0609574458db60025205ab69a122d5bd944"
+    },
+    {
+      "file": "amber-s-follow-source.png",
+      "sha256": "baffffe312ffd25eba752036abe7fd1da865ddd1cf6e9e02ad2e477da77cb461"
+    },
+    {
+      "file": "amber-s-ready-mirrored.png",
+      "sha256": "fe3648d06911d825dd64f245a130f83eb285c25f74ec4e74ee5b355231cc6a4f"
+    },
+    {
+      "file": "amber-s-ready-source.png",
+      "sha256": "ce8daac180fc27980a065262cf7ae5b1d34ae8363970a0a68c2696e5c1a8cf10"
+    },
+    {
+      "file": "amber-s-release-mirrored.png",
+      "sha256": "0d13f4a092af77a073df1471abd9b9c2d556cc1afef84008f15379bd130d06c8"
+    },
+    {
+      "file": "amber-s-release-source.png",
+      "sha256": "e17693b459bcf870ae2a600589309359be35b877f083bdbca6b9e6948a0a85a1"
+    },
+    {
+      "file": "amber-s-rise-mirrored.png",
+      "sha256": "5b79861b5c1367cfd3d35ff3b7c9a077c3a64d3ca06a51720d635f4aaaed87be"
+    },
+    {
+      "file": "amber-s-rise-source.png",
+      "sha256": "fa355f32d84d4140c397a4fc0c5307d65178f5907cc0b56fa879fd606ecdde1d"
+    },
+    {
+      "file": "ball.png",
+      "sha256": "b898c0b3e1e9968117cc557d0105136d8b02c5ec459e0bfe50f26a88e5f67de5"
+    },
+    {
+      "file": "left.png",
+      "sha256": "715d34d5bccca7e17a3136a50305601c6a4329140bba414f90eaa03efcf9feb3"
+    },
+    {
+      "file": "navy-a-overhead-mirrored.png",
+      "sha256": "4ad3d36cf4f43ef61c57bba31571b500fe8bd26a43d737ac0e10ff2ea7943ceb"
+    },
+    {
+      "file": "navy-a-overhead-source.png",
+      "sha256": "f06ca20cd5713084fbc2118cd3b861658ea168d3b7f001bf09f14eac2dea65c8"
+    },
+    {
+      "file": "navy-a-reach-mirrored.png",
+      "sha256": "3045b79a9280f6ef221feb91f540458f747e3b61e51b5e52fc1d30ba4271c5b9"
+    },
+    {
+      "file": "navy-a-reach-source.png",
+      "sha256": "d25ca6e30667ceb2a2eb54dce9b6379d819ad0fec5644bea69bd228e7ca2d464"
+    },
+    {
+      "file": "navy-carry-front-mirrored.png",
+      "sha256": "798b6da7003fe56142c59ddab799c4b4ba44c637c6209fc7037fd699d630765b"
+    },
+    {
+      "file": "navy-carry-front-source.png",
+      "sha256": "f0026ceb3a1837920fbc58947e9144e553488f3ab8ab11e5c94794fcf8a3a685"
+    },
+    {
+      "file": "navy-carry-low-mirrored.png",
+      "sha256": "68113592c700da35707464a0a213fd71abbdade1a15065a35ec78711d96f4063"
+    },
+    {
+      "file": "navy-carry-low-source.png",
+      "sha256": "a43adeace35769e957fa9f47395d30385fb8da296d59b6fac0c71e170eeee426"
+    },
+    {
+      "file": "navy-d-down-mirrored.png",
+      "sha256": "b86b00bb54a8e61a71769c9964e2a4687ac6c949356dce4924c59f95dcf1c563"
+    },
+    {
+      "file": "navy-d-down-source.png",
+      "sha256": "0115fd6de399dcd7709ee37478c534d820692d03ed5a91e15e0f8b91f1add1cd"
+    },
+    {
+      "file": "navy-d-low-mirrored.png",
+      "sha256": "43e10524360bd17da5c410c98def3ee6766d07be38cfbb69876d74f9bfb267d4"
+    },
+    {
+      "file": "navy-d-low-source.png",
+      "sha256": "ed8a2c2240348eaa3137ea95ff67c3eb81f4b80141a070e802e0e115f7e6cb5a"
+    },
+    {
+      "file": "navy-d-push-mirrored.png",
+      "sha256": "cfb9c1c06c8f8d2e692ff1ae58cfc5fe8aa33b289e87641aa53bab9c19122781"
+    },
+    {
+      "file": "navy-d-push-source.png",
+      "sha256": "256e91cb116800cb1c09bf878bd6fe17f29671a75f30524dda4fb223af216e59"
+    },
+    {
+      "file": "navy-dunk-contact-mirrored.png",
+      "sha256": "6c0db16a804e2ab5e9f2e19014657294da4bfbb8cf2bdca3cfbd3c8a0646af82"
+    },
+    {
+      "file": "navy-dunk-contact-source.png",
+      "sha256": "886eaf15f107c1ff40f8ac0d10b95c48ee8a46998070585ec2d1bf8f24fe6711"
+    },
+    {
+      "file": "navy-dunk-gather-mirrored.png",
+      "sha256": "1be9c4b942df48806742ff51cac4b0089c2eb378170bc77289caffc1fa37ff2a"
+    },
+    {
+      "file": "navy-dunk-gather-source.png",
+      "sha256": "ab541a3f47db04fa1a276608dcfdf11a869e6fc3a670126b2c96437e53bcf97d"
+    },
+    {
+      "file": "navy-land-recover-mirrored.png",
+      "sha256": "31ca9b1b648deaac1d6339da6789fade2e9d201f78fc52a8b8db9cd217da6b63"
+    },
+    {
+      "file": "navy-land-recover-source.png",
+      "sha256": "34a9e9272fd8b4efa3906bd5b4f0381412f639a4c28c9f4112e76de67371d086"
+    },
+    {
+      "file": "navy-neutral-a-mirrored.png",
+      "sha256": "b3877f52d3a63b6d6f9f018ba5dcd3b2c21847de9758499b0acc9e3819d92a2d"
+    },
+    {
+      "file": "navy-neutral-a-source.png",
+      "sha256": "45c878d78dfa6709bbecfe380eef5e1cc5385980f45316a5c43fc0bc7f3cf1a7"
+    },
+    {
+      "file": "navy-neutral-b-mirrored.png",
+      "sha256": "87ac50c995390976431f76737a110edf4f9f702f993994f379c7578feea5c14a"
+    },
+    {
+      "file": "navy-neutral-b-source.png",
+      "sha256": "ae74465f3f75ac2484d28c0f40b0c40eef24eceeac482b74bddccbc700f639a6"
+    },
+    {
+      "file": "navy-p-pass-extend-left-mirrored.png",
+      "sha256": "f991803f86543427e9878ed8c10dc8fcc4ac68e4fd03ef5d5a77ee7491ac0b6d"
+    },
+    {
+      "file": "navy-p-pass-extend-left-source.png",
+      "sha256": "6a85bdfe24d5805b29fa6af7d3cb5e83767fe2129a870e677db842578303231d"
+    },
+    {
+      "file": "navy-p-pass-gather-left-mirrored.png",
+      "sha256": "6506b7f1c00a4c97d2897c218772e561c6a25e1bc970e8a86b6902c36ace1ff2"
+    },
+    {
+      "file": "navy-p-pass-gather-left-source.png",
+      "sha256": "8bffe3645c139aa74f1aa6c53dfac4224836047c7f653f1aff340c19480ea4cc"
+    },
+    {
+      "file": "navy-s-follow-mirrored.png",
+      "sha256": "206497034e0b98fa26d9e3c454dfa0288d8c022cfd15707f2ce5bf4d5bcdaf88"
+    },
+    {
+      "file": "navy-s-follow-source.png",
+      "sha256": "e72258c0ee6e86c36c12cc933f5650c3c566a13ad211c56eb0a30b4260325849"
+    },
+    {
+      "file": "navy-s-ready-mirrored.png",
+      "sha256": "50de43617ce869c08aeb123539010946eb39fe50ddd2386663b64c723b75c34f"
+    },
+    {
+      "file": "navy-s-ready-source.png",
+      "sha256": "66c3856cba0a1de51a7f02008f32407d3e3234d0092e51870b2594755eeaf0c8"
+    },
+    {
+      "file": "navy-s-release-mirrored.png",
+      "sha256": "3f40d0172ed275ddc0cffe4bf12f351f7f3515545370f0d1e3da608f16c470b7"
+    },
+    {
+      "file": "navy-s-release-source.png",
+      "sha256": "d1923c2b3e37605d3ce5c43f1779e58726e3ad6d3c08cb23767eb9112c011a3d"
+    },
+    {
+      "file": "navy-s-rise-mirrored.png",
+      "sha256": "3514346ab916bd18debe0acce93303ec962965d38405d4284bac576960a20c15"
+    },
+    {
+      "file": "navy-s-rise-source.png",
+      "sha256": "c2cceb410f6c28ecb0acae7e178e17b84c992c73c4ee57907bfc4c658c22775f"
+    },
+    {
+      "file": "right.png",
+      "sha256": "53a460ef5a7c11e64978424b13cad7d0bb3b2ce60b8ef242a94e57d255c05f94"
+    }
+  ]
+}

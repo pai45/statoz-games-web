@@ -1,0 +1,31 @@
+/*
+ * Flutter drives this from a repeating AnimationController; on the web the
+ * sweep and the breath are two CSS animations, so nothing has to re-render
+ * every frame.
+ */
+.breathe {
+  animation: ring-breathe 1.8s ease-in-out infinite;
+}
+
+.sweep {
+  animation: ring-sweep 1.8s linear infinite;
+}
+
+@keyframes ring-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes ring-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

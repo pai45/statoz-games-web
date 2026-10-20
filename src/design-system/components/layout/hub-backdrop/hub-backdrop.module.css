@@ -1,0 +1,20 @@
+.backdrop {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background: var(--ds-gradient-app-background);
+}
+.artwork, .veil { position: absolute; inset: 0; }
+.artwork {
+  background-image: var(--hub-portrait);
+  background-position: top right;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity var(--hub-transition) ease-out;
+}
+.artwork[data-active="true"] { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .artwork { transition: none; } }

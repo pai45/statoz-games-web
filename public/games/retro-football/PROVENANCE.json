@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "gameId": "retro-football",
+  "runtimeVersion": "0.5.0",
+  "rulesVersion": "exhibition-complete-v1",
+  "assetVersion": "football-complete-atlas-v1",
+  "approval": "reference",
+  "productionEligible": false,
+  "releaseCondition": "Commercial source-derived art requires rights approval. Local review candidate only; public deployment not authorised.",
+  "source": "Super Sidekicks 2 (SNK); study and pixel ledgers preserved in StatOz Designer/output/retro-football",
+  "audio": "Original StatOz synthesis, build-original-audio.py; listening review remains separate",
+  "build": {
+    "runtimeVersion": "0.5.0",
+    "simulationHz": 60,
+    "renderer": "Three.js WebGLRenderer, local atlas, React HUD",
+    "nextServerRequired": false,
+    "productionEligible": false,
+    "files": {
+      "index.html": {
+        "sha256": "3c26bacff797fe0ce5a5d3d9b153a6785f0bf4ed347e8f6ce003d4ec0beabcce",
+        "bytes": 49060
+      },
+      "lab.html": {
+        "sha256": "3a879ac8d28298f37f41cd67618b2fb2fa8ea99a0e50e03d727ea833ab80cd8e",
+        "bytes": 49106
+      },
+      "lab.js": {
+        "sha256": "e2eab85d317f653371b841e5b0fed2322f5f8c29c0d0e3d3e4b85c1996f5f2d4",
+        "bytes": 3432
+      },
+      "bundle.js": {
+        "sha256": "f9dd3c8c5e60d68a0d9a76a66e566bdd0b7a191586030d469ca30e80571182d9",
+        "bytes": 782204
+      },
+      "bundle.js.map": {
+        "sha256": "af10fb8281a361e8a5a564ef89efc280a7294f3c3388584c3e1ac77700e557f9",
+        "bytes": 3965735
+      },
+      "assets.json": {
+        "sha256": "5b5e6cbd6dbd5194eac2168936c970cd790a74594b942143349fb95e555938c1",
+        "bytes": 45200
+      },
+      "team-atlas.png": {
+        "sha256": "bcd5e07a8e18e58c3aab93eea37e98c441beeed65731358fad98ecfae247c85d",
+        "bytes": 135862
+      },
+      "THIRD-PARTY-LICENSES.txt": {
+        "sha256": "c9c54b895577c49afa02be97c9d6334bb531dc40c4215c44d3338ceb83be5a99",
+        "bytes": 3381
+      },
+      "audio/crowd.wav": {
+        "sha256": "92b13aa346964edcaeaec465ce0556429456860d05e748af65b4c2239fe0d064",
+        "bytes": 176444
+      },
+      "audio/goal.wav": {
+        "sha256": "4f7f243ac4546e68787880787b6ddd1c2708a6fc7621c9d61e6a2b4254caeb70",
+        "bytes": 79424
+      },
+      "audio/kick.wav": {
+        "sha256": "c5da1862f8d5a920921af5d1a8970ae23ffbf0b0898edd60843df64167ceeed8",
+        "bytes": 7982
+      },
+      "audio/manifest.json": {
+        "sha256": "b2611e06bb71237fbe54719227e608436e8c172e6ab39c5bfcae804c0d8854a8",
+        "bytes": 3038
+      },
+      "audio/menu.wav": {
+        "sha256": "5337e632ef8f43845e862973a69816a2cddafb83b558130bf16fcffa110372de",
+        "bytes": 352844
+      },
+      "audio/result.wav": {
+        "sha256": "3baf891646aaf5329cd31945a5dd697e2f44f46c2f71b7d4c48f6ccceeb8ccd1",
+        "bytes": 123524
+      },
+      "audio/save.wav": {
+        "sha256": "a05f3962feb6c9f602e5ac0717a9606fd13c6cad784afc210f4cd59f2dde7306",
+        "bytes": 10628
+      },
+      "audio/tackle.wav": {
+        "sha256": "dd4600c55d3210cd4cfc3beadceb4e99d55744d711288b25eef002089496c053",
+        "bytes": 12392
+      },
+      "audio/ui.wav": {
+        "sha256": "3f9dd5ad59822f385756a4b4d17b29e7fafb7009b083faa76f1418822b068055",
+        "bytes": 4454
+      },
+      "audio/whistle.wav": {
+        "sha256": "a2af1dd0a6c2d981949e438a6249e8e8626786d85f6608ec49d47b31e81d6ca5",
+        "bytes": 26504
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { build } from 'esbuild';
+import { execFileSync } from 'node:child_process';
+
+const root=process.cwd();
+const output=path.join(root,'public','embedded-games');
+const ids=['retro-hoops','retro-circuit','retro-football','retro-innings'];
+const customRoot=path.join(root,'public/assets/games/designer');
+for(const entry of await fs.readdir(customRoot,{withFileTypes:true}).catch(()=>[])) if(entry.isDirectory()&&/^[a-f0-9-]{36}$/.test(entry.name)) ids.push('designer-'+entry.name);
+const digest=b=>createHash('sha256').update(b).digest('hex');
+async function walk(dir){const out=[];for(const e of await fs.readdir(dir,{withFileTypes:true})){if(e.isSymbolicLink())throw Error('Linked game asset');const p=path.join(dir,e.name);if(e.isDirectory())out.push(...await walk(p));else out.push(p);}return out;}
+const boot=String.raw`
+(() => {
+ const boot=window.__STATOZ_BOOT__||{}, gameId=document.documentElement.dataset.game, sessionId=boot.sessionId||crypto.randomUUID();
+ let disposed=false,stores=boot.stores&&typeof boot.stores==='object'?{...boot.stores}:{},resultIds=Array.isArray(boot.resultIds)?boot.resultIds:[];
+ const emit=(type,payload={})=>{if(disposed)return;const message={protocolVersion:1,gameId,sessionId,type,payload};if(window.StatozGame?.postMessage)window.StatozGame.postMessage(JSON.stringify(message));else if(parent!==window)parent.postMessage(message,boot.origin||location.origin);};
+ const save=()=>emit('save',{schemaVersion:1,stores,resultIds});
+ const storage={getItem:key=>Object.hasOwn(stores,key)?stores[key]:null,setItem(key,value){const next={...stores,[key]:String(value)};if(JSON.stringify(next).length>524288)throw new DOMException('Save limit exceeded','QuotaExceededError');stores=next;save();},removeItem(key){delete stores[key];save();},clear(){stores={};save();},key:index=>Object.keys(stores)[index]??null,get length(){return Object.keys(stores).length;}};
+ Object.defineProperty(window,'localStorage',{value:storage,configurable:false});
+ const originalPost=window.postMessage.bind(window);window.postMessage=(message,target,transfer)=>originalPost(message,target==='null'?'*':target,transfer);
+ const api={emit,save,sessionId,command:null,result(payload){const id=String(payload?.id||payload?.sessionId||'');if(!id||resultIds.includes(id))return;resultIds=[...resultIds,id].slice(-1000);let records=[];try{records=JSON.parse(stores['statoz.bundle.results']||'[]');}catch{}stores['statoz.bundle.results']=JSON.stringify([...records,payload].slice(-20));save();emit('result',payload);}};
+ window.__STATOZ_HOST__=api;
+ if(gameId==='retro-football'){
+  window.RetroFootballHost={postMessage(raw){if(typeof raw!=='string'||raw.length>600000)return;let message;try{message=JSON.parse(raw);}catch{return;}if(message.gameId!==gameId||message.protocolVersion!==1)return;if(message.type==='result')api.result({id:message.payload?.resultId,...message.payload?.result});else emit(message.type,message.payload);}};
+ }
+ if(gameId==='retro-football'||gameId==='retro-innings')api.command=command=>{const buttons=[...document.querySelectorAll('button')],resume=buttons.find(button=>button.textContent.trim().toLowerCase().startsWith('resume'));if(command==='resume')resume?.click();else if((command==='pause'||command==='dispose')&&!resume)buttons.find(button=>button.textContent.trim().toLowerCase().startsWith('pause'))?.click();if(command==='dispose'&&gameId==='retro-innings')window.threeCricket?.dispose?.();};
+ const apply=command=>{if(command==='dispose'){api.command?.('dispose');disposed=true;}else api.command?.(command);};
+ window.__STATOZ_COMMAND__=message=>{if(!message||message.protocolVersion!==1||message.gameId!==gameId||message.sessionId!==sessionId||!['pause','resume','dispose'].includes(message.type))return;apply(message.type);};
+ addEventListener('message',event=>{
+  if(event.source===parent&&parent!==window&&event.origin===boot.origin)window.__STATOZ_COMMAND__(event.data);
+  if(event.source!==window)return;
+  const value=event.data;
+  if(value?.gameId==='retro-football'&&value.sessionId===sessionId){if(value.type==='ready'){originalPost({...value,type:'launch',payload:{music:0,sfx:.5}},'*');emit('ready');}else if(value.type==='result')api.result({id:value.payload?.resultId,...value.payload?.result});else if(value.type==='exit')emit('exit');}
+  if(value?.type==='statoz.games.web.retro-innings:ready'){emit('ready');}
+ });
+ addEventListener('visibilitychange',()=>{if(document.hidden)apply('pause');});
+ addEventListener('error',()=>emit('error',{message:'The demo game could not continue.'}));
+})();`;
+const fontStyle=`@font-face{font-family:'Space Grotesk';src:url(data:font/ttf;base64,${(await fs.readFile(path.join(root,'src/app/fonts/space-grotesk-variable.ttf'))).toString('base64')}) format('truetype');font-weight:300 700;font-display:swap}@font-face{font-family:Orbitron;src:url(data:font/woff2;base64,${(await fs.readFile(path.join(root,'src/app/fonts/orbitron-latin-variable.woff2'))).toString('base64')}) format('woff2');font-weight:400 900;font-display:swap}:root{--font-space-grotesk:'Space Grotesk';--font-orbitron:Orbitron}body,button,input{font-family:'Space Grotesk',sans-serif}`;
+const prelude=()=>`<style>${fontStyle}</style><script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
+const style='html,body,#root{margin:0;width:100%;height:100%;background:#0d111a;color:white;overflow:hidden}*{box-sizing:border-box}button{touch-action:manipulation}canvas{image-rendering:pixelated}';
+const entries={
+ 'retro-hoops':`import React from 'react';import{createRoot}from'react-dom/client';import{HoopsGame}from'./src/features/games/retro-hoops/game';const host=window.__STATOZ_HOST__;let commandId=0;const render=command=>createRootOnce.render(<HoopsGame assetBase="assets" onExit={()=>host.emit('exit')} hostCommand={command?{id:++commandId,type:command}:undefined} onEvent={event=>{if(event.type==='result')host.result(event.payload);else host.emit(event.type,event.payload);}}/>);const createRootOnce=createRoot(document.getElementById('root'));host.command=command=>{if(command==='dispose')createRootOnce.unmount();else render(command);};render();`,
+ 'retro-circuit':`import{mountCircuit}from'./src/features/games/retro-circuit/mount';import'./src/features/games/retro-circuit/circuit.css';const host=window.__STATOZ_HOST__,session=mountCircuit(document.getElementById('root'),{onExit:()=>host.emit('exit'),onResult:result=>host.result(result)});host.command=command=>session[command]?.();host.emit('ready');`,
+};
+async function assetShim(directory){
+ const map={};
+ for(const file of await walk(directory).catch(error=>{if(error.code==='ENOENT')return [];throw error;})){
+  if(!/\.(?:png|webp|jpg|jpeg|svg|json|wav|mp3|ogg|woff2?|ttf)$/.test(file)||/provenance/i.test(file))continue;
+  const ext=path.extname(file).toLowerCase(),mime={'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf'}[ext];
+  map[path.relative(directory,file).replaceAll('\\','/')]=`data:${mime};base64,${(await fs.readFile(file)).toString('base64')}`;
+ }
+ return `<script>(()=>{const assets=${JSON.stringify(map)},resolve=value=>{let text=String(value);if(text.startsWith('data:')||text.startsWith('blob:'))return text;text=text.split(/[?#]/)[0];const key=Object.keys(assets).find(key=>text===key||text.endsWith('/'+key));return key?assets[key]:null;};const fetchOriginal=fetch.bind(window);window.fetch=(value,options)=>{const request=typeof value==='string'?value:value instanceof URL?value.href:value.url;const url=resolve(request);return url?fetchOriginal(url,options):Promise.reject(Error('Remote resource blocked in offline game: '+String(request)));};for(const proto of [HTMLImageElement.prototype,HTMLMediaElement.prototype]){const descriptor=Object.getOwnPropertyDescriptor(proto,'src');if(descriptor?.set)Object.defineProperty(proto,'src',{...descriptor,set(value){descriptor.set.call(this,resolve(value)||value);}});}})();</script>`;
+}
+await fs.mkdir(output,{recursive:true});
+const manifest={schemaVersion:1,protocolVersion:1,sourceSha:'uncommitted',games:[]};
+try{manifest.sourceSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}
+for(const gameId of ids){
+ const dir=path.join(output,gameId);await fs.mkdir(dir,{recursive:true});let html;
+ if(entries[gameId]){
+  const result=await build({stdin:{contents:"import './src/design-system/styles/tokens.css';import './src/design-system/styles/typography.css';"+entries[gameId],resolveDir:root,loader:'tsx'},bundle:true,write:false,outdir:'bundle',format:'iife',platform:'browser',target:'es2020',minify:true,jsx:'automatic',loader:{'.png':'dataurl','.svg':'dataurl','.woff2':'dataurl','.ttf':'dataurl'},tsconfig:path.join(root,'tsconfig.json')});
+  const js=result.outputFiles.find(f=>f.path.endsWith('.js')).text,css=result.outputFiles.find(f=>f.path.endsWith('.css'))?.text||'';
+  html=`<!doctype html><html lang="en" data-game="${gameId}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>${gameId}</title><style>${style}\n${css}</style></head><body><div id="root"></div>${prelude(gameId)}${await assetShim(path.join(root,'public','games',gameId))}<script>${js.replaceAll('</script','<\\/script')}</script></body></html>`;
+ }else{
+  const sourceRoot=gameId.startsWith('designer-')?path.join(customRoot,gameId.slice(9)):path.join(root,'public','games',gameId);html=await fs.readFile(path.join(sourceRoot,'index.html'),'utf8');
+  html=html.replace('<html','<html data-game="'+gameId+'"');
+  const external=[...html.matchAll(/<script\b([^>]*?)src=["']([^"']+)["']([^>]*)><\/script>/g)];
+  for(const match of external){const local=path.resolve(sourceRoot,match[2]);if(!local.startsWith(sourceRoot+path.sep))throw Error('External game script');const js=(await fs.readFile(local,'utf8')).replaceAll('import.meta.url',JSON.stringify(`https://statoz-demo.invalid/${gameId}/bundle.js`));html=html.replace(match[0],()=>'<script'+match[1]+match[3]+'>'+js.replaceAll('</script','<\\/script')+'</script>');}
+  html=html.replace(/new URLSearchParams\((?:window\.)?location.search\)/g,`new URLSearchParams('host=web&session='+window.__STATOZ_HOST__.sessionId)`);
+  const start=html.indexOf('<script');const injection=prelude(gameId)+await assetShim(sourceRoot);html=html.slice(0,start)+injection+html.slice(start);
+  if(gameId.startsWith('designer-'))html+='<script>window.__STATOZ_HOST__.emit("ready");</script>';
+ }
+ const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:gameId==='retro-hoops'?'any':'landscape',saveSchemaVersion:1});
+ console.log(`${gameId}: ${(Buffer.byteLength(html)/1048576).toFixed(1)} MiB offline bundle`);
+}
+await fs.writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
+const notices=[];for(const file of ['node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
+await fs.writeFile(path.join(output,'LICENSES.txt'),notices.join('\n\n---\n\n'));

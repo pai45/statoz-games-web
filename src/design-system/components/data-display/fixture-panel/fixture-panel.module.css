@@ -1,0 +1,84 @@
+/*
+ * The fixture card silhouette. The edge is a painted plate with the fill inset
+ * inside it, because a clip path crops a border away.
+ */
+
+.shell {
+  position: relative;
+  min-width: 0;
+  isolation: isolate;
+}
+
+/* The hard, un-blurred lift under the card, on the same silhouette. */
+.lift {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  transform: translateY(var(--ds-shape-fixture-lift));
+  clip-path: var(--fixture-clip);
+  background: var(--fixture-lift);
+}
+
+.frame {
+  position: relative;
+  height: 100%;
+  padding: 1.5px;
+  clip-path: var(--fixture-clip);
+  background: var(--fixture-edge);
+}
+
+.inner {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  clip-path: var(--fixture-clip);
+  background: var(--ds-color-fixture-base);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 28px 16px 12px;
+  background: var(--ds-gradient-fixture-card);
+}
+
+.tag {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 50%;
+  display: flex;
+  /* The notch floor plus one slope: the widest a centred label stays clear of
+     the trapezoid's edges. Long tags shrink rather than wrap out of it. */
+  width: calc(var(--ds-shape-fixture-notch-width) + var(--ds-shape-fixture-notch-slope));
+  height: var(--ds-shape-fixture-notch-depth);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.strip {
+  display: flex;
+  width: 100%;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 0;
+  background: var(--ds-color-fixture-strip);
+  color: inherit;
+  text-align: left;
+}
+
+.stripFocal {
+  background: var(--ds-color-fixture-strip-focal);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ds-color-accent-cyan) 45%, transparent);
+}
+
+button.strip { cursor: pointer; }
+button.strip:hover { filter: brightness(1.12); }
+button.strip:focus-visible { outline: 2px solid var(--ds-color-accent-gold); outline-offset: -3px; }
