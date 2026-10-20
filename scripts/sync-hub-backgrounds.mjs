@@ -8,9 +8,9 @@ import {cyberOverlay,overlayAdapters} from './hub-background-source/overlay.mjs'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export function generateHubBackgrounds(webRoot = root, flutterRoot = null, tokenFile = path.join(webRoot, 'src/design-system/styles/tokens.css')) {
   const source = path.join(webRoot, 'scripts/hub-background-source');
-  const raw = fs.readFileSync(path.join(source,'manifest.json'),'utf8');
+  const raw = fs.readFileSync(path.join(source,'manifest.json'),'utf8').replaceAll('\r\n','\n');
   const spec = JSON.parse(raw);
-  const css = fs.readFileSync(tokenFile,'utf8')+'\n'+fs.readFileSync(path.join(path.dirname(tokenFile),'game-discovery.generated.css'),'utf8');
+  const css = fs.readFileSync(tokenFile,'utf8')+'\n'+fs.readFileSync(path.join(path.dirname(tokenFile),'game-discovery.generated.css'),'utf8').replaceAll('\r\n','\n');
   const tokens = new Map([...css.matchAll(/(--ds-[\w-]+):\s*([^;]+);/g)].map(([,k,v])=>[k,v.trim()]));
   const colour = name => {
     const value=tokens.get(`--ds-${name}`);
@@ -20,7 +20,7 @@ export function generateHubBackgrounds(webRoot = root, flutterRoot = null, token
   };
   const files = new Map();
   const put=(base,name,body)=>{if(base)files.set(path.join(base,name),body);};
-  const hash=crypto.createHash('sha256').update(raw).update(fs.readFileSync(path.join(source,'artwork.mjs'),'utf8'));
+  const hash=crypto.createHash('sha256').update(raw).update(fs.readFileSync(path.join(source,'artwork.mjs'),'utf8').replaceAll('\r\n','\n'));
   const overlay=cyberOverlay(colour);
   hash.update(overlay);
   put(webRoot,'public/assets/backgrounds/hub/cyber-overlay.svg',overlay);
@@ -47,7 +47,7 @@ export function generateHubBackgrounds(webRoot = root, flutterRoot = null, token
 export function writeOrCheck(files, check) {
   const stale=[];
   for (const [name,body] of files) {
-    if(fs.existsSync(name)&&fs.readFileSync(name,'utf8')===body)continue;
+    if(fs.existsSync(name)&&fs.readFileSync(name,'utf8').replaceAll('\r\n','\n')===body)continue;
     if(check)stale.push(name);
     else{fs.mkdirSync(path.dirname(name),{recursive:true});fs.writeFileSync(name,body);}
   }

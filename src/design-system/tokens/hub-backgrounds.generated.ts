@@ -67,6 +67,6 @@ export const hubBackgrounds = {
     "motorsport": "racing",
     "tennis": "lime"
   },
-  "sourceHash": "847b0c3c3a0dfb7453481862c99773854d1376b64794980fb10422a8bfa3af25"
+  "sourceHash": "d8516b1a357441e57268f161f1f8a02f570c4a8a4d31b72c632a1274cdb38071"
 } as const;
 export type HubBackgroundTheme = keyof typeof hubBackgrounds.themes;

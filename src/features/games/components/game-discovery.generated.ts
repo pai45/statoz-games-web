@@ -6,7 +6,7 @@ export const discoveryFamily: DiscoveryFamily = {
   "height": 160,
   "cycleMs": 4800,
   "stillPhase": 0.28,
-  "sourceHash": "e7e2c6d967c82f777aa6d532909d47d4efe1155b98b731ed429fbb8095a1e61e",
+  "sourceHash": "ea4e7abc438c6f14c56b8eb43d1c659ea479e29e577dbfd1adae2b8a82d1ce2c",
   "games": {
     "pitch-duel": {
       "flutter": "pitchDuel",
