@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import type { AssetManifest, Pose, View } from './contracts';
-import { project, goalProject, goalSpace } from './geometry';
+import { project, goalProject, goalSpace, pitchPose, PITCH_ACTOR_SCALE } from './geometry';
 import type { Simulation } from './simulation';
 import {VIEW} from './presentation';
 import {drawStadium} from './stadium';
+import {GOAL_VIEW,foregroundPose} from './close-view';
 export class FootballRenderer {
     private viewportWidth:number=VIEW.width;
     resize(width:number){this.viewportWidth=width;this.gl.setSize(width,VIEW.height,false);}
@@ -25,6 +26,7 @@ export class FootballRenderer {
     private close = new THREE.Group();
     private net = new THREE.Group();
     private closeKeeper!: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
+    private closeShooter!: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
     private target = new THREE.Group();
     private closeShadow!: THREE.Mesh;
     private closeMarker!: THREE.Mesh;
@@ -48,7 +50,7 @@ export class FootballRenderer {
         drawStadium(this.pitch,this.rect.bind(this),this.box.bind(this));
         this.batchStatic(this.pitch);
         this.pitch.add(this.selectionLabel);
-        for(const [index,glyph]of [['110','101','110','100','100'],['010','110','010','010','111']].entries())for(let y=0;y<5;y++)for(let x=0;x<3;x++)if(glyph[y][x]==='1')this.rect(this.selectionLabel,index*4+x-3,y-88,1,1,'#ffffff',8002);
+        for(const [index,glyph]of [['110','101','110','100','100'],['010','110','010','010','111']].entries())for(let y=0;y<5;y++)for(let x=0;x<3;x++)if(glyph[y][x]==='1')this.rect(this.selectionLabel,index*4+x-3,y-72,1,1,'#ffffff',8002);
         for (let id = 0; id < 22; id++) {
             const actor = this.makeSprite();
             this.actors.set(id, actor);
@@ -60,6 +62,7 @@ export class FootballRenderer {
             const triangle = new THREE.BufferGeometry();
             triangle.setAttribute('position', new THREE.Float32BufferAttribute([-4, 80, 0, 0, 74, 0, 4, 80, 0], 3));
             const selection = new THREE.Mesh(triangle, new THREE.MeshBasicMaterial({ color: '#ffffff', side: THREE.DoubleSide, transparent: true, depthTest: false, depthWrite: false }));
+            selection.scale.set(PITCH_ACTOR_SCALE,PITCH_ACTOR_SCALE,1);
             this.pitch.add(selection);
             this.meshes.push(selection);
             this.decorations.set(id, { marker, shadow, selection });
@@ -67,15 +70,18 @@ export class FootballRenderer {
         drawStadium(this.close,this.rect.bind(this),this.box.bind(this),true);
         this.batchStatic(this.close);
         this.close.add(this.net, this.target);
-        this.rect(this.net, 48, 59, 224, 74, '#112322', -50);
-        for (let x = 48; x <= 272; x += 8)
-            this.rect(this.net, x, 61, 1, 71, '#cad5e2', -49);
-        for (let y = 61; y <= 132; y += 7)
-            this.rect(this.net, 48, y, 224, 1, '#cad5e2', -49);
-        this.box(this.net, 48, 58, 224, 75, '#ffffff');
+        // Transparent mesh preserves the visible boards/crowd behind the goal.
+        const left=GOAL_VIEW.centreX-6.5*GOAL_VIEW.lateralScale,right=GOAL_VIEW.centreX+6.5*GOAL_VIEW.lateralScale,top=GOAL_VIEW.basePlane-75,bottom=GOAL_VIEW.basePlane;
+        for(let x=left+12;x<=right-12;x+=7)this.rect(this.net,x,top-8,1,75,'#b9c8ba',-49);
+        for(let y=top-8;y<=bottom-8;y+=6)this.rect(this.net,left+12,y,right-left-24,1,'#b9c8ba',-49);
+        const line=(x1:number,y1:number,x2:number,y2:number)=>{const n=Math.ceil(Math.hypot(x2-x1,y2-y1));for(let i=0;i<=n;i++)this.rect(this.net,Math.round(x1+(x2-x1)*i/n),Math.round(y1+(y2-y1)*i/n),1,1,'#d7e1c9',-48);};
+        for(let x=left;x<=right;x+=8)line(x,top,x+12-(x-left)/(right-left)*24,top-8);
+        for(let y=top;y<=bottom;y+=7){line(left,y,left+12,y-8);line(right,y,right-12,y-8);}
+        this.rect(this.net,left,top,2,75,'#ffffff',-40);this.rect(this.net,right-1,top,2,75,'#ffffff',-40);this.rect(this.net,left,top,right-left,2,'#ffffff',-40);
         this.batchStatic(this.net);
         this.closeKeeper = this.makeSprite();
         this.close.add(this.closeKeeper);
+        this.closeShooter=this.makeSprite();this.close.add(this.closeShooter);
         this.closeMarker = this.rect(this.close, 0, 0, 10, 2, '#5cdfff', 1);
         this.closeShadow = this.rect(this.close, 0, 0, 7, 2, '#162536', 9000);
         this.rect(this.target, -12, 0, 25, 1, '#5cdfff', 10010);
@@ -115,16 +121,16 @@ export class FootballRenderer {
         group.add(batch);
         this.meshes.push(batch);
     }
-    private show(mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>, x: number, y: number, v: View, order: number) {
-        const pose = this.poses.get(v.pose);
+    private show(mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>, x: number, y: number, v: View, order: number, pitch=true) {
+        const source = this.poses.get(v.pose),pose=source?(pitch?pitchPose(source):source):undefined;
         if (!pose)
             throw new Error('Missing atlas pose ' + v.pose);
-        const g = pose.anchors.ground, [ax, ay, w, h] = pose.atlas, [aw, ah] = this.assets.atlasSize;
+        const g = pose.anchors.ground, [ax, ay, sw, sh] = pose.atlas, [aw, ah] = this.assets.atlasSize,w=pose.width,h=pose.height;
         const uv = mesh.geometry.getAttribute('uv') as THREE.BufferAttribute;
         uv.setXY(0, ax / aw, 1 - ay / ah);
-        uv.setXY(1, (ax + w) / aw, 1 - ay / ah);
-        uv.setXY(2, ax / aw, 1 - (ay + h) / ah);
-        uv.setXY(3, (ax + w) / aw, 1 - (ay + h) / ah);
+        uv.setXY(1, (ax + sw) / aw, 1 - ay / ah);
+        uv.setXY(2, ax / aw, 1 - (ay + sh) / ah);
+        uv.setXY(3, (ax + sw) / aw, 1 - (ay + sh) / ah);
         uv.needsUpdate = true;
         mesh.scale.set(v.mirror ? -w : w, h, 1);
         mesh.position.set(Math.round(x) + (v.mirror ? g[0] - w / 2 : w / 2 - g[0]), -(Math.round(y) + h / 2 - g[1]), 0);
@@ -144,13 +150,20 @@ export class FootballRenderer {
             this.camera.bottom = -224;
             this.camera.updateProjectionMatrix();
             const keeper = s.players[v.keeper], q = goalSpace({ ...keeper, z: 0 }, v), b = goalProject(s.ball, v), ground = goalSpace(s.ball, v);
-            this.net.position.y = -(v.planeY - 133);
-            this.show(this.closeKeeper, q.x, q.y, sim.view(keeper), 151);
+            this.net.position.y = -(v.planeY - GOAL_VIEW.basePlane);
+            this.show(this.closeKeeper, q.x, q.y, sim.view(keeper), 151,false);
             this.closeMarker.position.set(q.x, -q.y - 5, 0);
             this.closeMarker.renderOrder = 152;
             if(this.closeMarker.material instanceof THREE.MeshBasicMaterial)this.closeMarker.material.color.set(keeper.team === 0 ? '#5cdfff' : '#ef6758');
             this.target.visible = v.phase === 'aim';
             this.target.position.set(v.aim.x, -v.aim.y, 0);
+            const shooter=s.players[v.shooter],pose=foregroundPose(v,shooter),near=goalProject(sim.anchor(shooter,'foot',{pose:(shooter.team===1?'orchard-':'')+'kick-contact',mirror:v.direction<0}),v);
+            this.closeShooter.visible=!!pose;
+            if(pose){
+                const id=(shooter.team===1?'orchard-':'')+'close-'+pose,asset=this.poses.get(id)!,ground=asset.anchors.ground,contact=asset.anchors.ballContact;
+                const entry=v.phase==='aim'&&v.age<66?-Math.round((66-v.age)/3):0;
+                this.show(this.closeShooter,near.x+ground[0]-contact[0]+entry,near.y+ground[1]-contact[1],{pose:id,mirror:false},500,false);
+            }
             this.ball.position.set(Math.round(b.x), -Math.round(b.y), 0);
             this.closeShadow.visible = s.ball.z > 3;
             this.closeShadow.position.set(Math.round(ground.x), -Math.round(ground.y), 0);

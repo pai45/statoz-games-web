@@ -34,6 +34,7 @@ export type GameSceneProps = {
 };
 
 export function GameScene(props: GameSceneProps) {
+  if (props.game === "grand-prix-dash") return <div className={styles.scene} aria-hidden="true" data-discovery-game="grand-prix-dash" style={{opacity: props.opacity ?? 1}}><Image src={publicAsset("/assets/games/grand-prix-dash/rebuild-discovery.svg")} alt="" fill sizes="(min-width: 1024px) 240px, 50vw" unoptimized className={styles.layerImage} /></div>;
   if (props.game === "retro-innings") return <div className={styles.scene} aria-hidden="true" data-discovery-game="retro-innings" style={{opacity: props.opacity ?? 1}}><Image src={publicAsset("/assets/games/retro-innings.png")} alt="" fill sizes="(min-width: 1024px) 240px, 50vw" unoptimized className={styles.layerImage} /></div>;
   if(props.game === "retro-football") return <div className={styles.scene} aria-hidden="true" data-discovery-game="retro-football" style={{opacity:props.opacity ?? 1}}><Image src={publicAsset("/assets/games/retro-football.png")} alt="" fill sizes="(min-width: 1024px) 240px, 50vw" unoptimized className={styles.layerImage} /></div>;
   if(props.game === "retro-circuit") return <div className={styles.scene} aria-hidden="true" data-discovery-game="retro-circuit" style={{opacity:props.opacity ?? 1}}><Image src={publicAsset("/assets/games/retro-circuit.png")} alt="" fill sizes="(min-width: 1024px) 240px, 50vw" unoptimized className={styles.layerImage} /></div>;

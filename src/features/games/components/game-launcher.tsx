@@ -23,7 +23,7 @@ import { HoopDuel } from "../basketball";
 import { FinalOver } from "../final-over";
 import { FootballBingo } from "../football-bingo";
 import { FootballChess } from "../football-chess";
-import { GrandPrix } from "../grand-prix";
+const GrandPrix = dynamic(() => import("../grand-prix/rebuild/screen").then(m => m.GrandPrix), { ssr: false, loading: () => <div role="status">Loading Grand Prix Dash…</div> });
 import { GuessPlayer } from "../guess-player";
 import { PenaltyShootout } from "../penalty-shootout";
 import { PitchDuel } from "../pitch-duel";

@@ -7,6 +7,8 @@ import {createHostBridge} from './host';
 import {DEFINITION,type GameContext} from './contracts';
 import {VIEW} from './presentation';
 import './handheld.css';
+import {ArcadeLobby} from './lobby';
+import './arcade-skin.css';
 
 type Debug={session:FootballSession|null;ready:boolean;mounts:number;disposals:number;lastDisposal:ReturnType<FootballSession['diagnostics']>|null;step:(n:number)=>void;restart:()=>void;dispose:()=>void;remount:()=>void};
 declare global{interface Window{productionLab:Debug;gameState:unknown;}}
@@ -19,13 +21,15 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
     const [engine,setEngine]=useState<FootballSession|null>(null);
     const [revision,redraw]=useState(0),[mount,remount]=useState(0),[ready,setReady]=useState(false),[error,setError]=useState('');
     const [menu,setMenu]=useState(false),[screenOnly,setScreenOnly]=useState(false),[portrait,setPortrait]=useState(false),[full,setFull]=useState(false),[hint,setHint]=useState('');
+    const [reference,setReference]=useState(false),[atlasUrl,setAtlasUrl]=useState('');
+    useEffect(()=>{engine?.setFraming(reference?'reference':'wide');},[engine,reference]);
     const menuButton=useRef<HTMLButtonElement>(null),dialog=useRef<HTMLDivElement>(null);
     useEffect(()=>{
         const abort=new AbortController();let unbind=()=>{},unsubscribe=()=>{};debug.ready=false;
         loadAssets(manifestUrl,abort.signal).then(({manifest,image})=>{
             if(abort.signal.aborted)return;
             const created=new FootballSession(canvas.current!,manifest,image,{...context,onError:message=>{setError(message);setReady(false);debug.ready=false;context.onError?.(message);}});
-            session.current=created;setEngine(created);debug.session=created;debug.mounts++;
+            setAtlasUrl(image.src);session.current=created;setEngine(created);debug.session=created;debug.mounts++;
             unbind=bindInput(root.current!,created);unsubscribe=created.subscribe(()=>{window.gameState=created.sim.snapshot();redraw(n=>n+1);});
             window.gameState=created.sim.snapshot();context.onReady?.(created);setReady(true);debug.ready=true;
         }).catch(cause=>{if(!abort.signal.aborted){setError(cause instanceof Error?cause.message:'The game could not load.');context.onError?.('Retro Football could not load.');}});
@@ -52,18 +56,20 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
         }catch{setHint('Use landscape or add this game to your home screen for the largest view.');}
     };
     const s=engine?.sim.state,playing=s?.status==='playing',remaining=s?Math.max(0,90-Math.floor(s.halfTicks/60)):90;
-    const action=s?.shotView?.phase==='aim'?'SHOOT':s?.phase==='restart'?s.restart?.kind==='throw-in'?'THROW':'KICK':s&&s.owner===s.selected?(s.players[s.selected]&&engine!.sim.attack(0)*(s.players[s.selected].x-52.5)>18?'CHANCE':'PASS'):s?.aerial&&s.aerial.controlledBy===null?'CONTROL':'TACKLE';
+    const action=engine?.sim.primaryAction()??'PASS';
+    const actionLabels=[action,engine?.sim.secondaryAction()??'LOFT',engine?.sim.tertiaryAction()??'SWITCH'];
+    const lobby=ready&&!error&&s?.status==='ready';
     const blocked=!ready||!playing||s?.phase==='goal'||!!s?.shotView&&s.shotView.phase!=='aim';
-    const status=error?'LOAD ERROR':!ready?'LOADING':s?.status==='playing'?s.shotView?.phase==='aim'?'CHANCE':s.phase==='restart'?'KICK OFF':s.phase==='goal'?'GOAL!':'EXHIBITION':s?.status.toUpperCase();
+    const status=error?'LOAD ERROR':!ready?'LOADING':s?.status==='playing'?s.shotView?({aim:'CHANCE',windup:'SHOOT',flight:'SHOT',parry:'SAVE',goal:'GOAL!'})[s.shotView.phase]:s.phase==='restart'?'KICK OFF':s.phase==='goal'?'GOAL!':'EXHIBITION':s?.status.toUpperCase();
     const start=()=>{setMenu(false);if(s?.status==='paused')session.current?.resume();else session.current?.start();};
     const openMenu=()=>{session.current?.pause();setMenu(true);};
     const exit=()=>{session.current?.pause();if(context.onExit)context.onExit();else{session.current?.restart();setMenu(false);}};
-    return <main ref={root} className={'handheld '+(screenOnly?'screen-only ':'')+(portrait?'portrait-allowed':'')} data-render={revision}>
+    return <main ref={root} className={'handheld '+(screenOnly?'screen-only ':'')+(reference?'reference-view ':'')+(portrait?'portrait-allowed ':'')+(lobby?'in-lobby':'')} data-render={revision}>
         <div className="console-edge"><div className="console-body">
-            <header className="console-brand"><span>STATOZ<span className="brand-sub">POCKET ARCADE</span></span><span className="brand-game">RETRO FOOTBALL</span><span className="power-light">POWER <i/></span></header>
+            <header className="console-brand"><span>POCKET<span className="brand-sub">SPORTS ARCADE</span></span><span className="brand-game">RETRO FOOTBALL</span><span className="power-light">POWER <i/></span></header>
             <aside className="left-grip" aria-label="Directional controls">
                 <span className="grip-caption">DIRECTION</span>
-                <div className="dpad" aria-label="Move or aim">{(['up','left','down','right'] as const).map(direction=><button key={direction} className={'direction '+direction} data-hold={direction} disabled={blocked} data-pressed={s?.held[direction]?'true':undefined} aria-label={'Move '+direction}>{({up:'▲',left:'◀',down:'▼',right:'▶'})[direction]}</button>)}<span className="pad-centre"/></div>
+                <div className="dpad" data-stick aria-label="Eight-way movement pad" aria-disabled={blocked}>{(['up','left','down','right'] as const).map(direction=><button key={direction} className={'direction '+direction} data-hold={direction} disabled={blocked} data-pressed={s?.held[direction]?'true':undefined} aria-label={'Move '+direction}>{({up:'▲',left:'◀',down:'▼',right:'▶'})[direction]}</button>)}<span className="pad-centre"/></div>
                 <div className="speaker" aria-hidden="true"><i/><i/><i/><i/></div>
                 <button className="small-button" onClick={()=>setScreenOnly(v=>!v)} aria-pressed={screenOnly}>SCREEN +</button>
                 <span className="control-help">WASD / ARROWS</span>
@@ -75,26 +81,29 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
                 {s?.phase==='goal'&&<div className="goal-banner">GOAL!</div>}
                 <div className="radar" hidden={!!s?.shotView} aria-label="Pitch overview"><i className="halfway"/>{s?.players.map(p=><i key={p.id} className={'dot '+(p.team===0?'harbour':'orchard')+(p.id===s.selected?' selected':'')} style={{left:p.x/105*100+'%',top:p.y/68*100+'%'}}/>)}{s&&<i className="radar-ball" style={{left:s.ball.x/105*100+'%',top:s.ball.y/68*100+'%'}}/>}</div>
                 <p className="match-message" id="message" role="status">{error||s?.message||'Loading the stadium…'}</p>
-                {(!ready||error||s?.status!=='playing')&&!menu&&<div className="game-overlay"><section className="title-card">
-                    <span className="cartridge-label">STATOZ INTERNATIONAL</span><h1>{s?.status==='complete'?'FULL TIME':s?.status==='halftime'?'HALF TIME':s?.status==='paused'?'PAUSED':'RETRO FOOTBALL'}</h1>
+                {(!ready||error||s?.status!=='playing')&&!lobby&&!menu&&<div className="game-overlay"><section className="title-card">
+                    <span className="cartridge-label">ARCADE FOOTBALL</span><h1>{s?.status==='complete'?'FULL TIME':s?.status==='halftime'?'HALF TIME':s?.status==='paused'?'PAUSED':'RETRO FOOTBALL'}</h1>
                     <p>{error||(!ready?'Loading your cartridge…':s?.status==='complete'?`${s.score[0]} : ${s.score[1]} · ${s.score[0]===s.score[1]?'DRAW':s.score[0]>s.score[1]?'HARBOUR WINS':'ORCHARD WINS'}`:s?.status==='halftime'?'Switch ends. One more half.':'HARBOUR ATHLETIC × ORCHARD UNITED')}</p>
-                    {error?<button id="retry" className="primary" onClick={reload}>RETRY CARTRIDGE</button>:s?.status==='complete'?<button id="restart" className="primary" onClick={()=>session.current?.restart()}>REMATCH</button>:<button id="start" className="primary" disabled={!ready} onClick={start}>{s?.status==='paused'?'RESUME MATCH':s?.status==='halftime'?'SECOND HALF':'KICK OFF'}</button>}
+                    {error?<button id="retry" className="primary" onClick={reload}>RETRY CARTRIDGE</button>:s?.status==='complete'?<button id="restart" className="primary" onClick={()=>{session.current?.restart();session.current?.start();}}>REMATCH</button>:<button id="start" className="primary" disabled={!ready} onClick={start}>{s?.status==='paused'?'RESUME MATCH':s?.status==='halftime'?'SECOND HALF':'KICK OFF'}</button>}
                     <small>11 V 11 · TWO 90-SECOND HALVES</small>
                 </section></div>}
             </div></section>
             <aside className="right-grip" aria-label="Action controls"><span className="grip-caption">THREE BUTTON PLAY</span>
-                <div className="action-cluster">{(['A','B','C'] as const).map((type,i)=><button key={type} className={'action action-'+type} id={type} data-action={type} disabled={blocked||!!s?.shotView&&type!=='A'} aria-label={type+' '+[action,'High pass','Short pass or switch'][i]} onClick={e=>{if(e.detail===0)session.current?.dispatch({type});}}><b>{type}</b><small>{[action,'LOFT','SWITCH'][i]}</small></button>)}</div>
+                <div className="action-cluster">{(['A','B','C'] as const).map((type,i)=><button key={type} className={'action action-'+type} id={type} data-action={type} disabled={blocked||!!s?.shotView&&type!=='A'} aria-label={type+' '+actionLabels[i]} onClick={e=>{if(e.detail===0)session.current?.dispatch({type});}}><b>{type}</b><small>{actionLabels[i]}</small></button>)}</div>
                 <span className="control-help">J / K / L</span>
                 <button ref={menuButton} className="small-button" id="menu" onClick={openMenu}>MENU</button>
             </aside>
+            {lobby&&<ArcadeLobby atlasUrl={atlasUrl} onStart={start} onMenu={openMenu}/>}
             <footer className="console-footer"><button className="utility" id="pause" disabled={!ready||!['playing','paused'].includes(s?.status||'')} onClick={()=>session.current?.dispatch({type:'pause'})}>{s?.status==='paused'?'RESUME':'PAUSE'}</button><span className="footer-status">{s?.half===2?'◀':'▶'} HARBOUR ATTACKS {s?.half===2?'LEFT':'RIGHT'}</span><button className="utility" id="fullscreen" onClick={()=>void fullscreen()}>{full?'WINDOW':'FULL SCREEN'}</button><button className="utility" id="exit" onClick={exit}>EXIT</button></footer>
         </div></div>
         {hint&&<p className="screen-hint" role="status">{hint}</p>}
         <div className="portrait-guide"><span className="rotate-device" aria-hidden="true">↻</span><h2>TURN TO LANDSCAPE</h2><p>Your handheld fills the wide screen.</p><button className="primary" onClick={()=>void fullscreen()}>ENTER FULL SCREEN</button><button className="utility" onClick={()=>setPortrait(true)}>CONTINUE IN PORTRAIT</button></div>
-        {menu&&<div className="menu-backdrop"><div ref={dialog} className="settings-panel" role="dialog" aria-modal="true" aria-labelledby="menu-title"><span className="cartridge-label">POCKET ARCADE</span><h2 id="menu-title">MATCH MENU</h2><button className="primary" onClick={()=>{setMenu(false);if(s?.status==='paused')session.current?.resume();}}>BACK TO GAME</button>
+        {menu&&<div className="menu-backdrop"><div ref={dialog} className="settings-panel" role="dialog" aria-modal="true" aria-labelledby="menu-title"><span className="cartridge-label">POCKET ARCADE</span><h2 id="menu-title">{lobby?'LOBBY SETTINGS':'MATCH MENU'}</h2><button className="primary" onClick={()=>{setMenu(false);if(s?.status==='paused')session.current?.resume();}}>{lobby?'BACK TO LOBBY':'BACK TO GAME'}</button>
             <div className="audio-settings">{(['music','sfx'] as const).map(key=><label key={key}>{key==='music'?'Music':'Sound effects'}<input aria-label={key==='music'?'Music volume':'Sound effects volume'} type="range" min="0" max="1" step=".05" value={engine?.settings[key]??.4} onChange={e=>{session.current?.audio.unlock();session.current?.setSettings({[key]:Number(e.currentTarget.value)});redraw(n=>n+1);}}/></label>)}</div>
+            <button id="framing" className="utility" aria-pressed={reference} onClick={()=>setReference(v=>!v)}>VIEW: {reference?'REFERENCE 320 × 224':'WIDE HANDHELD'}</button>
+            <p>Slide your thumb across the pad for eight-way movement. Keep steering while pressing A, B or C.</p>
             <p>Move / aim: arrows or WASD. J passes, tackles or shoots in CHANCE. K lofts. L switches or plays short.</p><p className="review-note">Invented clubs. Source-derived reference art. Original sound. Local exhibition.</p>
-            <button className="utility" onClick={()=>{session.current?.restart();setMenu(false);}}>RESTART MATCH</button><button className="utility" onClick={exit}>EXIT TO GAMES</button>
+            {!lobby&&<button className="utility" onClick={()=>{session.current?.restart();setMenu(false);}}>RESTART MATCH</button>}<button className="utility" onClick={exit}>EXIT TO GAMES</button>
         </div></div>}
     </main>;
 }

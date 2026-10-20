@@ -1,0 +1,185 @@
+export const RULES_VERSION = 2;
+export const STEP = 1 / 60;
+export type Vec = {
+    x: number;
+    y: number;
+};
+export type Mode = 'race' | 'trial';
+export type Difficulty = 'club' | 'sport' | 'expert';
+export type Compound = 'soft' | 'medium' | 'hard';
+export type CircuitId = 'parkland' | 'harbour' | 'desert' | 'coastal' | 'woodland';
+export type Setup = {
+    version: 2;
+    mode: Mode;
+    circuit: CircuitId;
+    team: number;
+    difficulty: Difficulty;
+    laps: 3 | 5 | 10;
+    qualifying: boolean;
+    strategy: boolean;
+    compound: Compound;
+    autoThrottle: boolean;
+    brakeAssist: boolean;
+    guide: boolean;
+    engineVolume: number;
+    effectsVolume: number;
+    muted: boolean;
+    touchSize: number;
+    touchOpacity: number;
+};
+export const DEFAULT_SETUP: Setup = { version: 2, mode: 'race', circuit: 'parkland', team: 0, difficulty: 'sport', laps: 3, qualifying: false, strategy: false, compound: 'medium', autoThrottle: false, brakeAssist: false, guide: false, engineVolume: .3, effectsVolume: .55, muted: false, touchSize: 64, touchOpacity: .8 };
+export type Input = {
+    steer: number;
+    throttle: boolean;
+    brake: boolean;
+};
+export const neutralInput = (): Input => ({ steer: 0, throttle: false, brake: false });
+export type TrackPoint = Vec & {
+    s: number;
+    heading: number;
+    curvature: number;
+};
+export type Circuit = {
+    id: CircuitId;
+    name: string;
+    region: string;
+    description: string;
+    difficulty: number;
+    theme: 'park' | 'city' | 'sand' | 'sea' | 'forest';
+    width: number;
+    points: TrackPoint[];
+    length: number;
+    bounds: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+    pit: {
+        entry: number;
+        box: number;
+        exit: number;
+    };
+};
+export type GhostPoint = Vec & {
+    t: number;
+    heading: number;
+};
+export type Ghost = {
+    version: 2;
+    rulesVersion: 2;
+    key: string;
+    time: number;
+    sectors: number[];
+    samples: GhostPoint[];
+};
+export type Car = Vec & {
+    id: number;
+    team: number;
+    name: string;
+    heading: number;
+    previous: Vec & {
+        heading: number;
+    };
+    vx: number;
+    vy: number;
+    speed: number;
+    steering: number;
+    s: number;
+    progress: number;
+    laps: number;
+    nextGate: number;
+    started: boolean;
+    valid: boolean;
+    lapStart: number;
+    best: number | null;
+    sectors: number[];
+    lapTimes: number[];
+    wear: number;
+    compound: Compound;
+    nextCompound: Compound;
+    pitRequested: boolean;
+    inPit: boolean;
+    pitS: number;
+    service: number;
+    serviced: boolean;
+    stops: number;
+    finish: number | null;
+    disqualified: boolean;
+    stuck: number;
+    recoverCooldown: number;
+    contactCooldown: number;
+    qualBest: number | null;
+};
+export type Phase = 'grid' | 'countdown' | 'qualifying' | 'running' | 'paused' | 'finished';
+export type Event = {
+    type: 'lights' | 'go' | 'contact' | 'lap' | 'invalid' | 'pit' | 'finish' | 'recover';
+    car: number;
+    time: number;
+};
+export type Result = {
+    version: 2;
+    rulesVersion: 2;
+    id: string;
+    mode: Mode;
+    circuit: CircuitId;
+    team: number;
+    position: number;
+    fieldSize: number;
+    elapsed: number;
+    bestLap: number | null;
+    laps: number;
+    status: 'finished' | 'retired' | 'disqualified';
+    classification: {
+        name: string;
+        team: number;
+        position: number;
+        time: number | null;
+        best: number | null;
+        laps: number;
+        stops: number;
+        status: string;
+    }[];
+};
+export type Session = {
+    version: 2;
+    id: string;
+    setup: Setup;
+    track: Circuit;
+    seed: number;
+    phase: Phase;
+    resumePhase: Phase;
+    clock: number;
+    raceClock: number;
+    countdown: number;
+    qualRemaining: number;
+    cars: Car[];
+    tick: number;
+    events: Event[];
+    notice: string;
+    noticeUntil: number;
+    grid: number;
+    result: Result | null;
+    ghost: Ghost | null;
+    lapSamples: GhostPoint[];
+    newGhost: Ghost | null;
+    completedGhosts: Ghost[];
+    tutorial: boolean;
+    tutorialStep: number;
+    lastSector: number | null;
+};
+export type RecordEntry = {
+    best: number;
+    sectors: number[];
+    ghost: Ghost | null;
+};
+export type Save = {
+    version: 2;
+    rulesVersion: 2;
+    setup: Setup;
+    records: Record<string, RecordEntry>;
+    recent: Result[];
+    tutorialSeen: boolean;
+};
+export const recordKey = (setup: Setup) => `${setup.circuit}:${setup.autoThrottle ? 'auto' : 'manual'}:${setup.brakeAssist ? 'assist' : 'free'}`;
+export const timeLabel = (seconds: number | null | undefined) => seconds == null || !Number.isFinite(seconds) ? '—:——.———' : `${Math.floor(seconds / 60)}:${(seconds % 60).toFixed(3).padStart(6, '0')}`;

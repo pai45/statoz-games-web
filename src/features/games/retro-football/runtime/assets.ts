@@ -4,7 +4,7 @@ export async function loadAssets(url: URL, signal: AbortSignal) {
     if (!response.ok)
         throw new Error('Asset manifest could not load.');
     const manifest = await response.json() as AssetManifest;
-    if (manifest.schemaVersion !== 1 || manifest.version !== 'football-handheld-atlas-v1' || manifest.approval !== 'reference' || manifest.records.length !== 79)
+    if (manifest.schemaVersion !== 1 || manifest.version !== 'football-chance-atlas-v2' || manifest.approval !== 'reference' || manifest.records.length !== 95)
         throw new Error('Unsupported football asset manifest.');
     const atlasUrl = new URL(manifest.atlasUrl, url);
     if (atlasUrl.origin !== url.origin)

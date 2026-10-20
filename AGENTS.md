@@ -15,3 +15,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## StatOz mock data
 
 Before creating or changing StatOz demo fixtures, read `.codex/skills/statoz-mock-data/SKILL.md` and follow its ownership and validation rules.
+
+## Retro Football independent style
+
+User direction: Retro Football uses its own classic arcade identity. Follow the installed `independent-game-style` skill: no StatOz visual system, cyberpunk theme, techno fonts, chamfer panels or cyber HUD styling inside this game. The host product retains its existing styling.

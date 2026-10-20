@@ -35,8 +35,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test:demo": "tsx --test tests/demo-product.test.ts",
     "typography:sync:all": "node scripts/demo-no-upstream.mjs",
-    "prebuild:games": "node scripts/build-football-motion.mjs && node scripts/build-retro-football.mjs && node scripts/build-retro-innings.mjs",
-    "build:games": "node scripts/build-game-bundles.mjs"
+    "prebuild:games": "node scripts/build-football-motion.mjs && node scripts/build-football-chance.mjs && node scripts/build-retro-football.mjs && node scripts/build-retro-innings.mjs",
+    "build:games": "node scripts/build-game-bundles.mjs",
+    "test:grand-prix": "tsx --test tests/grand-prix-rebuild.test.ts"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

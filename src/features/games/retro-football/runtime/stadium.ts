@@ -1,10 +1,11 @@
 import * as THREE from 'three';
+import {PITCH,PITCH_EXTENT,project,GOAL_HEIGHT} from './geometry';
 type Rect=(group:THREE.Group,x:number,y:number,w:number,h:number,color:string,order:number)=>unknown;
 type Box=(group:THREE.Group,x:number,y:number,w:number,h:number,color:string,t?:number)=>unknown;
 export const TURF={light:'#609724',dark:'#54851d',line:'#e7e9bd',track:'#a66036',rim:'#e5dcb2'};
 /** Original pixel construction from observed venue layers; no source logos or video texture. */
 export function drawStadium(group:THREE.Group,rect:Rect,box:Box,close=false){
-    const width=close?640:726;
+    const width=close?640:PITCH_EXTENT.width;
     rect(group,close?-160:-32,-82,width+224,510,TURF.dark,-100);
     // Broad alternating mowing bands with sparse, deterministic grass blades.
     for(let x=-32,n=0;x<width+32;x+=54,n++)rect(group,x,close?26:68,54,354,n%2?TURF.light:TURF.dark,-99);
@@ -40,22 +41,24 @@ export function drawStadium(group:THREE.Group,rect:Rect,box:Box,close=false){
     }
     rect(group,-32,71,width+64,3,TURF.rim,-86);
     if(close)return;
-    // Match geometry: 105x68 world units projected to the same contact plane.
-    box(group,48,80,630,218,TURF.line);
-    rect(group,363,80,1,218,TURF.line,-40);
-    for(const x of [48,579])box(group,x,144,99,90,TURF.line);
-    for(const x of [48,645])box(group,x,167,33,44,TURF.line);
-    for(let n=0;n<144;n++){const a=n*Math.PI*2/144;rect(group,Math.round(363+Math.cos(a)*55),Math.round(189+Math.sin(a)*29),2,1,TURF.line,-40);}
-    for(const x of [114,612])rect(group,x,188,2,2,TURF.line,-40);
-    for(const x of [48,678])for(const y of [80,298]){rect(group,x,y-15,1,16,'#e6d8a8',-39);rect(group,x+1,y-15,5,4,'#e3b643',-38);}
+    // All playing lines derive from the same world projection as actors/contacts.
+    const worldBox=(x:number,y:number,w:number,h:number)=>{const p=project({x,y});box(group,p.x,p.y,w*PITCH.scaleX,h*PITCH.scaleY,TURF.line);};
+    worldBox(0,0,PITCH.length,PITCH.width);
+    const centre=project({x:PITCH.length/2,y:PITCH.width/2});
+    rect(group,centre.x,PITCH.y,1,PITCH.width*PITCH.scaleY,TURF.line,-40);
+    for(const x of [0,88.5])worldBox(x,20,16.5,28);
+    for(const x of [0,99.5])worldBox(x,27,5.5,14);
+    for(let n=0;n<720;n++){const a=n*Math.PI*2/720,p=project({x:52.5+Math.cos(a)*PITCH.centreRadius,y:34+Math.sin(a)*PITCH.centreRadius});rect(group,Math.round(p.x),Math.round(p.y),2,1,TURF.line,-40);}
+    for(const x of [11,94]){const p=project({x,y:34});rect(group,p.x,p.y,2,2,TURF.line,-40);}
+    rect(group,centre.x,centre.y,2,2,TURF.line,-40);
+    for(const x of [0,PITCH.length])for(const y of [0,PITCH.width]){const p=project({x,y});rect(group,p.x,p.y-15,1,16,'#e6d8a8',-39);rect(group,p.x+1,p.y-15,5,4,'#e3b643',-38);}
     for(const side of [-1,1]){
-        const front=side<0?48:678,back=front+side*22,left=Math.min(front,back);
-        // Side goal roofs, supports and fine mesh. White posts stay distinguishable from the ball.
-        rect(group,left,134,22,77,'#526e57',-49);
-        for(let y=136;y<211;y+=5)rect(group,left,y,22,1,'#b2c3a0',-48);
-        for(let x=left;x<=left+22;x+=4)rect(group,x,134,1,77,'#b2c3a0',-48);
-        rect(group,back,134,2,77,'#d9dfbd',-47);rect(group,front,91,2,120,'#f3efda',-46);
-        rect(group,left,134,24,2,'#f3efda',-46);rect(group,left,209,24,2,'#d9dfbd',-46);
-        for(let n=0;n<=22;n++){rect(group,front+side*n,91+n*2,2,2,'#e9e4ce',-46);rect(group,front+side*n,136+n*3.3,1,2,'#bec9ad',-47);}
+        const front=project({x:side<0?0:PITCH.length,y:34}).x,depth=22,back=front+side*depth,left=Math.min(front,back),top=project({x:0,y:PITCH.goalTop}).y,bottom=project({x:0,y:PITCH.goalBottom}).y,roof=top-GOAL_HEIGHT;
+        rect(group,left,roof,depth,bottom-roof,'#526e57',-49);
+        for(let y=roof;y<=bottom;y+=5)rect(group,left,y,depth,1,'#b2c3a0',-48);
+        for(let x=left;x<=left+depth;x+=4)rect(group,x,roof,1,bottom-roof,'#b2c3a0',-48);
+        rect(group,back,roof,2,bottom-roof,'#d9dfbd',-47);
+        for(const y of [top,bottom]){rect(group,front,y-GOAL_HEIGHT,2,GOAL_HEIGHT,'#f3efda',-46);rect(group,left,y-GOAL_HEIGHT,depth+2,2,'#f3efda',-46);}
+        rect(group,front,roof,2,bottom-top,'#f3efda',-46);
     }
 }

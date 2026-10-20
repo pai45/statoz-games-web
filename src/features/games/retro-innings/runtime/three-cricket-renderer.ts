@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { CricketGround } from './cricket-ground';
 import { bowlingPose, runningPose } from './cricket-motion';
+import { deliveryLandingMarker, landingArrowRows } from './cricket-delivery-cue';
 
 // Pixel presentation only. Authoritative cricket state stays in simulation.mjs.
 export class CricketPresentation {
@@ -18,6 +19,7 @@ export class CricketPresentation {
   private turfTexture: THREE.CanvasTexture<HTMLCanvasElement|HTMLImageElement>;
   private disposed=false;
   private ground = new CricketGround();
+  private landingCue: ReturnType<typeof deliveryLandingMarker> = null;
   public canvas:HTMLCanvasElement;
   public frames=0;
   constructor(private images:Record<string,HTMLImageElement>,canvas?:HTMLCanvasElement){
@@ -45,6 +47,8 @@ export class CricketPresentation {
     if(this.disposed)return;this.used=0;
     const p=(a:any)=>({x:a.x-s.camera.x,y:a.y-s.camera.y-(a.z||0)}),c=this.turf.getContext('2d')!;c.imageSmoothingEnabled=false;
     this.ground.paint(c,s.camera,this.images.pitch);this.turfTexture.needsUpdate=true;this.mesh(this.plane('screen',256,224),this.materials.get('turf')!,128,112);
+    this.landingCue=deliveryLandingMarker(s,data.families);
+    if(this.landingCue){const q=this.landingCue.screen;for(const [shade,color] of [[1,'#005a00'],[0,'#fff']] as const){landingArrowRows.forEach((row,y)=>{let begin=-1;for(let x=0;x<=row.length;x++){if(row[x]==='#'&&begin<0)begin=x;if(row[x]!=='#'&&begin>=0){this.rect(q.x+begin-3+shade,q.y+y+shade,x-begin,1,color);begin=-1;}}});}}
     const layers:{depth:number,draw:()=>void}[]=[],queue=(depth:number,draw:()=>void)=>layers.push({depth,draw});
     const sprite=(key:string,r:any,x:number,y:number)=>{const q=p({x,y}),a=r.atlas,w=a[2],h=a[3];this.mesh(this.plane(key+':'+a.join(','),w,h,a,this.images[key]),this.materials.get(key)!,Math.round(q.x-r.ground[0])+w/2,Math.round(q.y-r.ground[1])+h/2);};
     const actor=(id:string,x:number,y:number)=>{const r=data.actors[id];if(r)queue(y,()=>sprite(id.startsWith('keeper-receive')||id==='keeper-hold'?'keeper':'actors',r,x,y));};
@@ -70,5 +74,5 @@ export class CricketPresentation {
     for(let i=this.used;i<this.pool.length;i++)this.pool[i].visible=false;this.renderer.render(this.scene,this.camera);this.frames++;
   }
   dispose(){if(this.disposed)return;this.disposed=true;this.canvas.removeEventListener('webglcontextlost',this.lost);this.canvas.removeEventListener('webglcontextrestored',this.restored);for(const g of this.planes.values())g.dispose();for(const m of this.materials.values()){m.map?.dispose();m.dispose();}this.scene.clear();this.pool=[];this.renderer.dispose();this.renderer.forceContextLoss();}
-  diagnostics(){return{frames:this.frames,pool:this.pool.length,geometries:this.planes.size,materials:this.materials.size,disposed:this.disposed,renderer:this.renderer.info.render};}
+  diagnostics(){return{frames:this.frames,pool:this.pool.length,geometries:this.planes.size,materials:this.materials.size,disposed:this.disposed,renderer:this.renderer.info.render,landingCue:this.landingCue};}
 }

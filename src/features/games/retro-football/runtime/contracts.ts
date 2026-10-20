@@ -174,4 +174,4 @@ export interface GameSession {
     setSettings(settings: Partial<GameSettings>): void;
     dispose(): void;
 }
-export const DEFINITION = { id: 'retro-football', runtimeVersion: '0.6.0', rulesVersion: 'exhibition-handheld-v1', assetVersion: 'football-handheld-atlas-v1', simulationHz: 60 } as const;
+export const DEFINITION = { id: 'retro-football', runtimeVersion: '0.10.0', rulesVersion: 'exhibition-chance-v1', assetVersion: 'football-chance-atlas-v2', simulationHz: 60 } as const;

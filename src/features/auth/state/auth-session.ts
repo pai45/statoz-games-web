@@ -12,6 +12,7 @@ const activeDataOwnerKey = "statoz.games.web.account-data-owner.v1";
  * lets the lightweight local auth shim switch accounts without forcing each
  * feature store to know about authentication. */
 const playerStorageKeys = [
+  "statoz.games.web.grandprix.v2",
   "statoz.games.web.profile.v1",
   "statoz.games.web.economy.v1",
   "statoz.games.web.packs.v1",

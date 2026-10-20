@@ -15,6 +15,11 @@ export class FootballSession implements GameSession {
     private unavailable = false;
     private backgrounded = false;
     private resizeObserver:ResizeObserver;
+    private framing:'wide'|'reference'='wide';
+    private measuredWidth=384;
+    setFraming(mode:'wide'|'reference'){
+        this.framing=mode;this.sim.setViewportWidth(mode==='reference'?320:this.measuredWidth);this.renderer.resize(this.sim.viewportWidth);this.renderer.render(this.sim);
+    }
     private listeners = new Set<() => void>();
     private resultSent = false;
     private eventCursor = 0;
@@ -22,7 +27,7 @@ export class FootballSession implements GameSession {
     constructor(canvas: HTMLCanvasElement, manifest: AssetManifest, image: HTMLImageElement, readonly context: GameContext = {}) {
         this.sim = new Simulation(manifest);
         this.renderer = new FootballRenderer(canvas, manifest, image);
-        this.resizeObserver=new ResizeObserver(entries=>{if(this.disposed)return;const r=entries[0]?.contentRect;if(!r||r.height<1)return;this.sim.setViewportWidth(224*r.width/r.height);this.renderer.resize(this.sim.viewportWidth);this.renderer.render(this.sim);});
+        this.resizeObserver=new ResizeObserver(entries=>{if(this.disposed)return;const r=entries[0]?.contentRect;if(!r||r.height<1)return;this.measuredWidth=224*r.width/r.height;this.setFraming(this.framing);});
         this.resizeObserver.observe(canvas.parentElement!);
         this.settings = { music: .4, sfx: .7 };
         this.setSettings(context.settings ?? {}, false);

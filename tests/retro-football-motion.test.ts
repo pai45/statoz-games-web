@@ -1,6 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {Simulation} from '../src/features/games/retro-football/runtime/simulation';
 import {movementFacing,movementView} from '../src/features/games/retro-football/runtime/animation';
+import {PITCH_EXTENT} from '../src/features/games/retro-football/runtime/geometry';
 import {followingCamera} from '../src/features/games/retro-football/runtime/presentation';
 import {readResult} from '../src/features/games/retro-football/protocol';
 import type {AssetManifest} from '../src/features/games/retro-football/runtime/contracts';
@@ -30,7 +31,7 @@ test('Backward delivery faces its target and releases at that actual pose foot',
 });
 test('Viewport resizing changes presentation without possession, players, score or ball changes',()=>{
  const sim=new Simulation(assets),before=sim.snapshot();sim.setViewportWidth(600);assert.equal(sim.viewportWidth,600);assert.deepEqual(sim.state.ball,before.ball);assert.deepEqual(sim.state.players,before.players);assert.deepEqual(sim.state.score,before.score);assert.equal(sim.state.owner,before.owner);
- for(const width of [320,384,600]){let camera={x:0,y:0};for(let n=0;n<60;n++)camera=followingCamera({x:700,y:280},{x:90,y:0},camera,width);assert.ok(camera.x>=0&&camera.x<=726-width);}
+ for(const width of [320,384,600]){let camera={x:0,y:0};for(let n=0;n<60;n++)camera=followingCamera({x:700,y:280},{x:90,y:0},camera,width);assert.ok(camera.x>=0&&camera.x<=PITCH_EXTENT.width-width);}
 });
 test('Only known runtime/rule pairs accept current and retained completed results',()=>{
  const result={schemaVersion:2,gameId:'retro-football',mode:'exhibition',outcome:'draw',score:[1,1],airContacts:[0,0],airCollections:[0,0],passes:[4,4],shots:[2,2],saves:[1,1],halves:2,activeSeconds:180,runtimeVersion:'0.6.0',rulesVersion:'exhibition-handheld-v1',assetVersion:'football-handheld-atlas-v1'};

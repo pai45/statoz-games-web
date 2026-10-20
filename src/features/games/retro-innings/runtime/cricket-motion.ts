@@ -25,7 +25,12 @@ export function bowlingPose(s: any) {
 
 export function runningPose(s: any, runner: any) {
   if (!s.run.moving) return 'runner-distant';
-  // Pose progression follows distance along this run; no idle/global clock cycling.
-  const step = Math.floor(s.run.p * 16 + runner.id * 4);
+  // Use actual leg length, so short and long run paths share the same foot cadence.
+  // Eight world units/pose is authored tuning. Opposite-facing source art is pending.
+  const index=s.run.from?.findIndex((p:any)=>p.id===runner.id)??-1;
+  const from=s.run.from?.[index],to=s.run.to?.[index];
+  if(!from||!to)return 'runner-distant';
+  const travelled=Math.hypot(to.x-from.x,to.y-from.y)*Math.max(0,Math.min(1,s.run.p));
+  const step = Math.floor(travelled / 8) + runner.id * 4;
   return 'runner-stride-' + ((step % 8 + 8) % 8);
 }

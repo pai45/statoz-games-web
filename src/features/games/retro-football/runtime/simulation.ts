@@ -1,8 +1,9 @@
 import type { Action, AssetManifest, Command, Contact, MatchState, Player, Point, Pose, Restart, Team, View, World } from './contracts';
-import { clamp, DT, fromSpace, HALF_TICKS, length, project, root, space, sweep, goalSpace, fromGoalSpace, GOAL_HEIGHT } from './geometry';
+import { clamp, DT, fromSpace, HALF_TICKS, length, project, root, space, sweep, goalSpace, fromGoalSpace, GOAL_HEIGHT, PITCH, PITCH_EXTENT, pitchPose, CONTACT } from './geometry';
 import { KEEPER, keeperPose } from './keeper';
 import {movementFacing,movementView} from './animation';
 import {followingCamera} from './presentation';
+import {GOAL_VIEW} from './close-view';
 const FORMATION: Point[] = [{ x: 4, y: 34 }, { x: 24, y: 10 }, { x: 21, y: 26 }, { x: 21, y: 42 }, { x: 24, y: 58 }, { x: 43, y: 10 }, { x: 40, y: 26 }, { x: 40, y: 42 }, { x: 43, y: 58 }, { x: 62, y: 25 }, { x: 62, y: 43 }];
 const TACKLE: [
     string,
@@ -11,11 +12,11 @@ const TACKLE: [
 const opposite = (t: Team): Team => t === 0 ? 1 : 0;
 export class Simulation {
     viewportWidth=384;
-    setViewportWidth(width:number){const next=clamp(Math.round(width),320,640);this.state.camera.x=clamp(this.state.camera.x+(this.viewportWidth-next)/2,0,726-next);this.viewportWidth=next;}
+    setViewportWidth(width:number){const next=clamp(Math.round(width),320,640);this.state.camera.x=clamp(this.state.camera.x+(this.viewportWidth-next)/2,0,PITCH_EXTENT.width-next);this.viewportWidth=next;}
     state: MatchState;
     private poses: Map<string, Pose>;
     constructor(readonly assets: AssetManifest, readonly options: { keeperCatches?:boolean } = {}) { this.poses = new Map(assets.records.map(p => [p.id, p])); this.state = this.initial(1); this.formation(0); }
-    private initial(round: number): MatchState { return { aerial: null, shotView: null, airContacts: [0, 0], airCollections: [0, 0], status: 'ready', phase: 'restart', tick: 0, eventSerial: 0, round, seed: 4811, half: 1, halfTicks: 0, score: [0, 0], players: [], selected: 9, owner: null, ball: { x: 52.5, y: 34, z: 0, vx: 0, vy: 0, vz: 0 }, lastTouch: 0, lastKicker: null, releaseTick: -999, restart: null, goalAge: 0, held: { left: false, right: false, up: false, down: false }, inputSources: { left: [], right: [], up: [], down: [] }, events: [], message: 'Two 90-second halves. Harbour attacks right first. Start exhibition.', passes: [0, 0], shots: [0, 0], saves: [0, 0], possessionTicks: [0, 0], camera: { x: 220, y: 40 }, pendingKickoff: 0, noDoubleTouch: null, lastContact: null }; }
+    private initial(round: number): MatchState { return { aerial: null, shotView: null, airContacts: [0, 0], airCollections: [0, 0], status: 'ready', phase: 'restart', tick: 0, eventSerial: 0, round, seed: 4811, half: 1, halfTicks: 0, score: [0, 0], players: [], selected: 9, owner: null, ball: { x: 52.5, y: 34, z: 0, vx: 0, vy: 0, vz: 0 }, lastTouch: 0, lastKicker: null, releaseTick: -999, restart: null, goalAge: 0, held: { left: false, right: false, up: false, down: false }, inputSources: { left: [], right: [], up: [], down: [] }, events: [], message: 'Two 90-second halves. Harbour attacks right first. Start exhibition.', passes: [0, 0], shots: [0, 0], saves: [0, 0], possessionTicks: [0, 0], camera: { x: project({x:52.5,y:34}).x-this.viewportWidth/2, y: project({x:52.5,y:34}).y-113 }, pendingKickoff: 0, noDoubleTouch: null, lastContact: null }; }
     attack(team: Team) { return (team === 0) === (this.state.half === 1) ? 1 : -1; }
     private emit(kind: string, detail: Partial<Contact> = {}) {
         const s = this.state, event = { kind, tick: s.tick, sequence: ++s.eventSerial, ...detail };
@@ -46,6 +47,10 @@ export class Simulation {
                 const home = { x: d === 1 ? f.x : 105 - f.x, y: f.y };
                 s.players.push({ id: team * 11 + slot, team, role: slot === 0 ? 'keeper' : 'outfield', slot, x, y: f.y, facing: d === 1 ? 'E' : 'W', moving: false, motionAge: 0, home, action: null, cooldown: 0, decisionTick: s.tick + 20 + slot * 5 });
             }
+        // Local kickoff composition calibrated from the reference: nearby outlets and wide defenders.
+        const place=(team:Team,slot:number,progress:number,y:number)=>{const p=s.players[team*11+slot];p.x=this.attack(team)===1?progress:105-progress;p.y=y;};
+        place(kickoff,9,52.5,34);place(kickoff,10,48.5,34);place(kickoff,5,48.2,26);
+        place(opposite(kickoff),5,47,22);place(opposite(kickoff),8,52,58);
         s.selected = 9;
     }
     private setBall(p: World) { Object.assign(this.state.ball, p, { vx: 0, vy: 0, vz: 0 }); }
@@ -183,6 +188,16 @@ export class Simulation {
             this.tackle(p);
     }
     private attackProgress(p: Player) { return this.attack(p.team) === 1 ? p.x : 105 - p.x; }
+    primaryAction(): 'SHOOT'|'SHOT'|'CHANCE'|'PASS'|'THROW'|'KICK'|'CONTROL'|'TACKLE'{
+        const s=this.state,p=s.players[s.selected];
+        if(s.shotView?.phase==='aim')return 'SHOOT';
+        if(s.shotView)return 'SHOT';
+        if(s.phase==='restart')return s.restart?.kind==='throw-in'?'THROW':'KICK';
+        if(s.owner===p.id)return this.attackProgress(p)>70?(this.canChance(p)?'CHANCE':'SHOOT'):'PASS';
+        return s.owner===null&&s.aerial?.controlledBy===null?'CONTROL':'TACKLE';
+    }
+    secondaryAction(){const s=this.state;return s.shotView?'WATCH':s.phase==='restart'?(s.restart?.kind==='throw-in'?'THROW':'LOFT'):s.owner===s.selected?'LOFT':'SLIDE';}
+    tertiaryAction(){const s=this.state;return s.shotView?'WATCH':s.phase==='restart'?'KICK':s.owner===s.selected?'SHORT':'SWITCH';}
     private target(p: Player, short = false): Player { const s = this.state, d = this.attack(p.team), input = this.direction(), hasInput = p.team === 0 && p.id === s.selected && length(input, { x: 0, y: 0 }) > .1; return s.players.filter(v => v.team === p.team && v.role === 'outfield' && v.id !== p.id && !v.action).sort((a, b) => { const score = (q: Player) => { const dist = length(p, q), vx = (q.x - p.x) / Math.max(1, dist), vy = (q.y - p.y) / Math.max(1, dist); return dist * (short ? 1.4 : .35) - (hasInput ? (vx * input.x + vy * input.y) * 18 : (q.x - p.x) * d * .6); }; return score(a) - score(b) || a.id - b.id; })[0]; }
     private direction(): Point { const h = this.state.held, x = Number(h.right) - Number(h.left), y = Number(h.down) - Number(h.up), n = Math.hypot(x, y); return n ? { x: x / n, y: y / n } : { x: 0, y: 0 }; }
     private kick(p: Player, kind: 'pass' | 'loft' | 'shot', short = false, outlet?: Player) {
@@ -193,7 +208,7 @@ export class Simulation {
             return;
         }
         const camera = this.state.shotView;
-        const q = kind === 'shot' ? { x: this.attack(p.team) === 1 ? 108 : -3, y: camera && camera.shooter === p.id ? 34 + (camera.aim.x - 160) / 16 : clamp(34 + (p.team === 0 && p.id === this.state.selected && this.state.held.up ? -6 : p.team === 0 && p.id === this.state.selected && this.state.held.down ? 6 : (this.random() - .5) * 5), 28, 40) } : outlet ?? this.target(p, short);
+        const q = kind === 'shot' ? { x: this.attack(p.team) === 1 ? 108 : -3, y: camera && camera.shooter === p.id ? 34 + (camera.aim.x - GOAL_VIEW.centreX) / GOAL_VIEW.lateralScale : clamp(34 + (p.team === 0 && p.id === this.state.selected && this.state.held.up ? -6 : p.team === 0 && p.id === this.state.selected && this.state.held.down ? 6 : (this.random() - .5) * 5), 28, 40) } : outlet ?? this.target(p, short);
         p.action = { kind, age: 0, target: { x: q.x, y: q.y }, targetPlayer: 'id' in q ? q.id : undefined, released: false, hit: false, direction: { x: this.attack(p.team), y: 0 } };
         p.facing = this.attack(p.team) === 1 ? 'E' : 'W';
     }
@@ -214,8 +229,8 @@ export class Simulation {
             if (p.keeperCycle) return {pose:'keeper-'+keeperPose(p.keeperCycle.age),mirror:this.attack(p.team)<0};
             const v = this.state.shotView;
             if (v?.keeper === p.id) {
-                const dive = Math.abs(v.aim.x - 160) >= 26;
-                return { pose: dive ? (v.age < 30 ? 'keeper-01' : 'keeper-03') : 'keeper-00', mirror: v.aim.x < 160 };
+                const dive = Math.abs(v.aim.x - GOAL_VIEW.centreX) >= 26;
+                return { pose: dive ? (v.age < 30 ? 'keeper-01' : 'keeper-03') : 'keeper-00', mirror: v.aim.x < GOAL_VIEW.centreX };
             }
             const incoming = this.state.ball.vx * this.attack(p.team) < -8 && Math.abs(this.state.ball.x - p.x) < 20;
             if (this.options.keeperCatches!==false && this.poses.has('keeper-reach') && !v) {
@@ -265,14 +280,15 @@ export class Simulation {
         return { pose: p.team === 1 ? 'orchard-' + pose : pose, mirror };
     }
     anchor(p: Player, name = 'foot', v = this.view(p)): World {
-        const pose = this.poses.get(v.pose)!;
+        const source=this.poses.get(v.pose)!,closeHands=this.state.shotView?.keeper===p.id&&(name==='leftHand'||name==='rightHand');
+        const pose = closeHands?source:pitchPose(source);
         const [gx, gy] = pose.anchors.ground;
         const a = pose.anchors[name] ?? pose.anchors.boot ?? pose.anchors.foot ?? pose.anchors.ground;
         const q = root(p);
         const camera = this.state.shotView;
         if (camera?.keeper === p.id && (name === 'leftHand' || name === 'rightHand'))
-            return { x: p.x, y: (Math.round(160 + (p.y - 34) * 16) + (v.mirror ? gx - a[0] - 1 : a[0] - gx) - 160) / 16 + 34, z: Math.max(0, gy - a[1]) };
-        return { x: (q.x - 48 + (v.mirror ? gx - a[0] - 1 : a[0] - gx)) / 6, y: (q.y - 80) / 3.2, z: Math.max(0, gy - a[1]) };
+            return { x: p.x, y: (Math.round(GOAL_VIEW.centreX + (p.y - 34) * GOAL_VIEW.lateralScale) + (v.mirror ? gx - a[0] - 1 : a[0] - gx) - GOAL_VIEW.centreX) / GOAL_VIEW.lateralScale + 34, z: Math.max(0, gy - a[1]) };
+        return { x: (q.x - PITCH.x + (v.mirror ? gx - a[0] - 1 : a[0] - gx)) / PITCH.scaleX, y: (q.y - PITCH.y) / PITCH.scaleY, z: Math.max(0, gy - a[1]) };
     }
     private throwAnchor(p: Player): World { return this.anchor(p, 'ball'); }
     private attach(p: Player) { const q = this.anchor(p,p.keeperCycle&&!p.keeperCycle.dropped?'ball':p.action?.kind==='throw'?'ball':'foot'); this.setBall(q); }
@@ -281,7 +297,7 @@ export class Simulation {
         if(this.options.keeperCatches===false||s.shotView||s.owner!==null||p.keeperCycle||!this.poses.has('keeper-standing-secure'))return false;
         if(incoming.vx*this.attack(p.team)>=-1||Math.hypot(incoming.vx,incoming.vy)>KEEPER.maxCatchSpeed||Math.abs(incoming.vz)>KEEPER.maxVerticalSpeed||ball.z<KEEPER.minimumHeight||ball.z>KEEPER.maximumHeight)return false;
         const grip=this.anchor(p,'ball',{pose:'keeper-standing-secure',mirror:this.attack(p.team)<0});
-        return Math.hypot((grip.x-ball.x)*6,(grip.y-ball.y)*3.2,grip.z-ball.z)<=KEEPER.gripRadius;
+        return Math.hypot((grip.x-ball.x)*PITCH.scaleX,(grip.y-ball.y)*PITCH.scaleY,grip.z-ball.z)<=KEEPER.gripRadius;
     }
     private secureKeeper(p:Player, contact:World){
         const s=this.state;p.keeperCycle={age:0,dropped:false,punted:false,releaseTick:-1};p.action=null;delete p.contactView;p.cooldown=0;p.moving=false;
@@ -296,7 +312,7 @@ export class Simulation {
         if(c.age===KEEPER.dropAge){
             // Ball release is real. The predicted boot is a delivery target only;
             // only the later swept boot contact can apply outgoing punt velocity.
-            const start={...s.ball},v={pose:'keeper-punt',mirror:this.attack(p.team)<0},foot=this.anchor(p,'kickingFoot',v),target={...foot,x:foot.x+this.attack(p.team)*3/6};
+            const start={...s.ball},v={pose:'keeper-punt',mirror:this.attack(p.team)<0},foot=this.anchor(p,'kickingFoot',v),target={...foot,x:foot.x+this.attack(p.team)*3/PITCH.scaleX};
             const n=KEEPER.puntAge-KEEPER.dropAge+1,r=Math.pow(.995,.5),factor=DT*(1-Math.pow(r,n))/(1-r);
             s.owner=null;s.aerial=null;c.dropped=true;c.releaseTick=s.tick;s.lastTouch=p.team;s.lastKicker=p.id;s.releaseTick=s.tick;
             s.ball.vx=(target.x-start.x)/factor;s.ball.vy=(target.y-start.y)/factor;s.ball.vz=(target.z-start.z+KEEPER.gravity*DT*DT*n*(n-1)/2)/(n*DT);
@@ -339,7 +355,7 @@ export class Simulation {
             const depth = this.attack(p.team) === 1 ? 105 - start.x : start.x;
             const steps = Math.max(1, Math.ceil(depth / Math.max(.01, Math.abs(s.ball.vx)) / DT)), r = Math.pow(.995, .5), distanceFactor = DT * (1 - Math.pow(r, steps)) / (1 - r), seconds = steps * DT;
             const targetDepth = this.attack(p.team) === 1 ? 105 : -0;
-            const lateral = 34 + (v.aim.x - 160) / 16;
+            const lateral = 34 + (v.aim.x - GOAL_VIEW.centreX) / GOAL_VIEW.lateralScale;
             s.ball.vx = (targetDepth - start.x) / distanceFactor;
             s.ball.vy = (lateral - start.y) / distanceFactor;
             s.ball.vz = ((v.planeY - v.aim.y) - start.z + 140 * seconds * seconds) / seconds;
@@ -395,8 +411,8 @@ export class Simulation {
         // starting position. Running onto the carrier's root can leave a slider
         // permanently too close to reach a stationary ball with the active boot.
         const direction = movingAcross ? (carrier.facing === 'E' ? 1 : -1) : signed(this.state.ball.x - p.x);
-        const entry = this.poses.get(p.team === 0 ? 'tackle-entry' : 'orchard-tackle-entry')!, g = entry.anchors.ground, boot = entry.anchors.boot;
-        const dx = (direction < 0 ? g[0] - boot[0] - 1 : boot[0] - g[0]) / 6;
+        const entry = pitchPose(this.poses.get(p.team === 0 ? 'tackle-entry' : 'orchard-tackle-entry')!), g = entry.anchors.ground, boot = entry.anchors.boot;
+        const dx = (direction < 0 ? g[0] - boot[0] - 1 : boot[0] - g[0]) / PITCH.scaleX;
         const ball = this.anchor(this.forecastCarrier(carrier, 8));
         return { x: ball.x - dx - direction * 9 * DT, y: ball.y };
     }
@@ -411,8 +427,8 @@ export class Simulation {
         };
         for (let age = 8; age < 20; age++) {
             const a = futureDefender(age - 1), b = futureDefender(age), oldCarrier = this.forecastCarrier(carrier, age - 1), nextCarrier = this.forecastCarrier(carrier, age);
-            const boot = sweep(space(this.anchor(a)), space(this.anchor(b)), space(this.anchor(oldCarrier)), space(this.anchor(nextCarrier)), 6);
-            const body = sweep(space({ ...a, z: 0 }), space({ ...b, z: 0 }), space({ ...oldCarrier, z: 0 }), space({ ...nextCarrier, z: 0 }), 9);
+            const boot = sweep(space(this.anchor(a)), space(this.anchor(b)), space(this.anchor(oldCarrier)), space(this.anchor(nextCarrier)), CONTACT.boot);
+            const body = sweep(space({ ...a, z: 0 }), space({ ...b, z: 0 }), space({ ...oldCarrier, z: 0 }), space({ ...nextCarrier, z: 0 }), CONTACT.body);
             if (body && (!boot || body.fraction < boot.fraction)) return false;
             if (boot) return true;
         }
@@ -442,14 +458,14 @@ export class Simulation {
         if (view?.keeper === p.id) {
             p.moving = false;
             if (view.phase === 'flight' && view.age > 16) {
-                const pose = this.poses.get(this.view(p).pose)!, g = pose.anchors.ground, h = pose.anchors[Math.abs(view.aim.x - 160) >= 26 ? 'leftHand' : 'rightHand'], offset = view.aim.x < 160 ? g[0] - h[0] - 1 : h[0] - g[0];
-                this.move(p, { x: p.x, y: clamp(34 + (view.aim.x - offset - 160) / 16, 25, 43) }, 39 / 16);
+                const pose = this.poses.get(this.view(p).pose)!, g = pose.anchors.ground, h = pose.anchors[Math.abs(view.aim.x - GOAL_VIEW.centreX) >= 26 ? 'leftHand' : 'rightHand'], offset = view.aim.x < GOAL_VIEW.centreX ? g[0] - h[0] - 1 : h[0] - g[0];
+                this.move(p, { x: p.x, y: clamp(34 + (view.aim.x - offset - GOAL_VIEW.centreX) / GOAL_VIEW.lateralScale, 25, 43) }, 39 / GOAL_VIEW.lateralScale);
             }
             return;
         }
         if (s.aerial && s.aerial.controlledBy === null && s.owner === null) {
             const b = s.ball, upper = this.anchor(p, 'upperTorso', { pose: p.team === 0 ? 'signal' : 'orchard-signal', mirror: b.x > p.x }), forecast = { x: b.x + b.vx * .2, y: b.y + b.vy * .2, z: b.z + b.vz * .2 - 54 * .04 };
-            if (p.role === 'outfield' && Math.hypot((forecast.x - upper.x) * 6, (forecast.y - upper.y) * 3.2, forecast.z - upper.z) < 15) {
+            if (p.role === 'outfield' && Math.hypot((forecast.x - upper.x) * PITCH.scaleX, (forecast.y - upper.y) * PITCH.scaleY, forecast.z - upper.z) < 15) {
                 this.control(p);
                 return;
             }
@@ -518,8 +534,8 @@ export class Simulation {
         const s = this.state;
         if (s.owner !== p.id || p.action || s.shotView)
             return;
-        const keeper = s.players[opposite(p.team) * 11], direction = this.attack(p.team), depth = Math.max(3, (keeper.x - p.x) * direction), scale = clamp(60 / depth, 1, 12), keeperDepth = direction === 1 ? 105 - keeper.x : keeper.x;
-        s.shotView = { direction, phase: 'aim', shooter: p.id, keeper: keeper.id, team: p.team, age: 0, aim: human ? { x: 160, y: 122 } : { x: 60 + this.random() * 200, y: 70 + this.random() * 60 }, depthScale: scale, planeY: 151 - keeperDepth * scale };
+        const keeper = s.players[opposite(p.team) * 11], direction = this.attack(p.team), depth = Math.max(3, (keeper.x - p.x) * direction), scale = clamp(GOAL_VIEW.separation / depth, 1, 16), keeperDepth = direction === 1 ? 105 - keeper.x : keeper.x,planeY=GOAL_VIEW.keeperY-keeperDepth*scale;
+        s.shotView = { direction, phase: 'aim', shooter: p.id, keeper: keeper.id, team: p.team, age: 0, aim: human ? { x: GOAL_VIEW.centreX, y: planeY-32 } : { x: GOAL_VIEW.centreX-75 + this.random() * 150, y: planeY-10-this.random()*50 }, depthScale: scale, planeY };
         p.moving = false;
         this.clear();
         this.emit('shooting-camera-enter', { player: p.id, team: p.team, direction });
@@ -546,8 +562,8 @@ export class Simulation {
         }
         if (v.phase === 'aim') {
             const d = this.direction();
-            v.aim.x = clamp(v.aim.x + d.x * 66 * DT, 32, 288);
-            v.aim.y = clamp(v.aim.y + d.y * 66 * DT, 32, 140);
+            v.aim.x = clamp(v.aim.x + d.x * 66 * DT, 24, 226);
+            v.aim.y = clamp(v.aim.y + d.y * 66 * DT, 5, 120);
             if (v.age >= 90)
                 this.confirmChance();
         }
@@ -743,7 +759,7 @@ export class Simulation {
                 const hands=['leftHand','rightHand'].map(name=>({name,point:this.anchor({...p,...old.position},name,currentView)}));
                 for (const h of hands) {
                     const metric = s.shotView?.keeper === p.id ? (q: World) => goalSpace(q, s.shotView!) : space;
-                    const radius = s.shotView?.keeper === p.id ? 6 : 7;
+                    const radius = s.shotView?.keeper === p.id ? 6 : CONTACT.receive;
                     const hit = sweep(metric(h.point), metric(this.anchor(p, h.name)), metric(oldBall), metric(s.ball), radius);
                     if (hit)
                         contacts.push({ ...hit, p, kind: 'save', anchor: h.name, point: s.shotView?.keeper === p.id ? fromGoalSpace(hit.anchor, s.shotView) : fromSpace(hit.anchor), ball: s.shotView?.keeper === p.id ? fromGoalSpace(hit.ball, s.shotView) : fromSpace(hit.ball), segment: { anchorStart: metric(h.point), anchorEnd: metric(this.anchor(p, h.name)), ballStart: metric(oldBall), ballEnd: metric(s.ball), radius } });
@@ -751,18 +767,18 @@ export class Simulation {
                 continue;
             }
             if (a?.kind === 'control' && a.age >= 8 && a.age < 20 && !a.hit && s.aerial?.controlledBy === null) {
-                const hit = sweep(space(old.upper), space(this.anchor(p, 'upperTorso')), space(oldBall), space(s.ball), 5.5);
+                const hit = sweep(space(old.upper), space(this.anchor(p, 'upperTorso')), space(oldBall), space(s.ball), CONTACT.upper);
                 if (hit)
-                    contacts.push({ ...hit, p, kind: 'upper-body-contact', anchor: 'upperTorso', point: fromSpace(hit.anchor), ball: fromSpace(hit.ball), segment: { anchorStart: space(old.upper), anchorEnd: space(this.anchor(p, 'upperTorso')), ballStart: space(oldBall), ballEnd: space(s.ball), radius: 5.5 } });
+                    contacts.push({ ...hit, p, kind: 'upper-body-contact', anchor: 'upperTorso', point: fromSpace(hit.anchor), ball: fromSpace(hit.ball), segment: { anchorStart: space(old.upper), anchorEnd: space(this.anchor(p, 'upperTorso')), ballStart: space(oldBall), ballEnd: space(s.ball), radius: CONTACT.upper } });
                 continue;
             }
             if (a?.kind === 'tackle' && a.age >= 8 && a.age < 36 && !a.hit) {
-                const hit = sweep(space(old.foot), space(this.anchor(p)), space(oldBall), space(s.ball), 6);
+                const hit = sweep(space(old.foot), space(this.anchor(p)), space(oldBall), space(s.ball), CONTACT.boot);
                 if (hit)
                     contacts.push({ ...hit, p, kind: 'tackle-contact', anchor: 'boot', point: fromSpace(hit.anchor), ball: fromSpace(hit.ball) });
                 const owner = s.owner === null ? null : s.players[s.owner];
                 if (owner && owner.team !== p.team) {
-                    const body = sweep(space({ ...previous[p.id].body, z: 0 }), space({ ...p, z: 0 }), space({ ...previous[owner.id].body, z: 0 }), space({ ...owner, z: 0 }), 9);
+                    const body = sweep(space({ ...previous[p.id].body, z: 0 }), space({ ...p, z: 0 }), space({ ...previous[owner.id].body, z: 0 }), space({ ...owner, z: 0 }), CONTACT.body);
                     if (body)
                         contacts.push({ ...body, p, kind: 'foul', anchor: 'body', point: { x: p.x, y: p.y, z: 0 }, ball: { x: s.ball.x, y: s.ball.y, z: s.ball.z } });
                 }
@@ -770,7 +786,7 @@ export class Simulation {
             }
             if (a || p.cooldown > 0 || isKicker || s.owner !== null || s.ball.z > 6 || oldBall.z > 12)
                 continue;
-            const hit = sweep(space(old.foot), space(this.anchor(p)), space(oldBall), space(s.ball), 7);
+            const hit = sweep(space(old.foot), space(this.anchor(p)), space(oldBall), space(s.ball), CONTACT.receive);
             if (hit)
                 contacts.push({ ...hit, p, kind: 'receive', anchor: 'foot', point: fromSpace(hit.anchor), ball: fromSpace(hit.ball) });
         }
@@ -800,7 +816,7 @@ export class Simulation {
                 s.airContacts[p.team]++;
                 s.lastTouch = p.team;
                 this.setBall(hit.ball);
-                s.ball.vx = (p.action!.direction.x > 0 ? 2.4 : -2.4) / 6;
+                s.ball.vx = (p.action!.direction.x > 0 ? 2.4 : -2.4) / PITCH.scaleX;
                 s.ball.vz = 0;
                 s.message = 'CONTROL CONTACT - complete recovery before collecting.';
             }
@@ -904,7 +920,7 @@ export class Simulation {
             return;
         }
         const scoring: Team = (b.edge === 'right') === (s.half === 1) ? 0 : 1, defending = opposite(scoring);
-        if (p.y >= 27.5 && p.y <= 40.5 && p.z <= GOAL_HEIGHT - 3) {
+        if (p.y >= PITCH.goalTop && p.y <= PITCH.goalBottom && p.z <= GOAL_HEIGHT - 3) {
             s.score[scoring]++;
             s.owner = null;
             s.phase = 'goal';
@@ -955,6 +971,6 @@ export class Simulation {
             this.emit('fulltime');
         }
     }
-    private updateCamera() { const s=this.state,q=project(s.ball),focus=s.owner===null?q:project(s.players[s.owner]);const velocity=s.owner===null?{x:s.ball.vx*6,y:s.ball.vy*3.2}:this.state.players[s.owner].moving?{x:this.state.players[s.owner].facing==='W'?-43.2:this.state.players[s.owner].facing==='E'?43.2:0,y:0}:{x:0,y:0};s.camera=followingCamera(focus,velocity,s.camera,this.viewportWidth); }
+    private updateCamera() { const s=this.state,q=project(s.ball),focus=s.owner===null?q:project(s.players[s.owner]);const velocity=s.owner===null?{x:s.ball.vx*PITCH.scaleX,y:s.ball.vy*PITCH.scaleY}:this.state.players[s.owner].moving?{x:(this.state.players[s.owner].facing==='W'?-7.2:this.state.players[s.owner].facing==='E'?7.2:0)*PITCH.scaleX,y:0}:{x:0,y:0};s.camera=followingCamera(focus,velocity,s.camera,this.viewportWidth); }
 }
 const signed = (n: number) => n >= 0 ? 1 : -1;

@@ -1,5 +1,6 @@
 import type { Direction } from './contracts';
 import type { FootballSession } from './session';
+import {padDirections} from './touch-pad';
 export function bindInput(container: HTMLElement, session: FootballSession) {
     const controller = new AbortController(), options = { signal: controller.signal }, keys: Record<string, Direction> = { arrowleft: 'left', a: 'left', arrowright: 'right', d: 'right', arrowup: 'up', w: 'up', arrowdown: 'down', s: 'down' };
     const actions: Record<string, 'A' | 'B' | 'C'> = { j: 'A', k: 'B', l: 'C' };
@@ -27,8 +28,20 @@ export function bindInput(container: HTMLElement, session: FootballSession) {
         if (direction)
             session.dispatch({ type: 'hold', key: direction, value: false, source: 'keyboard:' + e.code });
     }, options);
-    const pointers = new Set<number>();
+    const pointers = new Set<number>(),sticks=new Map<number,{pad:HTMLElement;directions:Direction[]}>();
+    const steer=(e:PointerEvent)=>{
+        const stick=sticks.get(e.pointerId);if(!stick)return;
+        const r=stick.pad.getBoundingClientRect(),next=padDirections((e.clientX-r.x-r.width/2)/(r.width/2),(e.clientY-r.y-r.height/2)/(r.height/2),stick.directions),source='pointer:'+e.pointerId;
+        for(const direction of stick.directions)if(!next.includes(direction))session.dispatch({type:'hold',key:direction,value:false,source});
+        for(const direction of next)if(!stick.directions.includes(direction))session.dispatch({type:'hold',key:direction,value:true,source});
+        stick.directions=next;
+    };
     container.addEventListener('pointerdown', e => {
+        const pad=(e.target as HTMLElement).closest<HTMLElement>('[data-stick]');
+        if(pad){
+            if(pad.getAttribute('aria-disabled')==='true')return;
+            e.preventDefault();pad.setPointerCapture(e.pointerId);sticks.set(e.pointerId,{pad,directions:[]});steer(e);return;
+        }
         const target = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-hold],button[data-action]');
         if (!target || target.disabled)
             return;
@@ -42,7 +55,10 @@ export function bindInput(container: HTMLElement, session: FootballSession) {
         else if (action)
             session.dispatch({ type: action });
     }, options);
+    container.addEventListener('pointermove',e=>{if(sticks.has(e.pointerId)){e.preventDefault();steer(e);}},options);
     const release = (e: PointerEvent) => {
+        const stick=sticks.get(e.pointerId);
+        if(stick){for(const key of stick.directions)session.dispatch({type:'hold',key,value:false,source:'pointer:'+e.pointerId});sticks.delete(e.pointerId);return;}
         const target = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-hold],button[data-action]');
         if (!target)
             return;
@@ -59,6 +75,7 @@ export function bindInput(container: HTMLElement, session: FootballSession) {
         for (const el of container.querySelectorAll<HTMLElement>('[data-pressed]'))
             delete el.dataset.pressed;
         pointers.clear();
+        sticks.clear();
     };
     window.addEventListener('blur', background, options);
     window.addEventListener('focus', () => { if (!document.hidden) session.setBackground(false); }, options);
@@ -71,6 +88,7 @@ export function bindInput(container: HTMLElement, session: FootballSession) {
     return () => {
         controller.abort();
         pointers.clear();
+        sticks.clear();
         for (const el of container.querySelectorAll<HTMLElement>('[data-pressed]'))
             delete el.dataset.pressed;
         session.sim.clear();

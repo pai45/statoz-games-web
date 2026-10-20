@@ -1,5 +1,5 @@
-export { GrandPrix } from "./components/grand-prix";
-export type { GrandPrixProps } from "./components/grand-prix";
+export { GrandPrix } from "./rebuild/screen";
+export type { GrandPrixProps } from "./rebuild/screen";
 
 /**
  * The mode's contribution to the profile, and the demo reset. The field, the

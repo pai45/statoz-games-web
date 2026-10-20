@@ -25,7 +25,7 @@ input[type=range]{width:100%;min-width:0;max-width:100%}#volume{display:block}#r
       return S.seed / 4294967296;
     }
     function makeFielders() {
-      return [["Keeper", 424, 245], ["Slip", 485, 318], ["Point", 575, 365], ["Cover", 555, 455], ["Mid off", 500, 540], ["Mid on", 355, 540], ["Square leg", 285, 410], ["Fine leg", 315, 290], ["Third man", 550, 260], ["Long on", 365, 615], ["Bowler", 420, 432]].map(([role, x, y], i) => ({ id: i, role, x, y, mode: "idle", age: 0, has: false }));
+      return [["Keeper", 424, 245], ["Slip", 485, 318], ["Point", 575, 365], ["Cover", 555, 455], ["Mid off", 500, 540], ["Mid on", 355, 540], ["Square leg", 285, 410], ["Fine leg", 315, 290], ["Third man", 550, 260], ["Long on", 365, 615], ["Bowler", 459, 475]].map(([role, x, y], i) => ({ id: i, role, x, y, mode: "idle", age: 0, has: false }));
     }
     function reset() {
       clearHeld();
@@ -148,6 +148,9 @@ input[type=range]{width:100%;min-width:0;max-width:100%}#volume{display:block}#r
       else beginDelivery();
       render();
     }
+    function bowlerPosition() {
+      return S.phase === "runup" ? { x: 459, y: mix(495, NEAR.y, clamp(S.age / 500, 0, 1)) } : { x: S.plan?.releaseOrigin?.x ?? 459, y: S.plan?.releaseOrigin?.y ?? NEAR.y };
+    }
     function release() {
       if (S.phase !== "runup" || S.paused) return;
       const family = DATA.families[S.plan.lane] || DATA.families.off, [x, y] = family.target;
@@ -156,20 +159,24 @@ input[type=range]{width:100%;min-width:0;max-width:100%}#volume{display:block}#r
       S.plan.height = 142 - y;
       S.plan.illegal = S.innings === 2 && S.age > 1100 ? "no-ball" : S.plan.lane === "wide" ? "wide" : null;
       S.plan.extras = S.plan.illegal ? 1 : 0;
+      const ground = bowlerPosition(), pose = DATA.actors["bowler-4"], anchor = pose.anchors.release;
+      S.plan.releaseOrigin = { x: ground.x + anchor.x - pose.ground[0], y: ground.y, z: pose.ground[1] - anchor.y };
+      Object.assign(S.fielders[10], ground);
       S.fielders[0].x = S.plan.x - (16.67 - 13);
       S.phase = "delivery";
       S.age = 0;
-      S.ball = { x: 420, y: 432, z: 53, vx: 0, vy: 0, vz: 0, flightAge: 0, hit: false, bounced: false };
+      S.ball = { ...S.plan.releaseOrigin, vx: 0, vy: 0, vz: 0, flightAge: 0, hit: false, bounced: false };
       S.plan.aiAt = S.plan.duration - (family.activeStartMs + family.activeEndMs) / 2 + (random() - 0.5) * 230;
       S.plan.aiLoft = random() < 0.32;
       S.plan.aiPower = random() < 0.28;
-      event("release", { point: { x: 420, y: 432, z: 53 }, illegal: S.plan.illegal, duration: S.plan.duration });
+      event("release", { point: { ...S.plan.releaseOrigin }, illegal: S.plan.illegal, duration: S.plan.duration });
       S.message = (S.plan.illegal ? S.plan.illegal.toUpperCase() + " \xB7 " : "") + (S.innings === 1 ? "Ball live \xB7 choose stroke" : "AI batting \xB7 prepare to field");
       if (S.innings === 2 && S.runs + S.plan.extras >= S.target) resolve("Winning extra");
     }
     function incomingAt(age) {
-      const t = age / S.plan.duration, bounce = 0.67;
-      return { x: mix(420, S.plan.x, t), y: mix(432, 350, t), z: t <= bounce ? 53 * (1 - t / bounce) : S.plan.height * (t - bounce) / (1 - bounce) };
+      const t = age / S.plan.duration, bounce = 0.67, origin = S.plan.releaseOrigin;
+      const landing = { x: mix(420, S.plan.x, bounce), y: mix(432, 350, bounce) };
+      return { x: t <= bounce ? mix(origin.x, landing.x, t / bounce) : mix(420, S.plan.x, t), y: t <= bounce ? mix(origin.y, landing.y, t / bounce) : mix(432, 350, t), z: t <= bounce ? origin.z * (1 - t / bounce) : S.plan.height * (t - bounce) / (1 - bounce) };
     }
     function canStrike(ai = false) {
       return S.status === "playing" && !S.paused && !S.pendingOutcome && !S.settled && S.phase === "delivery" && !S.action && !S.strokeQueue && !S.ball?.hit && (ai || S.innings === 1);
@@ -633,7 +640,7 @@ input[type=range]{width:100%;min-width:0;max-width:100%}#volume{display:block}#r
       }
     }
     reset();
-    return { clearHeld, event, random, makeFielders, reset, batterPose, batterOrigin, batCells, pointSegment, intersect, sweptCell, contactFraction, beginDelivery, primary, release, incomingAt, canStrike, commitStroke, strike, recovered, holdReturn, requestRun, reverseRun, runnerPositions, runners, finishChaseIfSafe, safeAt, resolve, finishDelivery, fieldPose, hand, throwEnd, updateThrow, fieldStep, hit, tick, keeperPose, keeperGlove, beginKeeperReceive, keeperStep, get state() {
+    return { bowlerPosition, clearHeld, event, random, makeFielders, reset, batterPose, batterOrigin, batCells, pointSegment, intersect, sweptCell, contactFraction, beginDelivery, primary, release, incomingAt, canStrike, commitStroke, strike, recovered, holdReturn, requestRun, reverseRun, runnerPositions, runners, finishChaseIfSafe, safeAt, resolve, finishDelivery, fieldPose, hand, throwEnd, updateThrow, fieldStep, hit, tick, keeperPose, keeperGlove, beginKeeperReceive, keeperStep, get state() {
       return S;
     }, get settings() {
       return settings;
@@ -707,7 +714,7 @@ function project(p){return{x:p.x-S.camera.x,y:p.y-S.camera.y-(p.z||0)};}
 function drawActor(id,x,y){const r=DATA.actors[id];if(!r)return;const [sx,sy,w,h]=r.atlas,p=project({x,y});ctx.drawImage(id.startsWith('keeper-receive')||id==='keeper-hold'?images.keeper:images.actors,sx,sy,w,h,Math.round(p.x-r.ground[0]),Math.round(p.y-r.ground[1]),w,h);}
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
 function battingCue(){if(S.phase==='keeper'&&!S.paused)return{state:'receiving',text:'Keeper receiving — next delivery after the ball settles.'};if(S.paused)return{state:'paused',text:'PAUSED - resume before playing.'};if(S.pendingOutcome&&!S.settled)return{state:'resolving',text:S.pendingOutcome.label+' - completing recovery.'};if(S.phase==='dead'&&S.status==='playing')return{state:'result',text:'Ball settled - next delivery when ready.'};if(S.status!=='playing')return{state:'inactive',text:S.status==='idle'?'Watch the ball. Swing when the cue says SWING NOW.':S.status==='result'?S.result:'Innings complete - prepare to bowl.'};if(S.innings!==1)return{state:'inactive',text:'Bowl and field to defend the score.'};if(S.ball?.hit)return{state:'contact',text:'CONTACT - R to run; watch the field.'};if(S.phase==='runup'||S.phase==='ready')return{state:'ready',text:'Watch the ball. Space swings the indicated stroke.'};if(S.phase==='delivery'){if(S.strokeQueue)return{state:'queued',text:S.strokeQueue.family.toUpperCase()+' SHOT QUEUED - watch for contact.'};if(S.action)return{state:'swinging',text:'Stroke committed - watch for contact.'};if(Math.abs(S.stance)>=2)return{state:'alignment',text:'GUARD OFF LINE - move guard '+(S.stance>0?'LEFT':'RIGHT')+' to centre before next release.'};const remaining=S.plan.duration-S.ball.flightAge,name=S.plan.lane.toUpperCase(),key=({leg:'A',off:'D',defend:'S'})[S.plan.lane];return remaining>500+1e-7?{state:'wait',text:'GET READY - '+name+' ['+key+'] or Space'}:remaining>=140-1e-7?{state:'swing',text:'SWING NOW - '+name+' ['+key+'] or Space'}:{state:'late',text:'LATE - prepare earlier on the next delivery.'};}return{state:'result',text:'Next delivery when ready.'};}
-function bowlerPosition(){return{x:420,y:S.phase==='runup'?mix(470,432,clamp(S.age/500,0,1)):432};}
+function bowlerPosition(){return engine.bowlerPosition();}
 function fieldOverview(){const map=$('fieldMap'),c=map.getContext('2d'),scale=.19,cx=84,cy=64;c.imageSmoothingEnabled=false;c.fillStyle='#12251d';c.fillRect(0,0,168,128);const point=p=>({x:cx+(p.x-CENTER.x)*scale,y:cy+(p.y-CENTER.y)*scale});c.strokeStyle='#729b69';c.beginPath();c.arc(cx,cy,RADIUS*scale,0,Math.PI*2);c.stroke();const far=point(FAR),near=point(NEAR);c.fillStyle='#b4a977';c.fillRect(far.x-4,far.y,8,near.y-far.y);for(const f of S.fielders){const p=point(f.id===10&&!S.ball?.hit?bowlerPosition():f);c.fillStyle=f.id===S.selected?'#5cdfff':'#fff2d0';c.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,f.id===S.selected?4:2,f.id===S.selected?4:2);}if(S.ball){const p=point(S.ball);c.fillStyle='#ff9166';c.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,3,3);}$('fieldName').textContent='11 FIELDERS / '+S.fielders[S.selected].role.toUpperCase();}
 // Original presentation of observed source pitch-inset concept; simulation is unchanged.
 function completedRunDisplay(){return{completed:S.pendingOutcome?.wicket==='caught'?0:S.completedRuns,provisional:!S.settled&&S.completedRuns>0&&S.pendingOutcome?.wicket!=='caught'};}

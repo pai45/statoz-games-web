@@ -1,9 +1,9 @@
 {
   "game": "retro-innings",
-  "version": "handheld-v1",
+  "version": "bowler-crease-v1",
   "release": "private-reference-preview",
   "publicReleaseApproved": false,
-  "sha256": "b1856748e994223bc126414983d21fe55a8feaa70cb3f2e0e7b056b44b672ef8",
+  "sha256": "394bba2974921c9ba5c8c36ecf06e3504bb077d1bdef5809434eb3214173bfce",
   "sourceBundle": "src/features/games/retro-innings/runtime",
   "sourceAssets": "output/retro-innings/three-candidate-v2/assets.json",
   "referenceStudy": "output/retro-innings/reference-study/manifest.json",
@@ -26,5 +26,19 @@
     "Source-palette checked outfield, pitch mowing, fence/crowd/sight screens/pavilion outside the legal boundary",
     "Umpire separated from non-striker without changing player anchors"
   ],
-  "timing": "Authored holds; sample times establish source order, not native SNES cadence"
+  "timing": "Authored holds; sample times establish source order, not native SNES cadence",
+  "bounceMarker": {
+    "source": "Saved native screenshot007 and D2D2t1JfZDk recording130.7/132.3s",
+    "shape": "White upward pitch arrow with green ground shadow",
+    "placement": "Arrow tip at existing simulation incoming ground contact; not native recovered trajectory",
+    "visibility": "Run-up/delivery; hidden after hit/keeper/field/dead"
+  },
+  "animation": "Runner strides advance by path distance;8 world units/pose is authored. Remaining source action/cadence fidelity follows docs/retro-innings/source-replication-plan.md.",
+  "bowlingCrease": {
+    "ground": "Run-up from y495 to y475, clamped at/behind the near bowling crease",
+    "release": "Derived from current bowler-4 raised-hand anchor at actual release position; early manual releases remain behind crease",
+    "flight": "Only pre-bounce approach corrected; previous landing, post-bounce path, flight duration and batting window retained",
+    "source": "Saved source007 and D2D2t1JfZDk sampled130.7/132.3s show bowler near near-end crease, right of umpire/non-striker",
+    "limits": "Coordinates and holds authored; no recovered native simulation claim"
+  }
 }
