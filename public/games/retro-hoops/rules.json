@@ -1,8 +1,8 @@
 {
   "gameId": "retro-hoops",
   "briefVersion": "1.0.0",
-  "rulesVersion": "1.2.0",
-  "buildVersion": "production-v4",
+  "rulesVersion": "1.3.0",
+  "buildVersion": "future-games-handheld-v1",
   "assetPackVersion": "facing-family-v1+action-family-v2",
   "date": "2026-10-20",
   "reference": {
@@ -92,5 +92,21 @@
     "status": "user-provisional",
     "quote": "auto approve for now",
     "listeningPerformed": false
-  }
+  },
+  "motionVersion": "1.0.0",
+  "motionChanges": [
+    "Independent actor travel drives off-ball gait",
+    "Owner-local 18-tick dribble; continuous hand/ground ball path and contact event at phase9",
+    "Post-score dunk retains contact silhouette aloft then landing recovery",
+    "Presentation-only shadows and 55-tick score callout"
+  ],
+  "presentationViewport": [
+    640,
+    360
+  ],
+  "world": [
+    900,
+    360
+  ],
+  "courtArtwork": "Primary park composition reconstructed in original code; see credits.json"
 }

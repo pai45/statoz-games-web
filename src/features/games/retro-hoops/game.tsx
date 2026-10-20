@@ -8,14 +8,17 @@ import {HoopsAudio} from "./audio";
 import {addResult,readArchive,writeArchive,type Archive,type Settings} from "./persistence";
 import styles from "./screen.module.css";
 
-type View={score:[number,number];time:number;shot:number;charge:number;phase:string;paused:boolean;started:boolean};
+type View={score:[number,number];time:number;shot:number;charge:number;phase:string;paused:boolean;started:boolean;callout?:string};
 const initial:View={score:[0,0],time:180,shot:24,charge:0,phase:"playing",paused:false,started:false};
 export type HoopsHostEvent={type:"ready"|"settings"|"result"|"error"|"exit";payload:unknown};
 export type HoopsGameProps={assetBase:string;onExit:()=>void;onEvent?:(event:HoopsHostEvent)=>void;hostSettings?:Settings;hostCommand?:{id:number;type:"pause"|"resume"}};
 export function HoopsGame({assetBase,onExit,onEvent,hostSettings,hostCommand}:HoopsGameProps){
-  const canvas=useRef<HTMLCanvasElement>(null),session=useRef<{start:()=>void;pause:(force?:boolean)=>void;input:HoopsInput;settings:(s:Settings)=>void}|null>(null);
+  const shell=useRef<HTMLElement>(null),canvas=useRef<HTMLCanvasElement>(null),session=useRef<{start:()=>void;pause:(force?:boolean)=>void;input:HoopsInput;settings:(s:Settings)=>void}|null>(null);
   const [attempt,setAttempt]=useState(0),[error,setError]=useState(""),[loaded,setLoaded]=useState(false),[view,setView]=useState(initial),[settings,setSettings]=useState<Settings>({sfx:true,music:false});
+  const [options,setOptions]=useState(false),[full,setFull]=useState(false),[fullMessage,setFullMessage]=useState("");
   const eventHandler=useRef(onEvent);
+  useEffect(()=>{const changed=()=>setFull(!!document.fullscreenElement);document.addEventListener("fullscreenchange",changed);return()=>document.removeEventListener("fullscreenchange",changed);},[]);
+  const fullscreen=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(shell.current?.requestFullscreen)await shell.current.requestFullscreen();else setFullMessage("Rotate your device for landscape play. Fullscreen is unavailable in this browser.");}catch{setFullMessage("Rotate your device for landscape play. Your browser kept its navigation visible.");}};
   useEffect(()=>{eventHandler.current=onEvent;},[onEvent]);
   useEffect(()=>{
     const onEvent=(event:HoopsHostEvent)=>eventHandler.current?.(event);
@@ -23,8 +26,8 @@ export function HoopsGame({assetBase,onExit,onEvent,hostSettings,hostCommand}:Ho
     let storage:Storage|null=null;try{storage=localStorage;}catch{}
     let archive:Archive=readArchive(storage),match:Match=createMatch(crypto.getRandomValues(new Uint32Array(1))[0]),resultSaved=false,matchNumber=0;
     const id=crypto.randomUUID();setSettings(archive.settings);audio.configure(archive.settings);
-    const update=()=>setView({score:[...match.score],time:Math.ceil(match.remaining/HZ),shot:Math.ceil(match.shotClock/HZ),charge:match.charge[0],phase:match.phase,paused,started});
-    const pause=()=>{paused=true;input.clear();match.buffer=null;acc=0;last=0;audio.pause();update();};
+    const update=()=>setView({score:[...match.score],time:Math.ceil(match.remaining/HZ),shot:Math.ceil(match.shotClock/HZ),charge:match.charge[0],phase:match.phase,paused,started,callout:match.lastScore&&match.tick-match.lastScore.tick<55?`${match.lastScore.team===0?"NAVY":"AMBER"} +${match.lastScore.value}`:""});
+    const pause=()=>{paused=true;shell.current?.querySelectorAll("[data-held]").forEach(b=>b.removeAttribute("data-held"));input.clear();match.buffer=null;acc=0;last=0;audio.pause();update();};
     const start=()=>{if(!render||dead)return;if(match.phase==="result"){match=createMatch(crypto.getRandomValues(new Uint32Array(1))[0]);resultSaved=false;}started=true;paused=false;input.clear();last=0;acc=0;void audio.unlock().catch(()=>{});update();};
     session.current={start,pause:force=>force?pause():paused?start():pause(),input,settings:s=>{archive={...archive,settings:s};writeArchive(storage,archive);audio.configure(s);onEvent?.({type:"settings",payload:s});}};
     const editable=(target:EventTarget|null)=>target instanceof HTMLElement&&!!target.closest('input,textarea,select,[contenteditable="true"]');
@@ -49,18 +52,27 @@ export function HoopsGame({assetBase,onExit,onEvent,hostSettings,hostCommand}:Ho
   },[attempt,assetBase]);
   useEffect(()=>{if(hostSettings){setSettings(hostSettings);session.current?.settings(hostSettings);}},[hostSettings]);
   useEffect(()=>{if(hostCommand?.type==="pause")session.current?.pause(true);else if(hostCommand?.type==="resume")session.current?.start();},[hostCommand]);
+  useEffect(()=>{if(!options)return;const previous=document.activeElement;const dialog=shell.current?.querySelector('[role="dialog"]');const key=(e:KeyboardEvent)=>{if(e.code==="Escape"){e.preventDefault();e.stopImmediatePropagation();setOptions(false);}else if(e.code==="Tab"&&dialog){const controls=Array.from(dialog.querySelectorAll<HTMLElement>('button,input'));const first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};document.addEventListener("keydown",key,true);return()=>{document.removeEventListener("keydown",key,true);if(previous instanceof HTMLElement)previous.focus();};},[options]);
   const change=(s:Settings)=>{setSettings(s);session.current?.settings(s);};
-  const button=(control:Control,label:string)=> <button type="button" aria-label={label} onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);session.current?.input.down("p"+e.pointerId,control);}} onPointerUp={e=>session.current?.input.up("p"+e.pointerId)} onPointerCancel={e=>session.current?.input.up("p"+e.pointerId)} onLostPointerCapture={e=>session.current?.input.up("p"+e.pointerId)}>{label}</button>;
-  return <section className={styles.root} aria-label="Retro Hoops">
-    <header className={styles.header}><button onClick={()=>{onEvent?.({type:"exit",payload:{}});onExit();}}>Exit</button><h1>RETRO HOOPS</h1><button disabled={!loaded||!view.started||view.phase==="result"} onClick={()=>session.current?.pause()}>{view.paused?"Resume":"Pause"}</button></header>
-    <div className={styles.score} aria-live="off"><span>NAVY <strong>{view.score[0]}</strong></span><span><b>{Math.floor(view.time/60)}:{String(view.time%60).padStart(2,"0")}</b><small>SHOT {view.shot} · SUPER {view.charge}%</small></span><span><strong>{view.score[1]}</strong> AMBER</span></div>
-    <div className={styles.court}><canvas ref={canvas} width={480} height={360} aria-label="Full-court three versus three basketball" />
-      {(error||!loaded||!view.started||view.paused||view.phase==="result")&&<div className={styles.overlay} role={error?"alert":"status"}>
-        <h2>{error?"COURT UNAVAILABLE":!loaded?"LOADING COURT":view.phase==="result"?(view.score[0]===view.score[1]?"DRAW":view.score[0]>view.score[1]?"NAVY WINS":"AMBER WINS"):view.paused?"PAUSED":"THREE MINUTES. FULL COURT."}</h2>
-        {error?<><p>{error}</p><button onClick={()=>{setError("");setLoaded(false);setView(initial);setAttempt(n=>n+1);}}>Retry loading</button></>:loaded&&<><p>Move with arrows / WASD. J shoots or blocks. K passes or steals. A full charge powers your next shot.</p><button onClick={()=>session.current?.start()}>{view.phase==="result"?"Rematch":view.paused?"Resume match":"Start match"}</button></>}
-      </div>}
+  const button=(control:Control,label:string,face:string)=> <button type="button" className={styles[control]} aria-label={label} onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);e.currentTarget.dataset.held="true";session.current?.input.down("p"+e.pointerId,control);}} onPointerUp={e=>{delete e.currentTarget.dataset.held;session.current?.input.up("p"+e.pointerId);}} onPointerCancel={e=>{delete e.currentTarget.dataset.held;session.current?.input.up("p"+e.pointerId);}} onLostPointerCapture={e=>{delete e.currentTarget.dataset.held;session.current?.input.up("p"+e.pointerId);}}><span>{face}</span></button>;
+  return <section ref={shell} className={styles.root} aria-label="Retro Hoops handheld console">
+    <header className={styles.header}><button onClick={()=>{onEvent?.({type:"exit",payload:{}});onExit();}}>Exit</button><h1>RETRO HOOPS <small>POCKET ARCADE / 3V3</small></h1><div className={styles.utility}><button onClick={()=>void fullscreen()}>{full?"Window":"Fullscreen"}</button><button disabled={!loaded||!view.started||view.phase==="result"} onClick={()=>session.current?.pause()}>{view.paused?"Resume":"Pause"}</button><button aria-label="Audio settings" onClick={()=>{session.current?.pause(true);setOptions(true);}}>Sound</button></div></header>
+    <div className={styles.console}>
+      <aside className={styles.leftGrip} aria-label="Movement controls"><span className={styles.hardwareLabel}>8-WAY CONTROL</span><div className={styles.pad}>{button("up","Move up",String.fromCodePoint(0x2191))}{button("left","Move left",String.fromCodePoint(0x2190))}<i aria-hidden="true"/>{button("right","Move right",String.fromCodePoint(0x2192))}{button("down","Move down",String.fromCodePoint(0x2193))}</div><span className={styles.hardwareLabel}>WASD / ARROWS</span><div className={styles.speaker} aria-hidden="true"/></aside>
+      <main className={styles.display}>
+        <div className={styles.score} aria-live="off"><span>NAVY <strong>{String(view.score[0]).padStart(2,"0")}</strong></span><span><b>{Math.floor(view.time/60)}:{String(view.time%60).padStart(2,"0")}</b><small>SHOT {view.shot}</small></span><span><strong>{String(view.score[1]).padStart(2,"0")}</strong> AMBER</span></div>
+        <div className={styles.court}><canvas ref={canvas} width={640} height={360} aria-label="Full-court three versus three basketball" />
+          {view.callout&&<div className={styles.callout} aria-live="polite">{view.callout}<small>BUCKET!</small></div>}
+          {(error||!loaded||!view.started||view.paused||view.phase==="result")&&<div className={styles.overlay} role={error?"alert":"status"}>
+            <span className={styles.hardwareLabel}>STATOZ / RETRO SERIES</span><h2>{error?"COURT UNAVAILABLE":!loaded?"LOADING COURT":view.phase==="result"?(view.score[0]===view.score[1]?"DRAW":view.score[0]>view.score[1]?"NAVY WINS":"AMBER WINS"):view.paused?"PAUSED":"TAKE THE COURT"}</h2>
+            {error?<><p>{error}</p><button onClick={()=>{setError("");setLoaded(false);setView(initial);setAttempt(n=>n+1);}}>Retry loading</button></>:loaded&&<><p>Three minutes. Full court. Move + A to shoot or block. B passes or steals.</p><button onClick={()=>session.current?.start()}>{view.phase==="result"?"Rematch":view.paused?"Resume match":"Start match"}</button></>}
+          </div>}
+        </div>
+        <div className={styles.displayFooter}><span>SUPER</span><meter min="0" max="100" value={view.charge} aria-label="Super shot charge"/><span>{view.charge===100?"READY":view.charge+"%"}</span><span className={styles.statusLamp} data-live={view.started&&!view.paused}/> <span>3V3</span></div>
+      </main>
+      <aside className={styles.rightGrip} aria-label="Action controls"><span className={styles.hardwareLabel}>TWO-BUTTON ARCADE</span><div className={styles.actions}><div>{button("shoot","Shoot or block","A")}<span>SHOOT / BLOCK <kbd>J</kbd></span></div><div>{button("pass","Pass or steal","B")}<span>PASS / STEAL <kbd>K</kbd></span></div></div><div className={styles.speaker} aria-hidden="true"/><span className={styles.hardwareLabel}>FUTURE GAMES</span></aside>
     </div>
-    <div className={styles.controls}><div className={styles.pad}>{button("up","↑")}<div>{button("left","←")}{button("down","↓")}{button("right","→")}</div></div><div className={styles.actions}>{button("shoot","J · Shoot / Block")}{button("pass","K · Pass / Steal")}</div></div>
-    <footer><label><input type="checkbox" checked={settings.sfx} onChange={e=>change({...settings,sfx:e.target.checked})}/> Sound</label><label>Sound volume<input aria-label="Sound volume" type="range" min="0" max="1" step="0.05" value={settings.sfxVolume??.7} onChange={e=>change({...settings,sfxVolume:Number(e.target.value)})}/></label><label><input type="checkbox" checked={settings.music} onChange={e=>change({...settings,music:e.target.checked})}/> Music</label><label>Music volume<input aria-label="Music volume" type="range" min="0" max="1" step="0.05" value={settings.musicVolume??.4} onChange={e=>change({...settings,musicVolume:Number(e.target.value)})}/></label><span>3v3 · No rewards · Fictional teams</span></footer>
+    <footer className={styles.footer}><span className={styles.rotate}>Rotate to landscape for the handheld view</span><span>LOCAL ARCADE ? FICTIONAL TEAMS ? NO REWARDS</span>{fullMessage&&<span role="status">{fullMessage}</span>}</footer>
+    {options&&<div className={styles.settingsBackdrop}><section className={styles.settings} role="dialog" aria-modal="true" aria-label="Audio settings"><h2>AUDIO MIX</h2><label><input type="checkbox" checked={settings.sfx} onChange={e=>change({...settings,sfx:e.target.checked})}/> Sound effects</label><label>Sound volume<input aria-label="Sound volume" type="range" min="0" max="1" step="0.05" value={settings.sfxVolume??.7} onChange={e=>change({...settings,sfxVolume:Number(e.target.value)})}/></label><label><input type="checkbox" checked={settings.music} onChange={e=>change({...settings,music:e.target.checked})}/> Music</label><label>Music volume<input aria-label="Music volume" type="range" min="0" max="1" step="0.05" value={settings.musicVolume??.4} onChange={e=>change({...settings,musicVolume:Number(e.target.value)})}/></label><p>Original synthesized music and sound effects.</p><button autoFocus onClick={()=>setOptions(false)}>Back to game</button><small>Resume the match when you are ready.</small></section></div>}
   </section>;
 }

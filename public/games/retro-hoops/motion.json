@@ -1,0 +1,83 @@
+{
+  "version": "1.0.0",
+  "rulesVersion": "1.3.0",
+  "classification": "Authored adaptation using existing reference-classified poses",
+  "nativeTimingRecovered": false,
+  "canvas": [
+    144,
+    128
+  ],
+  "feet": [
+    72,
+    116
+  ],
+  "dribble": {
+    "frames": [
+      "d-push",
+      "d-low",
+      "d-down"
+    ],
+    "holdTicks": [
+      6,
+      6,
+      6
+    ],
+    "clock": "Owned idle movement advances owner-local tick only; stationary resets to carry",
+    "ballPath": "Continuous eased horizontal offsets -12,8,-20,-12; hand36 -> floor6 at tick9 -> hand36",
+    "event": "One dribble event at phase9 per18ticks"
+  },
+  "offBallGait": {
+    "frames": [
+      "d-push",
+      "d-low",
+      "d-down"
+    ],
+    "advance": "One pose per10.8 world units travelled; actor offsets prevent synchronized running",
+    "limits": "Repurposed dribble poses, not a recovered dedicated off-ball run/backpedal set"
+  },
+  "dunk": {
+    "owned": "Gather before age15; contact after age15",
+    "released": "Contact above height20, landing recovery below; physical descent continues during restart",
+    "limits": "Authored thresholds; no recovered native holds"
+  },
+  "pass": {
+    "frames": [
+      "p-pass-gather-left",
+      "p-pass-extend-left"
+    ],
+    "releaseTick": 18,
+    "preparationTransition": 12
+  },
+  "shot": {
+    "frames": [
+      "s-ready",
+      "s-rise",
+      "s-release",
+      "s-follow"
+    ],
+    "transitions": [
+      10,
+      22,
+      26
+    ],
+    "releaseTick": 22
+  },
+  "landing": {
+    "block": "Overhead while high; land-recover late descent; neutral after action recovery",
+    "receive": "Owned ball uses ready/carry; unowned receive uses landing/neutral"
+  },
+  "effects": {
+    "shadows": "Generated ground-plane ellipses; athlete shadow shrinks with elevation",
+    "scoreCallout": "55 simulation ticks; does not stop or change rules"
+  },
+  "remainingGaps": [
+    "Dedicated off-ball sprint and direction-specific defensive slides",
+    "Observed receiving/turning variants and airborne passing",
+    "Full native animation cadence and input stream",
+    "Source-specific crowd/net deformation and impact animation"
+  ],
+  "sourceVideos": [
+    "https://www.youtube.com/watch?v=6fyRg0wTEYY",
+    "https://www.youtube.com/watch?v=Q6ThHgZ4Lnk"
+  ]
+}

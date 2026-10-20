@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     // Its authored TypeScript is validated in the game workspace.
     "public/games/**",
     "public/embedded-games/**",
+    // Generated diagnostic renderer bundles; authored game and review scripts remain linted.
+    "test-results/retro-hoops-*/**",
     "next-env.d.ts",
   ]),
 ]);

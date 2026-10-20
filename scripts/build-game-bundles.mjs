@@ -77,7 +77,7 @@ for(const gameId of ids){
   const start=html.indexOf('<script');const injection=prelude(gameId)+await assetShim(sourceRoot);html=html.slice(0,start)+injection+html.slice(start);
   if(gameId.startsWith('designer-'))html+='<script>window.__STATOZ_HOST__.emit("ready");</script>';
  }
- const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:gameId==='retro-hoops'?'any':'landscape',saveSchemaVersion:1});
+ const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:'landscape',saveSchemaVersion:1});
  console.log(`${gameId}: ${(Buffer.byteLength(html)/1048576).toFixed(1)} MiB offline bundle`);
 }
 await fs.writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
