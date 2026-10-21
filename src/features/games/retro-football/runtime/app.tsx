@@ -66,7 +66,7 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
     const exit=()=>{session.current?.pause();if(context.onExit)context.onExit();else{session.current?.restart();setMenu(false);}};
     return <main ref={root} className={'handheld '+(screenOnly?'screen-only ':'')+(reference?'reference-view ':'')+(portrait?'portrait-allowed ':'')+(lobby?'in-lobby':'')} data-render={revision}>
         <div className="console-edge"><div className="console-body">
-            <header className="console-brand"><span>POCKET<span className="brand-sub">SPORTS ARCADE</span></span><span className="brand-game">RETRO FOOTBALL</span><span className="power-light">POWER <i/></span></header>
+            <header className="console-brand"><span>POCKET<span className="brand-sub">SPORTS ARCADE</span></span><span className="brand-game">PITCHFLARE XI</span><span className="power-light">POWER <i/></span></header>
             <aside className="left-grip" aria-label="Directional controls">
                 <span className="grip-caption">DIRECTION</span>
                 <div className="dpad" data-stick aria-label="Eight-way movement pad" aria-disabled={blocked}>{(['up','left','down','right'] as const).map(direction=><button key={direction} className={'direction '+direction} data-hold={direction} disabled={blocked} data-pressed={s?.held[direction]?'true':undefined} aria-label={'Move '+direction}>{({up:'▲',left:'◀',down:'▼',right:'▶'})[direction]}</button>)}<span className="pad-centre"/></div>
@@ -82,7 +82,7 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
                 <div className="radar" hidden={!!s?.shotView} aria-label="Pitch overview"><i className="halfway"/>{s?.players.map(p=><i key={p.id} className={'dot '+(p.team===0?'harbour':'orchard')+(p.id===s.selected?' selected':'')} style={{left:p.x/105*100+'%',top:p.y/68*100+'%'}}/>)}{s&&<i className="radar-ball" style={{left:s.ball.x/105*100+'%',top:s.ball.y/68*100+'%'}}/>}</div>
                 <p className="match-message" id="message" role="status">{error||s?.message||'Loading the stadium…'}</p>
                 {(!ready||error||s?.status!=='playing')&&!lobby&&!menu&&<div className="game-overlay"><section className="title-card">
-                    <span className="cartridge-label">ARCADE FOOTBALL</span><h1>{s?.status==='complete'?'FULL TIME':s?.status==='halftime'?'HALF TIME':s?.status==='paused'?'PAUSED':'RETRO FOOTBALL'}</h1>
+                    <span className="cartridge-label">ARCADE FOOTBALL</span><h1>{s?.status==='complete'?'FULL TIME':s?.status==='halftime'?'HALF TIME':s?.status==='paused'?'PAUSED':'PITCHFLARE XI'}</h1>
                     <p>{error||(!ready?'Loading your cartridge…':s?.status==='complete'?`${s.score[0]} : ${s.score[1]} · ${s.score[0]===s.score[1]?'DRAW':s.score[0]>s.score[1]?'HARBOUR WINS':'ORCHARD WINS'}`:s?.status==='halftime'?'Switch ends. One more half.':'HARBOUR ATHLETIC × ORCHARD UNITED')}</p>
                     {error?<button id="retry" className="primary" onClick={reload}>RETRY CARTRIDGE</button>:s?.status==='complete'?<button id="restart" className="primary" onClick={()=>{session.current?.restart();session.current?.start();}}>REMATCH</button>:<button id="start" className="primary" disabled={!ready} onClick={start}>{s?.status==='paused'?'RESUME MATCH':s?.status==='halftime'?'SECOND HALF':'KICK OFF'}</button>}
                     <small>11 V 11 · TWO 90-SECOND HALVES</small>

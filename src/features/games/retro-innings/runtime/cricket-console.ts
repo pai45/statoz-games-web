@@ -7,9 +7,9 @@ export function installCricketConsole() {
   const old = document.querySelector('body > main')!;
   const shell = document.createElement('main');
   shell.id = 'console';
-  shell.setAttribute('aria-label', 'Retro Innings handheld cricket console');
+  shell.setAttribute('aria-label', 'Creasefire Six handheld cricket console');
   shell.innerHTML = `
-    <header class="console-top"><span class="console-wordmark">POCKET <b>RETRO INNINGS</b></span>
+    <header class="console-top"><span class="console-wordmark"><img src="../../assets/games/identity/retro-innings.svg" alt="" width="45" height="33" style="vertical-align:middle"> POCKET <b>CREASEFIRE SIX</b></span>
       <span class="console-private">PRIVATE PREVIEW</span>
       <nav aria-label="Console"><button id="console-home">HOME</button><button id="console-fullscreen" aria-label="Enter fullscreen">FULLSCREEN</button><button id="console-menu" aria-haspopup="dialog">MENU</button><button id="console-exit">EXIT</button></nav>
     </header>
@@ -25,26 +25,26 @@ export function installCricketConsole() {
         <div class="screen-caption"><span id="console-cue"></span><span id="console-over"></span></div>
       </section>
       <section class="grip grip-right" aria-label="Batting and bowling">
-        <p class="grip-label">STROKES</p><div id="console-strokes" class="console-strokes"></div>
+        <p class="grip-label">A / B ACTIONS</p><div id="console-strokes" class="console-strokes"></div>
         <div id="console-right-actions" class="console-right-actions"></div>
         <div class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </section>
     </div>
-    <footer class="console-bottom"><span id="console-feedback" role="status"></span><span class="keyboard-hint">A / D / S · SPACE · R RUN</span></footer>
+    <footer class="console-bottom"><span id="console-feedback" role="status"></span><span class="keyboard-hint">A GROUND / B AIR · D-PAD PLACE</span></footer>
     <p class="rotate-hint">Rotate your phone to landscape for the full console.</p>
     <dialog id="console-dialog" aria-labelledby="console-dialog-title"><header><h2 id="console-dialog-title">MATCH MENU</h2><button id="console-close">RETURN TO GAME</button></header>
       <p>Six legal balls or three wickets per innings. Bat first, then bowl and field to defend your score. The source-style score reads wickets / runs.</p>
-      <div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>A / D / S: leg / off / defend. Space follows the indicated stroke. Hold Q / E for loft / power. R runs, V reverses. Arrows move guard before release; when bowling, move the landing arrow during the run-up, then press Release. During fielding they steer the selected fielder. J / K select the return end. C switches fielders. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. Frame holds, aim speed/limits and shortened rules are authored adaptations.</p></details>
+      <div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>Before contact, A plays a ground shot and B an airborne shot; hold the D-pad for direction. After contact, A runs and B returns. During bowling, hold the D-pad for coarse line/length and press A or B once. Field with the D-pad; after pickup, A returns to the keeper end and B to the bowler end. C switches fielders as an accessibility adaptation. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. NES shot angles, bowling variation, exact timing, field-return assignments and shortened rules are authored or unverified adaptations.</p></details>
       <p id="console-error" role="alert"></p></dialog>`;
   document.body.appendChild(shell);
-  const lobby=document.createElement('section');lobby.className='cricket-lobby';lobby.id='cricket-lobby';lobby.setAttribute('aria-label','Retro Innings home lobby');
-  lobby.innerHTML=`<div class="lobby-pattern" aria-hidden="true">${'RETRO INNINGS / '.repeat(22)}</div>
+  const lobby=document.createElement('section');lobby.className='cricket-lobby';lobby.id='cricket-lobby';lobby.setAttribute('aria-label','Creasefire Six home lobby');
+  lobby.innerHTML=`<div class="lobby-pattern" aria-hidden="true">${'CREASEFIRE SIX / '.repeat(22)}</div>
     <header><span>CRICKET ARCADE</span><span>1 PLAYER / PRACTICE MATCH</span></header>
-    <div class="lobby-copy"><span class="lobby-kicker">POCKET ARCADE / CRICKET</span><h1>RETRO<br><em>INNINGS</em></h1><p>TAKE YOUR GUARD.</p><div class="lobby-format">1 OVER EACH / 3 WICKETS</div>
+    <div class="lobby-copy"><span class="lobby-kicker">POCKET ARCADE / CRICKET</span><img src="../../assets/games/identity/retro-innings.svg" alt="Creasefire Six" width="110" height="80" style="object-fit:contain"><h1>CREASEFIRE<br><em>SIX</em></h1><p>TAKE YOUR GUARD.</p><div class="lobby-format">1 OVER EACH / 3 WICKETS</div>
     <button id="lobby-play" class="lobby-start">PLAY MATCH <span aria-hidden="true">▶</span></button><button id="lobby-help" class="lobby-help" aria-expanded="false" aria-controls="lobby-details">HOW TO PLAY</button><button id="lobby-new" class="lobby-new" hidden>NEW MATCH / END CURRENT</button></div>
     <section class="lobby-match" id="lobby-details"><div class="lobby-match-title"><span id="lobby-panel-title">MATCH MENU</span><button id="lobby-settings" class="lobby-settings">SETTINGS</button></div>
     <div id="lobby-matchup"><div class="lobby-teams"><article class="lobby-team"><b>HARBOUR</b><canvas id="lobby-batter" width="100" height="100" aria-label="Batter preview"></canvas><small>P1 / BAT FIRST</small></article><article class="lobby-team"><b>ORCHARD</b><canvas id="lobby-bowler" width="100" height="100" aria-label="Bowler preview"></canvas><small>LOCAL AI</small></article><strong class="lobby-versus">VS</strong></div><div class="lobby-note">FIXED PRACTICE MATCH / INVENTED CLUBS</div></div>
-    <div id="lobby-instructions" class="lobby-instructions" hidden><h2>BAT. RUN. DEFEND.</h2><p><strong>A / LEG</strong> Compact across-body swing. <strong>D / OFF</strong> Longer preparation, raised finish. <strong>S / DEFEND</strong> Controlled front stroke. Prepare when your stroke cue appears; Space selects the indicated stroke.</p><p>Hold <strong>Q / E</strong> for loft / power before choosing the stroke. <strong>R / V</strong> requests a run / reverses. Only completed runs count.</p><p><strong>ARROWS + SPACE</strong> Aim the landing arrow during your bowling run-up, then release. Field with the pad; J / K returns to either end.</p><p>Home pauses your match. Timing cues help you prepare; the visible bat must still reach the ball.</p></div></section>
+    <div id="lobby-instructions" class="lobby-instructions" hidden><h2>BAT. RUN. DEFEND.</h2><p><strong>A / GROUND</strong> keeps the ball low. <strong>B / AIR</strong> lifts it with catch risk. Hold a D-pad direction as you strike to place the shot.</p><p>After contact, <strong>A / B</strong> runs / returns. Only completed runs count.</p><p>During your bowling turn, hold a D-pad direction and press <strong>A or B</strong> to start the delivery. Field with the pad; after pickup A throws to keeper end and B to bowler end.</p><p>This is a NES mechanics adaptation using the existing private SNES-style art and short match. Exact NES timing and return-button mapping are not established.</p></div></section>
     <footer><span>LANDSCAPE / HANDHELD CRICKET</span><span>PRIVATE REFERENCE PREVIEW</span></footer>`;
   get('console-display').closest('.console-body')!.appendChild(lobby);
   const move = (id: string, parent: string, label?: string) => {
@@ -53,9 +53,9 @@ export function installCricketConsole() {
     get(parent).appendChild(element);
   };
   for (const [id, label] of [['up','Up'],['left','Left'],['right','Right'],['down','Down']]) move(id, 'console-pad', label);
-  for (const id of ['run','reverse','loft']) move(id, 'console-left-actions');
-  for (const id of ['stroke-leg','stroke-off','stroke-defend']) move(id, 'console-strokes');
-  for (const id of ['primary','power','throwS','throwB','switch']) move(id, 'console-right-actions');
+  // The two NES action buttons are the only active stroke controls.
+  for (const id of ['nesA','nesB']) move(id, 'console-strokes');
+  for (const id of ['primary','switch']) move(id, 'console-right-actions');
   move('viewport','console-display');
   // A hidden legacy host retains IDs used by the original state renderer. There is
   // still one control of each kind and one authoritative input binding.
@@ -118,7 +118,7 @@ export function installCricketConsole() {
     if((event.target as HTMLElement).closest('button,input,select,summary')){
       if(!['Space','Enter','Tab','ShiftLeft','ShiftRight'].includes(event.code)){event.preventDefault();event.stopImmediatePropagation();}return;
     }
-    if(['Space','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyA','KeyD','KeyS','KeyR','KeyV','KeyN','KeyJ','KeyK','KeyC','KeyQ','KeyE','Escape'].includes(event.code)){
+    if(['Space','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyA','KeyB','KeyN','KeyC','Escape'].includes(event.code)){
       event.preventDefault();event.stopImmediatePropagation();if(!event.repeat&&['Space','Enter'].includes(event.code))start();
     }
   };
@@ -158,8 +158,7 @@ export function installCricketConsole() {
     get('console-cue').textContent=s.paused?'PAUSED':s.battingCue?.text||'';
     get('console-feedback').textContent=s.message;
     shell.dataset.innings=String(s.innings);shell.dataset.phase=s.phase;shell.dataset.paused=String(s.paused);
-    for(const id of ['throwS','throwB','switch'])get(id).hidden=s.innings!==2||!s.ball?.hit;
-    for(const id of ['stroke-leg','stroke-off','stroke-defend','run','reverse','loft','power'])get(id).hidden=s.innings!==1;
+    get('switch').hidden=s.innings!==2||!s.ball?.hit;
     applyLobby();
     fit();
   };

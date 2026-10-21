@@ -2,16 +2,16 @@
   "runtimeVersion": "0.10.0",
   "files": {
     "index.html": {
-      "sha256": "b0fb86bacbd90a7772c5f499d50a4c57a0fd19cb32a4d56dccd3b1c617ca5bc8",
-      "bytes": 25724
+      "sha256": "5f7833e7bb74a3671fa160e7618ea7bbc0636b6a6a6d497b612fd2ad9ab3580b",
+      "bytes": 25723
     },
     "bundle.js": {
-      "sha256": "ee44dbf119e4e08f549bdfe8848852a3e44a4d88cde767b89bc8c1ef0728d02e",
-      "bytes": 798257
+      "sha256": "fa6d718a736efb26918b166a9aa6eb1b41d804eb8e4988e214d2aa88be4077f6",
+      "bytes": 798384
     },
     "bundle.js.map": {
-      "sha256": "c81ef27adf16b20df79369a0d3e4ea8acac9969691ee5d15c1211f35149b2aa3",
-      "bytes": 4007907
+      "sha256": "fc673f5eb394f3b94943f1a5f5e8a8a2e4d07833de4221e0350c32b2338beb99",
+      "bytes": 4008222
     },
     "assets.json": {
       "sha256": "3bcec2ee9cd0c7dd3042155bc0ba7bc793032c1489d28bb0c8cd144f81f8b1a0",

@@ -9,7 +9,7 @@ import type { ModeGuide } from "../types";
  * It is a second danger red for one stat cell, so it resolves here to the
  * danger token the palette already carries.
  */
-export const guides: ModeGuide[] = [
+const allGuides: ModeGuide[] = [
   // ── Predict ────────────────────────────────────────────────────────────────
   {
     id: "predict",
@@ -375,6 +375,8 @@ export const guides: ModeGuide[] = [
 ];
 
 /** The guide for a mode, or `undefined` when the slug names no mode. */
+export const guides: ModeGuide[] = allGuides.filter(guide => guide.id !== "hoop-duel");
+
 export function guideFor(mode: string): ModeGuide | undefined {
   return guides.find((guide) => guide.id === mode);
 }

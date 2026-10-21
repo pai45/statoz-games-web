@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- Local identity SVGs also render in offline game bundles. */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -20,7 +21,7 @@ function PrivateCricket({ title }: { title: string }) {
   const [attempt, setAttempt] = useState(0);
   return <section className={styles.root} aria-label={`${title} private cricket preview`}>
     <header className={styles.header}>
-      <p className="ds-type-hud-label">RETRO INNINGS / PRIVATE PREVIEW</p>
+      <p className="ds-type-hud-label">CREASEFIRE SIX / PRIVATE PREVIEW</p>
       <Button variant="surface" onClick={() => router.push("/games/cricket")}>
         {active ? "Exit game" : "Back to cricket"}
       </Button>
@@ -28,7 +29,7 @@ function PrivateCricket({ title }: { title: string }) {
     {active ? <CricketSession key={attempt} onRetry={() => setAttempt(n => n + 1)} /> :
       <main className={styles.intro}>
         <p className="ds-type-hud-label">CRICKET / ONE OVER EACH</p>
-        <h1 className="ds-type-heading">Bat an over.<br />Defend your score.</h1>
+        <img src={publicAsset("/assets/games/identity/retro-innings.svg")} alt="" width="120" height="88"/><h1 className="ds-type-heading">CREASEFIRE SIX</h1>
         <p>Space starts and swings the indicated stroke. A / D / S choose leg, off or defend. Hold Q / E for loft or power. R runs, V reverses, Esc pauses. Touch controls appear beside or below the field.</p>
         <Button onClick={() => setActive(true)}>Load private game</Button>
         <p className={styles.note}>This preview uses source-derived reference artwork. It remains private. Sound starts off; enable it in Audio &amp; help. Settings and match records are saved locally for your account.</p>

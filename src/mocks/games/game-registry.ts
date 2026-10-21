@@ -42,9 +42,9 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
-  "retro-hoops": {kind:"hero",title:"RETRO HOOPS",titleLines:["RETRO","HOOPS"],subtitle:"THREE MINUTES. FULL COURT.",badgeLabel:"RETRO // 3V3 BASKETBALL",ctaLabel:"TAKE THE COURT",accent:"game-hoop-duel",scene:"hoop-duel",href:"/play/retro-hoops"},
-  "retro-circuit": {kind:"hero",title:"RETRO CIRCUIT",titleLines:["RETRO","CIRCUIT"],subtitle:"THREE LAPS. ONE CLEAN LINE.",badgeLabel:"RETRO // ARCADE RACING",ctaLabel:"CHASE THE HORIZON",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/retro-circuit"},
-  "retro-football": {kind:"hero",title:"RETRO FOOTBALL",titleLines:["RETRO","FOOTBALL"],subtitle:"TWO HALVES. ONE EXHIBITION.",badgeLabel:"RETRO // FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/retro-football"},
+  "retro-hoops": {kind:"hero",title: "RIMFORGE 3",titleLines: ["RIMFORGE", "3"],subtitle:"THREE MINUTES. FULL COURT.",badgeLabel:"RETRO // 3V3 BASKETBALL",ctaLabel:"TAKE THE COURT",accent:"game-hoop-duel",scene:"hoop-duel",href:"/play/retro-hoops"},
+  "retro-circuit": {kind:"hero",title: "APEXBREAK 3",titleLines: ["APEXBREAK", "3"],subtitle:"THREE LAPS. ONE CLEAN LINE.",badgeLabel:"RETRO // ARCADE RACING",ctaLabel:"CHASE THE HORIZON",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/retro-circuit"},
+  "retro-football": {kind:"hero",title: "PITCHFLARE XI",titleLines: ["PITCHFLARE", "XI"],subtitle:"TWO HALVES. ONE EXHIBITION.",badgeLabel:"RETRO // FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/retro-football"},
   /* ---- football ------------------------------------------------------- */
   "pitch-duel": {
     kind: "hero",
@@ -110,7 +110,7 @@ export const gameRegistry: Record<GameId, GameEntry> = {
   },
 
   "retro-innings": {
-    kind: "hero", title: "RETRO INNINGS", titleLines: ["RETRO", "INNINGS"],
+    kind: "hero", title: "CREASEFIRE SIX", titleLines: ["CREASEFIRE", "SIX"],
     subtitle: "BAT AN OVER. DEFEND YOUR SCORE.", badgeLabel: "PRIVATE // CRICKET PREVIEW",
     ctaLabel: "PLAY PRIVATE PREVIEW", accent: "game-final-over", scene: "final-over",
     href: "/play/retro-innings",

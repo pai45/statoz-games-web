@@ -15,7 +15,6 @@ export default function HomePage() {
   return (
     <Suspense fallback={<div className="flex-1 bg-background" />}>
       <HomeHub
-        matchFeed={null}
         gamesFeed={<GamesTrendingFeed />}
         sportDecks={sportDecks}
       />
