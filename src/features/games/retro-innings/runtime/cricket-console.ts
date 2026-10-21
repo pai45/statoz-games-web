@@ -7,11 +7,11 @@ export function installCricketConsole() {
   const old = document.querySelector('body > main')!;
   const shell = document.createElement('main');
   shell.id = 'console';
-  shell.setAttribute('aria-label', 'StatOz handheld cricket console');
+  shell.setAttribute('aria-label', 'Retro Innings handheld cricket console');
   shell.innerHTML = `
-    <header class="console-top"><span class="console-wordmark">STATOZ <b>POCKET CRICKET</b></span>
+    <header class="console-top"><span class="console-wordmark">POCKET <b>RETRO INNINGS</b></span>
       <span class="console-private">PRIVATE PREVIEW</span>
-      <nav aria-label="Console"><button id="console-fullscreen" aria-label="Enter fullscreen">FULLSCREEN</button><button id="console-menu" aria-haspopup="dialog">MENU</button><button id="console-exit">EXIT</button></nav>
+      <nav aria-label="Console"><button id="console-home">HOME</button><button id="console-fullscreen" aria-label="Enter fullscreen">FULLSCREEN</button><button id="console-menu" aria-haspopup="dialog">MENU</button><button id="console-exit">EXIT</button></nav>
     </header>
     <div class="console-body">
       <section class="grip grip-left" aria-label="Movement and running">
@@ -34,9 +34,19 @@ export function installCricketConsole() {
     <p class="rotate-hint">Rotate your phone to landscape for the full console.</p>
     <dialog id="console-dialog" aria-labelledby="console-dialog-title"><header><h2 id="console-dialog-title">MATCH MENU</h2><button id="console-close">RETURN TO GAME</button></header>
       <p>Six legal balls or three wickets per innings. Bat first, then bowl and field to defend your score. The source-style score reads wickets / runs.</p>
-      <div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>A / D / S: leg / off / defend. Space follows the indicated stroke. Hold Q / E for loft / power. R runs, V reverses. Arrows move guard before release and steer the selected fielder when defending. J / K select the return end. C switches fielders. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. Frame holds and shortened rules are authored adaptations.</p></details>
+      <div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>A / D / S: leg / off / defend. Space follows the indicated stroke. Hold Q / E for loft / power. R runs, V reverses. Arrows move guard before release; when bowling, move the landing arrow during the run-up, then press Release. During fielding they steer the selected fielder. J / K select the return end. C switches fielders. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. Frame holds, aim speed/limits and shortened rules are authored adaptations.</p></details>
       <p id="console-error" role="alert"></p></dialog>`;
   document.body.appendChild(shell);
+  const lobby=document.createElement('section');lobby.className='cricket-lobby';lobby.id='cricket-lobby';lobby.setAttribute('aria-label','Retro Innings home lobby');
+  lobby.innerHTML=`<div class="lobby-pattern" aria-hidden="true">${'RETRO INNINGS / '.repeat(22)}</div>
+    <header><span>CRICKET ARCADE</span><span>1 PLAYER / PRACTICE MATCH</span></header>
+    <div class="lobby-copy"><span class="lobby-kicker">POCKET ARCADE / CRICKET</span><h1>RETRO<br><em>INNINGS</em></h1><p>TAKE YOUR GUARD.</p><div class="lobby-format">1 OVER EACH / 3 WICKETS</div>
+    <button id="lobby-play" class="lobby-start">PLAY MATCH <span aria-hidden="true">▶</span></button><button id="lobby-help" class="lobby-help" aria-expanded="false" aria-controls="lobby-details">HOW TO PLAY</button><button id="lobby-new" class="lobby-new" hidden>NEW MATCH / END CURRENT</button></div>
+    <section class="lobby-match" id="lobby-details"><div class="lobby-match-title"><span id="lobby-panel-title">MATCH MENU</span><button id="lobby-settings" class="lobby-settings">SETTINGS</button></div>
+    <div id="lobby-matchup"><div class="lobby-teams"><article class="lobby-team"><b>HARBOUR</b><canvas id="lobby-batter" width="100" height="100" aria-label="Batter preview"></canvas><small>P1 / BAT FIRST</small></article><article class="lobby-team"><b>ORCHARD</b><canvas id="lobby-bowler" width="100" height="100" aria-label="Bowler preview"></canvas><small>LOCAL AI</small></article><strong class="lobby-versus">VS</strong></div><div class="lobby-note">FIXED PRACTICE MATCH / INVENTED CLUBS</div></div>
+    <div id="lobby-instructions" class="lobby-instructions" hidden><h2>BAT. RUN. DEFEND.</h2><p><strong>A / LEG</strong> Compact across-body swing. <strong>D / OFF</strong> Longer preparation, raised finish. <strong>S / DEFEND</strong> Controlled front stroke. Prepare when your stroke cue appears; Space selects the indicated stroke.</p><p>Hold <strong>Q / E</strong> for loft / power before choosing the stroke. <strong>R / V</strong> requests a run / reverses. Only completed runs count.</p><p><strong>ARROWS + SPACE</strong> Aim the landing arrow during your bowling run-up, then release. Field with the pad; J / K returns to either end.</p><p>Home pauses your match. Timing cues help you prepare; the visible bat must still reach the ball.</p></div></section>
+    <footer><span>LANDSCAPE / HANDHELD CRICKET</span><span>PRIVATE REFERENCE PREVIEW</span></footer>`;
+  get('console-display').closest('.console-body')!.appendChild(lobby);
   const move = (id: string, parent: string, label?: string) => {
     const element = get(id); if (!element) return;
     if (label) { element.setAttribute('aria-label', label); element.dataset.consoleLabel = label; }
@@ -54,6 +64,7 @@ export function installCricketConsole() {
   const volume = get<HTMLInputElement>('volume'); volume.setAttribute('aria-label','Audio volume');
   const volumeLabel=document.createElement('label');volumeLabel.textContent='Audio volume';volume.before(volumeLabel);volumeLabel.appendChild(volume);
   const dialog = get<HTMLDialogElement>('console-dialog');
+  let inLobby=true;
   let before: HTMLElement | null = null;
   let resumeOnClose = false;
   const pauseIfPlaying = () => {
@@ -63,6 +74,7 @@ export function installCricketConsole() {
   const openMenu = () => { before = document.activeElement as HTMLElement;const s=window.gameState as any;resumeOnClose=s?.status==='playing'&&!s.paused;pauseIfPlaying(); if (!dialog.open) dialog.showModal(); };
   const closeMenu = () => { dialog.close();const s=window.gameState as any;if(resumeOnClose&&s?.paused)get<HTMLButtonElement>('pause').click();resumeOnClose=false;before?.focus(); };
   get('console-menu').onclick = openMenu;
+  get('lobby-settings').onclick = openMenu;
   get('console-close').onclick = closeMenu;
   // Closing an explicitly opened menu resumes only the pause owned by that menu.
   dialog.addEventListener('cancel', event => { event.preventDefault(); closeMenu(); });
@@ -76,6 +88,46 @@ export function installCricketConsole() {
     else if (window.parent !== window) window.parent.postMessage({type:'statoz.games.web.retro-innings:exit',version:1},window.location.origin);
     else { openMenu(); get('console-error').textContent='Standalone preview. Close this tab to exit, or return to the game.'; }
   };
+  const applyLobby=()=>{
+    shell.dataset.lobby=String(inLobby);lobby.hidden=!inLobby;
+    for(const element of Array.from(shell.querySelectorAll<HTMLElement>('.grip,.screen-bay')))element.inert=inLobby;
+    const s=window.gameState as any,continuing=s?.status==='playing'||s?.status==='intermission';
+    get('lobby-play').innerHTML=(continuing?'RESUME MATCH':'PLAY MATCH')+' <span aria-hidden="true">▶</span>';
+    get('lobby-new').hidden=!continuing;
+    get('console-close').textContent=inLobby?'BACK TO LOBBY':'RETURN TO GAME';
+    get('console-dialog-title').textContent=inLobby?'LOBBY SETTINGS':'MATCH MENU';
+  };
+  const start=()=>{
+    if(dialog.open)return;inLobby=false;applyLobby();const s=window.gameState as any;
+    if(s.status==='result')get<HTMLButtonElement>('restart').click();
+    if((window.gameState as any).paused)get<HTMLButtonElement>('pause').click();
+    if((window.gameState as any).status==='idle')get<HTMLButtonElement>('primary').click();
+    get('primary').focus();
+  };
+  get('lobby-play').onclick=start;
+  get('lobby-new').onclick=()=>{get<HTMLButtonElement>('restart').click();start();};
+  get('console-home').onclick=()=>{pauseIfPlaying();inLobby=true;applyLobby();get('lobby-play').focus();};
+  get('lobby-help').onclick=()=>{
+    const help=get('lobby-instructions'),show=help.hidden;help.hidden=!show;get('lobby-matchup').hidden=show;
+    get('lobby-help').setAttribute('aria-expanded',String(show));get('lobby-help').textContent=show?'VIEW MATCHUP':'HOW TO PLAY';get('lobby-panel-title').textContent=show?'HOW TO PLAY':'MATCH MENU';
+  };
+  // Scope document shortcuts while the lobby owns input. Native settings/button
+  // keys still work; gameplay cannot begin behind the home screen.
+  const lobbyKeys=(event:KeyboardEvent)=>{
+    if(!inLobby||dialog.open)return;
+    if((event.target as HTMLElement).closest('button,input,select,summary')){
+      if(!['Space','Enter','Tab','ShiftLeft','ShiftRight'].includes(event.code)){event.preventDefault();event.stopImmediatePropagation();}return;
+    }
+    if(['Space','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyA','KeyD','KeyS','KeyR','KeyV','KeyN','KeyJ','KeyK','KeyC','KeyQ','KeyE','Escape'].includes(event.code)){
+      event.preventDefault();event.stopImmediatePropagation();if(!event.repeat&&['Space','Enter'].includes(event.code))start();
+    }
+  };
+  document.addEventListener('keydown',lobbyKeys,true);
+  const art=(window as any).presentationBridge;
+  for(const [id,record,image]of [['lobby-batter',art.data.families.leg.guard,art.images.bat],['lobby-bowler',art.data.actors['bowler-ready'],art.images.actors]]){
+    const c=get<HTMLCanvasElement>(id),ctx=c.getContext('2d')!,r=record as any,a=r.atlas,scale=Math.min(2,90/a[3]);ctx.imageSmoothingEnabled=false;ctx.drawImage(image,...a as [number,number,number,number],(100-a[2]*scale)/2,96-a[3]*scale,a[2]*scale,a[3]*scale);
+  }
+  applyLobby();
   get('console-fullscreen').onclick = async () => {
     try {
       if (document.fullscreenElement) { await document.exitFullscreen(); return; }
@@ -108,9 +160,10 @@ export function installCricketConsole() {
     shell.dataset.innings=String(s.innings);shell.dataset.phase=s.phase;shell.dataset.paused=String(s.paused);
     for(const id of ['throwS','throwB','switch'])get(id).hidden=s.innings!==2||!s.ball?.hit;
     for(const id of ['stroke-leg','stroke-off','stroke-defend','run','reverse','loft','power'])get(id).hidden=s.innings!==1;
+    applyLobby();
     fit();
   };
-  const dispose=()=>{observer.disconnect();};
+  const dispose=()=>{observer.disconnect();document.removeEventListener('keydown',lobbyKeys,true);};
   window.addEventListener('pagehide',dispose,{once:true});
   document.addEventListener('fullscreenchange',()=>{get('console-fullscreen').textContent=document.fullscreenElement?'WINDOWED':'FULLSCREEN';fit();});
   fit();sync();return {fit,sync,dispose};

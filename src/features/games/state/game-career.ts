@@ -11,8 +11,8 @@ import { useFinalOverStats } from "../final-over/state/final-over-progress";
 import { useGrandPrixStats } from "../grand-prix/state/grand-prix-progress";
 import { useGuessPlayerStats } from "../guess-player/state/guess-player-store";
 import { useShootoutProgress } from "../penalty-shootout/state/shootout-progress";
-import { usePitchDuelProgress } from "../pitch-duel/state/pitch-duel-progress";
-import type { PitchDuelProgress } from "../pitch-duel/types";
+import { usePitchDuelCareer as usePitchDuelProgress } from "../pitch-duel-next/progress";
+import type { Career as PitchDuelProgress } from "../pitch-duel-next/progress";
 import { useTennisProgress } from "../tennis/state/tennis-progress";
 
 /**

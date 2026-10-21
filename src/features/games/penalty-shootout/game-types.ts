@@ -1,0 +1,24 @@
+export const RUNTIME_VERSION = "character-motion-4";
+export const STEP = 1 / 120;
+export const GOAL = { halfWidth: 3.66, height: 2.44, depth: 2, ballRadius: 0.11, spot: 11 } as const;
+/** Authored boot placement at the one-second contact marker, in metres. */
+export const TAKER = { x: -0.235, contactOffset: 0.15, approach: 1.7, approachSide: -1.2 } as const;
+export type Vec3 = { x: number; y: number; z: number };
+export type Mode = "shootout" | "shooting" | "keeping";
+export type Role = "shooting" | "keeping";
+export type Style = "driven" | "placed" | "chip";
+export type Phase = "preparation" | "charging" | "runup" | "flight" | "resolution" | "replay" | "summary";
+export type Outcome = "goal" | "saved" | "wide" | "over" | "woodwork";
+export type Difficulty = 1 | 6 | 12;
+export type Settings = { effects: number; crowd: number; muted: boolean; reducedMotion: boolean };
+export type InputFrame = { x: number; y: number; shoot: boolean; style: Style; dive: { x: number; y: number } | null; pause: boolean };
+export const emptyInput = (): InputFrame => ({ x: 0, y: 0, shoot: false, style: "driven", dive: null, pause: false });
+export type ShotCommand = { target: { x: number; y: number }; power: number; composure: number; style: Style };
+export type KeeperCommand = { x: number; y: number; tick: number };
+export type ContactFact = { tick: number; bodyPart: string; position: Vec3; relativeVelocity: Vec3; caught: boolean };
+export type KickResult = { id: number; role: Role; outcome: Outcome; style: Style; power: number; composure: number; target: { x: number; y: number }; contacts: ("keeper" | "frame" | "ground")[]; flightSeconds: number; contactFacts?: ContactFact[] };
+export type KeeperPose = { root: Vec3; lean: number; leftHand: Vec3; rightHand: Vec3; dive: number; direction: number; height: number };
+export type Frame = { tick: number; ball: Vec3; rotation: { x: number; y: number; z: number; w: number }; keeper: KeeperPose; shooterX: number; shooterZ: number; shooterClip: string; shooterTime: number; keeperClip: string; keeperTime: number; shooterPose: import("./animation/character").CharacterPose; keeperPose: import("./animation/character").CharacterPose };
+export type Snapshot = { phase: Phase; role: Role; mode: Mode; tick: number; score: [number, number]; kicks: KickResult[]; suddenDeath: boolean; winner: "player" | "opponent" | null; power: number; composure: number; marker: number; aim: { x: number; y: number }; spread: number; style: Style; result: KickResult | null; replayProgress: number; notice: string };
+export type GameEvent = { id: number; type: "kick" | "glove" | "frame" | "whistle" | "goal" | "result"; result?: KickResult };
+export type SessionResult = { sessionId: string; runtimeVersion: string; won: boolean; playerScore: number; opponentScore: number; suddenDeath: boolean; kicks: KickResult[] };

@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "target": {
+    "title": "Street Hoop",
+    "edition": "European Neo Geo MVS",
+    "revisionVerified": false,
+    "settingsVerified": false
+  },
+  "status": "target selected; native timing not locked",
+  "referenceFrame": {
+    "path": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\retro-hoops\\source-study-v1\\opening-play\\sample-0030.png",
+    "sha256": "ceca82396f884bc404d42bda41e74e0264f8cc79b20e7b0d8d939c20681c7599",
+    "width": 320,
+    "height": 224,
+    "classification": "observed processed recording dimensions; not proof of native display geometry",
+    "source": "https://www.youtube.com/watch?v=6fyRg0wTEYY"
+  },
+  "baseline": {
+    "rules": "1.4.0",
+    "viewport": [
+      640,
+      360
+    ],
+    "simulationHz": 60
+  },
+  "retainedAdaptations": [
+    "fictional teams",
+    "original audio",
+    "mobile handheld controls",
+    "three-minute match pending source settings confirmation"
+  ],
+  "firstGate": [
+    "align court and actor scale",
+    "compare full dribble-pass-receive-shot possession",
+    "measure event timing from verified capture"
+  ],
+  "unknown": [
+    "native frame holds",
+    "precise revision and DIP settings",
+    "input windows",
+    "AI algorithms"
+  ],
+  "release": {
+    "localOnly": true,
+    "pushAuthorized": false
+  },
+  "independentStyle": {
+    "gameOwned": true,
+    "hostNavigationChanged": false,
+    "palette": "cream/olive housing, mustard/red actions",
+    "typography": "monospace arcade",
+    "selection": "authored red 1P arrow; reference-observed placement"
+  },
+  "currentCandidate": {
+    "rules": "1.5.0",
+    "slice": "independent team movement and camera comparison",
+    "aiClassification": "authored, not source-recovered",
+    "evidence": "team-ai-v1.md"
+  }
+}

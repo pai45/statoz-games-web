@@ -3,7 +3,7 @@ import type { ActionCard, PlayerCard } from "@/domain/cards";
 import { packXp } from "../rolling";
 import type { ClaimedPacks } from "../state/claimed-packs";
 
-import { actionCards, basketballPlayerCards, cricketPlayerCards, footballPlayerCards, racingPlayerCards, tennisPlayerCards } from "@/mocks/packs";
+import { actionCards, basketballPlayerCards, cricketPlayerCards, footballPlayerCards, fictionalCards, racingPlayerCards, tennisPlayerCards } from "@/mocks/packs";
 
 /**
  * What this browser owns, resolved from the ids the pack claims recorded.
@@ -16,6 +16,7 @@ import { actionCards, basketballPlayerCards, cricketPlayerCards, footballPlayerC
 const playersById = new Map<string, PlayerCard>(
   [
     ...footballPlayerCards,
+    ...fictionalCards,
     ...cricketPlayerCards,
     ...basketballPlayerCards,
     ...tennisPlayerCards,

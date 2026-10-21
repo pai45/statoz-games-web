@@ -1,9 +1,9 @@
 {
   "game": "retro-innings",
-  "version": "bowler-crease-v1",
+  "version": "batting-sequence-v1",
   "release": "private-reference-preview",
   "publicReleaseApproved": false,
-  "sha256": "394bba2974921c9ba5c8c36ecf06e3504bb077d1bdef5809434eb3214173bfce",
+  "sha256": "b939b53dbfd4027592426b4ecb3ad340cab31ca0c21664d7954b1f99327a1139",
   "sourceBundle": "src/features/games/retro-innings/runtime",
   "sourceAssets": "output/retro-innings/three-candidate-v2/assets.json",
   "referenceStudy": "output/retro-innings/reference-study/manifest.json",
@@ -18,7 +18,7 @@
     "Keeper pursuit, throw and full dive unfinished",
     "Source fidelity and human timing review remain in progress"
   ],
-  "presentation": "Compact red ball, depth-scaled stumps, smaller score plate and selected-fielder shield; authored from saved source frames. Simulation and athlete assets byte-identical to v1.",
+  "presentation": "Independent cream physical handheld and blue/yellow arcade home lobby, based on the user-selected current Retro Football shell. Cricket source-derived athlete assets retained; no StatOz visual system inside the game.",
   "renderer": "Three.js atlas quads, source-palette ground/stadium texture, handheld DOM console",
   "changes": [
     "Fullscreen mobile landscape console; native fullscreen user gesture with fitted fallback",
@@ -40,5 +40,20 @@
     "flight": "Only pre-bounce approach corrected; previous landing, post-bounce path, flight duration and batting window retained",
     "source": "Saved source007 and D2D2t1JfZDk sampled130.7/132.3s show bowler near near-end crease, right of umpire/non-striker",
     "limits": "Coordinates and holds authored; no recovered native simulation claim"
+  },
+  "direction": "User explicitly invoked independent-game-style for Retro Cricket21October2026; this supersedes prior in-game StatOz typography/panels.",
+  "bowlingAim": {
+    "documented": "PAL manual p15: direction pad moves landing arrow",
+    "implemented": "Player run-up pad moves landing; release locks target and authoritative ball reaches that point",
+    "authored": "25world units/second; bounded x400..466 and y365..420; no native tuning recovered"
+  },
+  "build": "Authoritative simulation and assets.json metadata compiled into source HTML on every build.",
+  "lobby": "Real Play/Resume, Help, Settings, Home and New Match. Existing fixed invented matchup and one-over/three-wicket practice rules explicitly labelled.",
+  "batting": {
+    "source": "Preserved source-derived25-pose crease-recovery pack, observed across-body/high-finish/front-stroke families; mappings tentative",
+    "design": "Explicit preparation/contact/follow-through/return phases; original atlas/RGB/alpha/collision cells unchanged",
+    "timing": "Authored readable holds: LEG90/110ms preparation/active; OFF300/130; DEFEND260/130;40ms contact freeze. Not recovered SNES cadence.",
+    "input": "Practice cue and queued input use each family active-window centre, preserving physical blade contact",
+    "limits": "OFF active pose still repurposed high follow-through; native contact and seamless cross-guard pivot remain unverified"
   }
 }

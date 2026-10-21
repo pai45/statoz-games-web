@@ -17,7 +17,7 @@ export function poseFor(s:Match,a:Actor) {
   else if(a.action==="receive")pose=a.z>0?"a-overhead":has?(s.ball.age<6?"s-ready":"carry-front"):age<6?"land-recover":"neutral-a";
   else if(has)pose=(a.moving||(a.dribbleTick??-1)>=0)?`dribble-body-${String(a.moving?gaitFrame(a.travel??0):0).padStart(2,"0")}`:"carry-front";
   else if(a.action==="idle"){
-    const travel=a.travel??a.id*7,defending=s.ball.owner!==null&&s.actors[s.ball.owner].team!==a.team&&Math.hypot(s.ball.x-a.x,s.ball.y-a.y)<180;
+    const travel=a.travel??a.id*7,mark=a.intent?.mark===undefined?undefined:s.actors[a.intent.mark],marking=!!mark&&(a.intent?.role==="mark"||a.intent?.role==="pressure")&&Math.hypot(mark.x-a.x,mark.y-a.y)<120,defending=marking||(s.ball.owner!==null&&s.actors[s.ball.owner].team!==a.team&&Math.hypot(s.ball.x-a.x,s.ball.y-a.y)<180);
     if(a.moving)pose=defending?`defend-${String(defenseFrame(travel)).padStart(2,"0")}`:`run-${String(gaitFrame(travel)).padStart(2,"0")}`;
     else if(a.lastMoved!==undefined&&s.tick-a.lastMoved<8)pose=`brake-${String(Math.floor((s.tick-a.lastMoved)/2)).padStart(2,"0")}`;
     else pose=defending?"defend-00":Math.floor((s.tick+a.id*11)/24)%2?"neutral-a":"neutral-b";
@@ -42,7 +42,7 @@ export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=f
     if(row.kind==="ball"){c.fillStyle="#0007";c.beginPath();c.ellipse(s.ball.x-cam,s.ball.y,6,2,0,0,Math.PI*2);c.fill();c.drawImage(p.ball,Math.round(s.ball.x-cam-5.5),Math.round(s.ball.y-s.ball.z-5.5));continue;}
     const a=row.a,x=Math.round(a.x-cam),y=Math.round(a.y-a.z);
     c.fillStyle="#0005";c.beginPath();c.ellipse(x,a.y,17,4,0,0,Math.PI*2);c.fill();
-    if(a.id===s.selected){c.strokeStyle="#5cdfff";c.lineWidth=2;c.beginPath();c.ellipse(x,a.y+1,20,6,0,0,Math.PI*2);c.stroke();}
+    if(a.id===s.selected){c.font="bold 10px monospace";c.textAlign="center";c.fillStyle="#191810";c.fillText("1P",x+1,y-119);c.fillStyle="#ef3c27";c.fillText("1P",x,y-120);c.beginPath();c.moveTo(x-4,y-118);c.lineTo(x+4,y-118);c.lineTo(x,y-114);c.fill();c.textAlign="start";}
     c.drawImage(p[poseFor(s,a)],x-72,y-116);
     const overlay=overlayFor(s,a);if(overlay)c.drawImage(p[overlay.key],x-72,y-116+overlay.y);
     if(debug){c.strokeStyle="#51ff94";c.strokeRect(x-13,a.y-8,26,16);c.font="9px monospace";c.fillStyle="white";c.fillText(`${a.id} ${a.action}`,x-20,y-120);const hand=anchor(a);c.fillRect(hand.x-cam-2,hand.y-hand.z-2,4,4);}

@@ -1,9 +1,9 @@
-export { PitchDuel } from "./components/pitch-duel";
+export { usePitchDuelCareer as usePitchDuelProgress } from "../pitch-duel-next/progress";
+export { PitchDuel } from "../pitch-duel-next/pitch-duel";
 export {
   readPitchDuelProgress,
   resetPitchDuelProgress,
   resetPitchDuelTutorials,
-  usePitchDuelProgress,
 } from "./state/pitch-duel-progress";
 export type {
   PitchDuelHistoryEntry,

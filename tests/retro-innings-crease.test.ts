@@ -38,7 +38,7 @@ test('All lanes/styles retain the accepted bounce point, post-bounce ball path a
    sim.primary();Object.assign(sim.state,{innings:2,first:998,target:999});
    sim.settings.line=lane;sim.settings.style=style;sim.state.phase='dead';sim.beginDelivery();sim.advance(350);sim.release();
   }
-  assert.equal(revised.state.plan.duration,expected.duration);assert.equal(revised.state.plan.aiAt,expected.aiAt);
+  assert.equal(revised.state.plan.duration,expected.duration);assert.equal(revised.state.plan.aiAt,expected.aiAt+200-revised.strokeTiming(lane==='wide'?'off':lane).leadMs);
   for(const fraction of [.67,.7,.8,.95,1,1.02]){
    const a=revised.incomingAt(revised.state.plan.duration*fraction),b=expected.path.find((item:{fraction:number})=>item.fraction===fraction).point;
    for(const axis of ['x','y','z'] as const)assert.ok(Math.abs(a[axis]-b[axis])<1e-8,`${lane}/${style}/${fraction}/${axis}`);

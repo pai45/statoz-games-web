@@ -27,6 +27,7 @@ export type ShootoutHistoryEntry = {
   opponentScore: number;
   suddenDeath: boolean;
   xpEarned: number;
+  runtimeVersion?: string;
 };
 
 export type ShootoutProgress = {
@@ -54,16 +55,17 @@ const nothingPlayed: ShootoutProgress = Object.freeze({
  * a fresh object every read would re-render forever.
  */
 let cachedRaw: string | null = null;
+let fallbackRaw: string | null = null;
 let cachedValue: ShootoutProgress = nothingPlayed;
 
 const listeners = new Set<() => void>();
+const settledSessions = new Set<string>();
 
 function readRaw(): string | null {
   try {
     return window.localStorage.getItem(storageKey);
   } catch {
-    // A private window can refuse storage outright. Nothing is recorded, then.
-    return null;
+    return fallbackRaw;
   }
 }
 
@@ -128,12 +130,15 @@ function subscribe(onChange: () => void): () => void {
 }
 
 function write(next: ShootoutProgress): void {
+  const raw = JSON.stringify(next);
+  fallbackRaw = raw;
   try {
-    window.localStorage.setItem(storageKey, JSON.stringify(next));
+    window.localStorage.setItem(storageKey, raw);
   } catch {
     // Storage may be full or blocked; the record is lost, the session is not.
   }
-  cachedRaw = null;
+  cachedRaw = raw;
+  cachedValue = next;
   for (const listener of listeners) listener();
 }
 
@@ -184,6 +189,8 @@ export function readShootoutProgress(): ShootoutProgress {
 }
 
 export type ShootoutOutcome = {
+  sessionId?: string;
+  runtimeVersion?: string;
   won: boolean;
   margin: number;
   playerScore: number;
@@ -199,10 +206,13 @@ export type ShootoutOutcome = {
  */
 export function recordShootout(outcome: ShootoutOutcome): number {
   const current = getSnapshot();
+  if (outcome.sessionId && (settledSessions.has(outcome.sessionId) || current.history.some(entry => entry.id === outcome.sessionId))) return 0;
+  if (outcome.sessionId) settledSessions.add(outcome.sessionId);
   const gained = shootoutXp(outcome.won, outcome.margin);
 
   const entry: ShootoutHistoryEntry = {
-    id: `shootout-${Date.now()}`,
+    id: outcome.sessionId ?? `shootout-${Date.now()}`,
+    ...(outcome.runtimeVersion ? { runtimeVersion: outcome.runtimeVersion } : {}),
     playedAt: new Date().toISOString(),
     opponentName: outcome.opponentName,
     playerScore: outcome.playerScore,
@@ -225,5 +235,6 @@ export function recordShootout(outcome: ShootoutOutcome): number {
 
 /** Forgets every shootout. Exists so the difficulty ramp can be replayed. */
 export function resetShootoutProgress(): void {
+  settledSessions.clear();
   write({ xp: 0, wins: 0, played: 0, history: [] });
 }

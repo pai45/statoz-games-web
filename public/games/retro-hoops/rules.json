@@ -1,8 +1,8 @@
 {
   "gameId": "retro-hoops",
   "briefVersion": "1.0.0",
-  "rulesVersion": "1.4.0",
-  "buildVersion": "future-games-movement-v2-local",
+  "rulesVersion": "1.5.0",
+  "buildVersion": "future-games-team-ai-v1-local",
   "assetPackVersion": "facing-family-v1+action-family-v2",
   "date": "2026-10-20",
   "reference": {

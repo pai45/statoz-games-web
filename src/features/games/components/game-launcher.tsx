@@ -25,8 +25,9 @@ import { FootballBingo } from "../football-bingo";
 import { FootballChess } from "../football-chess";
 const GrandPrix = dynamic(() => import("../grand-prix/rebuild/screen").then(m => m.GrandPrix), { ssr: false, loading: () => <div role="status">Loading Grand Prix Dash…</div> });
 import { GuessPlayer } from "../guess-player";
-import { PenaltyShootout } from "../penalty-shootout";
+const PenaltyShootout = dynamic(() => import("../penalty-shootout").then(m => m.PenaltyShootout), { ssr: false, loading: () => <div role="status">PREPARING THE PITCH…</div> });
 import { PitchDuel } from "../pitch-duel";
+import { PitchDuelStarterPack } from "../pitch-duel-next/starter-pack";
 import { SportQuiz } from "../quiz";
 import { TennisRally } from "../tennis";
 import { sportForGame, type GameEntry } from "@/mocks/games";
@@ -122,7 +123,7 @@ function AuthenticatedGameLauncher({ game, entry }: GameLauncherProps) {
     return <StarterPackGate game={game} entry={entry} sport={sport} />;
   }
 
-  if (entry.requiresDeck && !isLoadoutComplete(activeLoadout(decks, sport))) {
+  if (game !== "pitch-duel" && entry.requiresDeck && !isLoadoutComplete(activeLoadout(decks, sport))) {
     return <DeckRequired sport={sport} entry={entry} />;
   }
 
@@ -148,6 +149,11 @@ function StarterPackGate({
   const [opened, setOpened] = useState(false);
 
   if (opened) return <GameSurface game={game} entry={entry} />;
+
+  if (game === "pitch-duel") return <PitchDuelStarterPack reveal={reveal} onComplete={() => {
+    claimPack(sport, reveal);
+    setOpened(true);
+  }} />;
 
   return (
     <StarterPackReveal

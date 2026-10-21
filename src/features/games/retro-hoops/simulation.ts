@@ -1,13 +1,14 @@
+import {planOffBall,offBallSteering,type OffBallIntent} from "./off-ball";
 import {dribbleSample,bodyBob} from "./motion";
-/** Retro Hoops rules 1.4.0. All numerical tuning is original StatOz design.
+/** Retro Hoops rules 1.5.0. All numerical tuning is original StatOz design.
  * No rendering, wall clock, platform storage or random global state belongs here. */
-export const RULES_VERSION = "1.4.0";
+export const RULES_VERSION = "1.5.0";
 export const HZ = 60;
 export const COURT = { left: 60, right: 840, top: 164, bottom: 330, rimY: 247, rimZ: 120 } as const;
 export type Team = 0 | 1;
 export type Action = "idle" | "pass" | "receive" | "shoot" | "dunk" | "block" | "steal" | "recoil" | "gather";
 export type Phase = "playing" | "restart" | "result";
-export type Actor = { id: number; team: Team; x: number; y: number; z: number; vz: number; face: 1 | -1; action: Action; until: number; started: number; target: number; nextAI: number; moving?:boolean; travel?:number; dribbleTick?:number; lastMoved?:number; stepDistance?:number };
+export type Actor = { id: number; team: Team; x: number; y: number; z: number; vz: number; face: 1 | -1; action: Action; until: number; started: number; target: number; nextAI: number; moving?:boolean; travel?:number; dribbleTick?:number; lastMoved?:number; stepDistance?:number; intent?:OffBallIntent };
 export type Ball = { x: number; y: number; z: number; owner: number | null; kind: "held" | "pass" | "shot" | "loose"; from: number; to: number; age: number; duration: number; sx: number; sy: number; sz: number; tx: number; ty: number; tz: number; vx: number; vy: number; vz: number; points: number; made: boolean; super: boolean; released: number };
 export type GameEvent = { id: number; tick: number; type: string; team?: Team; actor?: number; value?: number };
 export type Input = { x: number; y: number; shoot: boolean; pass: boolean };
@@ -121,7 +122,7 @@ function move(a:Actor,x:number,y:number,speed=108) {
   a.y=clamp(a.y+y/Math.max(1,len)*speed/HZ,COURT.top,COURT.bottom);if(Math.abs(x)>.1)a.face=x>0?1:-1;
   const travelled=Math.hypot(a.x-beforeX,a.y-beforeY);a.moving=travelled>1e-6;a.travel=(a.travel??a.id*7)+travelled;a.stepDistance=(a.stepDistance??0)+travelled;
 }
-function ai(s:Match,a:Actor) {
+function ai(s:Match,a:Actor,plans:Record<number,OffBallIntent>,neighbors:Actor[]) {
   if(!ready(s,a))return;
   const b=s.ball,dir=direction(a.team),rim=rimX(a.team);
   if(b.owner===a.id) {
@@ -137,23 +138,20 @@ function ai(s:Match,a:Actor) {
     const threatened=s.actors.some(d=>d.team!==a.team&&distance(d,a)<65);
     move(a,rim-a.x,(threatened?(a.id%2===0?180:310):COURT.rimY)-a.y);return;
   }
-  if(b.owner===null) {
-    const target=b.kind==="shot"?{x:b.tx,y:b.ty}:b;
-    if(b.kind==="pass"&&b.to===a.id)return;
-    move(a,target.x-a.x+(a.id%3-1)*20,target.y-a.y+(a.id%3-1)*26);
+  const intent=plans[a.id];
+  if(!intent)return;
+  if(b.kind==="pass"&&b.to===a.id)return;
+  const steering=offBallSteering(a,intent,neighbors);
+  move(a,steering.x,steering.y,steering.speed);
+  const owner=b.owner===null?null:s.actors[b.owner];
+  if(owner&&owner.team!==a.team){
+    if(distance(a,owner)<35&&s.tick>=a.nextAI){
+      const age=s.tick-owner.started;
+      defensiveAction(s,a,(owner.action==="shoot"&&age>=10&&age<30)||(owner.action==="dunk"&&owner.z>0));a.nextAI=s.tick+90;
+    }
+  }else if(b.owner===null&&b.kind!=="pass"){
     const defendShot=b.kind!=="shot"||s.actors[b.from].team!==a.team;
     if(defendShot&&b.z>70&&b.z<145&&distance(a,b)<36&&s.tick>=a.nextAI){defensiveAction(s,a,true);a.nextAI=s.tick+65;}
-    return;
-  }
-  const owner=s.actors[b.owner];
-  if(owner.team===a.team) {
-    const x=clamp(owner.x+dir*(a.id%3===1?95:-65),130,770),y=a.id%3===1?180:310;
-    move(a,x-a.x,y-a.y,95);
-  } else {
-    const mark=s.actors[(a.id%3)+(owner.team===0?0:3)];
-    const tx=mark.x+direction(owner.team)*35,ty=mark.y;
-    move(a,tx-a.x,ty-a.y,104);
-    if(distance(a,owner)<35&&s.tick>=a.nextAI){defensiveAction(s,a,false);a.nextAI=s.tick+90;}
   }
 }
 function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
@@ -272,6 +270,8 @@ export function step(s:Match,input:Input=NO_INPUT) {
     } else if(a.until<=s.tick&&a.z===0){a.action="idle";a.target=-1;}
   }
   const beforeMovement=s.actors.map(a=>({x:a.x,y:a.y}));
+  const plans=planOffBall(s),neighbors=s.actors.map(a=>({...a}));
+  for(const a of s.actors)a.intent=plans[a.id];
   if(!s.buzzer)for(const a of s.actors) {
     if(a.id===s.selected&&!s.auto) {
       if(ready(s,a)) {
@@ -281,7 +281,7 @@ export function step(s:Match,input:Input=NO_INPUT) {
         else if(action==="pass"){s.buffer=null;if(has)startPass(s,a);else defensiveAction(s,a,false);}
         else move(a,input.x,input.y);
       }
-    } else ai(s,a);
+    } else ai(s,a,plans,neighbors);
   }
   // Acting/recovering bodies remain solid. Only free grounded movers yield;
   // locked actors keep their action/contact anchors. Vertical intervals overlap
@@ -300,6 +300,7 @@ export function step(s:Match,input:Input=NO_INPUT) {
   }
   for(const a of s.actors)if(a.action==="idle"&&a.moving){const moved=Math.hypot(a.x-beforeMovement[a.id].x,a.y-beforeMovement[a.id].y);a.travel=(a.travel??a.id*7)-(a.stepDistance??0)+moved;a.moving=moved>1e-6;if(a.moving)a.lastMoved=s.tick;}
   for(const a of s.actors)if(a.action==="idle"&&s.ball.owner!==null&&s.actors[s.ball.owner].team!==a.team&&Math.hypot(a.x-s.ball.x,a.y-s.ball.y)<180&&Math.abs(s.ball.x-a.x)>4)a.face=s.ball.x>a.x?1:-1;
+  for(const a of s.actors){const mark=a.intent?.mark===undefined?undefined:s.actors[a.intent.mark];if(a.action==="idle"&&mark&&(a.intent?.role==="mark"||a.intent?.role==="pressure")&&distance(a,mark)<120&&Math.abs(mark.x-a.x)>4)a.face=mark.x>a.x?1:-1;}
   updateBall(s,previousHands);
   resolveSteals(s);
   selectDefender(s);

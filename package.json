@@ -31,20 +31,24 @@
     "backgrounds:check": "node scripts/sync-hub-backgrounds.mjs --check",
     "test:backgrounds": "node --test tests/hub-backgrounds.test.mjs",
     "test:retro-circuit": "tsx --test tests/retro-circuit.test.ts tests/retro-circuit-account.test.ts",
-    "test:retro-hoops": "tsx --test tests/retro-hoops.test.ts tests/retro-hoops-account.test.ts tests/retro-hoops-protocol.test.ts tests/retro-hoops-catalog.test.ts tests/retro-hoops-animation.test.ts",
+    "test:retro-hoops": "tsx --test tests/retro-hoops.test.ts tests/retro-hoops-account.test.ts tests/retro-hoops-protocol.test.ts tests/retro-hoops-catalog.test.ts tests/retro-hoops-animation.test.ts tests/retro-hoops-team-ai.test.ts",
     "typecheck": "next typegen && tsc --noEmit",
     "test:demo": "tsx --test tests/demo-product.test.ts",
     "typography:sync:all": "node scripts/demo-no-upstream.mjs",
     "prebuild:games": "node scripts/build-football-motion.mjs && node scripts/build-football-chance.mjs && node scripts/build-retro-football.mjs && node scripts/build-retro-innings.mjs",
     "build:games": "node scripts/build-game-bundles.mjs",
-    "test:grand-prix": "tsx --test tests/grand-prix-rebuild.test.ts"
+    "test:grand-prix": "tsx --test tests/grand-prix-rebuild.test.ts",
+    "test:shootout": "tsx --test tests/penalty-shootout.test.ts tests/penalty-shootout-account.test.ts tests/penalty-shootout-animation.test.ts",
+    "test:shootout:e2e": "playwright test --config playwright.shootout.config.ts"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "three": "^0.186.1"
+    "three": "^0.186.1",
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "howler": "2.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -59,6 +63,8 @@
     "tailwindcss": "^4",
     "tsx": "^4",
     "typescript": "^5",
-    "vercel": "59.5.0"
+    "vercel": "59.5.0",
+    "@types/howler": "2.2.13",
+    "@playwright/test": "1.64.1"
   }
 }

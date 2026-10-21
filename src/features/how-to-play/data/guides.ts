@@ -122,66 +122,33 @@ export const guides: ModeGuide[] = [
     ],
   },
 
-  // ── Pitch Duel ─────────────────────────────────────────────────────────────
+  // ── Pitch Duel ───────────────────────────────────────────────────────────
   {
     id: "pitch-duel",
     title: "PITCH DUEL",
-    tagline: "Tactical 4-round card duel",
-    subtitle: "// TACTICAL 4-ROUND DUEL",
-    purpose:
-      "Turn your card collection into a four-round tactical match — outscore the CPU for XP and coins.",
+    tagline: "Six-highlight football card match",
+    subtitle: "// BUILD A CLUB · PLAY THE MOMENTS",
+    purpose: "Choose a five-player club and eight tactic cards, then turn six decisive highlights into a league result.",
     icon: "sports_soccer",
-    accent: "violet",
+    accent: "lime",
     stats: [
-      { icon: "sync_alt", label: "4 ROUNDS", sub: "attack ×2 · defend ×2", accent: "violet" },
-      { icon: "style", label: "PLAYER + ACTION", sub: "each round", accent: "cyan" },
-      { icon: "emoji_events", label: "XP & COINS", sub: "on a win", accent: "gold" },
+      { icon: "groups", label: "FIVE PLAYERS", sub: "2 attackers · 2 defenders · 1 keeper", accent: "lime" },
+      { icon: "style", label: "EIGHT TACTICS", sub: "3 attack · 3 defence · 2 flexible", accent: "orange" },
+      { icon: "sports_soccer", label: "SIX MOMENTS", sub: "3 attack · 3 defend", accent: "cyan" },
     ],
     steps: [
-      {
-        title: "Build a legal deck",
-        body: "2 attackers, 2 defenders, 1 goalkeeper, and 6 action cards.",
-      },
-      {
-        title: "Toss for role",
-        body: "A coin flip sets who attacks first; roles alternate, so you attack twice and defend twice across the match.",
-      },
-      {
-        title: "Read the scenario",
-        body: "Each round drops a football scenario — counter, set piece, box defense — that tilts the attack vs defense power.",
-      },
-      {
-        title: "Pick player + action",
-        body: "Choose a role-appropriate player card and one action card for the round.",
-      },
-      {
-        title: "Strike the Shot Meter",
-        body: "Tap to stop the sweeping marker. Perfect timing adds up to +20 power to your side.",
-      },
-      {
-        title: "Resolve and repeat",
-        body: "The power gap becomes a goal, save, block, miss, foul, or red card. Highest score after 4 rounds wins.",
-      },
+      { title: "Build your club", body: "Choose two attackers, two defenders, a keeper and eight owned tactics. The new game keeps your existing collection." },
+      { title: "Read the highlight", body: "Each match stops at six decisive moments. See the threat, available players and up to three tactics in your hand." },
+      { title: "Make three choices", body: "Pick an eligible player, one tactic and a route or defensive response. Matching style tags builds momentum." },
+      { title: "Manage your hand", body: "A played tactic leaves the match. Six cards are used and two remain, so save flexible tactics for the right moment." },
+      { title: "Climb the league", body: "Wins earn three points and draws earn one. Every nine points opens the next division and an original fictional club card." },
     ],
     facts: [
-      {
-        icon: "insights",
-        label: "Power formula",
-        body: "Card rating + action power + scenario bonus + a 0–20 swing.",
-      },
-      {
-        icon: "warning",
-        label: "Risky actions",
-        body: "Carry a 12% chance of a foul (attack) or a red card (defense).",
-      },
-      {
-        icon: "sports_soccer",
-        label: "Tied at full time",
-        body: "A level match after 4 rounds goes to a penalty shootout.",
-      },
+      { icon: "sync_alt", label: "Style links", body: "Link player traits, tactics and routes to improve a decision and carry momentum forward." },
+      { icon: "shield", label: "Defensive response", body: "Reading the opponent's style can stop a chance and break its chain." },
+      { icon: "emoji_events", label: "Full time", body: "Your six decisions determine every goal. A draw stays a draw and awards one league point." },
     ],
   },
-
   // ── Penalty Shootout ───────────────────────────────────────────────────────
   {
     id: "penalty-shootout",

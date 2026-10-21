@@ -1,9 +1,10 @@
 import type { ActionCard, PlayerCard } from "@/domain/cards";
 
-import { actionCards, basketballPlayerCards, cricketPlayerCards, footballPlayerCards, racingPlayerCards, tennisPlayerCards } from "@/mocks/packs";
+import { actionCards, basketballPlayerCards, cricketPlayerCards, footballPlayerCards, fictionalCards, racingPlayerCards, tennisPlayerCards } from "@/mocks/packs";
 
 export const allPlayerCards: PlayerCard[] = [
   ...footballPlayerCards,
+  ...fictionalCards,
   ...cricketPlayerCards,
   ...basketballPlayerCards,
   ...tennisPlayerCards,
