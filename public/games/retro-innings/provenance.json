@@ -3,7 +3,7 @@
   "version": "batting-sequence-v1",
   "release": "private-reference-preview",
   "publicReleaseApproved": false,
-  "sha256": "8cad2ee37e21db0ddd9f82499eb3bed3318ee96e098286a841fda65735488eae",
+  "sha256": "bb4bcf7bf51128bf47af01d196ad0c1e512c3998668b998f458c447280194d5e",
   "sourceBundle": "src/features/games/retro-innings/runtime",
   "sourceAssets": "output/retro-innings/three-candidate-v2/assets.json",
   "referenceStudy": "output/retro-innings/reference-study/manifest.json",
@@ -51,9 +51,18 @@
   "lobby": "Real Play/Resume, Help, Settings, Home and New Match. Existing fixed invented matchup and one-over/three-wicket practice rules explicitly labelled.",
   "batting": {
     "source": "Preserved source-derived25-pose crease-recovery pack, observed across-body/high-finish/front-stroke families; mappings tentative",
-    "design": "Explicit preparation/contact/follow-through/return phases; original atlas/RGB/alpha/collision cells unchanged",
+    "design": "Explicit preparation/contact/follow-through/return phases; corrected private OFF contact atlas retains original active blade pixels and collision cells",
     "timing": "Authored readable holds: LEG90/110ms preparation/active; OFF300/130; DEFEND260/130;40ms contact freeze. Not recovered SNES cadence.",
     "input": "Practice cue and queued input use each family active-window centre, preserving physical blade contact",
-    "limits": "OFF active pose still repurposed high follow-through; native contact and seamless cross-guard pivot remain unverified"
+    "limits": "OFF contact is an authored right-handed composite; native contact pose, cross-guard pivot and frame timing remain unverified",
+    "rightHandedComposite": {
+      "sourceAtlasSha256": "3f5d0d21d54bfa348a0dedd2d291af67149cf4167e73b06d155ef8af25b5a573",
+      "derivedAtlasSha256": "18dc279fc4cecd7ede0667111f16f94e6b0af186e3f68abda669a488b2fcebef",
+      "source": "Preserved source-derived batting atlas and OFF preparation/contact cells",
+      "method": "OFF contact uses preceding same-batter body plus existing contact blade/forearm pixels; pixel masks are an explicit private adaptation",
+      "physics": "All 70 original OFF active blade cells unchanged",
+      "approval": "Private reference-derived preview only; no public art clearance or native-sprite claim"
+    },
+    "airDefend": "NES B on the low DEFEND lane uses the same physical contact, then a named same-family raised-bat finish before recovery. The action order is authored."
   }
 }

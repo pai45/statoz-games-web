@@ -2,7 +2,7 @@ from pathlib import Path
 from PIL import Image,ImageDraw
 import json,hashlib,subprocess,imageio_ffmpeg,sys
 out=Path.cwd()/'test-results'/(sys.argv[1]if len(sys.argv)>1 else 'retro-hoops-motion-v1');records=[]
-for kind in ['dribble','block','dunk','super-dunk','pass','shoot','recoil']:
+for kind in ['dribble','block','dunk','super-dunk','pass','shoot','recoil','dunk-pass']:
  for team in [0,1]:
   folder=out/'actions'/f'{kind}-{team}';frames=sorted(folder.glob('[0-9][0-9][0-9][0-9].png'));assert len(frames)==61
   assert all(Image.open(f).size==(640,360) for f in frames)

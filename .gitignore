@@ -43,6 +43,10 @@ next-env.d.ts
 
 # Rebuilt offline artifacts; Flutter owns its pinned copy.
 /public/embedded-games/
+/.cache/vibe-*
+/vendor/vibebasketball/node_modules/
+/vendor/vibebasketball/dist/
+/test-results/vibe-basketball/
 
 # Local validation output
 *.log

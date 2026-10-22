@@ -20,7 +20,7 @@ const sourceDecks: Record<Sport, GameId[]> = {
     "guess-player",
   ],
   cricket: ["retro-innings", "stadium-cricket", "cricket-quiz", "cricket-guess-player"],
-  basketball: ["retro-hoops", "hoop-duel", "basketball-quiz", "basketball-guess-player"],
+  basketball: ["retro-hoops", "vibe-basketball", "hoop-duel", "basketball-quiz", "basketball-guess-player"],
   tennis: ["tennis-rally", "tennis-quiz", "tennis-guess-winner"],
   motorsport: ["retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
 };

@@ -52,10 +52,10 @@
     "selection": "authored red 1P arrow; reference-observed placement"
   },
   "currentCandidate": {
-    "rules": "1.5.0",
-    "slice": "court perspective and contact-preserving depth projection",
-    "presentation": "court-perspective-v2",
-    "evidence": "court-v2.md",
-    "projectionClassification": "authored fit to processed-frame observations"
+    "rules": "1.7.0",
+    "slice": "user-selected GameLog venue, timing and player-family reconstruction",
+    "evidence": "gamelog-player-look-v1.md",
+    "nativeParityVerified": false,
+    "primaryVideo": "https://www.youtube.com/watch?v=_k8IIS9n3dk"
   }
 }

@@ -1,0 +1,380 @@
+{
+  "version": "1.0.0",
+  "sourceVideo": "https://www.youtube.com/watch?v=_k8IIS9n3dk",
+  "classification": "existing reference silhouettes with authored kit and shading adaptation",
+  "newVideoPixelsExtracted": false,
+  "canvas": [
+    144,
+    128
+  ],
+  "feet": [
+    72,
+    116
+  ],
+  "kits": {
+    "navy": "azure vest, violet shorts, dark shoes",
+    "amber": "azure shirt, pale sleeves, red shorts, dark shoes"
+  },
+  "frames": [
+    {
+      "file": "amber-a-overhead-mirrored.png",
+      "sha256": "bd5de8676623114ed60c2c4b27ca88e951d9df42c79e0b29427af01370e1bce2",
+      "sourceSha256": "15d39be4ac9dbbcf3958c6a375e810ca6b257becbc6a0719ba221b0e40b0aad5"
+    },
+    {
+      "file": "amber-a-overhead-source.png",
+      "sha256": "96e36bd8d28ed642afbe628006fa2c684dd03b613c493fec85a59dd23ca78b77",
+      "sourceSha256": "6bfa146eddb959363833b9061d603ad22222bdeba5031b6a49480e468236fa58"
+    },
+    {
+      "file": "amber-a-reach-mirrored.png",
+      "sha256": "35317d8d54573f0672338d74b141f63cba1f98d2ff7934b50c6a130f160625a9",
+      "sourceSha256": "df6866d8956a4e7156d5c0b3e1b6f17b695678c1cf0139126078cc621a2aff09"
+    },
+    {
+      "file": "amber-a-reach-source.png",
+      "sha256": "b921f829d3fa1d755e1bc2e22300db6ad0628195df54dfa3ab076dcbb4fcfc41",
+      "sourceSha256": "c4ced024daeb805bae0abb8d7916c289178fc7be10dede31cf2b0666e145045c"
+    },
+    {
+      "file": "amber-carry-front-mirrored.png",
+      "sha256": "7971c096e530f1d5a9aab4651ef373dc8d93a36bfb11e80f7f86e0e83caed121",
+      "sourceSha256": "1735b63d478254e348515311c392101e449adb0aa45ce85319f8289f0f367491"
+    },
+    {
+      "file": "amber-carry-front-source.png",
+      "sha256": "4943b736314b0c5455454a58120c81d4db258b04970bbe65f53dc6a28463d3c8",
+      "sourceSha256": "1e7da1599be0552f62c48eb6c5fed45fd44f7b7e410e9c1cc9d05cf45fb59e08"
+    },
+    {
+      "file": "amber-carry-low-mirrored.png",
+      "sha256": "c53495c4a0010e36e408ea02993b48db46d2a20b8469126ce86ffd67245ca181",
+      "sourceSha256": "ec1a59542469d7ce6bac2c767a0ebd0dfa43d441a8ace3b1985de63ea23cbff5"
+    },
+    {
+      "file": "amber-carry-low-source.png",
+      "sha256": "ee5b4fdcbb8ad287c2d871122ff3f09b5a12565c21257df0b2a6ac61d82ecfd6",
+      "sourceSha256": "ec040b5e5d2d192c70cc2ba778f5ad0a286eefec14f1a010f78532c282ee4660"
+    },
+    {
+      "file": "amber-d-down-mirrored.png",
+      "sha256": "43458ca9254712f6fc3ae8e1cd8ee6d3db965007e625b22d9d5dd77198ddcdce",
+      "sourceSha256": "87f73f3ab29bb3db736a763540719a9e7f88403aa4e90c9c571df519ee035217"
+    },
+    {
+      "file": "amber-d-down-source.png",
+      "sha256": "b9a44351103a696943d16465f233ea8fa0e87a24708e79364ec1a552bea0e17e",
+      "sourceSha256": "9b81ca8fc2fb242b22e44f1dbbbfdacd06ff542323f357359a1d0f86f7d57c21"
+    },
+    {
+      "file": "amber-d-low-mirrored.png",
+      "sha256": "4f6f3c9341ce0570834df99877ed3034c5b91f816c4967546fde4ca6f8300c59",
+      "sourceSha256": "1e43edf27e6147939d5a83fab2f1a8d8ca7c3f2a455c51971961b7d6b04ef130"
+    },
+    {
+      "file": "amber-d-low-source.png",
+      "sha256": "7747cee6ad494d2cc3028ed0b60d361131230ab2f87eac9253b61b07ba86a83d",
+      "sourceSha256": "76231be4bc291dc8613ce96eb2ddb1a545b5105a2db48d67a947c99557adbaa3"
+    },
+    {
+      "file": "amber-d-push-mirrored.png",
+      "sha256": "a9a1dff8ae7af3af993bd6c946c4605230b5f2113ea4b487063515dac90be553",
+      "sourceSha256": "a0871e267d9214ae062f0e21c8e178ff42d4cdee22ccc478abf0bc3e63e23f69"
+    },
+    {
+      "file": "amber-d-push-source.png",
+      "sha256": "cdcd4848629067ecd78b2bc46886a1927a6edabb9c191f3b025bd20d6cd12671",
+      "sourceSha256": "c122da14b92c7ad9d05bf01ff7a2a504838a3c9910c6f9b6e7825472bef3aff4"
+    },
+    {
+      "file": "amber-dunk-contact-mirrored.png",
+      "sha256": "8d62a4521ce78e4c7f5ee36a79f1f2590e976278314f148817a6b91078c11f7c",
+      "sourceSha256": "5fc9d707e790ca53a220bd1954a4e1100cd458ec9cf106fb4a458a0877b33fcb"
+    },
+    {
+      "file": "amber-dunk-contact-source.png",
+      "sha256": "5d357f944e5ca3d487c242b5d73cc81789afe0b2af1f16d9ba559aa7eb6c748b",
+      "sourceSha256": "a057132ffa65dbb311e48fda3f35c171cffcf7d7ad312f7df851ca08bfebb976"
+    },
+    {
+      "file": "amber-dunk-gather-mirrored.png",
+      "sha256": "d51035ad3af5e1b13b91e116d7d3a4294e6d8b0f48ebabe2b47cfaf8d250ead6",
+      "sourceSha256": "26c71cf40a515614e55fe59b7ff9e499af58dfd6d61d4bc19ea7c3181a3d4ce3"
+    },
+    {
+      "file": "amber-dunk-gather-source.png",
+      "sha256": "fbd0c1fb4cccf7aa52eb594c7b6149d8029e38d9d8b1e852e6442b43e7767a4a",
+      "sourceSha256": "dd105a82e28f337e6bf69605b25be4fbffdc7d0f095e5198cd311e26a5700df8"
+    },
+    {
+      "file": "amber-land-recover-mirrored.png",
+      "sha256": "fc38bc5d1c48b510ccc46e5fc31276d6b51727b642aa88ec63332600d77fa33a",
+      "sourceSha256": "22c1c1543393153818e8f01f5c4da72846812938f55c982e63e5e7f737e32e7f"
+    },
+    {
+      "file": "amber-land-recover-source.png",
+      "sha256": "c687b9c8e7faae75914e5fecaa4b4d5d2e009af7dbf9b98aa450fdd93f81ba5e",
+      "sourceSha256": "59fa4aba043c9cb2b74226e02f33b9902ce61974c31f5556ed7ff0e168dc535b"
+    },
+    {
+      "file": "amber-neutral-a-mirrored.png",
+      "sha256": "488954c5067eb38e1b7a8798566955713f8380d20a3eda0638ced043a88a9441",
+      "sourceSha256": "0df643100f722425f2a38b18f2f0094114efffc8240612b920cd5bbed2392dbd"
+    },
+    {
+      "file": "amber-neutral-a-source.png",
+      "sha256": "11a0f4c335d70d83c75bf9fc334e76b1202e356944672674ec1f960b0f02c092",
+      "sourceSha256": "71d3ae0889a2f504d49a8d9e8cddef9f568e7b5c7cc950e29bec6f5e8594483a"
+    },
+    {
+      "file": "amber-neutral-b-mirrored.png",
+      "sha256": "455e9cf03c5b5c1422321e255892e817bef50e10c405207983029310ccbd6366",
+      "sourceSha256": "46484b705a08dc7237e7f70b881039a66ea94965ed97baf00bcaca71577c2201"
+    },
+    {
+      "file": "amber-neutral-b-source.png",
+      "sha256": "ad0455f8f14c5e815cf53899a62e87d43ba7f55e0f5420848b5ff15f573f7c85",
+      "sourceSha256": "2d0effe227c6560fc93b0d5245c7503b9c1ebd1bf5f2d5ff25173f6b9f48b8a2"
+    },
+    {
+      "file": "amber-p-pass-extend-left-mirrored.png",
+      "sha256": "3f95316484e5afd42581dc68bf798f683b6f46eaab8c45fdadab034c973ab03a",
+      "sourceSha256": "1ae602eecf6bfa1d3f8f3dfeba478823bbd1c083dc6ddceb88cd8802b2b01ffb"
+    },
+    {
+      "file": "amber-p-pass-extend-left-source.png",
+      "sha256": "bdda5ad5227fb8ca23a6de854f6ff006f56e11ff1d502c72ae87fcb2be2bb3e2",
+      "sourceSha256": "903969fc4f1c68544bc5ba7c2faaa3e8ace50cf8c638b18a39a9b51a38e5374a"
+    },
+    {
+      "file": "amber-p-pass-gather-left-mirrored.png",
+      "sha256": "5126baf15af3199aa4f501e9ed3b1ce705e1d6bda37af62574a08f169a501e56",
+      "sourceSha256": "d3b12010bb4b893d80f777a1a3c1b73d2a453ab0c7f1077f0afacbad037a6977"
+    },
+    {
+      "file": "amber-p-pass-gather-left-source.png",
+      "sha256": "9acc92f4191d2b7f0ba407b8e16f9c488d6f42232f66fd6f5c48d3cd84c7a5b4",
+      "sourceSha256": "c23276c884747b0ea91e35358720e95573cf5b1a95eb29806531cdba504c971b"
+    },
+    {
+      "file": "amber-s-follow-mirrored.png",
+      "sha256": "b45f681ba2192726123b7fd06737bd0162f882a8b7793723e14e617a943825b0",
+      "sourceSha256": "ae78b25001c0ef01374e96d935a3e0609574458db60025205ab69a122d5bd944"
+    },
+    {
+      "file": "amber-s-follow-source.png",
+      "sha256": "6aa9d667d2cf2965145ae5f25d0bb45247ae55be0b2930b712ee626205c39f57",
+      "sourceSha256": "baffffe312ffd25eba752036abe7fd1da865ddd1cf6e9e02ad2e477da77cb461"
+    },
+    {
+      "file": "amber-s-ready-mirrored.png",
+      "sha256": "49829c8037a0124c183462a4e64c1cd0c414cfcd5c2b4b8831eb0d9aef8f6b48",
+      "sourceSha256": "fe3648d06911d825dd64f245a130f83eb285c25f74ec4e74ee5b355231cc6a4f"
+    },
+    {
+      "file": "amber-s-ready-source.png",
+      "sha256": "b537e04cf7ac58a035036143c8510373b4e3d3106c63577d780eaf9ba72f7901",
+      "sourceSha256": "ce8daac180fc27980a065262cf7ae5b1d34ae8363970a0a68c2696e5c1a8cf10"
+    },
+    {
+      "file": "amber-s-release-mirrored.png",
+      "sha256": "e536afe0e64404eeb99a7c7dd8a313e36ad24deb1a768a532d4f54427865bb6a",
+      "sourceSha256": "0d13f4a092af77a073df1471abd9b9c2d556cc1afef84008f15379bd130d06c8"
+    },
+    {
+      "file": "amber-s-release-source.png",
+      "sha256": "3ecb8c58b1552f50c37fd02f5ff8f8489a91102b4cdcb4c966817068fde0dbc4",
+      "sourceSha256": "e17693b459bcf870ae2a600589309359be35b877f083bdbca6b9e6948a0a85a1"
+    },
+    {
+      "file": "amber-s-rise-mirrored.png",
+      "sha256": "bdf9e462faeaf40ff1378a5296b0eced73bed30bb450b6075af37be4e65f7f71",
+      "sourceSha256": "5b79861b5c1367cfd3d35ff3b7c9a077c3a64d3ca06a51720d635f4aaaed87be"
+    },
+    {
+      "file": "amber-s-rise-source.png",
+      "sha256": "1633f748216b84e3116d0af8d4a0c69776b2c60705fa47d74304d591e5b7b886",
+      "sourceSha256": "fa355f32d84d4140c397a4fc0c5307d65178f5907cc0b56fa879fd606ecdde1d"
+    },
+    {
+      "file": "navy-a-overhead-mirrored.png",
+      "sha256": "e731725adc97dfa5e12e5777d42adcfcf0adb90fff4334f2f1753bdc9a82abfc",
+      "sourceSha256": "4ad3d36cf4f43ef61c57bba31571b500fe8bd26a43d737ac0e10ff2ea7943ceb"
+    },
+    {
+      "file": "navy-a-overhead-source.png",
+      "sha256": "19039ec0ec6f6472c2fb2bc4cde8925508648cda14840336d6b46b346813649d",
+      "sourceSha256": "f06ca20cd5713084fbc2118cd3b861658ea168d3b7f001bf09f14eac2dea65c8"
+    },
+    {
+      "file": "navy-a-reach-mirrored.png",
+      "sha256": "3ab13636c655dabd5f27550c7488c9d462cb94dae257975f3a4fce744ce4335b",
+      "sourceSha256": "3045b79a9280f6ef221feb91f540458f747e3b61e51b5e52fc1d30ba4271c5b9"
+    },
+    {
+      "file": "navy-a-reach-source.png",
+      "sha256": "928b1e496d0f8ba08d53439d774ddfc6b0198f3c12da86d2d60301a0bd8942c0",
+      "sourceSha256": "d25ca6e30667ceb2a2eb54dce9b6379d819ad0fec5644bea69bd228e7ca2d464"
+    },
+    {
+      "file": "navy-carry-front-mirrored.png",
+      "sha256": "acb8c0da63d2f4ee6d269aaadabb0b086b3a2d67f1b841b1fa1bae3b6cc548dd",
+      "sourceSha256": "798b6da7003fe56142c59ddab799c4b4ba44c637c6209fc7037fd699d630765b"
+    },
+    {
+      "file": "navy-carry-front-source.png",
+      "sha256": "07b62118b9439798caf6915c2bd1dfa494a3979183e0ccf3733afb411b15bef0",
+      "sourceSha256": "f0026ceb3a1837920fbc58947e9144e553488f3ab8ab11e5c94794fcf8a3a685"
+    },
+    {
+      "file": "navy-carry-low-mirrored.png",
+      "sha256": "f53232f6c2b4541b04ed9d27fd5609f79f03c0ceea161d92a59a179417387047",
+      "sourceSha256": "68113592c700da35707464a0a213fd71abbdade1a15065a35ec78711d96f4063"
+    },
+    {
+      "file": "navy-carry-low-source.png",
+      "sha256": "1febed6835bdc7e6d855457c69df7d052e42856436fb4a51ba1dffb31d024bb5",
+      "sourceSha256": "a43adeace35769e957fa9f47395d30385fb8da296d59b6fac0c71e170eeee426"
+    },
+    {
+      "file": "navy-d-down-mirrored.png",
+      "sha256": "56029787c3faca0dc89dae6ce9b301c29b25cbe284eefd8bf8327407d0b4a0de",
+      "sourceSha256": "b86b00bb54a8e61a71769c9964e2a4687ac6c949356dce4924c59f95dcf1c563"
+    },
+    {
+      "file": "navy-d-down-source.png",
+      "sha256": "df1e08ed1f19badd771bd6e1804a31a45024dcc1a8918ac624fdcb6bd45ea854",
+      "sourceSha256": "0115fd6de399dcd7709ee37478c534d820692d03ed5a91e15e0f8b91f1add1cd"
+    },
+    {
+      "file": "navy-d-low-mirrored.png",
+      "sha256": "de6c426695abf269cf8f06489e664fb613f2e89ce269a108c261a5c8d28ecb42",
+      "sourceSha256": "43e10524360bd17da5c410c98def3ee6766d07be38cfbb69876d74f9bfb267d4"
+    },
+    {
+      "file": "navy-d-low-source.png",
+      "sha256": "f87571b83f271bd1026dba808cee787b86e27a223bcf02e71bd694adccef0401",
+      "sourceSha256": "ed8a2c2240348eaa3137ea95ff67c3eb81f4b80141a070e802e0e115f7e6cb5a"
+    },
+    {
+      "file": "navy-d-push-mirrored.png",
+      "sha256": "24de86eec33da4b6ff0ae160601a582b2a3063c9bcb061e7b0982de09486f285",
+      "sourceSha256": "cfb9c1c06c8f8d2e692ff1ae58cfc5fe8aa33b289e87641aa53bab9c19122781"
+    },
+    {
+      "file": "navy-d-push-source.png",
+      "sha256": "0f777f509d9f3583c297b095210fc25a4345cdc35eb4585f929aa8018e00f405",
+      "sourceSha256": "256e91cb116800cb1c09bf878bd6fe17f29671a75f30524dda4fb223af216e59"
+    },
+    {
+      "file": "navy-dunk-contact-mirrored.png",
+      "sha256": "125b13ae11dbf275f50847d841be4cf634a1c2bfe6c70a51111fa63a88d32ecc",
+      "sourceSha256": "6c0db16a804e2ab5e9f2e19014657294da4bfbb8cf2bdca3cfbd3c8a0646af82"
+    },
+    {
+      "file": "navy-dunk-contact-source.png",
+      "sha256": "d13eadb72ec6f3675c52f5c48fdf652bffa2cb3fc1c1788c60cfe02f5f09f8e6",
+      "sourceSha256": "886eaf15f107c1ff40f8ac0d10b95c48ee8a46998070585ec2d1bf8f24fe6711"
+    },
+    {
+      "file": "navy-dunk-gather-mirrored.png",
+      "sha256": "df7287f4e4bd655ab045350f6227a17eb2c1363deb3a9c701d37cb80412bee09",
+      "sourceSha256": "1be9c4b942df48806742ff51cac4b0089c2eb378170bc77289caffc1fa37ff2a"
+    },
+    {
+      "file": "navy-dunk-gather-source.png",
+      "sha256": "f4f8ac088577f6fb671a3eb3519335c75b4cc16e05ce8dbc8f5db2b3be09f61a",
+      "sourceSha256": "ab541a3f47db04fa1a276608dcfdf11a869e6fc3a670126b2c96437e53bcf97d"
+    },
+    {
+      "file": "navy-land-recover-mirrored.png",
+      "sha256": "9fb0e35020c42de45c62c7534c650130d0343469dbc0d079f84a217bf3a04df5",
+      "sourceSha256": "31ca9b1b648deaac1d6339da6789fade2e9d201f78fc52a8b8db9cd217da6b63"
+    },
+    {
+      "file": "navy-land-recover-source.png",
+      "sha256": "2bb0f13447da5837619563f51c93b4b2c6a44b7b642e1817ca7864b520b9db47",
+      "sourceSha256": "34a9e9272fd8b4efa3906bd5b4f0381412f639a4c28c9f4112e76de67371d086"
+    },
+    {
+      "file": "navy-neutral-a-mirrored.png",
+      "sha256": "d87616032696bc2d214bb43be41aa59576709808f711d66900c2fc83aaf69300",
+      "sourceSha256": "b3877f52d3a63b6d6f9f018ba5dcd3b2c21847de9758499b0acc9e3819d92a2d"
+    },
+    {
+      "file": "navy-neutral-a-source.png",
+      "sha256": "4c8eb47617c3adebf133d4d508753011bc0805e73d0a321dc1f6e9830a3d12b8",
+      "sourceSha256": "45c878d78dfa6709bbecfe380eef5e1cc5385980f45316a5c43fc0bc7f3cf1a7"
+    },
+    {
+      "file": "navy-neutral-b-mirrored.png",
+      "sha256": "32a0eaf00c9316cca11268a86d04cba675e1ada805b9990d787930457ba7413e",
+      "sourceSha256": "87ac50c995390976431f76737a110edf4f9f702f993994f379c7578feea5c14a"
+    },
+    {
+      "file": "navy-neutral-b-source.png",
+      "sha256": "980b4d22409e2c0c3f2da0fca9e91bf0d21262217e3b93fea9c52cf99509f8ec",
+      "sourceSha256": "ae74465f3f75ac2484d28c0f40b0c40eef24eceeac482b74bddccbc700f639a6"
+    },
+    {
+      "file": "navy-p-pass-extend-left-mirrored.png",
+      "sha256": "32426d2746e8bd0ee66f6be9dcfa1619d2ae31df67fdb5f59cc4c20143498e30",
+      "sourceSha256": "f991803f86543427e9878ed8c10dc8fcc4ac68e4fd03ef5d5a77ee7491ac0b6d"
+    },
+    {
+      "file": "navy-p-pass-extend-left-source.png",
+      "sha256": "3b0b0fe78e776d9617d0d708cf20050229d1f609c3e9a50627ec99494ea5ebfd",
+      "sourceSha256": "6a85bdfe24d5805b29fa6af7d3cb5e83767fe2129a870e677db842578303231d"
+    },
+    {
+      "file": "navy-p-pass-gather-left-mirrored.png",
+      "sha256": "60b64c39719ae6fb442253b93c5cb69e604408de632d4dca7db7095191bcbc7f",
+      "sourceSha256": "6506b7f1c00a4c97d2897c218772e561c6a25e1bc970e8a86b6902c36ace1ff2"
+    },
+    {
+      "file": "navy-p-pass-gather-left-source.png",
+      "sha256": "559c2b949f64c38f90171043b3c3459ad3920db39d4b42506716689e7e06586e",
+      "sourceSha256": "8bffe3645c139aa74f1aa6c53dfac4224836047c7f653f1aff340c19480ea4cc"
+    },
+    {
+      "file": "navy-s-follow-mirrored.png",
+      "sha256": "c6837d2c015f2e63905c92829c30472acf8c29308360fa1cd96b7ae58c311d19",
+      "sourceSha256": "206497034e0b98fa26d9e3c454dfa0288d8c022cfd15707f2ce5bf4d5bcdaf88"
+    },
+    {
+      "file": "navy-s-follow-source.png",
+      "sha256": "7e43dcf365eb08894bb5aad97ce7371af3910ef5073b63a1b24cb5c8361f8597",
+      "sourceSha256": "e72258c0ee6e86c36c12cc933f5650c3c566a13ad211c56eb0a30b4260325849"
+    },
+    {
+      "file": "navy-s-ready-mirrored.png",
+      "sha256": "181a406309e7634d71ce7d0bec7969ba03a38875a01a0db52ac9f1cf8919dc28",
+      "sourceSha256": "50de43617ce869c08aeb123539010946eb39fe50ddd2386663b64c723b75c34f"
+    },
+    {
+      "file": "navy-s-ready-source.png",
+      "sha256": "dd75ab8a55e58b15a73e1a15784c4f59afab14296bdab515628433821db98997",
+      "sourceSha256": "66c3856cba0a1de51a7f02008f32407d3e3234d0092e51870b2594755eeaf0c8"
+    },
+    {
+      "file": "navy-s-release-mirrored.png",
+      "sha256": "5f062a521c7a13959853afa4fdb63d0761411a0e4546ff6e464556d35656bbe2",
+      "sourceSha256": "3f40d0172ed275ddc0cffe4bf12f351f7f3515545370f0d1e3da608f16c470b7"
+    },
+    {
+      "file": "navy-s-release-source.png",
+      "sha256": "53571b30446bf6d87f70ac62b90940d3b64691d46959c83cb49c7ddd5d1ede18",
+      "sourceSha256": "d1923c2b3e37605d3ce5c43f1779e58726e3ad6d3c08cb23767eb9112c011a3d"
+    },
+    {
+      "file": "navy-s-rise-mirrored.png",
+      "sha256": "41c5584171fe754ab981003a5256ba683775b64e711840f2d624d830fae05a35",
+      "sourceSha256": "3514346ab916bd18debe0acce93303ec962965d38405d4284bac576960a20c15"
+    },
+    {
+      "file": "navy-s-rise-source.png",
+      "sha256": "a126e52ed1a4c276e30b209396afb99c38c3f1498e24b2219186dc5f3f94022f",
+      "sourceSha256": "c2cceb410f6c28ecb0acae7e178e17b84c992c73c4ee57907bfc4c658c22775f"
+    }
+  ]
+}

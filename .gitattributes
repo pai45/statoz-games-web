@@ -2,3 +2,6 @@
 public/games/** -text
 # Preserve the pinned upstream bytes used by Stadium Cricket's integrity manifest.
 vendor/cricketv2/** -text
+
+# Preserve the pinned upstream bytes used by Vibe Basketball's integrity manifest.
+vendor/vibebasketball/** -text

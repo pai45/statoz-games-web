@@ -1,5 +1,19 @@
 # Stadium Cricket validation — 22 October 2026
 
+## Mobile responsiveness — 23 October 2026
+
+Identified and fixed:
+
+- At 844px landscape width, the original batting grid placed the action button at x=863, outside the screen. The responsive grid now keeps batting, bowling, catching and fielding actions fully visible, including Legend.
+- Short landscape lobbies placed Play below the first screen (y=375–385). A two-column mobile landscape layout now places it at y=72.
+- Source utility and shot buttons were only 29–32px high. Interactive touch targets are now at least 44px, with a 64px primary gameplay action.
+- At 320px width, setup fields were squeezed into two 112px columns with 12px text. Narrow forms now use a single column, 16px field text and 48px field heights; dialogs scroll within the available viewport and keep Close reachable.
+- Touch setup no longer automatically opens a text keyboard. The host responds to visual-viewport height changes and reserves notch/home-indicator space.
+
+Passed: ten viewports (320×568, 360×640, 390×844, 412×915, 430×932, 568×320, 667×375, 844×390, 932×430, 768×1024), 80 role/difficulty/rotation combinations, input sizing, visible action bounds, control/scoreboard overlap checks, touch setup focus, exit cleanup and simulated safe-area/keyboard-height changes. Lint, typecheck, the four focused integration tests and production build passed. The original 15-file source hash manifest still passes.
+
+Before/after audit images are in test-results/stadium-cricket/mobile-before and mobile-after; the reproducible check is scripts/verify-stadium-mobile.mjs, with screenshots and validation.json in test-results/stadium-cricket/mobile-regression. Safe-area and keyboard-height checks were simulated in Chromium; physical iOS/Android keyboard behavior remains unverified. No gameplay mechanics or camera code changed.
+
 ## Lobby presentation refresh
 
 The lobby now follows the maintained 3D Penalty Shootout lobby composition: a full-screen original-game stadium capture, left-aligned wordmark and introduction, a three-cell capabilities row, one primary play action and compact expandable help/credits. StatOz tokens, type and controls are retained. No imported runtime or gameplay files changed.

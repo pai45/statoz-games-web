@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "rulesVersion": "1.5.0",
+  "version": "3.0.0",
+  "rulesVersion": "1.7.0",
   "classification": "Retained reference head/jersey with authored articulated limb animation",
   "nativeTimingRecovered": false,
   "canvas": [
@@ -86,5 +86,45 @@
     "holdTicks": 2,
     "durationTicks": 8,
     "behavior": "Cosmetic settle clip only; input/actions remain immediately available"
+  },
+  "directionalAdditions": {
+    "pack": "locomotion-v3/manifest.json",
+    "clips": {
+      "backpedal": 8,
+      "pivot": 4,
+      "dribble-switch": 72
+    },
+    "classification": "authored reverse footwork and weight-transfer poses; native eight-direction torso/timing unverified",
+    "layers": 552
+  },
+  "actionChanges": {
+    "shotJumpTick": 10,
+    "shotReleaseTick": 22,
+    "dunkPass": "B while airborne and before contact; authored window",
+    "nativeTimingRecovered": false
+  },
+  "buildVersion": "future-games-player-look-v1-local",
+  "userSelectedReference": {
+    "url": "https://www.youtube.com/watch?v=_k8IIS9n3dk",
+    "title": "[ARCADE 60fps] Street Hoop longplay",
+    "uploader": "GameLog",
+    "inspectedRangesSeconds": [
+      [
+        0,
+        53
+      ],
+      [
+        53,
+        113
+      ]
+    ],
+    "nativeTimingRecovered": false,
+    "design": "Original exhibition-court reconstruction; no new video pixels in playable assets"
+  },
+  "playerDesign": {
+    "actionPack": "player-look-v1/manifest.json",
+    "locomotionPack": "locomotion-v4/manifest.json",
+    "classification": "authored blue/violet and blue/red kit shading, broader locomotion jerseys; retained reference head/action silhouettes",
+    "newSourcePixelsExtracted": false
   }
 }

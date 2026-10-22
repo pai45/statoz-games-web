@@ -1,10 +1,15 @@
-/* Host lifecycle only. CricketV2 game.js, players.js, stadium.js and cinema.js are unchanged. */
+/* Host lifecycle and mobile presentation. Upstream game scripts and rules are unchanged. */
 (function(){
  'use strict';
  const host=window.__STATOZ_HOST__;
  if(!host)return;
  // srcdoc has no index.html URL. Preserve the original home-link behavior through the host.
- document.addEventListener('click',event=>{if(event.target instanceof Element&&event.target.closest('a.brand')){event.preventDefault();host.emit('reload');}});
+ document.addEventListener('click',event=>{
+  if(!(event.target instanceof Element))return;
+  if(event.target.closest('a.brand')){event.preventDefault();host.emit('reload');}
+  // Opening setup on touch devices should not summon a keyboard before a field is chosen.
+  if(event.target.closest('#settings')&&matchMedia('(pointer: coarse)').matches)document.getElementById('closeSettings')?.focus({preventScroll:true});
+ });
  let disposed=false,ready=false,pauseRequested=false,request=0;
  const frames=new Set(),contexts=new Set();
  const requestFrame=window.requestAnimationFrame.bind(window),cancelFrame=window.cancelAnimationFrame.bind(window);

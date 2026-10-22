@@ -2,39 +2,40 @@
 /** A DOM shell around existing controls. Every gameplay button retains its owner,
  * event handlers and simulation action; no secondary input or scoring engine.
  */
+import {mountRetroPresentation} from "../../shared/retro/runtime";
 export function installCricketConsole() {
   const get = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
   const old = document.querySelector('body > main')!;
   const shell = document.createElement('main');
-  shell.id = 'console';
+  shell.id = 'console';shell.setAttribute('data-retro-frame','');
   shell.setAttribute('aria-label', 'Creasefire Six handheld cricket console');
   shell.innerHTML = `
     <header class="console-top"><span class="console-wordmark"><img src="../../assets/games/identity/retro-innings.svg" alt="" width="45" height="33" style="vertical-align:middle"> POCKET <b>CREASEFIRE SIX</b></span>
       <span class="console-private">PRIVATE PREVIEW</span>
-      <nav aria-label="Console"><button id="console-home">HOME</button><button id="console-fullscreen" aria-label="Enter fullscreen">FULLSCREEN</button><button id="console-menu" aria-haspopup="dialog">MENU</button><button id="console-exit">EXIT</button></nav>
+      <nav aria-label="Console"><button id="console-home">HOME</button><button id="console-menu" aria-haspopup="dialog">SETTINGS</button><button id="console-exit">EXIT</button></nav>
     </header>
-    <div class="console-body">
-      <section class="grip grip-left" aria-label="Movement and running">
-        <p class="grip-label">DIRECTION</p><div id="console-pad" class="console-pad"></div>
+    <div class="console-body" data-retro-console>
+      <section class="grip grip-left" data-retro-grip="left" aria-label="Movement and running">
+        <p data-retro-decoration class="grip-label">DIRECTION</p><div id="console-pad" class="console-pad"></div>
         <div id="console-left-actions" class="console-left-actions"></div>
-        <div class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div data-retro-decoration class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </section>
-      <section class="screen-bay" aria-label="Cricket screen">
+      <section class="screen-bay" data-retro-display aria-label="Cricket screen">
         <div class="screen-lip"><span><i></i> MATCH / LIVE</span><span id="console-score" aria-label="Match score"></span></div>
         <div id="console-display"></div>
         <div class="screen-caption"><span id="console-cue"></span><span id="console-over"></span></div>
       </section>
-      <section class="grip grip-right" aria-label="Batting and bowling">
-        <p class="grip-label">A / B ACTIONS</p><div id="console-strokes" class="console-strokes"></div>
+      <section class="grip grip-right" data-retro-grip="right" aria-label="Batting and bowling">
+        <p data-retro-decoration class="grip-label">A / B ACTIONS</p><div id="console-strokes" class="console-strokes"></div>
         <div id="console-right-actions" class="console-right-actions"></div>
-        <div class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div data-retro-decoration class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </section>
     </div>
     <footer class="console-bottom"><span id="console-feedback" role="status"></span><span class="keyboard-hint">A GROUND / B AIR · D-PAD PLACE</span></footer>
     <p class="rotate-hint">Rotate your phone to landscape for the full console.</p>
     <dialog id="console-dialog" aria-labelledby="console-dialog-title"><header><h2 id="console-dialog-title">MATCH MENU</h2><button id="console-close">RETURN TO GAME</button></header>
       <p>Six legal balls or three wickets per innings. Bat first, then bowl and field to defend your score. The source-style score reads wickets / runs.</p>
-      <div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>Before contact, A plays a ground shot and B an airborne shot; hold the D-pad for direction. After contact, A runs and B returns. During bowling, select a D-pad direction first, then press A for a fast ball or B for a slow ball. Field with the D-pad; after pickup, A returns to the keeper end and B to the bowler end. C switches fielders as an accessibility adaptation. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. NES shot angles, bowling speeds, exact timing, field-return assignments and shortened rules are authored or unverified adaptations.</p></details>
+      <retro-presentation-settings></retro-presentation-settings><div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>Before contact, A plays a ground shot and B an airborne shot; hold the D-pad for direction. After contact, A runs and B returns. During bowling, select a D-pad direction first, then press A for a fast ball or B for a slow ball. Field with the D-pad; after pickup, A returns to the keeper end and B to the bowler end. C switches fielders as an accessibility adaptation. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. NES shot angles, bowling speeds, exact timing, field-return assignments and shortened rules are authored or unverified adaptations.</p></details>
       <p id="console-error" role="alert"></p></dialog>`;
   document.body.appendChild(shell);
   const lobby=document.createElement('section');lobby.className='cricket-lobby';lobby.id='cricket-lobby';lobby.setAttribute('aria-label','Creasefire Six home lobby');
@@ -128,17 +129,6 @@ export function installCricketConsole() {
     const c=get<HTMLCanvasElement>(id),ctx=c.getContext('2d')!,r=record as any,a=r.atlas,scale=Math.min(2,90/a[3]);ctx.imageSmoothingEnabled=false;ctx.drawImage(image,...a as [number,number,number,number],(100-a[2]*scale)/2,96-a[3]*scale,a[2]*scale,a[3]*scale);
   }
   applyLobby();
-  get('console-fullscreen').onclick = async () => {
-    try {
-      if (document.fullscreenElement) { await document.exitFullscreen(); return; }
-      await document.documentElement.requestFullscreen();
-      const orientation = screen.orientation as ScreenOrientation & {lock?: (value: string) => Promise<void>};
-      try { await orientation.lock?.('landscape'); } catch { /* Browser may require manual rotation. */ }
-    } catch {
-      get('console-fullscreen').textContent='FILL SCREEN';
-      get('console-fullscreen').title='This browser uses the fitted viewport; rotate to landscape and hide browser controls for more space.';
-    }
-  };
   const fit = () => {
     const box = get('console-display').getBoundingClientRect();
     const available = Math.min(box.width / 256, box.height / 224);
@@ -164,8 +154,8 @@ export function installCricketConsole() {
     applyLobby();
     fit();
   };
-  const dispose=()=>{observer.disconnect();document.removeEventListener('keydown',lobbyKeys,true);};
+  const disposePresentation=mountRetroPresentation(shell,()=>window.dispatchEvent(new Event('retro-pause')));
+  const dispose=()=>{disposePresentation();observer.disconnect();document.removeEventListener('keydown',lobbyKeys,true);};
   window.addEventListener('pagehide',dispose,{once:true});
-  document.addEventListener('fullscreenchange',()=>{get('console-fullscreen').textContent=document.fullscreenElement?'WINDOWED':'FULLSCREEN';fit();});
   fit();sync();return {fit,sync,dispose};
 }

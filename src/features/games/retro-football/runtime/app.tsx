@@ -1,3 +1,5 @@
+import {mountRetroPresentation} from '../../shared/retro/runtime';
+import {RetroPresentationSettings} from '../../shared/retro/settings';
 import React,{useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {FootballSession} from './session';
@@ -14,13 +16,13 @@ type Debug={session:FootballSession|null;ready:boolean;mounts:number;disposals:n
 declare global{interface Window{productionLab:Debug;gameState:unknown;}}
 const debug:Debug={session:null,ready:false,mounts:0,disposals:0,lastDisposal:null,step:n=>debug.session?.step(n),restart:()=>debug.session?.restart(),dispose:()=>{},remount:()=>{}};
 window.productionLab=debug;
-const fullscreenDocument=window.frameElement?.ownerDocument??document;
+
 
 function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
     const root=useRef<HTMLElement>(null),canvas=useRef<HTMLCanvasElement>(null),session=useRef<FootballSession|null>(null);
     const [engine,setEngine]=useState<FootballSession|null>(null);
     const [revision,redraw]=useState(0),[mount,remount]=useState(0),[ready,setReady]=useState(false),[error,setError]=useState('');
-    const [menu,setMenu]=useState(false),[screenOnly,setScreenOnly]=useState(false),[portrait,setPortrait]=useState(false),[full,setFull]=useState(false),[hint,setHint]=useState('');
+    const [menu,setMenu]=useState(false);
     const [reference,setReference]=useState(false),[atlasUrl,setAtlasUrl]=useState('');
     useEffect(()=>{engine?.setFraming(reference?'reference':'wide');},[engine,reference]);
     const menuButton=useRef<HTMLButtonElement>(null),dialog=useRef<HTMLDivElement>(null);
@@ -37,24 +39,16 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
     },[context,manifestUrl,mount]);
     const reload=()=>{setReady(false);setError('');setEngine(null);remount(n=>n+1);};
     useEffect(()=>{debug.remount=()=>{setReady(false);setError('');setEngine(null);remount(n=>n+1);};return()=>{debug.remount=()=>{};};},[]);
-    useEffect(()=>{const changed=()=>setFull(!!fullscreenDocument.fullscreenElement);fullscreenDocument.addEventListener('fullscreenchange',changed);return()=>fullscreenDocument.removeEventListener('fullscreenchange',changed);},[]);
+    useEffect(()=>mountRetroPresentation(root.current!,()=>session.current?.pause()),[]);
     useEffect(()=>{
         if(!menu)return;
-        const element=dialog.current;const items=element?.querySelectorAll<HTMLElement>('button,input');items?.[0]?.focus();
+        const element=dialog.current;const items=element?.querySelectorAll<HTMLElement>('button,input,select');items?.[0]?.focus();
         const key=(e:KeyboardEvent)=>{
             if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();setMenu(false);menuButton.current?.focus();}
             if(e.key==='Tab'&&items?.length){const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
         };
         document.addEventListener('keydown',key,true);return()=>document.removeEventListener('keydown',key,true);
     },[menu]);
-    const fullscreen=async()=>{
-        try{
-            if(fullscreenDocument.fullscreenElement){await fullscreenDocument.exitFullscreen();return;}
-            const target=window.frameElement instanceof HTMLIFrameElement?window.frameElement:document.documentElement;
-            await target.requestFullscreen();
-            const orientation=screen.orientation as ScreenOrientation&{lock?:(mode:string)=>Promise<void>};await orientation?.lock?.('landscape').catch(()=>{});setHint('');
-        }catch{setHint('Use landscape or add this game to your home screen for the largest view.');}
-    };
     const s=engine?.sim.state,playing=s?.status==='playing',remaining=s?Math.max(0,90-Math.floor(s.halfTicks/60)):90;
     const attack=engine?.sim.attackingControls()??true;
     const buttons=attack?[{type:'pass',key:'P',label:'PASS'},{type:'loft',key:'L',label:'LOFT'},{type:'shoot',key:'S',label:'SHOOT'}] as const:[{type:'tackle',key:'T',label:'TACKLE'},{type:'switch',key:'S',label:'SWITCH'},{type:'slide',key:'D',label:'SLIDE'}] as const;
@@ -64,17 +58,16 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
     const start=()=>{setMenu(false);if(s?.status==='paused')session.current?.resume();else session.current?.start();};
     const openMenu=()=>{session.current?.pause();setMenu(true);};
     const exit=()=>{session.current?.pause();if(context.onExit)context.onExit();else{session.current?.restart();setMenu(false);}};
-    return <main ref={root} className={'handheld '+(screenOnly?'screen-only ':'')+(reference?'reference-view ':'')+(portrait?'portrait-allowed ':'')+(lobby?'in-lobby':'')} data-render={revision}>
-        <div className="console-edge"><div className="console-body">
+    return <main ref={root} data-retro-frame className={'handheld '+(reference?'reference-view ':'')+(lobby?'in-lobby':'')} data-render={revision}>
+        <div className="console-edge"><div className="console-body" data-retro-console>
             <header className="console-brand"><span>POCKET<span className="brand-sub">SPORTS ARCADE</span></span><span className="brand-game">PITCHFLARE XI</span><span className="power-light">POWER <i/></span></header>
-            <aside className="left-grip" aria-label="Directional controls">
-                <span className="grip-caption">DIRECTION</span>
+            <aside className="left-grip" data-retro-grip="left" aria-label="Directional controls">
+                <span data-retro-decoration className="grip-caption">DIRECTION</span>
                 <div className="dpad" data-stick aria-label="Eight-way movement pad" aria-disabled={blocked}>{(['up','left','down','right'] as const).map(direction=><button key={direction} className={'direction '+direction} data-hold={direction} disabled={blocked} data-pressed={s?.held[direction]?'true':undefined} aria-label={'Move '+direction}>{({up:'▲',left:'◀',down:'▼',right:'▶'})[direction]}</button>)}<span className="pad-centre"/></div>
-                <div className="speaker" aria-hidden="true"><i/><i/><i/><i/></div>
-                <button className="small-button" onClick={()=>setScreenOnly(v=>!v)} aria-pressed={screenOnly}>SCREEN +</button>
-                <span className="control-help">ARROW KEYS</span>
+                <div data-retro-decoration className="speaker" aria-hidden="true"><i/><i/><i/><i/></div>
+                <span data-retro-decoration className="control-help">ARROW KEYS</span>
             </aside>
-            <section className="screen-bezel" aria-label="Game display"><div className="glass">
+            <section className="screen-bezel" data-retro-display aria-label="Game display"><div className="glass">
                 <canvas key={mount} width={VIEW.width} height={VIEW.height} ref={canvas} aria-label="Retro Football live pitch"/>
                 <div className="scoreboard" aria-label="Match score and clock"><span className="team-name harbour">HARBOUR <b id="home-score">{s?.score[0]??0}</b></span><span className="clock-block"><small>HALF {s?.half??1}</small><b id="clock">{Math.floor(remaining/60)}:{String(remaining%60).padStart(2,'0')}</b></span><span className="team-name orchard"><b id="away-score">{s?.score[1]??0}</b> ORCHARD</span></div>
                 <span id="state" className="game-state">{status}</span>
@@ -88,18 +81,15 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
                     <small>11 V 11 · TWO 90-SECOND HALVES</small>
                 </section></div>}
             </div></section>
-            <aside className="right-grip" aria-label="Action controls"><span className="grip-caption">THREE BUTTON PLAY</span>
+            <aside className="right-grip" data-retro-grip="right" aria-label="Action controls"><span data-retro-decoration className="grip-caption">THREE BUTTON PLAY</span>
                 <div className="action-cluster">{buttons.map(({type,key,label},i)=><button key={i} className={'action action-'+(['A','B','C'][i])} id={['A','B','C'][i]} data-action={type} disabled={blocked||!!s?.shotView&&type!=='shoot'} aria-label={label+' ('+key+')'} onClick={e=>{if(e.detail===0)session.current?.dispatch({type});}}><b>{key}</b><small>{label}</small></button>)}</div>
-                <span className="control-help">{attack?'P / L / S':'T / S / D'}</span>
-                <button ref={menuButton} className="small-button" id="menu" onClick={openMenu}>MENU</button>
+                <span data-retro-decoration className="control-help">{attack?'P / L / S':'T / S / D'}</span>
             </aside>
             {lobby&&<ArcadeLobby atlasUrl={atlasUrl} onStart={start} onMenu={openMenu}/>}
-            <footer className="console-footer"><button className="utility" id="pause" disabled={!ready||!['playing','paused'].includes(s?.status||'')} onClick={()=>session.current?.dispatch({type:'pause'})}>{s?.status==='paused'?'RESUME':'PAUSE'}</button><span className="footer-status">{s?.half===2?'◀':'▶'} HARBOUR ATTACKS {s?.half===2?'LEFT':'RIGHT'}</span><button className="utility" id="fullscreen" onClick={()=>void fullscreen()}>{full?'WINDOW':'FULL SCREEN'}</button><button className="utility" id="exit" onClick={exit}>EXIT</button></footer>
+            <footer className="console-footer"><button ref={menuButton} className="utility" id="menu" onClick={openMenu}>SETTINGS</button><button className="utility" id="pause" disabled={!ready||!['playing','paused'].includes(s?.status||'')} onClick={()=>session.current?.dispatch({type:'pause'})}>{s?.status==='paused'?'RESUME':'PAUSE'}</button><span className="footer-status">{s?.half===2?'◀':'▶'} HARBOUR ATTACKS {s?.half===2?'LEFT':'RIGHT'}</span><button className="utility" id="exit" onClick={exit}>EXIT</button></footer>
         </div></div>
-        {hint&&<p className="screen-hint" role="status">{hint}</p>}
-        <div className="portrait-guide"><span className="rotate-device" aria-hidden="true">↻</span><h2>TURN TO LANDSCAPE</h2><p>Your handheld fills the wide screen.</p><button className="primary" onClick={()=>void fullscreen()}>ENTER FULL SCREEN</button><button className="utility" onClick={()=>setPortrait(true)}>CONTINUE IN PORTRAIT</button></div>
         {menu&&<div className="menu-backdrop"><div ref={dialog} className="settings-panel" role="dialog" aria-modal="true" aria-labelledby="menu-title"><span className="cartridge-label">POCKET ARCADE</span><h2 id="menu-title">{lobby?'LOBBY SETTINGS':'MATCH MENU'}</h2><button className="primary" onClick={()=>{setMenu(false);if(s?.status==='paused')session.current?.resume();}}>{lobby?'BACK TO LOBBY':'BACK TO GAME'}</button>
-            <div className="audio-settings">{(['music','sfx'] as const).map(key=><label key={key}>{key==='music'?'Music':'Sound effects'}<input aria-label={key==='music'?'Music volume':'Sound effects volume'} type="range" min="0" max="1" step=".05" value={engine?.settings[key]??.4} onChange={e=>{session.current?.audio.unlock();session.current?.setSettings({[key]:Number(e.currentTarget.value)});redraw(n=>n+1);}}/></label>)}</div>
+            <RetroPresentationSettings/><div className="audio-settings">{(['music','sfx'] as const).map(key=><label key={key}>{key==='music'?'Music':'Sound effects'}<input aria-label={key==='music'?'Music volume':'Sound effects volume'} type="range" min="0" max="1" step=".05" value={engine?.settings[key]??.4} onChange={e=>{session.current?.audio.unlock();session.current?.setSettings({[key]:Number(e.currentTarget.value)});redraw(n=>n+1);}}/></label>)}</div>
             <button id="framing" className="utility" aria-pressed={reference} onClick={()=>setReference(v=>!v)}>VIEW: {reference?'REFERENCE 320 × 224':'WIDE HANDHELD'}</button>
             <p>Slide your thumb across the pad for eight-way movement. Keep steering while pressing A, B or C.</p>
             <p>Move / aim: arrow keys. Attack: P pass, L loft, S shoot. Defence: T tackle, S switch, D slide. S confirms a CHANCE shot.</p><p className="review-note">Invented clubs. Source-derived reference art. Original sound. Local exhibition.</p>

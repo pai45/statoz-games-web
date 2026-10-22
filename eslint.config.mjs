@@ -15,6 +15,10 @@ const eslintConfig = defineConfig([
     // Its authored TypeScript is validated in the game workspace.
     "public/games/**",
     "vendor/cricketv2/**",
+    "vendor/vibebasketball/**",
+    ".cache/vibe-*/**",
+    ".cache/vibe-*.mjs",
+    "test-results/vibe-basketball/**",
     "test-results/stadium-cricket/**",
     "public/embedded-games/**",
     // Generated diagnostic renderer bundles; authored game and review scripts remain linted.

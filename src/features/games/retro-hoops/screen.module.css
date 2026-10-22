@@ -14,3 +14,26 @@
 
 /* Game-owned arcade palette. Host product tokens do not style the console. */
 .score,.displayFooter{background:#1a221b;color:#fff1c4}.score strong,.score b{font-weight:900;text-shadow:1px 1px #6c3a28}.hardwareLabel{color:#282c23}.overlay .hardwareLabel{color:#f1c34d}.actions .pass:before{background:#803425}.statusLamp[data-live=true]{background:#76a85c}.header button,.utility button{color:#242820}.settings{background:#303b2c;border:3px solid #e2cc8a}.settings p,.settings small{color:#e0d5ad}
+
+/* Shared handheld shell integration; game HUD and input targets remain local. */
+.root[data-retro-frame]{display:grid;grid-template-rows:44px minmax(0,1fr);gap:4px;--hoops-background-elevated:#d2ccbd;--hoops-background-secondary:#b8b1a2;--hoops-border-strong:#706d66}
+.root[data-retro-frame] .header{position:static;grid-row:1;inset:auto;width:100%;pointer-events:auto;align-items:center;gap:6px}
+.root[data-retro-frame] .header h1{display:block;color:#3d3a38;font-size:12px}
+.root[data-retro-frame] .header h1 small{display:none}
+.root[data-retro-frame] .header img{width:32px;height:24px}
+.root[data-retro-frame] .utility{max-width:none;flex-wrap:nowrap;gap:4px}
+.root[data-retro-frame] .utility button,.root[data-retro-frame] .header>button{min-height:44px;padding:4px 10px;font-size:10px;width:auto}
+.root[data-retro-frame] .console{grid-row:2;grid-template-rows:0 minmax(0,1fr) 0;box-shadow:none}
+.root[data-retro-frame] .leftGrip,.root[data-retro-frame] .rightGrip{gap:6px}
+.root[data-retro-frame] .footer{display:none}
+.root[data-retro-frame] .pad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}
+.root[data-retro-frame] .actions{gap:10px;flex-direction:column}
+.root[data-retro-frame] .actions button{width:54px;height:54px}
+.root[data-retro-frame] .actions>div{transform:none}
+.root[data-retro-frame] .actions>div>span{color:#fff5d9;background:#292a30b0;padding:2px}
+.root[data-retro-frame] .settingsBackdrop{z-index:20}
+.root[data-retro-frame] .overlay{z-index:10}
+html[data-retro-layout="onscreen"] .root[data-retro-frame]:has(.overlay) .leftGrip,html[data-retro-layout="onscreen"] .root[data-retro-frame]:has(.overlay) .rightGrip{visibility:hidden}
+
+html[data-retro-layout="onscreen"] .root[data-retro-frame] .displayFooter{padding:0 142px;justify-content:center}
+html[data-retro-layout="onscreen"] .root[data-retro-frame] .displayFooter .statusLamp{margin-left:0}

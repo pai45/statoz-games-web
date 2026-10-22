@@ -22,14 +22,17 @@ export function StadiumCricket(){
    <span className={styles.matchday}>MATCHDAY / 3D</span>
   </header>
   <section className={styles.lobbyContent} aria-labelledby="stadium-title">
+   <div className={styles.lobbyHero}>
    <p className={styles.eyebrow}>MATCHDAY / CRICKET</p>
    <h1 id="stadium-title">STADIUM<br/><span>CRICKET</span></h1>
    <p className={styles.intro}>Read the delivery. Time your moment.<br/>Everything to play for.</p>
    <dl className={styles.stats}>
-    <div><dd>4</dd><dt>PLAYER ROLES</dt></div>
-    <div><dd>4</dd><dt>CPU LEVELS</dt></div>
-    <div><dd>2–20</dd><dt>OVERS</dt></div>
+    <div><dt>PLAYER ROLES</dt><dd>4</dd></div>
+    <div><dt>CPU LEVELS</dt><dd>4</dd></div>
+    <div><dt>OVERS</dt><dd>2–20</dd></div>
    </dl>
+   </div>
+   <div className={styles.lobbyActions}>
    <Button size="lg" fullWidth glow onClick={()=>setPlaying(true)}>ENTER THE STADIUM</Button>
    <p className={styles.setupHint}>Choose your role, teams and challenge in Match setup.</p>
    <div className={styles.roles} aria-label="Available roles"><span>BAT</span><span>BOWL</span><span>KEEP</span><span>FIELD</span></div>
@@ -45,12 +48,20 @@ export function StadiumCricket(){
    </div>
    <p className={styles.inputHint}>TOUCH · KEYBOARD</p>
    <p className={styles.saveHint}>Settings and personal bests save on this device for your StatOz account when browser storage is available.</p>
+   </div>
   </section>
   <aside className={styles.pitchLabel}><span>MASTERS OVAL</span><small>ORIGINAL GAME / IN-GAME CAPTURE</small></aside>
  </main>;
 }
 function CricketFrame({account,onExit}:{account:string;onExit:()=>void}){
- const frame=useRef<HTMLIFrameElement>(null);
+ const frame=useRef<HTMLIFrameElement>(null),viewportRoot=useRef<HTMLElement>(null);
+ useEffect(()=>{
+  const viewport=window.visualViewport;
+  if(!viewport)return;
+  const sync=()=>{if(viewport.scale===1)viewportRoot.current?.style.setProperty('--stadium-viewport-height',`${viewport.height}px`);};
+  sync();viewport.addEventListener('resize',sync);window.addEventListener('resize',sync);
+  return()=>{viewport.removeEventListener('resize',sync);window.removeEventListener('resize',sync);};
+ },[]);
  const [status,setStatus]=useState('Preparing the stadium…'),[error,setError]=useState(''),[warning,setWarning]=useState(''),[attempt,setAttempt]=useState(0);
  useEffect(()=>{
   const element=frame.current;if(!element)return;
@@ -80,7 +91,7 @@ function CricketFrame({account,onExit}:{account:string;onExit:()=>void}){
   window.addEventListener('message',receive);document.addEventListener('visibilitychange',background);void load();
   return()=>{active=false;controller.abort();clearTimeout(timeout);command('dispose');window.removeEventListener('message',receive);document.removeEventListener('visibilitychange',background);element.removeAttribute('srcdoc');element.src='about:blank';};
  },[account,attempt]);
- return <main className={styles.game}>
+ return <main ref={viewportRoot} className={styles.game}>
   <div className={styles.gamebar}><Button variant="surface" onClick={onExit}>← Lobby</Button><span>STADIUM CRICKET</span><Button variant="ghost" onClick={()=>{setError('');setStatus('Preparing the stadium…');setAttempt(value=>value+1);}}>RELOAD GAME</Button></div>
   <div className={styles.frameArea}><iframe ref={frame} title="Stadium Cricket — original Cricket Masters game" allow="autoplay; fullscreen" allowFullScreen className={styles.frame}/>{(status||error)&&<div className={styles.loading} role={error?'alert':'status'}><p>{error||status}</p><Button variant="surface" onClick={onExit}>Return to lobby</Button></div>}</div>
   {warning&&<p className={styles.warning} role="status">{warning}</p>}

@@ -1,3 +1,4 @@
+import {REFERENCE_TUNING as T} from "./reference-tuning";
 import {courtPoint,cameraOrigin} from "./view";
 import {drawParkCourt} from "./court";
 import {gaitFrame,bodyBob,defenseFrame,LOCOMOTION_CLIPS} from "./motion";
@@ -13,13 +14,15 @@ export function poseFor(s:Match,a:Actor) {
   else if(a.action==="block")pose=a.z>16?"a-overhead":age>20?"land-recover":"a-reach";
   else if(a.action==="steal"||a.action==="gather")pose="d-low";
   else if(a.action==="recoil")pose=age<8?"d-low":age<16?"neutral-b":"neutral-a";
-  else if(a.action==="pass")pose=age<12?"p-pass-gather-left":"p-pass-extend-left";
+  else if(a.action==="pass")pose=age<T.passGatherTicks?"p-pass-gather-left":"p-pass-extend-left";
   else if(has&&a.z>0)pose="a-overhead";
   else if(a.action==="receive")pose=a.z>0?"a-overhead":has?(s.ball.age<6?"s-ready":"carry-front"):age<6?"land-recover":"neutral-a";
   else if(has)pose=(a.moving||(a.dribbleTick??-1)>=0)?`dribble-body-${String(a.moving?gaitFrame(a.travel??0):0).padStart(2,"0")}`:"carry-front";
   else if(a.action==="idle"){
     const travel=a.travel??a.id*7,mark=a.intent?.mark===undefined?undefined:s.actors[a.intent.mark],marking=!!mark&&(a.intent?.role==="mark"||a.intent?.role==="pressure")&&Math.hypot(mark.x-a.x,mark.y-a.y)<120,defending=marking||(s.ball.owner!==null&&s.actors[s.ball.owner].team!==a.team&&Math.hypot(s.ball.x-a.x,s.ball.y-a.y)<180);
-    if(a.moving)pose=defending?`defend-${String(defenseFrame(travel)).padStart(2,"0")}`:`run-${String(gaitFrame(travel)).padStart(2,"0")}`;
+    if(a.turnedAt!==undefined&&s.tick-a.turnedAt<8)pose=`pivot-${String(Math.floor((s.tick-a.turnedAt)/2)).padStart(2,"0")}`;
+    else if(a.moving&&defending&&(a.moveX??0)*a.face<-.1)pose=`backpedal-${String(defenseFrame(travel)).padStart(2,"0")}`;
+    else if(a.moving)pose=defending?`defend-${String(defenseFrame(travel)).padStart(2,"0")}`:`run-${String(gaitFrame(travel)).padStart(2,"0")}`;
     else if(a.lastMoved!==undefined&&s.tick-a.lastMoved<8)pose=`brake-${String(Math.floor((s.tick-a.lastMoved)/2)).padStart(2,"0")}`;
     else pose=defending?"defend-00":Math.floor((s.tick+a.id*11)/24)%2?"neutral-a":"neutral-b";
   }
@@ -27,16 +30,17 @@ export function poseFor(s:Match,a:Actor) {
 }
 export function overlayFor(s:Match,a:Actor){
   if(s.ball.owner!==a.id||a.action!=="idle"||(!a.moving&&(a.dribbleTick??-1)<0))return null;
-  return {key:`${a.team===0?"navy":"amber"}-dribble-arm-${String(((a.dribbleTick??0)%18+18)%18).padStart(2,"0")}-${a.face===1?"source":"mirrored"}`,y:bodyBob(a.moving?(a.travel??0):0)};
+  const phase=((a.dribbleTick??0)%18+18)%18,blend=(a.dribbleFacing??a.face)/a.face,switching=blend<1,frame=switching?phase*4+Math.max(0,Math.min(3,Math.round((blend+1)*2))):phase;
+  return {key:`${a.team===0?"navy":"amber"}-${switching?"dribble-switch":"dribble-arm"}-${String(frame).padStart(2,"0")}-${a.face===1?"source":"mirrored"}`,y:bodyBob(a.moving?(a.travel??0):0)};
 }
-export function courtCanvas() {
+export function courtCanvas(frame=0) {
   const canvas=document.createElement("canvas");canvas.width=900;canvas.height=360;
-  drawParkCourt(canvas.getContext("2d")!);
+  drawParkCourt(canvas.getContext("2d")!,frame);
   return canvas;
 }
 export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=false) {
   const width=c.canvas.width,cam=cameraOrigin(s,width);c.imageSmoothingEnabled=false;c.clearRect(0,0,width,360);
-  c.drawImage(p.court, -cam,0);
+  c.drawImage(p["court-"+(Math.floor(s.tick/T.crowdFrameTicks)%T.crowdFrames)]??p.court, -cam,0);
   const rows=s.actors.map(a=>({y:a.y,kind:"actor",a}));
   rows.push({y:s.ball.y+.1,kind:"ball",a:s.actors[0]});
   for(const row of rows.sort((a,b)=>a.y-b.y)) {
@@ -58,10 +62,10 @@ export async function loadPictures(base:string,signal:AbortSignal):Promise<Pictu
   names.push(...locomotion);const newNames=new Set(locomotion);
   const result:Pictures={};
   await Promise.all(names.map(async name=>{
-    const response=await fetch(`${base}/${newNames.has(name)?"../locomotion-v2/":""}${name}.png`,{signal});if(!response.ok)throw Error(`Cannot load ${name}`);
+    const response=await fetch(`${base}/${newNames.has(name)?"../locomotion-v4/":"../player-look-v1/"}${name}.png`,{signal});if(!response.ok)throw Error(`Cannot load ${name}`);
     const blob=await response.blob();if(signal.aborted)throw new DOMException("Cancelled","AbortError");
     const url=URL.createObjectURL(blob),img=new Image();
     try{img.src=url;await img.decode();if(signal.aborted)throw new DOMException("Cancelled","AbortError");result[name]=img;}finally{URL.revokeObjectURL(url);}
   }));
-  const canvas=courtCanvas(),img=new Image();img.src=canvas.toDataURL();await img.decode();result.court=img;return result;
+  for(let frame=0;frame<T.crowdFrames;frame++){const canvas=courtCanvas(frame),img=new Image();img.src=canvas.toDataURL();await img.decode();result["court-"+frame]=img;}result.court=result["court-0"];return result;
 }

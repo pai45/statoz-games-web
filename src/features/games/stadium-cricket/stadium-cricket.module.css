@@ -36,3 +36,24 @@
 @media(max-width:700px){.navigation{min-height:72px;padding:var(--ds-space-12) var(--ds-space-16);gap:var(--ds-space-8)}.matchday{display:none}.lobbyContent{padding-top:var(--ds-space-32);margin-left:var(--ds-space-24);max-width:calc(100% - 48px)}.lobbyContent h1{font-size:clamp(36px,10vw,54px)}.shade{background:linear-gradient(90deg,color-mix(in srgb,var(--ds-color-background-primary) 95%,transparent),color-mix(in srgb,var(--ds-color-background-primary) 65%,transparent)),linear-gradient(0deg,var(--ds-color-background-primary),transparent 60%)}.pitchLabel{display:none}.stats{gap:var(--ds-space-32)}.intro{font-size:var(--ds-text-md)}}
 @media(max-width:420px){.gamebar>span{display:none}.gamebar{gap:var(--ds-space-4)}.gamebar button{font-size:var(--ds-text-xs)}}
 @media(max-height:600px) and (orientation:landscape){.lobbyContent{padding-top:var(--ds-space-16)}.lobbyContent h1{font-size:42px}.intro{margin:var(--ds-space-16) 0}.pitchLabel{display:none}}
+/* Safe areas belong to the host, so the embedded game gets an unobscured viewport. */
+.lobby,.game{--stadium-safe-top:env(safe-area-inset-top,0px);--stadium-safe-right:env(safe-area-inset-right,0px);--stadium-safe-bottom:env(safe-area-inset-bottom,0px);--stadium-safe-left:env(safe-area-inset-left,0px)}
+.navigation{padding-top:calc(var(--ds-space-12) + var(--stadium-safe-top));padding-left:max(var(--ds-space-16),var(--stadium-safe-left));padding-right:max(var(--ds-space-16),var(--stadium-safe-right))}
+.lobbyHero,.lobbyActions{min-width:0}
+.lobbyActions>button{max-width:390px}
+.lobbyContent{margin-left:max(clamp(28px,6vw,110px),calc(var(--stadium-safe-left) + var(--ds-space-16)));margin-right:max(var(--ds-space-24),var(--stadium-safe-right));padding-bottom:calc(var(--ds-space-32) + var(--stadium-safe-bottom));max-width:calc(100% - max(28px,6vw) - max(24px,var(--stadium-safe-right)))}
+.stats dd{order:-1}
+.game{height:var(--stadium-viewport-height,100dvh);min-height:0;overflow:hidden}
+.gamebar{padding-top:calc(var(--ds-space-8) + var(--stadium-safe-top));padding-left:max(var(--ds-space-8),var(--stadium-safe-left));padding-right:max(var(--ds-space-8),var(--stadium-safe-right));min-width:0}
+.gamebar>button{flex-shrink:0}
+.frameArea{margin-left:var(--stadium-safe-left);margin-right:var(--stadium-safe-right);margin-bottom:var(--stadium-safe-bottom)}
+.warning{flex-shrink:0;margin:0;max-height:25%;overflow:auto;overflow-wrap:anywhere;padding-right:max(var(--ds-space-8),var(--stadium-safe-right));padding-left:max(var(--ds-space-8),var(--stadium-safe-left))}
+@media(max-width:700px){.lobbyContent{margin-left:max(var(--ds-space-24),calc(var(--stadium-safe-left) + var(--ds-space-12)));margin-right:max(var(--ds-space-24),calc(var(--stadium-safe-right) + var(--ds-space-12)));max-width:none;width:auto}}
+@media(max-width:360px){.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ds-space-12)}.stats dt{letter-spacing:0}.roles{justify-content:space-between;gap:var(--ds-space-8)}}
+@media(max-width:1024px) and (max-height:500px) and (orientation:landscape){
+ .navigation{min-height:56px;padding-top:calc(var(--ds-space-4) + var(--stadium-safe-top));padding-bottom:var(--ds-space-4)}
+ .lobbyContent{display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,1fr);gap:var(--ds-space-24);width:auto;max-width:none;margin-inline:max(var(--ds-space-24),calc(var(--stadium-safe-left) + var(--ds-space-12))) max(var(--ds-space-24),calc(var(--stadium-safe-right) + var(--ds-space-12)));padding-top:var(--ds-space-12)}
+ .lobbyContent h1{font-size:clamp(30px,5.5vw,42px)}.eyebrow{margin-bottom:var(--ds-space-12)}.intro{margin:var(--ds-space-16) 0;font-size:var(--ds-text-sm)}.stats{gap:var(--ds-space-16);margin:var(--ds-space-20) 0}.stats dd{font-size:var(--ds-text-xl)}
+ .lobbyActions{padding-top:var(--ds-space-4)}.setupHint{margin-bottom:var(--ds-space-12)}.roles{justify-content:space-between;gap:var(--ds-space-8)}.inputHint{margin-top:var(--ds-space-8)}
+ .gamebar{padding-top:calc(var(--ds-space-4) + var(--stadium-safe-top));padding-bottom:var(--ds-space-4)}
+}

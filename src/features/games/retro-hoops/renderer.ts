@@ -1,3 +1,4 @@
+import {REFERENCE_TUNING as T} from "./reference-tuning";
 import {courtPoint,cameraOrigin} from "./view";
 import * as THREE from "three";
 import { COURT, type Match } from "./simulation";
@@ -33,7 +34,7 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
   const shadows=Array.from({length:7},()=>{const sp=new THREE.Sprite(shadowMaterial);scene.add(sp);return sp;});
   let disposed=false;
   return {
-    draw(s:Match){if(disposed)return;camera.left=cameraOrigin(s,width);camera.right=camera.left+width;camera.updateProjectionMatrix();
+    draw(s:Match){if(disposed)return;floor.material=materials["court-"+(Math.floor(s.tick/T.crowdFrameTicks)%T.crowdFrames)]??materials.court;camera.left=cameraOrigin(s,width);camera.right=camera.left+width;camera.updateProjectionMatrix();
       for(const a of s.actors){
         const p=courtPoint(a.x,a.y,a.z+52),scale=p.scale,sp=actors[a.id];
         sp.material=materials[poseFor(s,a)];sp.scale.set(144*scale,128*scale,1);sp.position.set(Math.round(p.x),360-Math.round(p.y),0);sp.renderOrder=a.y;

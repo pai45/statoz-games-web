@@ -23,6 +23,8 @@ export async function buildStadiumCricket({prelude='' }={}){
  await fs.copyFile(path.join(source,'CREDITS.md'),path.join(publicRoot,'CREDITS.md'));
  let html=await fs.readFile(path.join(source,'index.html'),'utf8');
  const css=await fs.readFile(path.join(source,'css/style.css'),'utf8');
+ const responsiveCss=await fs.readFile(path.join(root,'src/features/games/stadium-cricket/mobile.css'),'utf8');
+ html=html.replace('</head>',()=>'<style data-stadium-responsive>'+responsiveCss+'</style></head>');
  html=html.replace('<html','<html data-game="stadium-cricket"').replace('<link rel="stylesheet" href="css/style.css">',()=>'<style>'+css+'</style>');
  const bridge=await fs.readFile(path.join(root,'src/features/games/stadium-cricket/host-adapter.js'),'utf8');
  html=html.replace('<script defer',()=>prelude+'<script>'+bridge.replaceAll('</script','<\\/script')+'</script><script defer');

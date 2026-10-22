@@ -22,7 +22,7 @@ function contactFraction(a,b,p){if(!S.action||!p.active)return null;let lo=0,hi=
 // below are authored until the videos can support a measured reference calibration.
 function landingPoint(){const f=DATA.families[S.plan.lane]||DATA.families.off,x=S.plan.lane==='wide'?477:400+f.target[0]-98;return S.plan.landing||{x:420+(x-420)*.67,y:432+(350-432)*.67,z:0};}
 function aimDelivery(){/* The NES adapter captures a coarse intention on A/B, not a dragged SNES arrow. */}
-function beginDelivery(){if(S.status!=='playing'||S.paused||S.pendingOutcome&&!S.settled||!['ready','dead'].includes(S.phase))return;clearHeld();S.phase='runup';S.age=0;S.ball=null;S.keeper=null;S.action=null;S.strokeQueue=null;S.contact=null;S.freeze=0;S.fieldAge=0;S.fielders=makeFielders();S.selected=0;S.manualSelected=false;S.possession=-1;S.gather=null;S.throwing=null;S.throwQueue=null;S.completedRuns=0;S.provisionalChase=false;S.pendingOutcome=null;S.settled=false;S.run={moving:false,p:0,dir:1,parity:0,pending:0,requested:false};S.deliveryNumber++;S.camera={x:305,y:275};S.plan={lane:S.innings===1?['leg','off','defend'][(S.deliveryNumber-1)%3]:settings.line,style:S.innings===1?(S.deliveryNumber%3?'pace':'spin'):settings.style,illegal:null};S.plan.landing=landingPoint();S.message=S.innings===1?'Read the ball · D-pad + A ground or B air. After contact, A runs.':'D-pad sets coarse bowl intention · press A or B.';event('delivery-start',{lane:S.plan.lane,style:S.plan.style});}
+function beginDelivery(){if(S.status!=='playing'||S.paused||S.pendingOutcome&&!S.settled||!['ready','dead'].includes(S.phase))return;clearHeld();S.phase='runup';S.age=0;S.ball=null;S.keeper=null;S.action=null;S.strokeQueue=null;S.contact=null;S.freeze=0;S.fieldAge=0;S.fielders=makeFielders();S.selected=0;S.manualSelected=false;S.possession=-1;S.gather=null;S.throwing=null;S.throwQueue=null;S.completedRuns=0;S.provisionalChase=false;S.pendingOutcome=null;S.settled=false;S.run={moving:false,p:0,dir:1,parity:0,pending:0,requested:false};S.deliveryNumber++;S.camera={x:305,y:275};S.plan={lane:S.innings===1?['leg','off','defend'][(S.deliveryNumber-1)%3]:settings.line,style:S.innings===1?(S.deliveryNumber%3?'pace':'spin'):settings.style,illegal:null};S.plan.landing=landingPoint();if(S.innings===1)S.readyPose=DATA.families[S.plan.lane].guard.id;S.message=S.innings===1?'Read the ball · D-pad + A ground or B air. After contact, A runs.':'D-pad sets coarse bowl intention · press A or B.';event('delivery-start',{lane:S.plan.lane,style:S.plan.style});}
 function primary(){
  if(S.paused||S.status==='result'||S.pendingOutcome&&!S.settled)return;
  if(S.status==='idle'||S.status==='intermission'||['ready','dead'].includes(S.phase))restorePlayView();
@@ -35,7 +35,7 @@ function primary(){
 function inputDirection(){return{x:(held.right.size?1:0)-(held.left.size?1:0),y:(held.down.size?1:0)-(held.up.size?1:0)};}
 // NES player reports establish directional ground/air intent, not native
 // trajectory equations or input windows. The numeric mapping here is authored.
-function nesShot(kind){if(!canStrike())return;const direction=inputDirection(),family=S.plan.lane==='wide'?'off':S.plan.lane;strike(family,false,{nesKind:kind,direction});}
+function nesShot(kind){if(!canStrike())return;const direction=inputDirection(),lane=S.plan.lane==='wide'?'off':S.plan.lane,family=kind==='air'&&lane==='defend'?'defendAir':lane;strike(family,false,{nesKind:kind,direction});}
 const BOWL_DIRECTIONS={left:{x:-1,y:0},right:{x:1,y:0},up:{x:0,y:-1},down:{x:0,y:1}};
 function bowlLanding(direction){return{x:direction.x<0?408:direction.x>0?456:432,y:direction.y<0?375:direction.y>0?416:397,z:0};}
 function selectBowlDirection(name){
@@ -112,7 +112,7 @@ function fieldStep(dt){const b=S.ball;if(S.throwing){updateThrow(dt);return;}if(
 }
 function hit(p,point){
  const a=S.action,b=S.ball;Object.assign(b,point,{hit:true,bounced:false,flightAge:0});
- if(a.nesKind){const d=a.direction||{x:0,y:0};b.vx=(d.x||({leg:-1,off:1,defend:0})[a.family])*.17;b.vy=d.y<0?.17:d.y>0?-.13:.075;b.vz=a.nesKind==='air'?.18:.05;}
+ if(a.nesKind){const d=a.direction||{x:0,y:0};b.vx=(d.x||({leg:-1,off:1,defend:0})[S.plan.lane])*.17;b.vy=d.y<0?.17:d.y>0?-.13:.075;b.vz=a.nesKind==='air'?.18:.05;}
  else{const scale=a.power?1.35:1;b.vx=({leg:-.17,off:.18,defend:.012})[a.family]*scale;b.vy=(a.family==='defend'?.075:.045)*scale;b.vz=(a.loft?.18:.05)*scale;}
  S.contact={pose:p.id,family:a.family,world:{...point},cells:batCells(p),time:S.time,loft:a.loft,power:a.power,nesKind:a.nesKind,direction:a.direction};
  S.freeze=strokeTiming(a.family).contactFreezeMs;S.message='CONTACT · '+(a.nesKind==='air'?'AIR':'GROUND')+' · A to run, B to return';

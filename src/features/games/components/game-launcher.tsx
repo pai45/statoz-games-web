@@ -52,6 +52,7 @@ const RetroInnings = dynamic(() => import("../retro-innings").then(m => m.RetroI
   loading: () => <div role="status" className="grid min-h-dvh place-content-center">LOADING RETRO INNINGS...</div>,
 });
 const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
+  "vibe-basketball": dynamic(() => import("../vibe-basketball/screen").then(m=>m.VibeBasketball), {ssr:false,loading:()=> <div role="status">Loading Vibe Basketball…</div>}),
   "retro-hoops": dynamic(() => import("../retro-hoops").then(m=>m.RetroHoops), {ssr:false,loading:()=> <div role="status" className="grid min-h-dvh place-content-center">LOADING RETRO HOOPS…</div>}),
   "retro-innings": RetroInnings,
   "retro-circuit": RetroCircuit,

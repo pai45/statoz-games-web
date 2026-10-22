@@ -1,14 +1,15 @@
+import {REFERENCE_TUNING as T} from "./reference-tuning";
 import {planOffBall,offBallSteering,type OffBallIntent} from "./off-ball";
 import {dribbleSample,bodyBob} from "./motion";
-/** Retro Hoops rules 1.5.0. All numerical tuning is original StatOz design.
+/** Retro Hoops rules 1.7.0. All numerical tuning is original StatOz design.
  * No rendering, wall clock, platform storage or random global state belongs here. */
-export const RULES_VERSION = "1.5.0";
+export const RULES_VERSION = "1.7.0";
 export const HZ = 60;
 export const COURT = { left: 60, right: 840, top: 164, bottom: 330, rimY: 247, rimZ: 120 } as const;
 export type Team = 0 | 1;
 export type Action = "idle" | "pass" | "receive" | "shoot" | "dunk" | "block" | "steal" | "recoil" | "gather";
 export type Phase = "playing" | "restart" | "result";
-export type Actor = { id: number; team: Team; x: number; y: number; z: number; vz: number; face: 1 | -1; action: Action; until: number; started: number; target: number; nextAI: number; moving?:boolean; travel?:number; dribbleTick?:number; lastMoved?:number; stepDistance?:number; intent?:OffBallIntent };
+export type Actor = { id: number; team: Team; x: number; y: number; z: number; vz: number; face: 1 | -1; action: Action; until: number; started: number; target: number; nextAI: number; moving?:boolean; travel?:number; dribbleTick?:number; lastMoved?:number; stepDistance?:number; intent?:OffBallIntent; moveX?:number; moveY?:number; turnedAt?:number; passGrip?:{x:number;z:number}; dribbleFacing?:number };
 export type Ball = { x: number; y: number; z: number; owner: number | null; kind: "held" | "pass" | "shot" | "loose"; from: number; to: number; age: number; duration: number; sx: number; sy: number; sz: number; tx: number; ty: number; tz: number; vx: number; vy: number; vz: number; points: number; made: boolean; super: boolean; released: number };
 export type GameEvent = { id: number; tick: number; type: string; team?: Team; actor?: number; value?: number };
 export type Input = { x: number; y: number; shoot: boolean; pass: boolean };
@@ -35,12 +36,14 @@ function ready(s:Match,a:Actor) { return a.action==="idle" && a.until<=s.tick &&
 function canCatchPass(s:Match,a:Actor) {return ready(s,a)||(a.id===s.ball.to&&a.action==="receive"&&a.target===s.ball.from&&a.z===0);}
 function selectDefender(s:Match) {
   if(s.ball.owner!==null && s.actors[s.ball.owner].team===0) { s.selected=s.ball.owner;return; }
-  s.selected=s.actors.filter(a=>a.team===0).sort((a,b)=>distance(a,s.ball)-distance(b,s.ball)||a.id-b.id)[0].id;
+  const candidates=s.actors.filter(a=>a.team===0).sort((a,b)=>distance(a,s.ball)-distance(b,s.ball)||a.id-b.id),best=candidates[0],current=s.actors[s.selected];
+  // Small hysteresis prevents repeated switches between almost equidistant athletes.
+  if(!current||current.team!==0||distance(current,s.ball)>distance(best,s.ball)+10)s.selected=best.id;
 }
 function own(s:Match,a:Actor,kind="catch") {
   const changed=s.possession!==a.team;
   const recoverUntil=a.until,incoming={x:s.ball.x,y:s.ball.y,z:s.ball.z};
-  s.ball.owner=a.id;s.ball.kind="held";s.ball.to=-1;s.ball.age=0;s.ball.vz=0;s.possession=a.team;
+  a.dribbleFacing=a.face;s.ball.owner=a.id;s.ball.kind="held";s.ball.to=-1;s.ball.age=0;s.ball.vz=0;s.possession=a.team;
   if(changed)s.shotClock=24*HZ;
   if(a.team===0)s.selected=a.id;else selectDefender(s);
   const p=anchor(a,a.z>0?"overhead":"front");
@@ -57,16 +60,18 @@ function resume(s:Match) {
   const t=s.restartTeam, dir=direction(t);
   for(const a of s.actors) {
     a.x=a.team===t ? (dir===1?125:775)+dir*(a.id%3)*75 : (dir===1?420:480)+dir*(a.id%3)*65;
+    a.turnedAt=undefined;a.moveX=0;a.moveY=0;a.dribbleTick=-1;
     a.y=[247,185,310][a.id%3];a.z=0;a.vz=0;a.face=direction(a.team);a.action="idle";a.until=s.tick;a.target=-1;
   }
   s.phase="playing";s.shotClock=24*HZ;own(s,s.actors[t===0?0:3],"inbound");selectDefender(s);
 }
 function startPass(s:Match,a:Actor) {
   const mates=s.actors.filter(b=>b.team===a.team&&b.id!==a.id&&b.z===0&&b.action==="idle");
-  if(!mates.length)return;
+  if(!mates.length)return false;
   const lane=(b:Actor)=>s.actors.filter(d=>d.team!==a.team).reduce((min,d)=>Math.min(min,segmentDistance(d,a,b)),999);
   mates.sort((b,c)=>(Math.min(lane(c),80)+direction(a.team)*(c.x-a.x)*.6)-(Math.min(lane(b),80)+direction(a.team)*(b.x-a.x)*.6)||b.id-c.id);
-  act(s,a,"pass",18,mates[0].id);a.face=mates[0].x<a.x?1:-1;emit(s,"prepare-pass",a.id,a.team);
+  a.passGrip={x:s.ball.x-a.x,z:s.ball.z-a.z};
+  act(s,a,"pass",T.passReleaseTicks,mates[0].id);a.face=mates[0].x<a.x?1:-1;emit(s,"prepare-pass",a.id,a.team);return true;
 }
 function segmentDistance(p:{x:number;y:number},a:{x:number;y:number},b:{x:number;y:number}) {
   const dx=b.x-a.x,dy=b.y-a.y,t=clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy||1),0,1);
@@ -77,22 +82,28 @@ function releasePass(s:Match,a:Actor) {
   const b=s.actors[a.target];
   if(!b||!ready(s,b)){act(s,a,"idle",0);emit(s,"pass-cancelled",a.id,a.team);return;}
   const p=anchor(a,"pass-release"),q=anchor(b,"front");
-  Object.assign(s.ball,p,{owner:null,kind:"pass",from:a.id,to:b.id,age:0,duration:Math.max(20,Math.ceil(distance(a,b)/7)),sx:p.x,sy:p.y,sz:p.z,tx:q.x,ty:q.y,tz:q.z});
-  act(s,b,"receive",s.ball.duration+8,a.id);emit(s,"pass",a.id,a.team);a.until=s.tick+10;
+  Object.assign(s.ball,p,{owner:null,kind:"pass",from:a.id,to:b.id,age:0,duration:Math.max(T.passMinFlightTicks,Math.ceil(distance(a,b)/T.passWorldUnitsPerTick)),sx:p.x,sy:p.y,sz:p.z,tx:q.x,ty:q.y,tz:q.z});
+  act(s,b,"receive",s.ball.duration+8,a.id);emit(s,"pass",a.id,a.team);a.until=s.tick+T.passRecoveryTicks;
+}
+export const THREE_POINT_ARC={xRadius:255,yRadius:100} as const;
+export function pointsFor(a:Pick<Actor,"team"|"x"|"y">){const dx=(a.x-(a.team===0?COURT.right:COURT.left))/THREE_POINT_ARC.xRadius,dy=(a.y-COURT.rimY)/THREE_POINT_ARC.yRadius;return dx*dx+dy*dy>1?3:2;}
+export function shotChance(a:Actor,actors:Actor[]){
+  const dist=Math.hypot(rimX(a.team)-a.x,(COURT.rimY-a.y)*1.5);
+  const contest=actors.filter(d=>d.team!==a.team&&direction(a.team)*(d.x-a.x)>-16&&(d.action==="idle"||d.action==="block")).reduce((sum,d)=>sum+Math.max(0,1-distance(d,a)/85)*(d.action==="block"?1.35:.8),0);
+  return clamp(.83-dist/750-contest*.22,.15,.88);
 }
 function startShot(s:Match,a:Actor) {
   if(Math.hypot(rimX(a.team)-a.x,COURT.rimY-a.y)<60){act(s,a,"dunk",75);a.face=direction(a.team);emit(s,"prepare-dunk",a.id,a.team);return;}
-  act(s,a,"shoot",44);emit(s,"prepare-shot",a.id,a.team);
+  a.face=direction(a.team);act(s,a,"shoot",44);emit(s,"prepare-shot",a.id,a.team);
 }
 function releaseShot(s:Match,a:Actor) {
   if(s.ball.owner!==a.id)return;
-  const dist=Math.hypot(rimX(a.team)-a.x,(COURT.rimY-a.y)*1.5),special=s.charge[a.team]>=100;
-  const contest=s.actors.filter(d=>d.team!==a.team&&distance(d,a)<85).length;
-  const made=special||random(s)<clamp(.83-dist/750-contest*.13,.15,.88);
+  const special=s.charge[a.team]>=100;
+  const made=special||random(s)<shotChance(a,s.actors);
   if(special)s.charge[a.team]=0;
-  a.z=16;const p=anchor(a,"release");
-  Object.assign(s.ball,p,{owner:null,kind:"shot",from:a.id,to:-1,age:0,duration:54,sx:p.x,sy:p.y,sz:p.z,tx:rimX(a.team),ty:COURT.rimY,tz:COURT.rimZ,points:dist>250?3:2,made,super:special,released:s.tick});
-  a.vz=200;a.until=s.tick+40;s.shotId++;emit(s,special?"super":"shoot",a.id,a.team);
+  const p=anchor(a,"release");
+  Object.assign(s.ball,p,{owner:null,kind:"shot",from:a.id,to:-1,age:0,duration:54,sx:p.x,sy:p.y,sz:p.z,tx:rimX(a.team),ty:COURT.rimY,tz:COURT.rimZ,points:pointsFor(a),made,super:special,released:s.tick});
+  a.until=Math.max(a.until,s.tick+12);s.shotId++;emit(s,special?"super":"shoot",a.id,a.team);
 }
 function defensiveAction(s:Match,a:Actor,block:boolean) {
   act(s,a,block?"block":"steal",block?48:30);
@@ -120,7 +131,8 @@ function move(a:Actor,x:number,y:number,speed=108) {
   const beforeX=a.x,beforeY=a.y;
   a.x=clamp(a.x+x/Math.max(1,len)*speed/HZ,COURT.left,COURT.right);
   a.y=clamp(a.y+y/Math.max(1,len)*speed/HZ,COURT.top,COURT.bottom);if(Math.abs(x)>.1)a.face=x>0?1:-1;
-  const travelled=Math.hypot(a.x-beforeX,a.y-beforeY);a.moving=travelled>1e-6;a.travel=(a.travel??a.id*7)+travelled;a.stepDistance=(a.stepDistance??0)+travelled;
+  a.moveX=a.x-beforeX;a.moveY=a.y-beforeY;
+  const travelled=Math.hypot(a.moveX,a.moveY);a.moving=travelled>1e-6;a.travel=(a.travel??a.id*7)+travelled;a.stepDistance=(a.stepDistance??0)+travelled;
 }
 function ai(s:Match,a:Actor,plans:Record<number,OffBallIntent>,neighbors:Actor[]) {
   if(!ready(s,a))return;
@@ -130,10 +142,11 @@ function ai(s:Match,a:Actor,plans:Record<number,OffBallIntent>,neighbors:Actor[]
     const dist=Math.hypot(a.x-rim,(a.y-COURT.rimY)*1.5);
     if(s.tick>=a.nextAI) {
       a.nextAI=s.tick+35+Math.floor(random(s)*35);
-      if(dist<310||s.shotClock<180) {startShot(s,a);return;}
+      if(s.shotClock<180) {startShot(s,a);return;}
       const marked=s.actors.some(d=>d.team!==a.team&&distance(d,a)<60);
       const forward=s.actors.some(b=>b.team===a.team&&b.id!==a.id&&dir*(b.x-a.x)>30&&ready(s,b));
-      if(marked&&forward&&random(s)<.45){startPass(s,a);return;}
+      if(marked&&forward&&s.actors.some(b=>b.team===a.team&&b.id!==a.id&&ready(s,b)&&s.actors.filter(d=>d.team!==a.team).every(d=>segmentDistance(d,a,b)>28))&&random(s)<.65){startPass(s,a);return;}
+      if(dist<310){startShot(s,a);return;}
     }
     const threatened=s.actors.some(d=>d.team!==a.team&&distance(d,a)<65);
     move(a,rim-a.x,(threatened?(a.id%2===0?180:310):COURT.rimY)-a.y);return;
@@ -161,14 +174,14 @@ function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
     const p=anchor(a,a.z>0?"overhead":dribble?"low":"front");
     if(a.action==="shoot"){
       const age=s.tick-a.started;
-      p.x=a.x+(age<10?18:10)*a.face;p.z=a.z+(age<10?62:95);
+      const release=clamp((age-18)/4,0,1);p.x=a.x+(age<10?18:10+17*release)*a.face;p.z=a.z+(age<10?62:95+9*release);
     }
     if(a.action==="dunk"){
       const age=s.tick-a.started;p.x=a.x+(age<15?45:28)*a.face;p.z=a.z+(age<15?27:69);
     }
-    if(a.action==="pass")Object.assign(p,anchor(a,s.tick-a.started<12?"pass-gather":"pass-release"));
+    if(a.action==="pass"){const t=clamp((s.tick-a.started-T.passGatherTicks)/(T.passReleaseTicks-T.passGatherTicks),0,1),g=anchor(a,"pass-gather"),r=anchor(a,"pass-release");Object.assign(p,{x:g.x+(r.x-g.x)*t,y:a.y,z:g.z+(r.z-g.z)*t});if(a.passGrip&&s.tick-a.started<6){const blend=(s.tick-a.started)/6;p.x=a.x+a.passGrip.x+(p.x-a.x-a.passGrip.x)*blend;p.z=a.z+a.passGrip.z+(p.z-a.z-a.passGrip.z)*blend;}}
     // Ball travels from hand to ground and back; opaque source dribble poses only.
-    if(dribble){a.dribbleTick=(a.dribbleTick??-1)+1;const cycle=dribbleSample(a.dribbleTick);p.x=a.x+cycle.x*a.face;p.z=a.z+cycle.z-bodyBob(a.moving?(a.travel??0):0)*Math.max(0,Math.min(1,(cycle.z-20)/16));}else a.dribbleTick=-1;
+    if(dribble){a.dribbleTick=(a.dribbleTick??-1)+1;const cycle=dribbleSample(a.dribbleTick);const side=a.dribbleFacing??a.face;a.dribbleFacing=side+clamp(a.face-side,-.5,.5);p.x=a.x+cycle.x*a.dribbleFacing;p.z=a.z+cycle.z-bodyBob(a.moving?(a.travel??0):0)*Math.max(0,Math.min(1,(cycle.z-20)/16));}else {a.dribbleTick=-1;a.dribbleFacing=a.face;}
     if(a.action==="receive"&&b.age<6){b.age++;const t=b.age/6;p.x=b.sx+(p.x-b.sx)*t;p.y=b.sy+(p.y-b.sy)*t;p.z=b.sz+(p.z-b.sz)*t;}
     Object.assign(b,p);if(dribble&&dribbleSample(a.dribbleTick??0).contact)emit(s,"dribble",a.id,a.team);
     if(a.action==="dunk"&&a.z>0){
@@ -239,7 +252,7 @@ function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
 /** Advance exactly one 60 Hz tick. Inputs are edge actions plus persistent movement. */
 export function step(s:Match,input:Input=NO_INPUT) {
   s.events=[];if(s.phase==="result")return;s.tick++;
-  for(const a of s.actors){a.moving=false;a.stepDistance=0;}
+  for(const a of s.actors){a.moving=false;a.stepDistance=0;a.moveX=0;a.moveY=0;}
   if(s.phase==="restart"){
     for(const a of s.actors){if(a.z>0||a.vz>0){a.vz-=600/HZ;a.z=Math.max(0,a.z+a.vz/HZ);if(a.z===0){a.vz=0;a.until=Math.max(a.until,s.tick+12);emit(s,"land",a.id,a.team);}}if(a.z===0&&a.until<=s.tick)a.action="idle";}
     s.ball.vz-=600/HZ;s.ball.z=Math.max(5.5,s.ball.z+s.ball.vz/HZ);if(s.ball.z===5.5)s.ball.vz=0;
@@ -253,11 +266,14 @@ export function step(s:Match,input:Input=NO_INPUT) {
   // Expiry wins over a scheduled release on this tick. A shot already in
   // flight before expiry remains eligible to finish; preparation is not release.
   if(s.shotClock<=0&&s.ball.kind!=="shot"){restart(s,other(s.possession),"shot-clock");return;}
+  const facingBefore=s.actors.map(a=>a.face);
   const previousHands=s.actors.map(a=>anchor(a,a.z>0?"overhead":"front"));
   for(const a of s.actors) {
     if(a.z>0||a.vz>0){a.vz-=600/HZ;a.z=Math.max(0,a.z+a.vz/HZ);if(a.z===0){a.vz=0;a.until=Math.max(a.until,s.tick+12);emit(s,"land",a.id,a.team);}}
-    if(a.action==="pass"&&s.tick-a.started===18)releasePass(s,a);
-    if(a.action==="shoot"&&s.tick-a.started===22)releaseShot(s,a);
+    if(a.action==="pass"&&s.tick-a.started===T.passReleaseTicks)releasePass(s,a);
+    if(a.action==="shoot"&&s.tick-a.started===T.shotTakeoffTick){a.z=.01;a.vz=T.shotJumpVelocity;emit(s,"jump",a.id,a.team);}
+    if(a.action==="dunk"&&s.buffer?.actor===a.id&&s.buffer.kind==="pass"&&s.ball.owner===a.id&&a.z>0&&s.tick-a.started<25){if(startPass(s,a))s.buffer=null;}
+    if(a.action==="shoot"&&s.tick-a.started===T.shotReleaseTick)releaseShot(s,a);
     if(a.action==="dunk"&&s.ball.owner===a.id){
       const age=s.tick-a.started;
       if(age===6){a.z=.01;a.vz=250;emit(s,"jump",a.id,a.team);}
@@ -301,6 +317,7 @@ export function step(s:Match,input:Input=NO_INPUT) {
   for(const a of s.actors)if(a.action==="idle"&&a.moving){const moved=Math.hypot(a.x-beforeMovement[a.id].x,a.y-beforeMovement[a.id].y);a.travel=(a.travel??a.id*7)-(a.stepDistance??0)+moved;a.moving=moved>1e-6;if(a.moving)a.lastMoved=s.tick;}
   for(const a of s.actors)if(a.action==="idle"&&s.ball.owner!==null&&s.actors[s.ball.owner].team!==a.team&&Math.hypot(a.x-s.ball.x,a.y-s.ball.y)<180&&Math.abs(s.ball.x-a.x)>4)a.face=s.ball.x>a.x?1:-1;
   for(const a of s.actors){const mark=a.intent?.mark===undefined?undefined:s.actors[a.intent.mark];if(a.action==="idle"&&mark&&(a.intent?.role==="mark"||a.intent?.role==="pressure")&&distance(a,mark)<120&&Math.abs(mark.x-a.x)>4)a.face=mark.x>a.x?1:-1;}
+  for(const a of s.actors)if(a.action==="idle"&&a.face!==facingBefore[a.id])a.turnedAt=s.tick;
   updateBall(s,previousHands);
   resolveSteals(s);
   selectDefender(s);

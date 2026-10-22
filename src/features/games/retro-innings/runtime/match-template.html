@@ -52,6 +52,7 @@ function beginKeeperReceive(...args){return engine.beginKeeperReceive(...args);}
 function keeperStep(...args){return engine.keeperStep(...args);}
 function adjustGuard(delta){if(S.paused||S.innings!==1||!['ready','dead','runup'].includes(S.phase))return;S.stance=clamp(S.stance+delta,-12,12);render();}
 function pause(){if(S.status==='idle')return;S.paused=!S.paused;clearHeld();last=null;debt=0;render();}
+window.addEventListener('retro-pause',()=>suspend());
 function suspend(){clearHeld();if(S.status==='playing')S.paused=true;last=null;debt=0;render();}
 function project(p){return{x:p.x-S.camera.x,y:p.y-S.camera.y-(p.z||0)};}
 function drawActor(id,x,y){const r=DATA.actors[id];if(!r)return;const [sx,sy,w,h]=r.atlas,p=project({x,y});ctx.drawImage(id.startsWith('keeper-receive')||id==='keeper-hold'?images.keeper:images.actors,sx,sy,w,h,Math.round(p.x-r.ground[0]),Math.round(p.y-r.ground[1]),w,h);}

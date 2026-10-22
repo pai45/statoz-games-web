@@ -1,8 +1,8 @@
 {
   "gameId": "retro-hoops",
   "briefVersion": "1.0.0",
-  "rulesVersion": "1.5.0",
-  "buildVersion": "future-games-court-perspective-v2-local",
+  "rulesVersion": "1.7.0",
+  "buildVersion": "future-games-player-look-v1-local",
   "assetPackVersion": "facing-family-v1+action-family-v2",
   "date": "2026-10-20",
   "reference": {
@@ -110,5 +110,28 @@
     360
   ],
   "courtArtwork": "Primary park composition reconstructed in original code; see credits.json",
-  "presentationVersion": "court-perspective-v2"
+  "presentationVersion": "court-perspective-v2",
+  "userSelectedReference": {
+    "url": "https://www.youtube.com/watch?v=_k8IIS9n3dk",
+    "title": "[ARCADE 60fps] Street Hoop longplay",
+    "uploader": "GameLog",
+    "inspectedRangesSeconds": [
+      [
+        0,
+        53
+      ],
+      [
+        53,
+        113
+      ]
+    ],
+    "nativeTimingRecovered": false,
+    "design": "Original exhibition-court reconstruction; no new video pixels in playable assets"
+  },
+  "playerDesign": {
+    "actionPack": "player-look-v1/manifest.json",
+    "locomotionPack": "locomotion-v4/manifest.json",
+    "classification": "authored blue/violet and blue/red kit shading, broader locomotion jerseys; retained reference head/action silhouettes",
+    "newSourcePixelsExtracted": false
+  }
 }

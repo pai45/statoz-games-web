@@ -24,8 +24,9 @@ const boot=String.raw`
  Object.defineProperty(window,'localStorage',{value:storage,configurable:false});
  window.__STATOZ_MESSAGE_ORIGIN__=parent===window?location.origin:(boot.origin||location.origin);
  const originalPost=window.postMessage.bind(window);if(gameId!=='retro-circuit')window.postMessage=(message,target,transfer)=>originalPost(message,target==='null'?'*':target,transfer);
- const api={emit,save,sessionId,command:null,result(payload){const id=String(payload?.id||payload?.sessionId||'');if(!id||resultIds.includes(id))return;resultIds=[...resultIds,id].slice(-1000);let records=[];try{records=JSON.parse(stores['statoz.bundle.results']||'[]');}catch{}stores['statoz.bundle.results']=JSON.stringify([...records,payload].slice(-20));save();emit('result',payload);}};
+ const api={emit,save,sessionId,presentation:boot.presentation,command:null,result(payload){const id=String(payload?.id||payload?.sessionId||'');if(!id||resultIds.includes(id))return;resultIds=[...resultIds,id].slice(-1000);let records=[];try{records=JSON.parse(stores['statoz.bundle.results']||'[]');}catch{}stores['statoz.bundle.results']=JSON.stringify([...records,payload].slice(-20));save();emit('result',payload);}};
  window.__STATOZ_HOST__=api;
+ if(gameId.startsWith('retro-'))document.documentElement.dataset.retroLayout=boot.presentation?.layout==='handheld'?'handheld':'onscreen';
  if(gameId==='retro-football'){
   window.RetroFootballHost={postMessage(raw){if(typeof raw!=='string'||raw.length>600000)return;let message;try{message=JSON.parse(raw);}catch{return;}if(message.gameId!==gameId||message.protocolVersion!==1)return;if(message.type==='ready'){const engineSession=message.sessionId;api.command=type=>window.retroFootballHostV1?.receive({protocolVersion:1,gameId,sessionId:engineSession,type,payload:{}});window.retroFootballHostV1?.receive({protocolVersion:1,gameId,sessionId:engineSession,type:'launch',payload:{music:0,sfx:.5}});}if(message.type==='result')api.result({id:message.payload?.resultId,...message.payload?.result});else emit(message.type,message.payload);}};
  }
@@ -83,6 +84,11 @@ for(const gameId of selected?[selected]:ids){
   if(gameId==='retro-innings')html=html.replaceAll('window.parent.postMessage(', 'window.postMessage(');
   const start=html.indexOf('<script');const injection=prelude(gameId)+await assetShim(sourceRoot);html=html.slice(0,start)+injection+html.slice(start);
   if(gameId.startsWith('designer-'))html+='<script>window.__STATOZ_HOST__.emit("ready");</script>';
+ }
+ // Inline parser-created identity images too: prototype src shims cannot intercept innerHTML.
+ for(const id of ['retro-football','retro-hoops','retro-circuit','retro-innings']){
+  const relative='../../assets/games/identity/'+id+'.svg';
+  if(html.includes(relative))html=html.replaceAll(relative,'data:image/svg+xml;base64,'+(await fs.readFile(path.join(root,'public/assets/games/identity',id+'.svg'))).toString('base64'));
  }
  const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket','stadium-cricket':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:'landscape',saveSchemaVersion:1});
  console.log(`${gameId}: ${(Buffer.byteLength(html)/1048576).toFixed(1)} MiB offline bundle`);
