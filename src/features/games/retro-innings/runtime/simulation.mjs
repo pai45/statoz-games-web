@@ -9,7 +9,7 @@ function event(type,data={}){S.events.push({type,time:S.time,innings:S.innings,.
 function random(){S.seed=(Math.imul(S.seed,1664525)+1013904223)>>>0;return S.seed/4294967296;}
 // Original balanced eleven-player formation; positions are not recovered source coordinates.
 function makeFielders(){return[['Keeper',424,245],['Slip',485,318],['Point',575,365],['Cover',555,455],['Mid off',500,540],['Mid on',355,540],['Square leg',285,410],['Fine leg',315,290],['Third man',550,260],['Long on',365,615],['Bowler',459,475]].map(([role,x,y],i)=>({id:i,role,x,y,mode:'idle',age:0,has:false}));}
-function reset(){clearHeld();S={status:'idle',phase:'ready',paused:false,time:0,seed:6421,innings:1,runs:0,wickets:0,legal:0,first:null,target:null,result:null,deliveryNumber:0,stance:0,readyPose:null,action:null,strokeQueue:null,freeze:0,ball:null,keeper:null,plan:null,age:0,fieldAge:0,fielders:makeFielders(),selected:0,manualSelected:false,possession:-1,gather:null,throwing:null,throwQueue:null,returnAge:0,completedRuns:0,provisionalChase:false,run:{moving:false,p:0,dir:1,parity:0,pending:0,requested:false},contact:null,pendingOutcome:null,settled:false,camera:{x:305,y:275},overlay:false,message:'NES controls: A ground shot, B aerial shot, D-pad places the stroke. Bat first, then bowl and field.',events:[]};settings.line='leg';settings.style='pace';}
+function reset(){clearHeld();S={status:'idle',phase:'ready',paused:false,time:0,seed:6421,innings:1,bowlAim:null,runs:0,wickets:0,legal:0,first:null,target:null,result:null,deliveryNumber:0,stance:0,readyPose:null,action:null,strokeQueue:null,freeze:0,ball:null,keeper:null,plan:null,age:0,fieldAge:0,fielders:makeFielders(),selected:0,manualSelected:false,possession:-1,gather:null,throwing:null,throwQueue:null,returnAge:0,completedRuns:0,provisionalChase:false,run:{moving:false,p:0,dir:1,parity:0,pending:0,requested:false},contact:null,pendingOutcome:null,settled:false,camera:{x:305,y:275},overlay:false,message:'NES controls: A ground shot, B aerial shot, D-pad places the stroke. Bat first, then bowl and field.',events:[]};settings.line='leg';settings.style='pace';}
 function batterPose(){if(S.freeze>0&&S.contact)return DATA.families[S.contact.family].poses.find(p=>p.id===S.contact.pose);if(!S.action)return S.readyPose?DATA.poses[S.readyPose]:DATA.families.leg.guard;let age=S.action.age;const poses=DATA.families[S.action.family].poses;for(const p of poses){if(age<p.durationMs-1e-7)return p;age-=p.durationMs;}return poses.at(-1);}
 function batterOrigin(p=batterPose()){return{x:400+p.origin[0]-98+S.stance,y:350+p.origin[1]-142};}
 function batCells(p){const o=batterOrigin(p);return p.cells.map(([x,y])=>[o.x+x,o.y+y]);}
@@ -28,7 +28,7 @@ function primary(){
  if(S.status==='idle'||S.status==='intermission'||['ready','dead'].includes(S.phase))restorePlayView();
  if(S.innings===1&&S.phase==='delivery'&&!S.ball?.hit)return;
  if(S.status==='idle'){S.status='playing';beginDelivery();}
- else if(S.status==='intermission'){S.innings=2;S.runs=0;S.wickets=0;S.legal=0;S.deliveryNumber=0;S.readyPose=null;S.stance=0;S.status='playing';S.phase='ready';event('innings-start',{target:S.target});}
+ else if(S.status==='intermission'){S.innings=2;S.runs=0;S.wickets=0;S.legal=0;S.deliveryNumber=0;S.readyPose=null;S.stance=0;S.status='playing';S.phase='ready';S.bowlAim=null;S.message='Choose a bowling direction with the D-pad, then A fast or B slow.';event('innings-start',{target:S.target});}
  else if(S.innings===1&&['ready','dead'].includes(S.phase))beginDelivery();
  render();
 }
@@ -36,21 +36,31 @@ function inputDirection(){return{x:(held.right.size?1:0)-(held.left.size?1:0),y:
 // NES player reports establish directional ground/air intent, not native
 // trajectory equations or input windows. The numeric mapping here is authored.
 function nesShot(kind){if(!canStrike())return;const direction=inputDirection(),family=S.plan.lane==='wide'?'off':S.plan.lane;strike(family,false,{nesKind:kind,direction});}
+const BOWL_DIRECTIONS={left:{x:-1,y:0},right:{x:1,y:0},up:{x:0,y:-1},down:{x:0,y:1}};
+function bowlLanding(direction){return{x:direction.x<0?408:direction.x>0?456:432,y:direction.y<0?375:direction.y>0?416:397,z:0};}
+function selectBowlDirection(name){
+ if(S.paused||S.innings!==2||S.status!=='playing'||!['ready','dead'].includes(S.phase)||!BOWL_DIRECTIONS[name])return false;
+ if(S.bowlAim?.name===name)return true;
+ const direction=BOWL_DIRECTIONS[name];S.bowlAim={name,direction:{...direction},landing:bowlLanding(direction)};S.camera={x:305,y:275};
+ S.message=name.toUpperCase()+' selected · A fast / B slow to deliver';
+ event('nes-bowl-direction',{name,point:{...S.bowlAim.landing}});render();return true;
+}
 function nesBowl(button='A'){
- if(S.paused||S.innings!==2||S.status!=='playing'||!['ready','dead'].includes(S.phase))return;
- const direction=inputDirection();beginDelivery();const a=S.plan.landing;
- a.x=direction.x<0?408:direction.x>0?456:432;a.y=direction.y<0?375:direction.y>0?416:397;
- const variation=(random()-.5)*4;a.x=clamp(a.x+variation,400,466);
- S.plan.lane=direction.x<0?'leg':direction.x>0?'off':'defend';
- S.plan.nesIntent={button,direction,variation,authored:true};S.plan.nesReleaseQueued=true;
- S.message='Bowler running in · '+(direction.x<0?'LEG':direction.x>0?'OFF':'MIDDLE')+' line';
- event('nes-bowl-intent',{...S.plan.nesIntent,landing:{...a}});render();
+ if(S.paused||S.innings!==2||S.status!=='playing'||!['ready','dead'].includes(S.phase)||!S.bowlAim||!['A','B'].includes(button))return false;
+ const aim=S.bowlAim;beginDelivery();S.bowlAim=null;
+ S.plan.landing={...aim.landing};
+ S.plan.lane=aim.direction.x<0?'leg':aim.direction.x>0?'off':'defend';
+ S.plan.style=button==='A'?'pace':'slow';
+ S.plan.nesIntent={button,speed:button==='A'?'fast':'slow',direction:{...aim.direction},selected:aim.name,authored:true};
+ S.plan.nesReleaseQueued=true;
+ S.message=aim.name.toUpperCase()+' · '+S.plan.nesIntent.speed.toUpperCase()+' ball running in';
+ event('nes-bowl-intent',{...S.plan.nesIntent,landing:{...S.plan.landing}});render();return true;
 }
 // Crease-constrained approach. Coordinates/holds are authored from the saved source view.
 // Keep the front-foot ground anchor at or behind the near-end bowling crease.
 function bowlerPosition(){return S.phase==='runup'?{x:459,y:mix(495,NEAR.y,clamp(S.age/500,0,1))}:{x:S.plan?.releaseOrigin?.x??459,y:S.plan?.releaseOrigin?.y??NEAR.y};}
 function release(){if(S.phase!=='runup'||S.paused)return;const family=DATA.families[S.plan.lane]||DATA.families.off,[,y]=family.target;
- S.plan.duration=S.plan.style==='spin'?1400:1100;S.plan.x=420+(landingPoint().x-420)/.67;S.plan.height=142-y;S.plan.illegal=S.innings===2&&S.age>1100?'no-ball':S.plan.lane==='wide'?'wide':null;S.plan.extras=S.plan.illegal?1:0;
+ S.plan.duration=['spin','slow'].includes(S.plan.style)?1400:1100;S.plan.x=420+(landingPoint().x-420)/.67;S.plan.height=142-y;S.plan.illegal=S.innings===2&&S.age>1100?'no-ball':S.plan.lane==='wide'?'wide':null;S.plan.extras=S.plan.illegal?1:0;
  const ground=bowlerPosition(),pose=DATA.actors['bowler-4'],anchor=pose.anchors.release;
  S.plan.releaseOrigin={x:ground.x+anchor.x-pose.ground[0],y:ground.y,z:pose.ground[1]-anchor.y};
  Object.assign(S.fielders[10],ground);
@@ -124,4 +134,4 @@ function beginKeeperReceive(){if(S.ball.hit||S.run.moving||S.run.pending||S.pend
 function keeperStep(dt){const k=S.keeper,b=S.ball;if(k.stage==='flight'){k.age=Math.min(k.duration,k.age+dt);const t=k.age/k.duration,h=keeperGlove();b.x=mix(k.origin.x,h.x,t);b.y=mix(k.origin.y,h.y,t);b.z=mix(k.origin.z,h.z,t)+Math.sin(Math.PI*t)*4;S.camera.x=mix(k.camera.x,clamp(h.x-128,0,600),t);S.camera.y=mix(k.camera.y,185,t);if(t>=1){k.stage='hold';k.holdAge=0;S.message='Keeper holds ? delivery settling.';S.possession=0;S.fielders[0].has=true;b.vx=b.vy=b.vz=0;event('keeper-receive',{point:{x:b.x,y:b.y,z:b.z},authoredAnchor:true});}return;}k.holdAge+=dt;const a=keeperGlove('keeper-receive-wide'),h=keeperGlove(k.holdAge<400?'keeper-receive-stand':'keeper-hold'),t=clamp((k.holdAge-200)/200,0,1);b.x=mix(a.x,h.x,t);b.y=h.y;b.z=mix(a.z,h.z,t);if(k.holdAge>=650&&recovered()){event('keeper-held',{point:{x:b.x,y:b.y,z:b.z},throw:false});resolve(S.plan.illegal?S.plan.illegal.toUpperCase():'DOT · keeper holds');}}
 
 
-reset();return{strokeTiming,battingAction,landingPoint,bowlerPosition,clearHeld,event,random,makeFielders,reset,batterPose,batterOrigin,batCells,pointSegment,intersect,sweptCell,contactFraction,beginDelivery,primary,release,incomingAt,canStrike,commitStroke,strike,nesShot,nesBowl,inputDirection,recovered,holdReturn,requestRun,reverseRun,runnerPositions,runners,finishChaseIfSafe,safeAt,resolve,finishDelivery,fieldPose,hand,throwEnd,updateThrow,fieldStep,hit,tick,keeperPose,keeperGlove,beginKeeperReceive,keeperStep,get state(){return S;},get settings(){return settings;},get held(){return held;},advance(ms){if(!Number.isFinite(ms)||ms<0||ms>60000)throw Error('Invalid simulation advance');for(let n=ms;n>1e-7;){const d=Math.min(STEP,n);tick(d);n-=d;}render();}};}
+reset();return{strokeTiming,battingAction,landingPoint,bowlerPosition,clearHeld,event,random,makeFielders,reset,batterPose,batterOrigin,batCells,pointSegment,intersect,sweptCell,contactFraction,beginDelivery,primary,release,incomingAt,canStrike,commitStroke,strike,nesShot,nesBowl,selectBowlDirection,inputDirection,recovered,holdReturn,requestRun,reverseRun,runnerPositions,runners,finishChaseIfSafe,safeAt,resolve,finishDelivery,fieldPose,hand,throwEnd,updateThrow,fieldStep,hit,tick,keeperPose,keeperGlove,beginKeeperReceive,keeperStep,get state(){return S;},get settings(){return settings;},get held(){return held;},advance(ms){if(!Number.isFinite(ms)||ms<0||ms>60000)throw Error('Invalid simulation advance');for(let n=ms;n>1e-7;){const d=Math.min(STEP,n);tick(d);n-=d;}render();}};}

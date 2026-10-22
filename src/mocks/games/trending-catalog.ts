@@ -47,8 +47,8 @@ const sourceCatalog: GamesTrendingTileConfig[] = [
     span: "wide",
   },
   {
-    id: "trend-game-final-over",
-    sourceId: "final-over",
+    id: "trend-game-stadium-cricket",
+    sourceId: "stadium-cricket",
     sport: "cricket",
     span: "wide",
   },

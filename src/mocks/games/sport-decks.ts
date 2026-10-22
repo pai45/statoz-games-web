@@ -19,7 +19,7 @@ const sourceDecks: Record<Sport, GameId[]> = {
     "football-bingo",
     "guess-player",
   ],
-  cricket: ["retro-innings", "final-over", "cricket-quiz", "cricket-guess-player"],
+  cricket: ["retro-innings", "stadium-cricket", "cricket-quiz", "cricket-guess-player"],
   basketball: ["retro-hoops", "hoop-duel", "basketball-quiz", "basketball-guess-player"],
   tennis: ["tennis-rally", "tennis-quiz", "tennis-guess-winner"],
   motorsport: ["retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
@@ -52,11 +52,11 @@ export function gameCountForSport(sport: Sport): number {
  * Which sport a game belongs to, inverted from the decks above so the two can
  * never disagree about it.
  */
-const sportByGame: Record<GameId, Sport> = Object.fromEntries(
+const sportByGame: Record<GameId, Sport> = {"final-over":"cricket", ...Object.fromEntries(
   Object.entries(sportGameDecks).flatMap(([sport, games]) =>
     games.map((id) => [id, sport as Sport] as const),
   ),
-) as Record<GameId, Sport>;
+)} as Record<GameId, Sport>;
 
 export function sportForGame(game: GameId): Sport {
   return sportByGame[game];

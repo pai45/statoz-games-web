@@ -1,7 +1,7 @@
 {
   "gameId": "retro-hoops",
   "rulesVersion": "1.5.0",
-  "buildVersion": "future-games-team-ai-v1-local",
+  "buildVersion": "future-games-court-perspective-v2-local",
   "art": {
     "classification": "reference",
     "sourceTitle": "Street Hoop (Neo Geo)",
@@ -346,5 +346,10 @@
     "authorship": "Existing reference head/jersey retained; limbs, pose geometry, shading and timing authored for this candidate",
     "nativeTimingRecovered": false,
     "newCommercialFramesExtracted": false
+  },
+  "courtPresentation": {
+    "version": "court-perspective-v2",
+    "classification": "Original code-drawn court with authored perspective calibrated from reference observation",
+    "nativeProjectionRecovered": false
   }
 }

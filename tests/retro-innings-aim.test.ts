@@ -6,61 +6,73 @@ import {deliveryLandingMarker} from '../src/features/games/retro-innings/runtime
 
 const data=JSON.parse(fs.readFileSync('src/features/games/retro-innings/runtime/assets.json','utf8')).runtime;
 
-function bowling(direction?:string,button='A'){
+function bowling(){
  const s=createCricketSimulation(data);s.primary();
  Object.assign(s.state,{innings:2,first:19,target:20,phase:'ready'});
- if(direction)s.held[direction].add('test');
- s.nesBowl(button);
  return s;
 }
 
-test('NES A/B captures a coarse direction once and releases from the crease',()=>{
- for(const button of ['A','B'])for(const direction of ['left','right','up','down']){
-  const s=bowling(direction,button),aimed={...s.landingPoint()};
-  assert.equal(s.state.plan.nesIntent.button,button);
-  assert.equal(s.state.plan.nesIntent.direction[direction==='left'||direction==='right'?'x':'y'],direction==='left'||direction==='up'?-1:1);
-  assert.deepEqual(deliveryLandingMarker(s.state,data.families)!.point,aimed);
-  s.held[direction].clear();s.advance(500);
-  assert.equal(s.state.phase,'delivery');
-  assert.equal(s.state.events.filter((e:{type:string})=>e.type==='release').length,1);
-  assert.ok(s.bowlerPosition().y<=475);
+test('bowling requires a direction selection before A fast or B slow',()=>{
+ const s=bowling();
+ assert.equal(s.nesBowl('A'),false);
+ assert.equal(s.state.phase,'ready');
+ assert.equal(s.state.events.some((e:{type:string;innings:number})=>e.type==='delivery-start'&&e.innings===2),false);
+ assert.equal(s.selectBowlDirection('left'),true);
+ assert.equal(s.state.bowlAim.name,'left');
+ assert.equal(s.state.phase,'ready');
+ assert.equal(s.nesBowl('A'),true);
+ assert.equal(s.state.phase,'runup');
+ assert.equal(s.state.bowlAim,null);
+ assert.equal(s.state.plan.nesIntent.speed,'fast');
+ s.advance(500);
+ assert.equal(s.state.phase,'delivery');
+ assert.equal(s.state.plan.duration,1100);
+});
+
+test('selected direction persists after D-pad release and can be changed before delivery',()=>{
+ for(const name of ['left','right','up','down']){
+  const s=bowling();s.held[name].add('key');s.selectBowlDirection(name);s.held[name].clear();
+  const expected={...s.state.bowlAim.landing};
+  assert.equal(s.nesBowl('B'),true);
+  assert.deepEqual(s.state.plan.landing,expected);
+  assert.deepEqual(s.state.plan.nesIntent.selected,name);
+  s.advance(500);
+  assert.equal(s.state.plan.duration,1400);
+  assert.deepEqual(deliveryLandingMarker(s.state,data.families)!.point,expected);
   s.advance(s.state.plan.duration*.67);
-  for(const axis of ['x','y','z'] as const)assert.ok(Math.abs(s.state.ball[axis]-aimed[axis])<1e-6,`${button}/${direction}/${axis}`);
+  for(const axis of ['x','y','z'] as const)assert.ok(Math.abs(s.state.ball[axis]-expected[axis])<1e-6,`${name}/${axis}`);
  }
+ const changed=bowling();changed.selectBowlDirection('left');changed.selectBowlDirection('right');
+ assert.equal(changed.state.bowlAim.name,'right');changed.nesBowl('A');
+ assert.equal(changed.state.plan.nesIntent.selected,'right');
 });
 
-test('NES bowling intention is repeatable, bounded and unavailable during batting',()=>{
- const a=bowling('right'),b=bowling('right');
- assert.deepEqual(a.landingPoint(),b.landingPoint());
- assert.ok(a.landingPoint().x>=400&&a.landingPoint().x<=466);
- const aimed={...a.landingPoint()};a.held.left.add('late');a.advance(250);
- assert.deepEqual(a.landingPoint(),aimed);
- a.state.paused=true;a.advance(500);assert.deepEqual(a.landingPoint(),aimed);
- const bat=createCricketSimulation(data);bat.primary();bat.nesBowl();assert.equal(bat.state.innings,1);
- assert.equal(bat.state.events.some((e:{type:string})=>e.type==='nes-bowl-intent'),false);
+test('bowling selection is phase gated, pause safe and reset for the next ball',()=>{
+ const s=bowling();s.state.paused=true;
+ assert.equal(s.selectBowlDirection('up'),false);
+ s.state.paused=false;
+ assert.equal(s.selectBowlDirection('up'),true);
+ const before=structuredClone(s.state.bowlAim);s.advance(100);
+ assert.deepEqual(s.state.bowlAim,before);
+ assert.equal(s.nesBowl('A'),true);
+ assert.equal(s.selectBowlDirection('down'),false);
+ s.state.phase='dead';
+ assert.equal(s.nesBowl('A'),false);
+ assert.equal(s.selectBowlDirection('down'),true);
+ assert.equal(s.nesBowl('B'),true);
+ const bat=createCricketSimulation(data);bat.primary();
+ assert.equal(bat.selectBowlDirection('left'),false);
 });
 
-test('NES ground and air shots use the same contact engine but distinct flight',()=>{
- function contact(kind:'ground'|'air'){
+test('ground/air batting remains independent from bowling selection',()=>{
+ function contact(kind:'ground'|'air',direction:'left'|'right'){
   const s=createCricketSimulation(data);s.primary();s.advance(500);
   s.advance(s.state.plan.duration-s.strokeTiming('leg').leadMs-150);
-  s.nesShot(kind);for(let i=0;i<300&&!s.state.contact;i++)s.advance(5);
-  assert.ok(s.state.contact);return s;
- }
- const ground=contact('ground'),air=contact('air');
- assert.equal(ground.state.contact.nesKind,'ground');
- assert.equal(air.state.contact.nesKind,'air');
- assert.ok(air.state.ball.vz>ground.state.ball.vz);
-});
-
-test('D-pad placement changes exit direction without selecting a mismatched contact pose',()=>{
- function contact(direction:'left'|'right'){
-  const s=createCricketSimulation(data);s.primary();s.advance(500);
-  s.advance(s.state.plan.duration-s.strokeTiming('leg').leadMs-150);
-  s.held[direction].add('test');s.nesShot('ground');
+  s.held[direction].add('test');s.nesShot(kind);
   for(let i=0;i<300&&!s.state.contact;i++)s.advance(5);
   assert.ok(s.state.contact);assert.equal(s.state.contact.family,'leg');return s;
  }
- assert.ok(contact('left').state.ball.vx<0);
- assert.ok(contact('right').state.ball.vx>0);
+ assert.ok(contact('ground','left').state.ball.vx<0);
+ assert.ok(contact('ground','right').state.ball.vx>0);
+ assert.ok(contact('air','right').state.ball.vz>contact('ground','right').state.ball.vz);
 });

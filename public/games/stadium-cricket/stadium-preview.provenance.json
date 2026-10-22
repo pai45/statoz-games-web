@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "kind": "product-capture",
+  "approval": "reference",
+  "source": "RealOmlit/CricketV2",
+  "sourceCommit": "cb19e595d5a00a2764a6a5cb4b20fc48a2a733bc",
+  "capture": "Original imported game, Low preset, 1440x900; no generated artwork."
+}

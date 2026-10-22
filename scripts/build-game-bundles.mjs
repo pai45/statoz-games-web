@@ -3,10 +3,11 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import { execFileSync } from 'node:child_process';
+import { buildStadiumCricket } from './build-stadium-cricket.mjs';
 
 const root=process.cwd();
 const output=path.join(root,'public','embedded-games');
-const ids=['retro-hoops','retro-circuit','retro-football','retro-innings'];
+const ids=['retro-hoops','retro-circuit','retro-football','retro-innings','stadium-cricket'];
 const customRoot=path.join(root,'public/assets/games/designer');
 for(const entry of await fs.readdir(customRoot,{withFileTypes:true}).catch(()=>[])) if(entry.isDirectory()&&/^[a-f0-9-]{36}$/.test(entry.name)) ids.push('designer-'+entry.name);
 const selected=process.argv.find(arg=>arg.startsWith('--game='))?.slice(7);
@@ -43,7 +44,7 @@ const boot=String.raw`
 })();`;
 if(!selected||selected==='retro-circuit')execFileSync(process.execPath,['scripts/build-retro-circuit-assets.mjs'],{cwd:root,stdio:'inherit'});
 const fontStyle=`@font-face{font-family:'Space Grotesk';src:url(data:font/ttf;base64,${(await fs.readFile(path.join(root,'src/app/fonts/space-grotesk-variable.ttf'))).toString('base64')}) format('truetype');font-weight:300 700;font-display:swap}@font-face{font-family:Orbitron;src:url(data:font/woff2;base64,${(await fs.readFile(path.join(root,'src/app/fonts/orbitron-latin-variable.woff2'))).toString('base64')}) format('woff2');font-weight:400 900;font-display:swap}:root{--font-space-grotesk:'Space Grotesk';--font-orbitron:Orbitron}body,button,input{font-family:'Space Grotesk',sans-serif}`;
-const prelude=gameId=>`${['retro-football','retro-innings'].includes(gameId)?'':'<style>'+fontStyle+'</style>'}<script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
+const prelude=gameId=>`${['retro-football','retro-innings','stadium-cricket'].includes(gameId)?'':'<style>'+fontStyle+'</style>'}<script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
 const style='html,body,#root{margin:0;width:100%;height:100%;background:#0d111a;color:white;overflow:hidden}*{box-sizing:border-box}button{touch-action:manipulation}canvas{image-rendering:pixelated}';
 const entries={
  'retro-hoops':`import React from 'react';import{createRoot}from'react-dom/client';import{HoopsGame}from'./src/features/games/retro-hoops/game';const host=window.__STATOZ_HOST__;let commandId=0;const render=command=>createRootOnce.render(<HoopsGame assetBase="assets" onExit={()=>host.emit('exit')} hostCommand={command?{id:++commandId,type:command}:undefined} onEvent={event=>{if(event.type==='result')host.result(event.payload);else host.emit(event.type,event.payload);}}/>);const createRootOnce=createRoot(document.getElementById('root'));host.command=command=>{if(command==='dispose')createRootOnce.unmount();else render(command);};render();`,
@@ -59,12 +60,14 @@ async function assetShim(directory){
  return `<script>(()=>{const assets=${JSON.stringify(map)},resolve=value=>{let text=String(value);if(text.startsWith('data:')||text.startsWith('blob:'))return text;text=text.split(/[?#]/)[0];const key=Object.keys(assets).find(key=>text===key||text.endsWith('/'+key));return key?assets[key]:null;};const fetchOriginal=fetch.bind(window);window.fetch=(value,options)=>{const request=typeof value==='string'?value:value instanceof URL?value.href:value.url;const url=resolve(request);return url?fetchOriginal(url,options):Promise.reject(Error('Remote resource blocked in offline game: '+String(request)));};for(const proto of [HTMLImageElement.prototype,HTMLMediaElement.prototype]){const descriptor=Object.getOwnPropertyDescriptor(proto,'src');if(descriptor?.set)Object.defineProperty(proto,'src',{...descriptor,set(value){descriptor.set.call(this,resolve(value)||value);}});}})();</script>`;
 }
 await fs.mkdir(output,{recursive:true});
-const previous=selected?JSON.parse(await fs.readFile(path.join(output,'manifest.json'),'utf8')):null;
+const previous=selected?JSON.parse(await fs.readFile(path.join(output,'manifest.json'),'utf8').catch(error=>{if(error.code==='ENOENT')return '{"games":[]}';throw error;})):null;
 const manifest={schemaVersion:1,protocolVersion:1,sourceSha:'uncommitted',games:previous?previous.games.filter(game=>game.id!==selected):[]};
 try{manifest.sourceSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}
 for(const gameId of selected?[selected]:ids){
  const dir=path.join(output,gameId);await fs.mkdir(dir,{recursive:true});let html;
- if(entries[gameId]){
+ if(gameId==='stadium-cricket'){
+  html=await buildStadiumCricket({prelude:prelude(gameId)});
+ }else if(entries[gameId]){
   const result=await build({stdin:{contents:"import './src/design-system/styles/tokens.css';import './src/design-system/styles/typography.css';"+entries[gameId],resolveDir:root,loader:'tsx'},bundle:true,write:false,outdir:'bundle',format:'iife',platform:'browser',target:'es2020',minify:true,jsx:'automatic',loader:{'.png':'dataurl','.svg':'dataurl','.woff2':'dataurl','.ttf':'dataurl'},tsconfig:path.join(root,'tsconfig.json')});
   const js=result.outputFiles.find(f=>f.path.endsWith('.js')).text,css=result.outputFiles.find(f=>f.path.endsWith('.css'))?.text||'';
   html=`<!doctype html><html lang="en" data-game="${gameId}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>${gameId}</title><style>${style}\n${css}</style></head><body><div id="root"></div>${prelude(gameId)}${await assetShim(path.join(root,'public','games',gameId))}<script>${js.replaceAll('</script','<\\/script')}</script></body></html>`;
@@ -81,9 +84,9 @@ for(const gameId of selected?[selected]:ids){
   const start=html.indexOf('<script');const injection=prelude(gameId)+await assetShim(sourceRoot);html=html.slice(0,start)+injection+html.slice(start);
   if(gameId.startsWith('designer-'))html+='<script>window.__STATOZ_HOST__.emit("ready");</script>';
  }
- const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:'landscape',saveSchemaVersion:1});
+ const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket','stadium-cricket':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:'landscape',saveSchemaVersion:1});
  console.log(`${gameId}: ${(Buffer.byteLength(html)/1048576).toFixed(1)} MiB offline bundle`);
 }
 await fs.writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-const notices=[];for(const file of ['node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt','public/games/retro-circuit/reference/NOTICE.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
+const notices=[];for(const file of ['node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt','public/games/retro-circuit/reference/NOTICE.txt','vendor/cricketv2/CREDITS.md','vendor/cricketv2/assets/THREE-LICENSE.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
 await fs.writeFile(path.join(output,'LICENSES.txt'),notices.join('\n\n---\n\n'));

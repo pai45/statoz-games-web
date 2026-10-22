@@ -93,7 +93,7 @@ export class Simulation {
         if (team === 0)
             s.selected = taker.id;
         this.setBall({ ...p, z: 0 });
-        s.message = `${kind.toUpperCase()} — ${team === 0 ? 'Harbour: J / K / L to take' : 'Orchard preparing'}.`;
+        s.message = `${kind.toUpperCase()} — ${team === 0 ? 'Harbour: P pass / L loft / S shoot' : 'Orchard preparing'}.`;
         this.emit('restart-awarded', { restart: kind, team, point: { ...point }, player: taker.id });
     }
     private kickoff(team: Team) { this.formation(team); this.beginRestart('kickoff', team, { x: 52.5, y: 34 }); }
@@ -153,6 +153,22 @@ export class Simulation {
         if (s.phase === 'goal')
             return;
         const p = s.players[s.selected];
+        if (['pass','loft','shoot','tackle','switch','slide'].includes(c.type)) {
+            if (s.shotView?.phase === 'aim') { if(c.type==='shoot')this.confirmChance(); return; }
+            if(s.shotView)return;
+            if(s.phase==='restart'){if(s.restart?.team===0&&!p.action)this.takeRestart(c.type==='loft',c.type==='shoot');return;}
+            if(c.type==='switch'){if(s.owner!==s.selected)this.command({type:'C'});return;}
+            if(p.action||p.keeperCycle||p.cooldown>0)return;
+            if(s.owner===p.id){
+                if(c.type==='pass')this.kick(p,'pass');
+                else if(c.type==='loft')this.kick(p,'loft');
+                else if(c.type==='shoot'){if(this.canChance(p))this.beginChance(p);else this.kick(p,'shot');}
+            }else if(c.type==='tackle'){
+                if(s.owner===null&&s.aerial?.controlledBy===null)this.control(p);
+                else this.tackle(p,'standing');
+            }else if(c.type==='slide')this.tackle(p,'slide');
+            return;
+        }
         if (s.shotView?.phase === 'aim') {
             if (c.type === 'A')
                 this.confirmChance();
@@ -187,6 +203,8 @@ export class Simulation {
         else if (c.type === 'A' || c.type === 'B')
             this.tackle(p);
     }
+    attackingControls(){const s=this.state;return !!s.shotView||s.phase==='restart'&&s.restart?.team===0||s.owner===s.selected;}
+    shootPrompt(){const s=this.state,p=s.players[s.selected];return s.status==='playing'&&s.phase==='open'&&!s.shotView&&s.owner===p.id&&!p.action&&p.cooldown===0&&this.attackProgress(p)>70;}
     private attackProgress(p: Player) { return this.attack(p.team) === 1 ? p.x : 105 - p.x; }
     primaryAction(): 'SHOOT'|'SHOT'|'CHANCE'|'PASS'|'THROW'|'KICK'|'CONTROL'|'TACKLE'{
         const s=this.state,p=s.players[s.selected];
@@ -212,13 +230,13 @@ export class Simulation {
         p.action = { kind, age: 0, target: { x: q.x, y: q.y }, targetPlayer: 'id' in q ? q.id : undefined, released: false, hit: false, direction: { x: this.attack(p.team), y: 0 } };
         p.facing = this.attack(p.team) === 1 ? 'E' : 'W';
     }
-    private takeRestart(loft = false) { const s = this.state, r = s.restart!, p = s.players[r.taker]; const target = this.target(p, true); p.action = { kind: r.kind === 'throw-in' ? 'throw' : r.kind === 'penalty' ? 'shot' : loft ? 'loft' : 'pass', age: 0, target: r.kind === 'penalty' ? { x: this.attack(p.team) === 1 ? 108 : -3, y: 34 } : { x: target.x, y: target.y }, released: false, hit: false, direction: { x: this.attack(p.team), y: 0 } }; }
-    private tackle(p: Player) {
+    private takeRestart(loft = false, shot = false) { const s = this.state, r = s.restart!, p = s.players[r.taker]; const target = this.target(p, true), shotRestart=r.kind!=='throw-in'&&(r.kind==='penalty'||shot); p.action = { kind: r.kind === 'throw-in' ? 'throw' : shotRestart ? 'shot' : loft ? 'loft' : 'pass', age: 0, target: shotRestart ? { x: this.attack(p.team) === 1 ? 108 : -3, y: 34 } : { x: target.x, y: target.y }, released: false, hit: false, direction: { x: this.attack(p.team), y: 0 } }; }
+    private tackle(p: Player, tackleStyle: 'standing'|'slide' = 'slide') {
         if (p.role === 'keeper' || p.action || p.cooldown > 0)
             return;
         const input = this.direction(), v = p.team === 0 && p.id === this.state.selected && length(input, { x: 0, y: 0 }) > .1 ? input : { x: signed(this.state.ball.x - p.x), y: 0 };
         p.facing = v.x >= 0 ? 'E' : 'W';
-        p.action = { kind: 'tackle', age: 0, target: { x: 0, y: 0 }, released: false, hit: false, direction: { x: v.x >= 0 ? 1 : -1, y: 0 } };
+        p.action = { tackleStyle, kind: 'tackle', age: 0, target: { x: 0, y: 0 }, released: false, hit: false, direction: { x: v.x >= 0 ? 1 : -1, y: 0 } };
     }
     view(p: Player): View {
         let pose: string, mirror = false;
@@ -245,7 +263,7 @@ export class Simulation {
         if (a?.kind === 'tackle') {
             let n = a.age;
             pose = 'ready';
-            for (const [id, ticks] of TACKLE) {
+            for (const [id, ticks] of a.tackleStyle==='standing'?[['compress',8],['settle',8],['ready',14]] as [string,number][]:TACKLE) {
                 if (n < ticks) {
                     pose = id;
                     break;
@@ -255,7 +273,7 @@ export class Simulation {
             mirror = a.direction.x < 0;
         }
         else if (a?.kind === 'control') {
-            pose = a.age < 20 ? 'signal' : a.age < 28 ? 'crouch' : a.age < 36 ? 'compress' : a.age < 44 ? 'settle' : 'ready';
+            pose = a.age < 20 ? 'signal' : a.age < 28 ? 'crouch' : a.age < (a.tackleStyle==='standing'?16:36) ? 'compress' : a.age < 44 ? 'settle' : 'ready';
             mirror = a.direction.x > 0;
         }
         else if (a?.kind === 'stagger') {
@@ -376,7 +394,7 @@ export class Simulation {
             s.noDoubleTouch = p.id;
         }
         this.emit(a.kind === 'shot' ? 'shot' : 'pass', { player: p.id, team: p.team, pose: this.view(p).pose, mirror: this.view(p).mirror, anchor: a.kind === 'throw' ? 'ball' : 'foot', worldPoint: { ...start }, delivery: a.kind, point: project(start) });
-        s.message = a.kind === 'shot' ? 'SHOT — keeper and rebound in play.' : 'Ball in play — move to receive, L to switch.';
+        s.message = a.kind === 'shot' ? 'SHOT — keeper and rebound in play.' : 'Ball in play — move to receive, S to switch.';
     }
     private move(p: Player, target: Point, speed: number) {
         // Restart takers may stand at y=0/68 or x=.5/104.5, outside the
@@ -539,7 +557,7 @@ export class Simulation {
         p.moving = false;
         this.clear();
         this.emit('shooting-camera-enter', { player: p.id, team: p.team, direction });
-        s.message = 'CHANCE - aim with directions, J to shoot (auto release after 1.5 seconds).';
+        s.message = 'CHANCE - aim with arrow keys, S to shoot (auto release after 1.5 seconds).';
         if (!human)
             this.confirmChance();
     }
@@ -587,7 +605,7 @@ export class Simulation {
             s.selected = receiver.id;
             this.clear();
         }
-        s.message = 'LOFT - J controls at the receiver; L switches player.';
+        s.message = 'LOFT - T controls the aerial ball; S switches player.';
     }
     step() {
         const s = this.state;
@@ -660,10 +678,10 @@ export class Simulation {
                     if (a.age >= 8 && a.age < 36) {
                         // Corner takers can still be outside the running inset.
                         // A tackle must not snap them across that inset either.
-                        p.x = clamp(p.x + a.direction.x * 9 * DT, Math.min(1, p.x), Math.max(104, p.x));
+                        p.x = clamp(p.x + a.direction.x * (a.tackleStyle==='standing'?3:9) * DT, Math.min(1, p.x), Math.max(104, p.x));
                         p.moving = true;
                     }
-                    if (a.age >= 84) {
+                    if (a.age >= (a.tackleStyle==='standing'?30:84)) {
                         p.action = null;
                         p.cooldown = 1;
                         this.emit('recovered', { player: p.id });
@@ -883,7 +901,7 @@ export class Simulation {
                 if (p.team === 0)
                     s.selected = p.id;
                 this.attach(p);
-                s.message = p.team === 0 ? 'HARBOUR possession — J pass / shot, K loft, L short pass.' : 'ORCHARD possession — J tackle, L switch.';
+                s.message = p.team === 0 ? 'HARBOUR possession — P pass, L loft, S shoot.' : 'ORCHARD possession — T tackle, S switch, D slide.';
             }
         }
         else if (boundary)

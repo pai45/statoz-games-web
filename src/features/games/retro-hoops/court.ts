@@ -1,3 +1,4 @@
+import {courtPoint} from "./view";
 /** Original code-drawn scenery reconstructed from observed Street Hoop park composition.
  * Palette/geometry are authored approximations; no background pixels or logos are copied.
  * Primary footage 62?85s: sea/sand, low brick wall, lawn spectators, paved walk,
@@ -30,8 +31,22 @@ export function drawParkCourt(c:CanvasRenderingContext2D){
   // Asphalt is deliberately quieter than the active sprites; seams stay low contrast.
   rect(0,164,900,196,"#858581");
   for(let y=172;y<360;y+=7)for(let x=(y%3)*4;x<900;x+=19)rect(x,y,2,1,(x+y)%4?"#8a8983":"#7d807d");
-  c.lineWidth=2;c.strokeStyle="#f4e4bf";c.strokeRect(60,164,780,166);
-  // Source-inspired broad blue lane and contrasting orange free-throw half circle.
-  for(const left of[true,false]){const x=left?60:710;rect(x,207,130,80,"#5796ac");c.fillStyle="#c97b42";c.beginPath();c.ellipse(left?190:710,247,45,40,0,left?-Math.PI/2:Math.PI/2,left?Math.PI/2:Math.PI*1.5);c.fill();c.strokeStyle="#f2e4c8";c.strokeRect(x,207,130,80);c.beginPath();c.ellipse(left?190:710,247,45,40,0,0,Math.PI*2);c.stroke();c.strokeStyle="#e5c34d";c.beginPath();c.ellipse(left?60:840,247,255,100,0,left?-Math.PI/2:Math.PI/2,left?Math.PI/2:Math.PI*1.5);c.stroke();}
-  c.strokeStyle="#eadbbd";c.beginPath();c.moveTo(450,164);c.lineTo(450,330);c.stroke();c.fillStyle="#5796ac";c.beginPath();c.ellipse(450,247,57,35,0,0,Math.PI*2);c.fill();c.fillStyle="#c97b42";c.beginPath();c.ellipse(450,247,57,35,0,Math.PI/2,Math.PI*1.5);c.fill();c.strokeStyle="#f2e4c8";c.beginPath();c.ellipse(450,247,57,35,0,0,Math.PI*2);c.moveTo(450,212);c.lineTo(450,282);c.stroke();
+  // Project all court markings through the same ground plane as actors and ball.
+  const path=(points:{x:number;y:number}[],color:string,fill=false,close=false)=>{c.beginPath();points.forEach((p,i)=>{const q=courtPoint(p.x,p.y);if(i===0)c.moveTo(q.x,q.y);else c.lineTo(q.x,q.y);});if(close)c.closePath();if(fill){c.fillStyle=color;c.fill();}else{c.strokeStyle=color;c.stroke();}};
+  const box=(x:number,y:number,w:number,h:number,color:string,fill=false)=>path([{x,y},{x:x+w,y},{x:x+w,y:y+h},{x,y:y+h}],color,fill,true);
+  const arc=(x:number,y:number,rx:number,ry:number,start=0,end=Math.PI*2)=>Array.from({length:65},(_,i)=>({x:x+Math.cos(start+(end-start)*i/64)*rx,y:y+Math.sin(start+(end-start)*i/64)*ry}));
+  c.save();c.beginPath();[{x:60,y:164},{x:840,y:164},{x:840,y:330},{x:60,y:330}].forEach((p,i)=>{const q=courtPoint(p.x,p.y);if(i===0)c.moveTo(q.x,q.y);else c.lineTo(q.x,q.y);});c.closePath();c.clip();
+  c.lineWidth=2;
+  for(const left of [true,false]){const x=left?60:710,center=left?190:710;
+    box(x,207,130,80,"#5796ac",true);
+    path(arc(center,247,45,40,left?-Math.PI/2:Math.PI/2,left?Math.PI/2:Math.PI*1.5),"#c97b42",true,true);
+    box(x,207,130,80,"#f2e4c8");path(arc(center,247,45,40),"#f2e4c8");
+    path(arc(left?60:840,247,255,100,left?-Math.PI/2:Math.PI/2,left?Math.PI/2:Math.PI*1.5),"#e5c34d");
+  }
+  path([{x:450,y:164},{x:450,y:330}],"#eadbbd");
+  path(arc(450,247,57,35),"#5796ac",true,true);
+  path(arc(450,247,57,35,Math.PI/2,Math.PI*1.5),"#c97b42",true,true);
+  path(arc(450,247,57,35),"#f2e4c8");
+  path([{x:450,y:212},{x:450,y:282}],"#f2e4c8");
+  c.restore();box(60,164,780,166,"#f4e4bf");
 }

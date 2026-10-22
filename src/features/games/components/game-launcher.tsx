@@ -20,7 +20,7 @@ import {
 import type { Sport } from "@/domain/sports";
 
 import { HoopDuel } from "../basketball";
-import { FinalOver } from "../final-over";
+import { StadiumCricket } from "../stadium-cricket/screen";
 import { FootballBingo } from "../football-bingo";
 import { FootballChess } from "../football-chess";
 const GrandPrix = dynamic(() => import("../grand-prix/rebuild/screen").then(m => m.GrandPrix), { ssr: false, loading: () => <div role="status">Loading Grand Prix Dash…</div> });
@@ -58,7 +58,7 @@ const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
   "retro-football": RetroFootball,
   "penalty-shootout": PenaltyShootout,
   "pitch-duel": PitchDuel,
-  "final-over": FinalOver,
+  "stadium-cricket": StadiumCricket,
   "football-chess": FootballChess,
   "football-bingo": FootballBingo,
   // One screen serves all three: the sport it was launched as picks the route

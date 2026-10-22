@@ -32,6 +32,7 @@ export class FootballRenderer {
     private closeMarker!: THREE.Mesh;
     private disposed = false;
     private selectionLabel=new THREE.Group();
+    private shootLabel=new THREE.Group();
     constructor(canvas: HTMLCanvasElement, readonly assets: AssetManifest, image: HTMLImageElement) {
         this.gl = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'low-power' });
         this.gl.setPixelRatio(1);
@@ -49,7 +50,11 @@ export class FootballRenderer {
         this.texture.needsUpdate = true;
         drawStadium(this.pitch,this.rect.bind(this),this.box.bind(this));
         this.batchStatic(this.pitch);
-        this.pitch.add(this.selectionLabel);
+        this.pitch.add(this.selectionLabel,this.shootLabel);
+        this.rect(this.shootLabel,-23,-98,46,18,'#172346',8003);this.rect(this.shootLabel,-22,-97,44,16,'#ffdb4d',8004);this.rect(this.shootLabel,-21,-96,42,14,'#2345a3',8005);
+        const glyphs=['111/100/111/001/111','101/101/111/101/101','111/101/101/101/111','111/101/101/101/111','111/010/010/010/010'];
+        for(const [i,glyph]of glyphs.entries())for(const [y,row]of glyph.split('/').entries())for(let x=0;x<3;x++)if(row[x]==='1'){this.rect(this.shootLabel,i*8+x*2-18+1,y*2-94+1,2,2,'#142112',8006);this.rect(this.shootLabel,i*8+x*2-18,y*2-94,2,2,'#ffe05a',8007);}
+        this.batchStatic(this.shootLabel);
         for(const [index,glyph]of [['110','101','110','100','100'],['010','110','010','010','111']].entries())for(let y=0;y<5;y++)for(let x=0;x<3;x++)if(glyph[y][x]==='1')this.rect(this.selectionLabel,index*4+x-3,y-72,1,1,'#ffffff',8002);
         for (let id = 0; id < 22; id++) {
             const actor = this.makeSprite();
@@ -192,6 +197,8 @@ export class FootballRenderer {
             d.selection.renderOrder = 8000;
         }
         const b = project(s.ball);
+        this.shootLabel.visible=sim.shootPrompt();
+        const cue=project(s.players[s.selected]);const cueX=Math.max(s.camera.x+24,Math.min(s.camera.x+this.viewportWidth-24,cue.x+36)),cueY=Math.max(cue.y-6,s.camera.y+140);this.shootLabel.position.set(Math.round(cueX),-Math.round(cueY),0);
         const selected=project(s.players[s.selected]);this.selectionLabel.position.set(Math.round(selected.x),-Math.round(selected.y),0);
         this.ball.position.set(Math.round(b.x), -Math.round(b.y - s.ball.z), 0);
         this.ballShadow.visible = s.ball.z > 3;

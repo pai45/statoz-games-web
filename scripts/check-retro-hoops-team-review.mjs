@@ -3,7 +3,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {pathToFileURL} from 'node:url';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE_PATH?pathToFileURL(process.env.PLAYWRIGHT_MODULE_PATH).href:'playwright');
-const out=path.resolve('test-results/retro-hoops-team-ai-v1'),checks=[],errors=[];
+const out=path.resolve('test-results',process.argv[2]||'retro-hoops-team-ai-v1'),checks=[],errors=[];
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 try{
  const page=await browser.newPage({viewport:{width:1400,height:1080}});

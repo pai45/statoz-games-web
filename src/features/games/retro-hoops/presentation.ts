@@ -1,3 +1,4 @@
+import {courtPoint,cameraOrigin} from "./view";
 import {drawParkCourt} from "./court";
 import {gaitFrame,bodyBob,defenseFrame,LOCOMOTION_CLIPS} from "./motion";
 import { anchor, COURT, type Actor, type Match } from "./simulation";
@@ -34,21 +35,21 @@ export function courtCanvas() {
   return canvas;
 }
 export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=false) {
-  const width=c.canvas.width,cam=Math.max(0,Math.min(900-width,Math.round(s.camera+(480-width)/2)));c.imageSmoothingEnabled=false;c.clearRect(0,0,width,360);
+  const width=c.canvas.width,cam=cameraOrigin(s,width);c.imageSmoothingEnabled=false;c.clearRect(0,0,width,360);
   c.drawImage(p.court, -cam,0);
   const rows=s.actors.map(a=>({y:a.y,kind:"actor",a}));
   rows.push({y:s.ball.y+.1,kind:"ball",a:s.actors[0]});
   for(const row of rows.sort((a,b)=>a.y-b.y)) {
-    if(row.kind==="ball"){c.fillStyle="#0007";c.beginPath();c.ellipse(s.ball.x-cam,s.ball.y,6,2,0,0,Math.PI*2);c.fill();c.drawImage(p.ball,Math.round(s.ball.x-cam-5.5),Math.round(s.ball.y-s.ball.z-5.5));continue;}
-    const a=row.a,x=Math.round(a.x-cam),y=Math.round(a.y-a.z);
-    c.fillStyle="#0005";c.beginPath();c.ellipse(x,a.y,17,4,0,0,Math.PI*2);c.fill();
-    if(a.id===s.selected){c.font="bold 10px monospace";c.textAlign="center";c.fillStyle="#191810";c.fillText("1P",x+1,y-119);c.fillStyle="#ef3c27";c.fillText("1P",x,y-120);c.beginPath();c.moveTo(x-4,y-118);c.lineTo(x+4,y-118);c.lineTo(x,y-114);c.fill();c.textAlign="start";}
-    c.drawImage(p[poseFor(s,a)],x-72,y-116);
-    const overlay=overlayFor(s,a);if(overlay)c.drawImage(p[overlay.key],x-72,y-116+overlay.y);
-    if(debug){c.strokeStyle="#51ff94";c.strokeRect(x-13,a.y-8,26,16);c.font="9px monospace";c.fillStyle="white";c.fillText(`${a.id} ${a.action}`,x-20,y-120);const hand=anchor(a);c.fillRect(hand.x-cam-2,hand.y-hand.z-2,4,4);}
+    if(row.kind==="ball"){const p0=courtPoint(s.ball.x,s.ball.y),p1=courtPoint(s.ball.x,s.ball.y,s.ball.z);c.fillStyle="#0007";c.beginPath();c.ellipse(p0.x-cam,p0.y,6*p0.scale,2*p0.scale,0,0,Math.PI*2);c.fill();c.drawImage(p.ball,Math.round(p1.x-cam-5.5*p1.scale),Math.round(p1.y-5.5*p1.scale),11*p1.scale,11*p1.scale);continue;}
+    const a=row.a,p0=courtPoint(a.x,a.y,a.z),scale=p0.scale,x=Math.round(p0.x-cam),y=Math.round(p0.y);
+    c.fillStyle="#0005";c.beginPath();c.ellipse(x,a.y,17*scale,4*scale,0,0,Math.PI*2);c.fill();
+    if(a.id===s.selected){c.save();c.translate(x,y);c.scale(scale,scale);c.font="bold 10px monospace";c.textAlign="center";c.fillStyle="#191810";c.fillText("1P",1,-121);c.fillStyle="#ef3c27";c.fillText("1P",0,-122);c.beginPath();c.moveTo(-4,-120);c.lineTo(4,-120);c.lineTo(0,-116);c.fill();c.restore();}
+    c.drawImage(p[poseFor(s,a)],x-72*scale,y-116*scale,144*scale,128*scale);
+    const overlay=overlayFor(s,a);if(overlay)c.drawImage(p[overlay.key],x-72*scale,y+(-116+overlay.y)*scale,144*scale,128*scale);
+    if(debug){c.strokeStyle="#51ff94";c.strokeRect(x-13*scale,a.y-8*scale,26*scale,16*scale);c.font="9px monospace";c.fillStyle="white";c.fillText(a.id+" "+a.action,x-20,y-120*scale);const hand=anchor(a),hp=courtPoint(hand.x,hand.y,hand.z);c.fillRect(hp.x-cam-2,hp.y-2,4,4);}
   }
-  c.drawImage(p.left,85-cam-31,COURT.rimY-COURT.rimZ-48);
-  c.drawImage(p.right,815-cam-13,COURT.rimY-COURT.rimZ-48);
+  for(const [key,x,offset,w] of [["left",85,31,47],["right",815,13,92]] as const){const p0=courtPoint(x,COURT.rimY);c.drawImage(p[key],p0.x-cam-offset*p0.scale,p0.y-(COURT.rimZ+48)*p0.scale,w*p0.scale,75*p0.scale);}
+
 }
 export async function loadPictures(base:string,signal:AbortSignal):Promise<Pictures> {
   const names=POSES.flatMap(p=>["navy","amber"].flatMap(team=>["source","mirrored"].map(f=>`${team}-${p}-${f}`)));

@@ -1,9 +1,9 @@
-import type { Direction } from './contracts';
+import type { Command, Direction } from './contracts';
 import type { FootballSession } from './session';
 import {padDirections} from './touch-pad';
 export function bindInput(container: HTMLElement, session: FootballSession) {
-    const controller = new AbortController(), options = { signal: controller.signal }, keys: Record<string, Direction> = { arrowleft: 'left', a: 'left', arrowright: 'right', d: 'right', arrowup: 'up', w: 'up', arrowdown: 'down', s: 'down' };
-    const actions: Record<string, 'A' | 'B' | 'C'> = { j: 'A', k: 'B', l: 'C' };
+    const controller = new AbortController(), options = { signal: controller.signal }, keys: Record<string, Direction> = { arrowleft: 'left', arrowright: 'right', arrowup: 'up', arrowdown: 'down' };
+    type ActionType=Exclude<Command['type'],'hold'>;
     document.addEventListener('keydown', e => {
         if ((e.target as HTMLElement)?.matches('input,select,textarea'))
             return;
@@ -17,6 +17,7 @@ export function bindInput(container: HTMLElement, session: FootballSession) {
             e.preventDefault();
             session.dispatch({ type: 'hold', key: direction, value: true, source: 'keyboard:' + e.code });
         }
+        const attack=session.sim.attackingControls(),actions:Record<string,ActionType>=attack?{p:'pass',l:'loft',s:'shoot'}:{t:'tackle',s:'switch',d:'slide'};
         const action = actions[e.key.toLowerCase()];
         if (action && !e.repeat) {
             e.preventDefault();
@@ -49,7 +50,7 @@ export function bindInput(container: HTMLElement, session: FootballSession) {
         target.setPointerCapture(e.pointerId);
         pointers.add(e.pointerId);
         target.dataset.pressed = 'true';
-        const direction = target.dataset.hold as Direction | undefined, action = target.dataset.action as 'A' | 'B' | 'C' | undefined;
+        const direction = target.dataset.hold as Direction | undefined, action = target.dataset.action as ActionType | undefined;
         if (direction)
             session.dispatch({ type: 'hold', key: direction, value: true, source: 'pointer:' + e.pointerId });
         else if (action)

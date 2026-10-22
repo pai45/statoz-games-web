@@ -50,3 +50,4 @@ next-env.d.ts
 # Local Retro Hoops renderer review and validation status
 /test-results/retro-hoops-*/
 /hoops-console-build-exit.txt
+/test-results/stadium-cricket/

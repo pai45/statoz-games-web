@@ -56,8 +56,8 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
         }catch{setHint('Use landscape or add this game to your home screen for the largest view.');}
     };
     const s=engine?.sim.state,playing=s?.status==='playing',remaining=s?Math.max(0,90-Math.floor(s.halfTicks/60)):90;
-    const action=engine?.sim.primaryAction()??'PASS';
-    const actionLabels=[action,engine?.sim.secondaryAction()??'LOFT',engine?.sim.tertiaryAction()??'SWITCH'];
+    const attack=engine?.sim.attackingControls()??true;
+    const buttons=attack?[{type:'pass',key:'P',label:'PASS'},{type:'loft',key:'L',label:'LOFT'},{type:'shoot',key:'S',label:'SHOOT'}] as const:[{type:'tackle',key:'T',label:'TACKLE'},{type:'switch',key:'S',label:'SWITCH'},{type:'slide',key:'D',label:'SLIDE'}] as const;
     const lobby=ready&&!error&&s?.status==='ready';
     const blocked=!ready||!playing||s?.phase==='goal'||!!s?.shotView&&s.shotView.phase!=='aim';
     const status=error?'LOAD ERROR':!ready?'LOADING':s?.status==='playing'?s.shotView?({aim:'CHANCE',windup:'SHOOT',flight:'SHOT',parry:'SAVE',goal:'GOAL!'})[s.shotView.phase]:s.phase==='restart'?'KICK OFF':s.phase==='goal'?'GOAL!':'EXHIBITION':s?.status.toUpperCase();
@@ -72,7 +72,7 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
                 <div className="dpad" data-stick aria-label="Eight-way movement pad" aria-disabled={blocked}>{(['up','left','down','right'] as const).map(direction=><button key={direction} className={'direction '+direction} data-hold={direction} disabled={blocked} data-pressed={s?.held[direction]?'true':undefined} aria-label={'Move '+direction}>{({up:'▲',left:'◀',down:'▼',right:'▶'})[direction]}</button>)}<span className="pad-centre"/></div>
                 <div className="speaker" aria-hidden="true"><i/><i/><i/><i/></div>
                 <button className="small-button" onClick={()=>setScreenOnly(v=>!v)} aria-pressed={screenOnly}>SCREEN +</button>
-                <span className="control-help">WASD / ARROWS</span>
+                <span className="control-help">ARROW KEYS</span>
             </aside>
             <section className="screen-bezel" aria-label="Game display"><div className="glass">
                 <canvas key={mount} width={VIEW.width} height={VIEW.height} ref={canvas} aria-label="Retro Football live pitch"/>
@@ -89,8 +89,8 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
                 </section></div>}
             </div></section>
             <aside className="right-grip" aria-label="Action controls"><span className="grip-caption">THREE BUTTON PLAY</span>
-                <div className="action-cluster">{(['A','B','C'] as const).map((type,i)=><button key={type} className={'action action-'+type} id={type} data-action={type} disabled={blocked||!!s?.shotView&&type!=='A'} aria-label={type+' '+actionLabels[i]} onClick={e=>{if(e.detail===0)session.current?.dispatch({type});}}><b>{type}</b><small>{actionLabels[i]}</small></button>)}</div>
-                <span className="control-help">J / K / L</span>
+                <div className="action-cluster">{buttons.map(({type,key,label},i)=><button key={i} className={'action action-'+(['A','B','C'][i])} id={['A','B','C'][i]} data-action={type} disabled={blocked||!!s?.shotView&&type!=='shoot'} aria-label={label+' ('+key+')'} onClick={e=>{if(e.detail===0)session.current?.dispatch({type});}}><b>{key}</b><small>{label}</small></button>)}</div>
+                <span className="control-help">{attack?'P / L / S':'T / S / D'}</span>
                 <button ref={menuButton} className="small-button" id="menu" onClick={openMenu}>MENU</button>
             </aside>
             {lobby&&<ArcadeLobby atlasUrl={atlasUrl} onStart={start} onMenu={openMenu}/>}
@@ -102,7 +102,7 @@ function Game({context,manifestUrl}:{context:GameContext;manifestUrl:URL}){
             <div className="audio-settings">{(['music','sfx'] as const).map(key=><label key={key}>{key==='music'?'Music':'Sound effects'}<input aria-label={key==='music'?'Music volume':'Sound effects volume'} type="range" min="0" max="1" step=".05" value={engine?.settings[key]??.4} onChange={e=>{session.current?.audio.unlock();session.current?.setSettings({[key]:Number(e.currentTarget.value)});redraw(n=>n+1);}}/></label>)}</div>
             <button id="framing" className="utility" aria-pressed={reference} onClick={()=>setReference(v=>!v)}>VIEW: {reference?'REFERENCE 320 × 224':'WIDE HANDHELD'}</button>
             <p>Slide your thumb across the pad for eight-way movement. Keep steering while pressing A, B or C.</p>
-            <p>Move / aim: arrows or WASD. J passes, tackles or shoots in CHANCE. K lofts. L switches or plays short.</p><p className="review-note">Invented clubs. Source-derived reference art. Original sound. Local exhibition.</p>
+            <p>Move / aim: arrow keys. Attack: P pass, L loft, S shoot. Defence: T tackle, S switch, D slide. S confirms a CHANCE shot.</p><p className="review-note">Invented clubs. Source-derived reference art. Original sound. Local exhibition.</p>
             {!lobby&&<button className="utility" onClick={()=>{session.current?.restart();setMenu(false);}}>RESTART MATCH</button>}<button className="utility" onClick={exit}>EXIT TO GAMES</button>
         </div></div>}
     </main>;

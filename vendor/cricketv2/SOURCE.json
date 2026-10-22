@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/RealOmlit/CricketV2",
+  "commit": "cb19e595d5a00a2764a6a5cb4b20fc48a2a733bc",
+  "importedOn": "2026-10-22",
+  "permission": {
+    "status": "user-confirmed",
+    "scope": "Import and adapt original code, models and synthesized audio for Stadium Cricket in Future Games Web",
+    "evidence": "User confirmed permission in the implementation planning conversation on 2026-10-22. No upstream open-source license asserted."
+  },
+  "lineEndings": "Imported working-tree bytes; gameplay files are unchanged.",
+  "files": {
+    "CREDITS.md": "52381acf7add0f4596d7b920aa3fe1364becb61ca32141ed72e90312beb01f29",
+    "index.html": "b25a6f8a06793a45e954b948135e62b8c7cd7dc4c6d0980a6e2521d1b1a30ab2",
+    "README.md": "4928ced45835d38f67e6831b4f4cb8236d5d67f562a229987d29a0e916e37116",
+    "assets/cricket-ground.glb": "f9a0bf68515fc9f4430a596e4b3b12e643fae57cea8c7e344b5ca4de819f13c3",
+    "assets/equipment.js": "bebd4149497560f8832967c26bbfd375a6353f7446834bfbfe3076c0147c4fe2",
+    "assets/textures.js": "9924347c26277d2d2a14f6bbd396dafdb49421ff3f9b8b78f42da3230df5bf1b",
+    "assets/THREE-LICENSE.txt": "df2a91696186fe58c92518a25d48bc59c8ee2edc7cac9ca6d19a5a0d599a2a05",
+    "assets/three.min.js": "13767d37502d7b7b72296eac9bc699d083743de85b7ba17557f6842fe789b857",
+    "assets/textures/Grass001_1K-JPG_Color.jpg": "b9b6d61bc3b6137b868a3447eef18737896acd26d58fe2f4b83ce8c0e9d3f8ad",
+    "assets/textures/Grass001_1K-JPG_NormalGL.jpg": "eef0b56db5f00a6fcb3d0e0f8463e4e141e88aa85b26527a04d617b75a4ab5d2",
+    "css/style.css": "154fc3f46816c14e67a422e8cf4159fc5c42dc5fcdde181b85b6d6894d4d51a8",
+    "js/cinema.js": "b41369bda25794f8bd0b617ec21d7ca49706434737f4cb26bab4b9ca3211f949",
+    "js/game.js": "bdf136ccdcb5053987ee15225141b435957f582b0746ce00af174b8a8c1139b9",
+    "js/players.js": "e4906dd950eb8218a15e93f948c5301e6f438c8e467fde86d6560fc6a006b5d1",
+    "js/stadium.js": "7740aee100e9d8f4109f8bd0b729ea0b9dab98d4e640c648beb4e647ae08936a"
+  }
+}

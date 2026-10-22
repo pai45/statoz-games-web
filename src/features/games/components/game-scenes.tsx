@@ -34,6 +34,7 @@ export type GameSceneProps = {
 };
 
 export function GameScene(props: GameSceneProps) {
+  if (props.game === "stadium-cricket") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/stadium-cricket/stadium-preview.jpg")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (["retro-football","retro-hoops","retro-innings","retro-circuit"].includes(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(`/assets/games/identity/${props.game}.svg`)} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized className={styles.layerImage}/></div>;
   if (props.game === "grand-prix-dash") return <div className={styles.scene} aria-hidden="true" data-discovery-game="grand-prix-dash" style={{opacity: props.opacity ?? 1}}><Image src={publicAsset("/assets/games/grand-prix-dash.svg")} alt="" fill sizes="(min-width: 1024px) 240px, 50vw" unoptimized className={styles.layerImage} /></div>;
   return <CatalogGameScene {...props} />;

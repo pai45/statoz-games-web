@@ -2,7 +2,7 @@
   "gameId": "retro-hoops",
   "briefVersion": "1.0.0",
   "rulesVersion": "1.5.0",
-  "buildVersion": "future-games-team-ai-v1-local",
+  "buildVersion": "future-games-court-perspective-v2-local",
   "assetPackVersion": "facing-family-v1+action-family-v2",
   "date": "2026-10-20",
   "reference": {
@@ -109,5 +109,6 @@
     900,
     360
   ],
-  "courtArtwork": "Primary park composition reconstructed in original code; see credits.json"
+  "courtArtwork": "Primary park composition reconstructed in original code; see credits.json",
+  "presentationVersion": "court-perspective-v2"
 }

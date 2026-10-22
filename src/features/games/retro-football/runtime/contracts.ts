@@ -2,6 +2,7 @@ export type { Point, World, Ball, Facing, Direction, View, Pose, AssetManifest, 
 import type { Point, Ball, Facing, Direction, GameSettings, Contact, View } from './common';
 export type Team = 0 | 1;
 export interface Action {
+    tackleStyle?: 'standing' | 'slide';
     kind: 'pass' | 'loft' | 'shot' | 'tackle' | 'throw' | 'control' | 'stagger';
     age: number;
     targetPlayer?: number;
@@ -115,7 +116,7 @@ export interface MatchState {
     lastContact: Contact | null;
 }
 export type Command = {
-    type: 'start' | 'pause' | 'resume' | 'clear' | 'A' | 'B' | 'C' | 'next';
+    type: 'start' | 'pause' | 'resume' | 'clear' | 'A' | 'B' | 'C' | 'pass' | 'loft' | 'shoot' | 'tackle' | 'switch' | 'slide' | 'next';
 } | {
     type: 'hold';
     key: Direction;
@@ -174,4 +175,4 @@ export interface GameSession {
     setSettings(settings: Partial<GameSettings>): void;
     dispose(): void;
 }
-export const DEFINITION = { id: 'retro-football', runtimeVersion: '0.10.0', rulesVersion: 'exhibition-chance-v1', assetVersion: 'football-chance-atlas-v2', simulationHz: 60 } as const;
+export const DEFINITION = { id: 'retro-football', runtimeVersion: '0.11.0', rulesVersion: 'exhibition-explicit-controls-v1', assetVersion: 'football-chance-atlas-v2', simulationHz: 60 } as const;

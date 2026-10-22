@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     // Generated standalone game bundle, including vendored React/Three.js.
     // Its authored TypeScript is validated in the game workspace.
     "public/games/**",
+    "vendor/cricketv2/**",
+    "test-results/stadium-cricket/**",
     "public/embedded-games/**",
     // Generated diagnostic renderer bundles; authored game and review scripts remain linted.
     "test-results/retro-hoops-*/**",

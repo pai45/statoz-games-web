@@ -3,7 +3,7 @@
   "version": "batting-sequence-v1",
   "release": "private-reference-preview",
   "publicReleaseApproved": false,
-  "sha256": "ca4861b1855cc37568570f703c7de757914e007a64def3da5198fc71ce459179",
+  "sha256": "8cad2ee37e21db0ddd9f82499eb3bed3318ee96e098286a841fda65735488eae",
   "sourceBundle": "src/features/games/retro-innings/runtime",
   "sourceAssets": "output/retro-innings/three-candidate-v2/assets.json",
   "referenceStudy": "output/retro-innings/reference-study/manifest.json",

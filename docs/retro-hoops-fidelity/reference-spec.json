@@ -53,8 +53,9 @@
   },
   "currentCandidate": {
     "rules": "1.5.0",
-    "slice": "independent team movement and camera comparison",
-    "aiClassification": "authored, not source-recovered",
-    "evidence": "team-ai-v1.md"
+    "slice": "court perspective and contact-preserving depth projection",
+    "presentation": "court-perspective-v2",
+    "evidence": "court-v2.md",
+    "projectionClassification": "authored fit to processed-frame observations"
   }
 }
