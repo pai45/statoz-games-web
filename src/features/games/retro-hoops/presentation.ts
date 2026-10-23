@@ -1,7 +1,10 @@
+import {CHARACTER_PACK} from "./character-pack";
+import {drawContactArm} from "./contact-arm";
+import {actionPose} from "./action-spec";
 import {REFERENCE_TUNING as T} from "./reference-tuning";
-import {courtPoint,cameraOrigin} from "./view";
+import {courtPoint,cameraOrigin,BASKET_ART} from "./view";
 import {drawParkCourt} from "./court";
-import {gaitFrame,bodyBob,defenseFrame,LOCOMOTION_CLIPS} from "./motion";
+import {gaitFrame,bodyBob,defenseFrame} from "./motion";
 import { anchor, COURT, type Actor, type Match } from "./simulation";
 
 export type Pictures = Record<string, HTMLImageElement>;
@@ -26,46 +29,59 @@ export function poseFor(s:Match,a:Actor) {
     else if(a.lastMoved!==undefined&&s.tick-a.lastMoved<8)pose=`brake-${String(Math.floor((s.tick-a.lastMoved)/2)).padStart(2,"0")}`;
     else pose=defending?"defend-00":Math.floor((s.tick+a.id*11)/24)%2?"neutral-a":"neutral-b";
   }
+  const action=actionPose(a,s.tick);if(action)pose=action;if(a.action==="dunk"&&!has)pose=a.z>20?"finish-10":"recover-03";
+  const directional=a.action==="idle"&&(pose.startsWith("run-")||pose.startsWith("dribble-body-")||pose.startsWith("defend-")||pose.startsWith("backpedal-")||["neutral-a","neutral-b","carry-front"].includes(pose));
+  if(directional&&Math.abs(a.moveY??0)>Math.abs(a.moveX??0)*.7)pose+=(a.moveY??0)<0?"-back":"-front";
   return `${a.team===0?"navy":"amber"}-${pose}-${a.face===1?"source":"mirrored"}`;
 }
 export function overlayFor(s:Match,a:Actor){
   if(s.ball.owner!==a.id||a.action!=="idle"||(!a.moving&&(a.dribbleTick??-1)<0))return null;
   const phase=((a.dribbleTick??0)%18+18)%18,blend=(a.dribbleFacing??a.face)/a.face,switching=blend<1,frame=switching?phase*4+Math.max(0,Math.min(3,Math.round((blend+1)*2))):phase;
-  return {key:`${a.team===0?"navy":"amber"}-${switching?"dribble-switch":"dribble-arm"}-${String(frame).padStart(2,"0")}-${a.face===1?"source":"mirrored"}`,y:bodyBob(a.moving?(a.travel??0):0)};
+  const view=Math.abs(a.moveY??0)>Math.abs(a.moveX??0)*.7?((a.moveY??0)<0?"-back":"-front"):"";
+  return {key:`${a.team===0?"navy":"amber"}-${switching?"dribble-switch":"dribble-arm"}-${String(frame).padStart(2,"0")}${view}-${a.face===1?"source":"mirrored"}`,y:bodyBob(a.moving?(a.travel??0):0)};
 }
 export function courtCanvas(frame=0) {
   const canvas=document.createElement("canvas");canvas.width=900;canvas.height=360;
   drawParkCourt(canvas.getContext("2d")!,frame);
   return canvas;
 }
+let contactCanvas:HTMLCanvasElement|undefined;
 export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=false) {
   const width=c.canvas.width,cam=cameraOrigin(s,width);c.imageSmoothingEnabled=false;c.clearRect(0,0,width,360);
   c.drawImage(p["court-"+(Math.floor(s.tick/T.crowdFrameTicks)%T.crowdFrames)]??p.court, -cam,0);
   const rows=s.actors.map(a=>({y:a.y,kind:"actor",a}));
   rows.push({y:s.ball.y+.1,kind:"ball",a:s.actors[0]});
   for(const row of rows.sort((a,b)=>a.y-b.y)) {
-    if(row.kind==="ball"){const p0=courtPoint(s.ball.x,s.ball.y),p1=courtPoint(s.ball.x,s.ball.y,s.ball.z);c.fillStyle="#0007";c.beginPath();c.ellipse(p0.x-cam,p0.y,6*p0.scale,2*p0.scale,0,0,Math.PI*2);c.fill();c.drawImage(p.ball,Math.round(p1.x-cam-5.5*p1.scale),Math.round(p1.y-5.5*p1.scale),11*p1.scale,11*p1.scale);continue;}
+    if(row.kind==="ball"){const p0=courtPoint(s.ball.x,s.ball.y),p1=courtPoint(s.ball.x,s.ball.y,s.ball.z);c.fillStyle="#0007";c.beginPath();c.ellipse(p0.x-cam,p0.y,6*p0.scale,2*p0.scale,0,0,Math.PI*2);c.fill();drawPicture(c,p,"ball",Math.round(p1.x-cam-5.5*p1.scale),Math.round(p1.y-5.5*p1.scale),11*p1.scale,11*p1.scale);continue;}
     const a=row.a,p0=courtPoint(a.x,a.y,a.z),scale=p0.scale,x=Math.round(p0.x-cam),y=Math.round(p0.y);
     c.fillStyle="#0005";c.beginPath();c.ellipse(x,a.y,17*scale,4*scale,0,0,Math.PI*2);c.fill();
     if(a.id===s.selected){c.save();c.translate(x,y);c.scale(scale,scale);c.font="bold 10px monospace";c.textAlign="center";c.fillStyle="#191810";c.fillText("1P",1,-121);c.fillStyle="#ef3c27";c.fillText("1P",0,-122);c.beginPath();c.moveTo(-4,-120);c.lineTo(4,-120);c.lineTo(0,-116);c.fill();c.restore();}
-    c.drawImage(p[poseFor(s,a)],x-72*scale,y-116*scale,144*scale,128*scale);
-    const overlay=overlayFor(s,a);if(overlay)c.drawImage(p[overlay.key],x-72*scale,y+(-116+overlay.y)*scale,144*scale,128*scale);
+    drawPicture(c,p,poseFor(s,a),x-72*scale,y-116*scale,144*scale,128*scale);
+    const overlay=overlayFor(s,a);if(overlay)drawPicture(c,p,overlay.key,x-72*scale,y+(-116+overlay.y)*scale,144*scale,128*scale);
+    const gripCanvas=contactCanvas??(contactCanvas=document.createElement("canvas"));gripCanvas.width=144;gripCanvas.height=128;
+    const grip=drawContactArm(gripCanvas,s,characterAnchors(p,poseFor(s,s.actors[s.ball.owner??0])));if(grip?.actor===a.id)c.drawImage(gripCanvas,x-72*scale,y-116*scale,144*scale,128*scale);
     if(debug){c.strokeStyle="#51ff94";c.strokeRect(x-13*scale,a.y-8*scale,26*scale,16*scale);c.font="9px monospace";c.fillStyle="white";c.fillText(a.id+" "+a.action,x-20,y-120*scale);const hand=anchor(a),hp=courtPoint(hand.x,hand.y,hand.z);c.fillRect(hp.x-cam-2,hp.y-2,4,4);}
   }
-  for(const [key,x,offset,w] of [["left",85,31,47],["right",815,13,92]] as const){const p0=courtPoint(x,COURT.rimY);c.drawImage(p[key],p0.x-cam-offset*p0.scale,p0.y-(COURT.rimZ+48)*p0.scale,w*p0.scale,75*p0.scale);}
+  for(const [key,x] of [["left",85],["right",815]] as const){const p0=courtPoint(x,COURT.rimY),art=BASKET_ART[key];drawPicture(c,p,key,p0.x-cam-art.rimX*p0.scale,p0.y-(COURT.rimZ+art.rimY)*p0.scale,art.width*p0.scale,art.height*p0.scale);}
 
 }
-export async function loadPictures(base:string,signal:AbortSignal):Promise<Pictures> {
-  const names=POSES.flatMap(p=>["navy","amber"].flatMap(team=>["source","mirrored"].map(f=>`${team}-${p}-${f}`)));
-  names.push("ball","left","right");
-  const locomotion=Object.entries(LOCOMOTION_CLIPS).flatMap(([clip,count])=>Array.from({length:count},(_,i)=>["navy","amber"].flatMap(team=>["source","mirrored"].map(f=>`${team}-${clip}-${String(i).padStart(2,"0")}-${f}`)))).flat();
-  names.push(...locomotion);const newNames=new Set(locomotion);
+export type CharacterAnchors={shoulders?:[number,number][];hands?:[number,number][];hips?:[number,number];elbows?:[number,number][]};
+type Atlas={regions:Record<string,[number,number,number,number,number]>;images:HTMLImageElement[];poses:Record<string,CharacterAnchors>};
+const atlases=new WeakMap<Pictures,Atlas>();
+export function characterAnchors(p:Pictures,key:string){return atlases.get(p)?.poses[key];}
+export function pictureAtlas(p:Pictures){return atlases.get(p);}
+export function drawPicture(c:CanvasRenderingContext2D,p:Pictures,key:string,x:number,y:number,w:number,h:number){const atlas=atlases.get(p),r=atlas?.regions[key];if(r)c.drawImage(atlas!.images[r[4]],r[0],r[1],r[2],r[3],x,y,w,h);else c.drawImage(p[key],x,y,w,h);}
+export async function loadPictures(base:string,signal:AbortSignal):Promise<Pictures>{
+  const response=await fetch(`${base}/../${CHARACTER_PACK.folder}/manifest.json`,{signal});if(!response.ok)throw Error("Player manifest unavailable");
+  const manifest=await response.json();if(manifest.version!==CHARACTER_PACK.version||!manifest.regions)throw Error("Unsupported player pack");
   const result:Pictures={};
-  await Promise.all(names.map(async name=>{
-    const response=await fetch(`${base}/${newNames.has(name)?"../locomotion-v4/":"../player-look-v1/"}${name}.png`,{signal});if(!response.ok)throw Error(`Cannot load ${name}`);
-    const blob=await response.blob();if(signal.aborted)throw new DOMException("Cancelled","AbortError");
-    const url=URL.createObjectURL(blob),img=new Image();
-    try{img.src=url;await img.decode();if(signal.aborted)throw new DOMException("Cancelled","AbortError");result[name]=img;}finally{URL.revokeObjectURL(url);}
+  const images=await Promise.all(manifest.atlases.map(async(name:string)=>{
+    if(!/^family-[0-9]+\.png$/.test(name))throw Error("Invalid atlas name");
+    const response=await fetch(`${base}/../${CHARACTER_PACK.folder}/${name}`,{signal});if(!response.ok)throw Error("Player atlas unavailable");
+    const url=URL.createObjectURL(await response.blob()),image=new Image();
+    try{image.src=url;await image.decode();if(signal.aborted)throw new DOMException("Cancelled","AbortError");return image;}finally{URL.revokeObjectURL(url);}
   }));
-  for(let frame=0;frame<T.crowdFrames;frame++){const canvas=courtCanvas(frame),img=new Image();img.src=canvas.toDataURL();await img.decode();result["court-"+frame]=img;}result.court=result["court-0"];return result;
+  for(const [key,rect] of Object.entries(manifest.regions))result[key]=images[(rect as number[])[4]];
+  atlases.set(result,{regions:manifest.regions,images,poses:Object.fromEntries(manifest.frames.map((f:{key:string;anchors:CharacterAnchors})=>[f.key,f.anchors]))});
+  for(let frame=0;frame<T.crowdFrames;frame++){if(signal.aborted)throw new DOMException("Cancelled","AbortError");const canvas=courtCanvas(frame),img=new Image();img.src=canvas.toDataURL();await img.decode();result["court-"+frame]=img;}result.court=result["court-0"];return result;
 }

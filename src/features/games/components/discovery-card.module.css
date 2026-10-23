@@ -4,8 +4,8 @@
 .card:active .panel{transform:scale(.985)}
 .card a:focus-visible,.card button:focus-visible{outline:2px solid var(--hud-accent);outline-offset:-4px}
 .body{display:flex;flex-direction:column;height:100%;min-height:254px;background:var(--ds-color-background-elevated)}
-.art{display:grid;place-items:center;flex:1;min-height:190px;padding:18px;overflow:hidden;background:radial-gradient(circle at 50% 48%,color-mix(in srgb,var(--hud-accent) 15%,transparent),transparent 62%);transition:transform 160ms ease-out}
-.card:hover .art,.card:focus-within .art{transform:scale(1.025)}
+.art{position:relative;flex:1;min-height:190px;overflow:hidden;background:var(--ds-color-background-elevated)}
+.coverImage{object-fit:cover}
 .scene{position:relative;width:100%;max-width:270px;aspect-ratio:11/8;pointer-events:none}
 .layer{position:absolute;inset:0}
 .layerImage{object-fit:contain}
@@ -14,4 +14,4 @@
 .card:hover .rail svg,.card:focus-within .rail svg{transform:translateX(3px)}
 @media(prefers-reduced-motion:reduce){.panel,.art,.rail svg{transition:none}.card:hover .panel,.card:active .panel,.card:hover .art,.card:focus-within .art,.card:hover .rail svg,.card:focus-within .rail svg{transform:none}}
 
-@media(max-width:639px){.card{--ds-clip-hud:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}.body{min-height:214px}.art{min-height:148px;padding:8px}.scene{max-width:156px}.rail{min-height:66px;padding:9px 10px;gap:5px;font-size:clamp(9px,2.5vw,12px);line-height:1.3;overflow-wrap:anywhere}.rail svg{width:16px;height:16px}}
+@media(max-width:639px){.card{--ds-clip-hud:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}.body{min-height:214px}.art{min-height:148px}.scene{max-width:156px}.rail{min-height:66px;padding:9px 10px;gap:5px;font-size:clamp(9px,2.5vw,12px);line-height:1.3;overflow-wrap:anywhere}.rail svg{width:16px;height:16px}}

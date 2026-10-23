@@ -34,20 +34,23 @@ export function installCricketConsole() {
     <footer class="console-bottom"><span id="console-feedback" role="status"></span><span class="keyboard-hint">A GROUND / B AIR · D-PAD PLACE</span></footer>
     <p class="rotate-hint">Rotate your phone to landscape for the full console.</p>
     <dialog id="console-dialog" aria-labelledby="console-dialog-title"><header><h2 id="console-dialog-title">MATCH MENU</h2><button id="console-close">RETURN TO GAME</button></header>
-      <p>Six legal balls or three wickets per innings. Bat first, then bowl and field to defend your score. The source-style score reads wickets / runs.</p>
-      <retro-presentation-settings></retro-presentation-settings><div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>Before contact, A plays a ground shot and B an airborne shot; hold the D-pad for direction. After contact, A runs and B returns. During bowling, select a D-pad direction first, then press A for a fast ball or B for a slow ball. Field with the D-pad; after pickup, A returns to the keeper end and B to the bowler end. C switches fielders as an accessibility adaptation. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. NES shot angles, bowling speeds, exact timing, field-return assignments and shortened rules are authored or unverified adaptations.</p></details>
+      <p>Choose a short practice match or a longer limited-over match in the lobby. The toss decides who bats first. The source-style score reads wickets / runs.</p>
+      <retro-presentation-settings></retro-presentation-settings><div id="console-settings"></div><details><summary>Controls &amp; reference notes</summary><p>Before contact, A plays a ground shot and B an airborne shot; hold the D-pad for direction. After contact, A runs and B returns. During bowling, tap or drag on the pitch to place the bounce point (or use the D-pad), then press A for a fast ball or B for a slow ball. Field with the D-pad; after pickup, A returns to the keeper end and B to the bowler end. C switches fielders as an accessibility adaptation. Esc pauses.</p><p>Source-derived reference art; private preview. Keeper receives and holds. Keeper pursuit, throw and dive remain unfinished. NES shot angles, bowling speeds, exact timing, field-return assignments and shortened rules are authored or unverified adaptations.</p></details>
       <p id="console-error" role="alert"></p></dialog>`;
   document.body.appendChild(shell);
   const lobby=document.createElement('section');lobby.className='cricket-lobby';lobby.id='cricket-lobby';lobby.setAttribute('aria-label','Creasefire Six home lobby');
   lobby.innerHTML=`<div class="lobby-pattern" aria-hidden="true">${'CREASEFIRE SIX / '.repeat(22)}</div>
-    <header><span>CRICKET ARCADE</span><span>1 PLAYER / PRACTICE MATCH</span></header>
-    <div class="lobby-copy"><span class="lobby-kicker">POCKET ARCADE / CRICKET</span><img src="../../assets/games/identity/retro-innings.svg" alt="Creasefire Six" width="110" height="80" style="object-fit:contain"><h1>CREASEFIRE<br><em>SIX</em></h1><p>TAKE YOUR GUARD.</p><div class="lobby-format">1 OVER EACH / 3 WICKETS</div>
+    <header><span>CRICKET ARCADE</span><span>1 PLAYER / MATCH SETUP</span></header>
+    <div class="lobby-copy"><span class="lobby-kicker">POCKET ARCADE / CRICKET</span><img src="../../assets/games/identity/retro-innings.svg" alt="Creasefire Six" width="110" height="80" style="object-fit:contain"><h1>CREASEFIRE<br><em>SIX</em></h1><p>TAKE YOUR GUARD.</p><div class="lobby-format" id="lobby-format">1 OVER EACH / 3 WICKETS</div>
     <button id="lobby-play" class="lobby-start">PLAY MATCH <span aria-hidden="true">▶</span></button><button id="lobby-help" class="lobby-help" aria-expanded="false" aria-controls="lobby-details">HOW TO PLAY</button><button id="lobby-new" class="lobby-new" hidden>NEW MATCH / END CURRENT</button></div>
     <section class="lobby-match" id="lobby-details"><div class="lobby-match-title"><span id="lobby-panel-title">MATCH MENU</span><button id="lobby-settings" class="lobby-settings">SETTINGS</button></div>
-    <div id="lobby-matchup"><div class="lobby-teams"><article class="lobby-team"><b>HARBOUR</b><canvas id="lobby-batter" width="100" height="100" aria-label="Batter preview"></canvas><small>P1 / BAT FIRST</small></article><article class="lobby-team"><b>ORCHARD</b><canvas id="lobby-bowler" width="100" height="100" aria-label="Bowler preview"></canvas><small>LOCAL AI</small></article><strong class="lobby-versus">VS</strong></div><div class="lobby-note">FIXED PRACTICE MATCH / INVENTED CLUBS</div></div>
-    <div id="lobby-instructions" class="lobby-instructions" hidden><h2>BAT. RUN. DEFEND.</h2><p><strong>A / GROUND</strong> keeps the ball low. <strong>B / AIR</strong> lifts it with catch risk. Hold a D-pad direction as you strike to place the shot.</p><p>After contact, <strong>A / B</strong> runs / returns. Only completed runs count.</p><p>During your bowling turn, select a D-pad direction first. Press <strong>A / FAST</strong> or <strong>B / SLOW</strong> to deliver. Field with the pad; after pickup A throws to keeper end and B to bowler end.</p><p>This is a NES mechanics adaptation using the existing private SNES-style art and short match. Exact NES timing and return-button mapping are not established.</p></div></section>
+    <div id="lobby-matchup"><div class="lobby-setup"><label>GAME<select id="lobby-mode"><option value="practice">PRACTICE / 1 OVER</option><option value="one-day">ONE-DAY MATCH</option><option value="fast">FAST MATCH</option></select></label><label>OVERS PER SIDE<select id="lobby-overs"><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option></select></label><label>YOUR TEAM<select id="lobby-player-team"></select></label><label>OPPONENT<select id="lobby-opponent-team"></select></label></div><div class="lobby-teams"><article class="lobby-team"><b id="lobby-player-name">HARBOUR</b><canvas id="lobby-batter" width="100" height="100" aria-label="Batter preview"></canvas><small>P1 / TOSS BEFORE PLAY</small></article><article class="lobby-team"><b id="lobby-opponent-name">ORCHARD</b><canvas id="lobby-bowler" width="100" height="100" aria-label="Bowler preview"></canvas><small>LOCAL AI</small></article><strong class="lobby-versus">VS</strong></div><div class="lobby-note" id="lobby-validation">PRACTICE / INVENTED CLUBS</div></div>
+    <div id="lobby-instructions" class="lobby-instructions" hidden><h2>BAT. RUN. DEFEND.</h2><p>One-Day selects two of the manual's eight countries and 10, 20, 30, 40 or 50 overs. Fast Match chooses both sides for you. Practice keeps the original one-over, three-wicket trial. Limited-over matches start with a coin toss.</p><p><strong>A / GROUND</strong> keeps the ball low. <strong>B / AIR</strong> lifts it with catch risk. Hold a D-pad direction as you strike to place the shot.</p><p>After contact, <strong>A / B</strong> runs / returns. Only completed runs count.</p><p>During your bowling turn, tap or drag on the pitch to place the bounce point. The D-pad also sets a point. Then press <strong>A / FAST</strong> or <strong>B / SLOW</strong> to deliver. Field with the pad; after pickup A throws to keeper end and B to bowler end.</p><p>SNES match features are being added around the previously chosen NES A/B action controls. Squad editing, World Series, Test Match and two-player play are still in development.</p></div></section>
     <footer><span>LANDSCAPE / HANDHELD CRICKET</span><span>PRIVATE REFERENCE PREVIEW</span></footer>`;
   get('console-display').closest('.console-body')!.appendChild(lobby);
+  const toss=document.createElement('section');toss.id='cricket-toss';toss.setAttribute('role','dialog');toss.setAttribute('aria-modal','true');toss.setAttribute('aria-labelledby','toss-title');toss.hidden=true;
+  toss.innerHTML='<h2 id="toss-title">COIN TOSS</h2><p id="toss-copy">CALL HEADS OR TAILS</p><div id="toss-call"><button id="toss-heads">HEADS</button><button id="toss-tails">TAILS</button></div><div id="toss-choice" hidden><button id="toss-bat">BAT FIRST</button><button id="toss-bowl">BOWL FIRST</button></div><button id="toss-continue" hidden>START MATCH</button><button id="toss-cancel">BACK TO SETUP</button>';
+  document.body.appendChild(toss);
   const move = (id: string, parent: string, label?: string) => {
     const element = get(id); if (!element) return;
     if (label) { element.setAttribute('aria-label', label); element.dataset.consoleLabel = label; }
@@ -89,6 +92,32 @@ export function installCricketConsole() {
     else if (window.parent !== window) window.parent.postMessage({type:'statoz.games.web.retro-innings:exit',version:1},window.location.origin);
     else { openMenu(); get('console-error').textContent='Standalone preview. Close this tab to exit, or return to the game.'; }
   };
+  const teams=((window as any).matchLab.teams as string[]);
+  for(const id of ['lobby-player-team','lobby-opponent-team'])get<HTMLSelectElement>(id).innerHTML=teams.map(name=>`<option value="${name}">${name.toUpperCase()}</option>`).join('');
+  get<HTMLSelectElement>('lobby-player-team').value='Australia';
+  get<HTMLSelectElement>('lobby-opponent-team').value='England';
+  let tossDecision:number|null=null;
+  const syncSetup=()=>{
+    tossDecision=null;
+    const mode=get<HTMLSelectElement>('lobby-mode').value,practice=mode==='practice',fast=mode==='fast';
+    const home=get<HTMLSelectElement>('lobby-player-team').value,away=get<HTMLSelectElement>('lobby-opponent-team').value;
+    get<HTMLSelectElement>('lobby-overs').disabled=practice;
+    get<HTMLSelectElement>('lobby-player-team').disabled=practice||fast;
+    get<HTMLSelectElement>('lobby-opponent-team').disabled=practice||fast;
+    get('lobby-player-name').textContent=practice?'HARBOUR':fast?'RANDOM':home.toUpperCase();
+    get('lobby-opponent-name').textContent=practice?'ORCHARD':fast?'RANDOM':away.toUpperCase();
+    get('lobby-format').textContent=practice?'1 OVER EACH / 3 WICKETS':get<HTMLSelectElement>('lobby-overs').value+' OVERS EACH / 10 WICKETS';
+    get('lobby-validation').textContent=mode==='one-day'&&home===away?'CHOOSE TWO DIFFERENT TEAMS':practice?'PRACTICE / INVENTED CLUBS':fast?'COMPUTER CHOOSES TWO SIDES':'SELECTED TEAMS / INVENTED PLAYER ROSTER';
+  };
+  for(const id of ['lobby-mode','lobby-overs','lobby-player-team','lobby-opponent-team'])get(id).addEventListener('change',syncSetup);
+  syncSetup();
+  const configureFromLobby=()=>{
+    const mode=get<HTMLSelectElement>('lobby-mode').value;
+    const entropy=new Uint32Array(1);crypto.getRandomValues(entropy);
+    const config={mode,overs:Number(get<HTMLSelectElement>('lobby-overs').value),playerTeam:get<HTMLSelectElement>('lobby-player-team').value,opponentTeam:get<HTMLSelectElement>('lobby-opponent-team').value,playerBatInnings:tossDecision??1,seed:entropy[0]};
+    if((window as any).matchLab.configureMatch(config))return true;
+    get('lobby-validation').textContent='CHOOSE TWO DIFFERENT TEAMS';return false;
+  };
   const applyLobby=()=>{
     shell.dataset.lobby=String(inLobby);lobby.hidden=!inLobby;
     for(const element of Array.from(shell.querySelectorAll<HTMLElement>('.grip,.screen-bay')))element.inert=inLobby;
@@ -99,14 +128,41 @@ export function installCricketConsole() {
     get('console-dialog-title').textContent=inLobby?'LOBBY SETTINGS':'MATCH MENU';
   };
   const start=()=>{
-    if(dialog.open)return;inLobby=false;applyLobby();const s=window.gameState as any;
+    if(dialog.open)return;const s=window.gameState as any;
+    if(s.status!=='playing'&&s.status!=='intermission'&&get<HTMLSelectElement>('lobby-mode').value==='one-day'&&get<HTMLSelectElement>('lobby-player-team').value===get<HTMLSelectElement>('lobby-opponent-team').value){get('lobby-validation').textContent='CHOOSE TWO DIFFERENT TEAMS';return;}
+    if(s.status!=='playing'&&s.status!=='intermission'&&get<HTMLSelectElement>('lobby-mode').value!=='practice'&&tossDecision===null){toss.hidden=false;get('toss-heads').focus();return;}
     if(s.status==='result')get<HTMLButtonElement>('restart').click();
+    if((window.gameState as any).status==='idle'&&!configureFromLobby())return;
+    tossDecision=null;
+    toss.hidden=true;
+    get('toss-call').hidden=false;get('toss-choice').hidden=true;get('toss-continue').hidden=true;get('toss-copy').textContent='CALL HEADS OR TAILS';
+    inLobby=false;applyLobby();
     if((window.gameState as any).paused)get<HTMLButtonElement>('pause').click();
     if((window.gameState as any).status==='idle')get<HTMLButtonElement>('primary').click();
     get('primary').focus();
   };
   get('lobby-play').onclick=start;
-  get('lobby-new').onclick=()=>{get<HTMLButtonElement>('restart').click();start();};
+  get('lobby-new').onclick=()=>{get<HTMLButtonElement>('restart').click();tossDecision=null;start();};
+  const callCoin=(calledHeads:boolean)=>{
+    const coin=new Uint8Array(1);crypto.getRandomValues(coin);const heads=(coin[0]&1)===0;
+    get('toss-call').hidden=true;get('toss-copy').textContent=(heads?'HEADS':'TAILS')+' · '+(heads===calledHeads?'YOU WON. CHOOSE WHO BATS FIRST.':'OPPONENT WON THE TOSS.');
+    if(heads===calledHeads)get('toss-choice').hidden=false;
+    else{const choice=new Uint8Array(1);crypto.getRandomValues(choice);tossDecision=(choice[0]&1)===0?1:2;get('toss-copy').textContent+=' '+(tossDecision===1?'YOU BAT FIRST.':'YOU BOWL FIRST.');get('toss-continue').hidden=false;}
+  };
+  get('toss-heads').onclick=()=>callCoin(true);get('toss-tails').onclick=()=>callCoin(false);
+  get('toss-bat').onclick=()=>{tossDecision=1;get('toss-choice').hidden=true;get('toss-copy').textContent='YOU BAT FIRST.';get('toss-continue').hidden=false;};
+  get('toss-bowl').onclick=()=>{tossDecision=2;get('toss-choice').hidden=true;get('toss-copy').textContent='YOU BOWL FIRST.';get('toss-continue').hidden=false;};
+  get('toss-continue').onclick=start;
+  const cancelToss=()=>{toss.hidden=true;tossDecision=null;get('toss-call').hidden=false;get('toss-choice').hidden=true;get('toss-continue').hidden=true;get('toss-copy').textContent='CALL HEADS OR TAILS';get('lobby-play').focus();};
+  get('toss-cancel').onclick=cancelToss;toss.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelToss();return;}
+    if(e.key==='Tab'){
+      const buttons=Array.from(toss.querySelectorAll<HTMLButtonElement>('button')).filter(button=>!button.hidden&&!button.closest('[hidden]'));
+      const first=buttons[0],last=buttons.at(-1);
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
+    }
+  });
   get('console-home').onclick=()=>{pauseIfPlaying();inLobby=true;applyLobby();get('lobby-play').focus();};
   get('lobby-help').onclick=()=>{
     const help=get('lobby-instructions'),show=help.hidden;help.hidden=!show;get('lobby-matchup').hidden=show;
@@ -115,7 +171,7 @@ export function installCricketConsole() {
   // Scope document shortcuts while the lobby owns input. Native settings/button
   // keys still work; gameplay cannot begin behind the home screen.
   const lobbyKeys=(event:KeyboardEvent)=>{
-    if(!inLobby||dialog.open)return;
+    if(!inLobby||dialog.open||!toss.hidden)return;
     if((event.target as HTMLElement).closest('button,input,select,summary')){
       if(!['Space','Enter','Tab','ShiftLeft','ShiftRight'].includes(event.code)){event.preventDefault();event.stopImmediatePropagation();}return;
     }
@@ -143,14 +199,15 @@ export function installCricketConsole() {
   const observer=new ResizeObserver(fit);observer.observe(get('console-display'));
   const sync = () => {
     const s=window.gameState as any;if(!s)return;
-    get('console-score').textContent=(s.innings===1?'HARBOUR':'ORCHARD')+' '+s.wickets+'/'+s.runs+' WKTS/RUNS';
+    const batting=s.innings===s.match.playerBatInnings;
+    get('console-score').textContent=(batting?s.match.playerTeam:s.match.opponentTeam).toUpperCase()+' '+s.wickets+'/'+s.runs+' WKTS/RUNS';
     get('console-over').textContent=Math.floor(s.legal/6)+'.'+s.legal%6+' OV'+(s.target?' · T'+s.target:'');
     get('console-cue').textContent=s.paused?'PAUSED':s.battingCue?.text||'';
     get('console-feedback').textContent=s.message;
     const keyboardHint=shell.querySelector<HTMLElement>('.keyboard-hint');
-    if(keyboardHint)keyboardHint.textContent=s.innings===2?'D-PAD DIRECTION → A FAST / B SLOW':'A GROUND / B AIR · D-PAD PLACE';
+    if(keyboardHint)keyboardHint.textContent=batting?'A GROUND / B AIR · D-PAD PLACE':'TAP PITCH → A FAST / B SLOW';
     shell.dataset.innings=String(s.innings);shell.dataset.phase=s.phase;shell.dataset.paused=String(s.paused);
-    get('switch').hidden=s.innings!==2||!s.ball?.hit;
+    get('switch').hidden=batting||!s.ball?.hit;
     applyLobby();
     fit();
   };

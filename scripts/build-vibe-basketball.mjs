@@ -28,8 +28,15 @@ export async function buildVibeBasketball(){
    let text=await fs.readFile(args.path,'utf8');
    text=replace(text,'if (manualTime) return;', 'if (window.__VIBE_HOST__.paused) { clock.getDelta(); lastNow = performance.now(); return; } if (manualTime) return;');
    text=replace(text,'manualTime = true;', 'if (window.__VIBE_HOST__.paused) return; manualTime = true;');
+   text=text.replaceAll('window.innerWidth',"document.getElementById('app').clientWidth").replaceAll('window.innerHeight',"document.getElementById('app').clientHeight");
    text=replace(text,'hud.doneLoading();','hud.doneLoading(); window.__VIBE_HOST__.ready();');
    text=replace(text,'location.href = location.pathname;', "location.href = location.pathname + '?session=' + encodeURIComponent(new URLSearchParams(location.search).get('session') || '');");
+   return {contents:text,loader:'js'};
+  });
+  b.onLoad({filter:/[\\/]cameraRig\.js$/},async args=>{
+   let text=await fs.readFile(args.path,'utf8');
+   text="import {portraitContestCamera} from "+JSON.stringify(path.join(feature,'mobile-camera.js'))+";\n"+text;
+   text=replace(text,'  updateContest(dt, world) {','  updateContest(dt, world) { if(portraitContestCamera(this,dt,world,COURT))return;');
    return {contents:text,loader:'js'};
   });
   b.onLoad({filter:/[\\/]contestRacks\.js$/},async args=>({contents:replace(await fs.readFile(args.path,'utf8'),"'/models/contest/vibe-contest-props.glb'","new URL('./models/contest/vibe-contest-props.glb', location.href).href"),loader:'js'}));

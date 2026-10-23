@@ -1,7 +1,7 @@
 import type {Actor, Match, Team} from "./simulation";
 
 /** Original, deterministic team decisions. Not recovered Street Hoop algorithms. */
-export type OffBallRole = "outlet" | "cut" | "mark" | "pressure" | "chase" | "rebound" | "box-out" | "safety" | "receive";
+export type OffBallRole = "outlet" | "cut" | "mark" | "pressure" | "chase" | "rebound" | "box-out" | "safety" | "receive" | "help";
 export type OffBallIntent = {role:OffBallRole;x:number;y:number;mark?:number};
 const gap=(a:{x:number;y:number},b:{x:number;y:number})=>Math.hypot(a.x-b.x,a.y-b.y);
 const clamp=(v:number,lo:number,hi:number)=>Math.max(lo,Math.min(hi,v));
@@ -49,6 +49,9 @@ export function planOffBall(s:Match):Record<number,OffBallIntent>{
       const selected=!s.auto&&team===0?s.selected:null;
       for(const {actor:a,mark} of assignMarks(mates,opponents,handler,selected)){
         const onBall=mark.id===handler,forward=dir(mark.team);
+        const penetrates=owner&&Math.abs((owner.team===0?815:85)-owner.x)<135;
+        const helping=!onBall&&penetrates&&Math.abs(mark.y-owner!.y)>70&&gap(a,owner!)<160;
+        if(helping){plans[a.id]=goal("help",owner!.x+forward*35,owner!.y+(mark.y>owner!.y?24:-24),mark.id);continue;}
         plans[a.id]=goal(onBall?"pressure":"mark",mark.x+forward*(onBall?30:38),mark.y,mark.id);
       }
     }else{

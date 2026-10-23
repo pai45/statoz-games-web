@@ -15,6 +15,7 @@ export const CUES:Record<string,Tone[]>={
   whistle:[{frequency:1600,length:.13,volume:.025,type:"sine",end:1300}],
   buzzer:[{frequency:155,length:.65,volume:.07,type:"square"}],
   super:[{frequency:140,length:.55,volume:.065,type:"sawtooth",end:840}],
+  crowd:[{frequency:180,length:.35,volume:.018,type:"triangle",end:240},{frequency:270,length:.3,volume:.012,type:"triangle",end:190}],
   ui:[{frequency:880,length:.06,volume:.025,type:"triangle",end:1100}]
 };
 export const MUSIC_NOTES=[110,110,164.81,146.83,130.81,164.81,146.83,98];
@@ -33,7 +34,9 @@ export class HoopsAudio {
     oscillator.connect(gain);gain.connect((music?this.musicGain:this.sfxGain)!);this.voices.add(oscillator);
     oscillator.onended=()=>{this.voices.delete(oscillator);oscillator.disconnect();gain.disconnect();};oscillator.start(t);oscillator.stop(t+length+.01);
   }
-  events(events:GameEvent[]){if(!this.settings.sfx)return;for(const e of events){const key=e.type==="super-dunk"?"dunk":["rebound","intercept"].includes(e.type)?"catch":["reach","steal","land"].includes(e.type)?"shoe":e.type==="score"?"net":["shot-clock","out","inbound"].includes(e.type)?"whistle":e.type;for(const t of CUES[key]||[])this.tone(t.frequency,t.length,t.volume,t.type,t.end);}}
+  events(events:GameEvent[]){if(!this.settings.sfx)return;for(const e of events){const key=e.type==="super-dunk"?"dunk":["rebound","intercept"].includes(e.type)?"catch":["reach","steal","land"].includes(e.type)?"shoe":e.type==="score"?"net":["shot-clock","out","inbound","tip","period-end","period-start"].includes(e.type)?"whistle":e.type;if(["buzzer","whistle"].includes(key)&&this.voices.size>=6){for(const voice of [...this.voices].slice(0,3)){try{voice.stop();}catch{}this.voices.delete(voice);}}
+      const variation=["dribble","bounce","shoe","rim"].includes(key)?1+((e.id%3)-1)*.06:1;
+      for(const cue of e.type==="score"?[key,"crowd"]:[key])for(const t of CUES[cue]||[])this.tone(t.frequency*variation,t.length,t.volume,t.type,t.end===undefined?undefined:t.end*variation);}}
   configure(settings:Settings){this.settings={...settings};const t=this.context?.currentTime||0;this.sfxGain?.gain.setValueAtTime(settings.sfx?volume(settings.sfxVolume,.7):0,t);this.musicGain?.gain.setValueAtTime(settings.music?volume(settings.musicVolume,.4):0,t);this.syncMusic();}
   private syncMusic(){if(this.timer){clearInterval(this.timer);this.timer=null;}if(this.settings.music&&this.context?.state==="running")this.timer=setInterval(()=>{this.tone(MUSIC_NOTES[this.beat++%MUSIC_NOTES.length],.19,.022,"triangle",undefined,true);if(this.beat%2===0)this.tone(55,.07,.045,"sine",30,true);},250);}
   pause(){if(this.timer){clearInterval(this.timer);this.timer=null;}for(const v of this.voices){try{v.stop();}catch{}}void this.context?.suspend();}

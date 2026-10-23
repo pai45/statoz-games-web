@@ -37,3 +37,43 @@ html[data-retro-layout="onscreen"] .root[data-retro-frame]:has(.overlay) .leftGr
 
 html[data-retro-layout="onscreen"] .root[data-retro-frame] .displayFooter{padding:0 142px;justify-content:center}
 html[data-retro-layout="onscreen"] .root[data-retro-frame] .displayFooter .statusLamp{margin-left:0}
+
+/* Game-owned landscape handheld; never changes the shared preference of other games. */
+html[data-retro-layout] .root[data-hoops-layout="handheld"]{--retro-plastic:linear-gradient(115deg,#aeb39a,#e6e0c7 45%,#b5b69b);grid-template-rows:28px minmax(0,1fr);gap:2px;border-radius:22px!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .header{height:28px;min-height:0}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .header button{min-height:28px;padding:3px 10px}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .header img{display:none}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .console{grid-template-columns:calc(116px * var(--control-scale)) minmax(0,1fr) calc(100px * var(--control-scale))!important;grid-template-rows:minmax(0,1fr)!important;gap:4px!important;padding:2px!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .display{grid-column:2!important;grid-row:1!important;height:100%;border:3px solid #53594a!important;border-radius:9px!important;padding:0!important;background:#171c17!important;box-shadow:inset 0 0 0 2px #090c0a}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .leftGrip,html[data-retro-layout] .root[data-hoops-layout="handheld"] .rightGrip{position:static!important;grid-row:1!important;visibility:visible!important;opacity:1!important;max-width:none!important;height:100%;padding:0!important;pointer-events:auto!important;gap:5px}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .leftGrip{grid-column:1!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .rightGrip{grid-column:3!important}
+html[data-retro-layout] .root[data-left-handed="true"] .leftGrip{grid-column:3!important}
+html[data-retro-layout] .root[data-left-handed="true"] .rightGrip{grid-column:1!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .pad{grid-template-columns:repeat(3,calc(36px * var(--control-scale)));grid-template-rows:repeat(3,calc(36px * var(--control-scale)));position:relative}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .pad button{min-width:0!important;min-height:0!important;width:100%;height:100%;font-size:22px}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .actions button{width:calc(48px * var(--control-scale))!important;height:calc(48px * var(--control-scale))!important;min-height:44px!important;min-width:44px!important;background:#ae8832!important;color:#fff4ce}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .actions .pass{background:#9c3b2c!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .hardwareLabel{font-size:7px;color:#363d2d}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .score{flex-basis:23px;padding:0 8px;font-size:8px;background:#18201a;max-width:none}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .displayFooter{height:14px;padding:0 6px;background:#18201a}
+.transition{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;font:bold 28px monospace;color:#fff0b9;text-shadow:3px 3px #212a1e;z-index:2}.transition small{font-size:11px;margin-top:8px}
+.root[data-scanlines="true"] .court:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(transparent 0 3px,#0002 3px 4px)}
+@media(min-height:500px){html[data-retro-layout] .root[data-hoops-layout="handheld"] .pad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}html[data-retro-layout] .root[data-hoops-layout="handheld"] .console{grid-template-columns:142px minmax(0,1fr) 124px!important}}
+
+html[data-retro-layout] .root[data-hoops-layout="handheld"]{grid-template-rows:44px minmax(0,1fr)}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .header{height:44px}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .header button{min-height:44px}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .console{grid-template-columns:calc(142px * max(1,var(--control-scale))) minmax(0,1fr) calc(108px * max(1,var(--control-scale)))!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .pad{grid-template-columns:repeat(3,max(44px,calc(36px * var(--control-scale))))!important;grid-template-rows:repeat(3,max(44px,calc(36px * var(--control-scale))))!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .pad button{min-width:44px!important;min-height:44px!important}
+html[data-retro-layout] .root[data-hoops-layout="handheld"] .actions button{width:max(44px,calc(48px * var(--control-scale)))!important;height:max(44px,calc(48px * var(--control-scale)))!important}
+
+.results{border-collapse:collapse;font:10px monospace;width:min(300px,90%);background:#17221c}.results th,.results td{padding:2px 8px;border:1px solid #7f8b6b}.results caption{color:#ffca69;font-weight:bold;margin-bottom:3px}.overlay:has(.results){gap:4px}.overlay:has(.results)>img,.overlay:has(.results)>p{display:none}
+
+html[data-retro-layout] .root[data-hoops-layout="handheld"][data-left-handed="true"] .console{grid-template-columns:calc(108px * max(1,var(--control-scale))) minmax(0,1fr) calc(142px * max(1,var(--control-scale)))!important}
+/* This game deliberately fixes the handheld layout; retain the shared fullscreen preference. */
+.settings :global(retro-presentation-settings) label:has(select[aria-label="Control layout"]){display:none}
+.settings :global(retro-presentation-settings) p:first-of-type{display:none}
+
+.score>span:first-child{color:#83c3ff}.score>span:last-child{color:#ff949a}

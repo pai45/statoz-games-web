@@ -5,6 +5,7 @@ const controls:Record<string,Control>={ArrowLeft:"left",KeyA:"left",ArrowRight:"
 export class HoopsInput {
   private held=new Map<string,Control>();private edges=new Set<Control>();
   down(id:string,control:Control){if(!this.held.has(id)){this.held.set(id,control);this.edges.add(control);}}
+  replace(id:string,control:Control){if(this.held.get(id)!==control){this.up(id);this.down(id,control);}}
   up(id:string){this.held.delete(id);}
   clear(){this.held.clear();this.edges.clear();}
   key(code:string,down:boolean){const c=controls[code];if(!c)return false;if(down)this.down(code,c);else this.up(code);return true;}

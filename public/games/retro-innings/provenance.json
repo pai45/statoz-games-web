@@ -3,7 +3,7 @@
   "version": "batting-sequence-v1",
   "release": "private-reference-preview",
   "publicReleaseApproved": false,
-  "sha256": "bb4bcf7bf51128bf47af01d196ad0c1e512c3998668b998f458c447280194d5e",
+  "sha256": "af45cc0a84eb733be3db2117ecb73e3a79b45a86ca5277e7a152885423429184",
   "sourceBundle": "src/features/games/retro-innings/runtime",
   "sourceAssets": "output/retro-innings/three-candidate-v2/assets.json",
   "referenceStudy": "output/retro-innings/reference-study/manifest.json",
@@ -64,5 +64,18 @@
       "approval": "Private reference-derived preview only; no public art clearance or native-sprite claim"
     },
     "airDefend": "NES B on the low DEFEND lane uses the same physical contact, then a named same-family raised-bat finish before recovery. The action order is authored."
+  },
+  "pitchCamera": {
+    "source": "Saved Super International Cricket 256x224 frames 011 (delivery), 012 and 018 (fielding); static frame observations only",
+    "pitch": "Visual strip x399..460, y340..479 in the authored world, 62x140; wickets, bounce and contact remain unchanged",
+    "fieldCamera": "After batting recovery, track selected fielder toward screen (124,105) and retain the ball inside the viewport when their span permits; eased timing is authored",
+    "score": "Compact white outfield text replaces the larger dark Three.js and Canvas score plate; fictional team names abbreviated",
+    "limits": "Reference camera timing, complete field formation and exact pixel palette have not been recovered; private source-derived assets remain uncleared for public release"
+  },
+  "characterMotion": {
+    "source": "Saved D2D2t1JfZDk recording 130.0–132.8 s; sampled at 5 fps for sequence review, not native input/frame timing",
+    "bowler": "Four existing source-derived preparation poses now advance 0→1→2→3 once over authored 500 ms run-up, followed by existing 4→5→6→ready",
+    "canvas": "Canvas fallback uses the same pose sequence and aligns the umpire to the Three.js actor position",
+    "limits": "Pose order, hold lengths and inferred footwork are adaptations; no new source sprite or recovered native cadence is claimed"
   }
 }

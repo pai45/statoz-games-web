@@ -11,9 +11,9 @@ export const bowlingHolds = [
 
 export function bowlingPose(s: any) {
   if (s.phase === 'runup') {
-    // The existing simulation releases at 500ms. Keep the gather/brace ahead of it.
-    if (s.age < 300) return 'bowler-' + Math.floor(s.age / 100) % 2;
-    return s.age < 400 ? 'bowler-2' : 'bowler-3';
+    // The existing simulation releases at 500ms. Play the four preparation
+    // poses once, in order, so the front-foot plant cannot jump back to pose 0.
+    return 'bowler-' + Math.min(3,Math.floor((s.age+1e-6) / 125));
   }
   if (s.phase === 'delivery' && s.ball) {
     const release = [...s.events].reverse().find((event: any) => event.type === 'release');

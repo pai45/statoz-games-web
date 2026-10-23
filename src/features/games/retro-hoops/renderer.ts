@@ -1,8 +1,9 @@
+import {drawContactArm} from "./contact-arm";
 import {REFERENCE_TUNING as T} from "./reference-tuning";
-import {courtPoint,cameraOrigin} from "./view";
+import {courtPoint,cameraOrigin,BASKET_ART} from "./view";
 import * as THREE from "three";
 import { COURT, type Match } from "./simulation";
-import { poseFor,overlayFor, type Pictures } from "./presentation";
+import { poseFor,overlayFor,pictureAtlas,characterAnchors, type Pictures } from "./presentation";
 
 /** Three owns presentation only. No outcome or possession changes occur here. */
 export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
@@ -12,17 +13,22 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
   const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(0,width,360,0,-1000,1000);
   camera.position.z=500;
   const textures:Record<string,THREE.Texture>={},materials:Record<string,THREE.SpriteMaterial>={};
+  const atlas=pictureAtlas(pictures),atlasTextures=new Map<HTMLImageElement,THREE.Texture>();
+  for(const image of atlas?.images??[]){const tex=new THREE.Texture(image);tex.needsUpdate=true;tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;tex.colorSpace=THREE.SRGBColorSpace;atlasTextures.set(image,tex);}
   for(const [key,img] of Object.entries(pictures)) {
-    const tex=new THREE.Texture(img);tex.needsUpdate=true;tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.colorSpace=THREE.SRGBColorSpace;textures[key]=tex;
+    const region=atlas?.regions[key],tex=region?atlasTextures.get(img)!.clone():new THREE.Texture(img);if(region){tex.repeat.set(region[2]/img.width,region[3]/img.height);tex.offset.set(region[0]/img.width,1-(region[1]+region[3])/img.height);}tex.needsUpdate=true;tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.colorSpace=THREE.SRGBColorSpace;textures[key]=tex;
     materials[key]=new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false,depthWrite:false});
   }
   const sprite=(key:string,w:number,h:number)=>{const sp=new THREE.Sprite(materials[key]);sp.scale.set(w,h,1);scene.add(sp);return sp;};
   const floor=sprite("court",900,360);floor.position.set(450,180,0);floor.renderOrder=-100;
   const actors=Array.from({length:6},()=>sprite("navy-s-ready-source",144,128));
   const arms=Array.from({length:6},()=>sprite("navy-dribble-arm-00-source",144,128));
+  const gripCanvas=document.createElement("canvas");gripCanvas.width=144;gripCanvas.height=128;const gripTexture=new THREE.CanvasTexture(gripCanvas);gripTexture.magFilter=gripTexture.minFilter=THREE.NearestFilter;gripTexture.colorSpace=THREE.SRGBColorSpace;const gripMaterial=new THREE.SpriteMaterial({map:gripTexture,transparent:true,depthTest:false,depthWrite:false}),gripSprite=new THREE.Sprite(gripMaterial);scene.add(gripSprite);
   const ball=sprite("ball",11,11),left=sprite("left",47,75),right=sprite("right",92,75);
   left.position.set(85-31+47/2,360-(COURT.rimY-COURT.rimZ-48+75/2),0);right.position.set(815-13+46,360-(COURT.rimY-COURT.rimZ-48+37.5),0);
   left.renderOrder=right.renderOrder=1000;
+  const glowCanvas=document.createElement("canvas");glowCanvas.width=glowCanvas.height=32;const gc=glowCanvas.getContext("2d")!;gc.fillStyle="#ffb34377";gc.beginPath();gc.arc(16,16,14,0,Math.PI*2);gc.fill();gc.fillStyle="#fff2bd99";gc.beginPath();gc.arc(16,16,9,0,Math.PI*2);gc.fill();const glowTexture=new THREE.CanvasTexture(glowCanvas),glowMaterial=new THREE.SpriteMaterial({map:glowTexture,transparent:true,depthTest:false,depthWrite:false}),glow=new THREE.Sprite(glowMaterial);scene.add(glow);
+
   const ringCanvas=document.createElement("canvas");ringCanvas.width=48;ringCanvas.height=16;
   const ctx=ringCanvas.getContext("2d")!;ctx.font="bold 10px monospace";ctx.textAlign="center";ctx.fillStyle="#191810";ctx.fillText("1P",25,11);ctx.fillStyle="#ef3c27";ctx.fillText("1P",24,10);ctx.beginPath();ctx.moveTo(20,12);ctx.lineTo(28,12);ctx.lineTo(24,16);ctx.fill();
   const ringTexture=new THREE.CanvasTexture(ringCanvas),ringMaterial=new THREE.SpriteMaterial({map:ringTexture,depthTest:false,transparent:true});
@@ -43,14 +49,16 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
         const ground=courtPoint(a.x,a.y),shadow=shadows[a.id],size=Math.max(.55,1-a.z/250)*scale;
         shadow.position.set(Math.round(ground.x),360-Math.round(ground.y),0);shadow.scale.set(40*size,12*size,1);shadow.renderOrder=a.y-.3;
       }
+      const grip=drawContactArm(gripCanvas,s,characterAnchors(pictures,poseFor(s,s.actors[s.ball.owner??0])));gripSprite.visible=!!grip;if(grip){const body=actors[grip.actor];gripTexture.needsUpdate=true;gripSprite.position.copy(body.position);gripSprite.scale.copy(body.scale);gripSprite.renderOrder=s.actors[grip.actor].y+.02;}
       const b=courtPoint(s.ball.x,s.ball.y,s.ball.z);ball.scale.set(11*b.scale,11*b.scale,1);ball.position.set(Math.round(b.x),360-Math.round(b.y),0);ball.renderOrder=s.ball.y+.1;
+      glow.visible=s.ball.super&&s.ball.kind==="shot";glow.position.copy(ball.position);glow.scale.set(30*b.scale,30*b.scale,1);glow.renderOrder=ball.renderOrder-.01;
       const ground=courtPoint(s.ball.x,s.ball.y),ballShadow=shadows[6];ballShadow.position.set(ground.x,360-ground.y,0);ballShadow.scale.set(12*ground.scale,4*ground.scale,1);ballShadow.renderOrder=s.ball.y-.2;
-      for(const [sp,x,offset,w] of [[left,85,31,47],[right,815,13,92]] as const){const p=courtPoint(x,COURT.rimY);sp.scale.set(w*p.scale,75*p.scale,1);sp.position.set(p.x+(w/2-offset)*p.scale,360-(p.y-(COURT.rimZ+48-37.5)*p.scale),0);}
+      for(const [sp,x,key] of [[left,85,"left"],[right,815,"right"]] as const){const p=courtPoint(x,COURT.rimY),art=BASKET_ART[key];sp.scale.set(art.width*p.scale,art.height*p.scale,1);sp.position.set(p.x+(art.width/2-art.rimX)*p.scale,360-(p.y-(COURT.rimZ+art.rimY-art.height/2)*p.scale),0);}
       const a=s.actors[s.selected],marker=courtPoint(a.x,a.y,a.z+124);ring.scale.set(48*marker.scale,16*marker.scale,1);ring.position.set(marker.x,360-marker.y,0);ring.renderOrder=a.y+.05;
       renderer.render(scene,camera);
     },
     resize(nextWidth:number){if(disposed||!Number.isFinite(nextWidth))return;width=Math.max(320,Math.min(900,Math.round(nextWidth)));renderer.setSize(width,360,false);},
     info:()=>({drawCalls:renderer.info.render.calls,textures:renderer.info.memory.textures}),
-    dispose(){if(disposed)return;disposed=true;for(const tex of Object.values(textures))tex.dispose();for(const m of Object.values(materials))m.dispose();ringTexture.dispose();ringMaterial.dispose();shadowTexture.dispose();shadowMaterial.dispose();scene.clear();renderer.dispose();renderer.forceContextLoss();}
+    dispose(){if(disposed)return;disposed=true;for(const tex of Object.values(textures))tex.dispose();for(const m of Object.values(materials))m.dispose();gripTexture.dispose();gripMaterial.dispose();glowTexture.dispose();glowMaterial.dispose();ringTexture.dispose();ringMaterial.dispose();shadowTexture.dispose();shadowMaterial.dispose();for(const tex of atlasTextures.values())tex.dispose();scene.clear();renderer.dispose();renderer.forceContextLoss();}
   };
 }

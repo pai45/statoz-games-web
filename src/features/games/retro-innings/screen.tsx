@@ -30,7 +30,7 @@ function PrivateCricket({ title }: { title: string }) {
       <main className={styles.intro}>
         <p className="ds-type-hud-label">CRICKET / ONE OVER EACH</p>
         <img src={publicAsset("/assets/games/identity/retro-innings.svg")} alt="" width="120" height="88"/><h1 className="ds-type-heading">CREASEFIRE SIX</h1>
-        <p>Space starts and swings the indicated stroke. A / D / S choose leg, off or defend. Hold Q / E for loft or power. R runs, V reverses, Esc pauses. Touch controls appear beside or below the field.</p>
+        <p>Choose Practice, Fast Match or One-Day Match, with team and over selection for One-Day. Bat with A for a ground shot or B for an aerial shot; hold a direction to place it. When bowling, tap or drag on the pitch to set the bounce point, then press A for fast or B for slow. Esc pauses.</p>
         <Button onClick={() => setActive(true)}>Load private game</Button>
         <p className={styles.note}>This preview uses source-derived reference artwork. It remains private. Sound starts off; enable it in Audio &amp; help. Settings and match records are saved locally for your account.</p>
       </main>}

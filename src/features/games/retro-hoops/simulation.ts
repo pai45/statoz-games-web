@@ -1,35 +1,49 @@
+import {matchOptions,type MatchOptions} from "./reference-profile";
 import {REFERENCE_TUNING as T} from "./reference-tuning";
 import {planOffBall,offBallSteering,type OffBallIntent} from "./off-ball";
 import {dribbleSample,bodyBob} from "./motion";
-/** Retro Hoops rules 1.7.0. All numerical tuning is original StatOz design.
+/** Retro Hoops rules 2.0.0. Documented format with separately labelled authored tuning.
  * No rendering, wall clock, platform storage or random global state belongs here. */
-export const RULES_VERSION = "1.7.0";
+export const RULES_VERSION = "2.0.0";
 export const HZ = 60;
 export const COURT = { left: 60, right: 840, top: 164, bottom: 330, rimY: 247, rimZ: 120 } as const;
 export type Team = 0 | 1;
-export type Action = "idle" | "pass" | "receive" | "shoot" | "dunk" | "block" | "steal" | "recoil" | "gather";
-export type Phase = "playing" | "restart" | "result";
+export type Action = "idle" | "pass" | "receive" | "shoot" | "dunk" | "block" | "steal" | "recoil" | "gather" | "fake";
+export type Phase = "playing" | "restart" | "opening" | "interval" | "result";
 export type Actor = { id: number; team: Team; x: number; y: number; z: number; vz: number; face: 1 | -1; action: Action; until: number; started: number; target: number; nextAI: number; moving?:boolean; travel?:number; dribbleTick?:number; lastMoved?:number; stepDistance?:number; intent?:OffBallIntent; moveX?:number; moveY?:number; turnedAt?:number; passGrip?:{x:number;z:number}; dribbleFacing?:number };
 export type Ball = { x: number; y: number; z: number; owner: number | null; kind: "held" | "pass" | "shot" | "loose"; from: number; to: number; age: number; duration: number; sx: number; sy: number; sz: number; tx: number; ty: number; tz: number; vx: number; vy: number; vz: number; points: number; made: boolean; super: boolean; released: number };
 export type GameEvent = { id: number; tick: number; type: string; team?: Team; actor?: number; value?: number };
 export type Input = { x: number; y: number; shoot: boolean; pass: boolean };
 export const NO_INPUT: Input = { x: 0, y: 0, shoot: false, pass: false };
-export type Match = { version: string; seed: number; rng: number; tick: number; remaining: number; shotClock: number; phase: Phase; restartAt: number; restartTeam: Team; selected: number; possession: Team; score: [number, number]; charge: [number, number]; actors: Actor[]; ball: Ball; events: GameEvent[]; eventId: number; shotId: number; camera: number; buzzer: boolean; auto: boolean; lastScore?:{tick:number;team:Team;value:number}; buffer:{kind:"shoot"|"pass";expires:number;actor:number}|null };
+export type TeamStats={shots:number;made:number;dunks:number;dunkAttempts:number;threes:number;threeAttempts:number;rebounds:number;blocks:number;turnovers:number};
+const blankStats=():TeamStats=>({shots:0,made:0,dunks:0,dunkAttempts:0,threes:0,threeAttempts:0,rebounds:0,blocks:0,turnovers:0});
+export type Match = { version: string; stats:[TeamStats,TeamStats]; config:ReturnType<typeof matchOptions>; period:number; transitionAt:number; seed: number; rng: number; tick: number; remaining: number; shotClock: number; phase: Phase; restartAt: number; restartTeam: Team; selected: number; possession: Team; score: [number, number]; charge: [number, number]; actors: Actor[]; ball: Ball; events: GameEvent[]; eventId: number; shotId: number; camera: number; buzzer: boolean; auto: boolean; lastScore?:{tick:number;team:Team;value:number}; buffer:{kind:"shoot"|"pass";expires:number;actor:number}|null };
 export const other = (t: Team): Team => t === 0 ? 1 : 0;
 export const direction = (t: Team) => t === 0 ? 1 : -1;
 export const rimX = (t: Team) => t === 0 ? 815 : 85;
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const distance = (a: {x:number;y:number}, b: {x:number;y:number}) => Math.hypot(a.x-b.x, a.y-b.y);
 function random(s: Match) { s.rng = (Math.imul(s.rng, 1664525) + 1013904223) >>> 0; return s.rng / 4294967296; }
-function emit(s: Match, type: string, actor?: number, team?: Team, value?: number) { s.events.push({ id: ++s.eventId, tick: s.tick, type, actor, team, value });if(type==="score"&&team!==undefined)s.lastScore={tick:s.tick,team,value:value??2}; }
+function emit(s: Match, type: string, actor?: number, team?: Team, value?: number) {
+  if(team!==undefined){const stats=s.stats[team];
+    if(type==="shoot"||type==="super"){stats.shots++;if(s.ball.points===3)stats.threeAttempts++;}
+    if(type==="prepare-dunk")stats.dunkAttempts++;
+    if(type==="score"){stats.made++;if(value===3)stats.threes++;}
+    if(type==="dunk"||type==="super-dunk"){stats.dunks++;stats.shots++;}
+    if(type==="block")stats.blocks++;
+    if(type==="rebound")stats.rebounds++;
+    if(type==="steal"||type==="intercept")s.stats[other(team)].turnovers++;
+  }
+ s.events.push({ id: ++s.eventId, tick: s.tick, type, actor, team, value });if(type==="score"&&team!==undefined)s.lastScore={tick:s.tick,team,value:value??2}; }
 export function anchor(a: Actor, pose: "low" | "front" | "release" | "overhead" | "pass-gather" | "pass-release" = "front") {
   const p = pose === "low" ? [-14,36] : pose === "release" ? [27,104] : pose === "overhead" ? [5,104] : pose === "pass-gather" ? [-26,61] : pose === "pass-release" ? [-32,72] : [0,39];
   return { x: a.x + p[0] * a.face, y: a.y, z: a.z + p[1] };
 }
-export function createMatch(seed = 1, auto = false): Match {
+export function createMatch(seed = 1, auto = false, options:MatchOptions={}): Match {
+  const config=matchOptions(options);
   const actors = Array.from({ length: 6 }, (_, id): Actor => ({ id, team: id < 3 ? 0 : 1, x: id < 3 ? 230 + id*65 : 565+(id-3)*65, y: [245,185,310][id%3], z:0, vz:0, face:id<3?1:-1, action:"idle", until:0, started:0, target:-1, nextAI:0 }));
   const p = anchor(actors[0]);
-  return { version:RULES_VERSION, seed, rng:seed>>>0, tick:0, remaining:180*HZ, shotClock:24*HZ, phase:"playing", restartAt:0, restartTeam:0, selected:0, possession:0, score:[0,0], charge:[0,0], actors, ball:{...p, owner:0,kind:"held",from:0,to:-1,age:0,duration:0,sx:0,sy:0,sz:0,tx:0,ty:0,tz:0,vx:0,vy:0,vz:0,points:2,made:false,super:false,released:0}, events:[],eventId:0,shotId:0,camera:0,buzzer:false,auto,buffer:null };
+  return { version:RULES_VERSION,stats:[blankStats(),blankStats()], config,period:1,transitionAt:config.opening?90:0,seed, rng:seed>>>0, tick:0, remaining:config.gameSeconds*HZ, shotClock:(config.possessionLimitSeconds??24)*HZ, phase:config.opening?"opening":"playing", restartAt:0, restartTeam:0, selected:0, possession:0, score:[0,0], charge:[0,0], actors, ball:{...p, owner:0,kind:"held",from:0,to:-1,age:0,duration:0,sx:0,sy:0,sz:0,tx:0,ty:0,tz:0,vx:0,vy:0,vz:0,points:2,made:false,super:false,released:0}, events:[],eventId:0,shotId:0,camera:0,buzzer:false,auto,buffer:null };
 }
 function act(s:Match,a:Actor,action:Action,duration:number,target=-1) { a.action=action;a.started=s.tick;a.until=s.tick+duration;a.target=target; }
 function ready(s:Match,a:Actor) { return a.action==="idle" && a.until<=s.tick && a.z===0; }
@@ -44,14 +58,14 @@ function own(s:Match,a:Actor,kind="catch") {
   const changed=s.possession!==a.team;
   const recoverUntil=a.until,incoming={x:s.ball.x,y:s.ball.y,z:s.ball.z};
   a.dribbleFacing=a.face;s.ball.owner=a.id;s.ball.kind="held";s.ball.to=-1;s.ball.age=0;s.ball.vz=0;s.possession=a.team;
-  if(changed)s.shotClock=24*HZ;
+  if(changed)s.shotClock=(s.config.possessionLimitSeconds??24)*HZ;
   if(a.team===0)s.selected=a.id;else selectDefender(s);
   const p=anchor(a,a.z>0?"overhead":"front");
   Object.assign(s.ball,{sx:incoming.x,sy:incoming.y,sz:incoming.z});
   if(kind==="inbound")Object.assign(s.ball,p,{sx:p.x,sy:p.y,sz:p.z});
   act(s,a,"receive",8);a.until=Math.max(a.until,recoverUntil);emit(s,kind,a.id,a.team);
 }
-function finish(s:Match) { if(s.phase==="result")return;s.phase="result";s.buffer=null;emit(s,"result",undefined,undefined); }
+function finish(s:Match) { if(s.period<s.config.periods){s.phase="interval";s.transitionAt=s.tick+120;s.buffer=null;s.ball.owner=null;emit(s,"period-end");return;} if(s.phase==="result")return;s.phase="result";s.buffer=null;emit(s,"result",undefined,undefined); }
 function restart(s:Match,team:Team,reason:string) {
   if(s.buzzer){finish(s);return;}
   s.phase="restart";s.buffer=null;s.restartAt=s.tick+60;s.restartTeam=team;s.ball.owner=null;s.ball.to=-1;s.ball.kind="loose";emit(s,reason,undefined,team);
@@ -63,7 +77,7 @@ function resume(s:Match) {
     a.turnedAt=undefined;a.moveX=0;a.moveY=0;a.dribbleTick=-1;
     a.y=[247,185,310][a.id%3];a.z=0;a.vz=0;a.face=direction(a.team);a.action="idle";a.until=s.tick;a.target=-1;
   }
-  s.phase="playing";s.shotClock=24*HZ;own(s,s.actors[t===0?0:3],"inbound");selectDefender(s);
+  s.phase="playing";s.shotClock=(s.config.possessionLimitSeconds??24)*HZ;own(s,s.actors[t===0?0:3],"inbound");selectDefender(s);
 }
 function startPass(s:Match,a:Actor) {
   const mates=s.actors.filter(b=>b.team===a.team&&b.id!==a.id&&b.z===0&&b.action==="idle");
@@ -176,11 +190,14 @@ function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
       const age=s.tick-a.started;
       const release=clamp((age-18)/4,0,1);p.x=a.x+(age<10?18:10+17*release)*a.face;p.z=a.z+(age<10?62:95+9*release);
     }
+    if(a.action==="fake"){
+      const t=clamp((s.tick-a.started)/24,0,1),grip=a.passGrip??{x:0,z:39};p.x=a.x+grip.x*(1-t);p.z=a.z+grip.z+(39-grip.z)*t;
+    }
     if(a.action==="dunk"){
       const age=s.tick-a.started;p.x=a.x+(age<15?45:28)*a.face;p.z=a.z+(age<15?27:69);
     }
     if(a.action==="pass"){const t=clamp((s.tick-a.started-T.passGatherTicks)/(T.passReleaseTicks-T.passGatherTicks),0,1),g=anchor(a,"pass-gather"),r=anchor(a,"pass-release");Object.assign(p,{x:g.x+(r.x-g.x)*t,y:a.y,z:g.z+(r.z-g.z)*t});if(a.passGrip&&s.tick-a.started<6){const blend=(s.tick-a.started)/6;p.x=a.x+a.passGrip.x+(p.x-a.x-a.passGrip.x)*blend;p.z=a.z+a.passGrip.z+(p.z-a.z-a.passGrip.z)*blend;}}
-    // Ball travels from hand to ground and back; opaque source dribble poses only.
+    // Ball travels from hand to ground and back; original body/arm overlays share the dribble contact clock.
     if(dribble){a.dribbleTick=(a.dribbleTick??-1)+1;const cycle=dribbleSample(a.dribbleTick);const side=a.dribbleFacing??a.face;a.dribbleFacing=side+clamp(a.face-side,-.5,.5);p.x=a.x+cycle.x*a.dribbleFacing;p.z=a.z+cycle.z-bodyBob(a.moving?(a.travel??0):0)*Math.max(0,Math.min(1,(cycle.z-20)/16));}else {a.dribbleTick=-1;a.dribbleFacing=a.face;}
     if(a.action==="receive"&&b.age<6){b.age++;const t=b.age/6;p.x=b.sx+(p.x-b.sx)*t;p.y=b.sy+(p.y-b.sy)*t;p.z=b.sz+(p.z-b.sz)*t;}
     Object.assign(b,p);if(dribble&&dribbleSample(a.dribbleTick??0).contact)emit(s,"dribble",a.id,a.team);
@@ -253,19 +270,32 @@ function updateBall(s:Match,previousHands:{x:number;y:number;z:number}[]) {
 export function step(s:Match,input:Input=NO_INPUT) {
   s.events=[];if(s.phase==="result")return;s.tick++;
   for(const a of s.actors){a.moving=false;a.stepDistance=0;a.moveX=0;a.moveY=0;}
+  if(s.phase==="opening"||s.phase==="interval"){
+    s.buffer=null;
+    if(s.phase==="opening"){
+      for(const id of [0,3]){const a=s.actors[id];a.x=450+(id===0?-16:16);a.y=247;a.action="block";a.started=30;a.until=90;a.z=Math.max(0,Math.sin(Math.max(0,Math.min(1,(s.tick-30)/60))*Math.PI)*42);}
+      s.camera=210;
+      Object.assign(s.ball,{owner:null,kind:"loose",x:450,y:247,z:95+Math.sin(s.tick/90*Math.PI)*55,vx:0,vy:0,vz:0});
+    }
+    if(s.tick>=s.transitionAt){const opening=s.phase==="opening";if(!opening){s.period++;s.remaining=s.config.gameSeconds*HZ;s.buzzer=false;}s.restartTeam=opening?(s.seed%2 as Team):other(s.possession);resume(s);emit(s,opening?"tip":"period-start");}
+    return;
+  }
   if(s.phase==="restart"){
     for(const a of s.actors){if(a.z>0||a.vz>0){a.vz-=600/HZ;a.z=Math.max(0,a.z+a.vz/HZ);if(a.z===0){a.vz=0;a.until=Math.max(a.until,s.tick+12);emit(s,"land",a.id,a.team);}}if(a.z===0&&a.until<=s.tick)a.action="idle";}
     s.ball.vz-=600/HZ;s.ball.z=Math.max(5.5,s.ball.z+s.ball.vz/HZ);if(s.ball.z===5.5)s.ball.vz=0;
     if(s.tick>=s.restartAt)resume(s);return;
   }
   selectDefender(s);
-  if(input.shoot||input.pass)s.buffer={kind:input.shoot?"shoot":"pass",expires:s.tick+18,actor:s.selected};
+  const selected=s.actors[s.selected];
+  const fake=input.shoot&&s.ball.owner===selected.id&&((selected.action==="dunk"&&s.tick-selected.started<25)||(selected.action==="shoot"&&s.tick-selected.started<T.shotTakeoffTick));
+  if(fake){selected.passGrip={x:s.ball.x-selected.x,z:s.ball.z-selected.z};act(s,selected,"fake",24);s.buffer=null;emit(s,"fake",selected.id,selected.team);}
+  if(!fake&&(input.shoot||input.pass))s.buffer={kind:input.shoot?"shoot":"pass",expires:s.tick+18,actor:s.selected};
   if(s.buffer&&(s.buffer.expires<s.tick||s.buffer.actor!==s.selected))s.buffer=null;
-  if(s.remaining>0){s.remaining--;s.shotClock--;}
+  if(s.remaining>0){s.remaining=Math.max(0,s.remaining-T.clockTicksPerStep);if(s.config.possessionLimitSeconds!==null)s.shotClock--;}
   if(s.remaining===0&&!s.buzzer){s.buzzer=true;emit(s,"buzzer");if(s.ball.kind!=="shot"){finish(s);return;}}
   // Expiry wins over a scheduled release on this tick. A shot already in
   // flight before expiry remains eligible to finish; preparation is not release.
-  if(s.shotClock<=0&&s.ball.kind!=="shot"){restart(s,other(s.possession),"shot-clock");return;}
+  if(s.config.possessionLimitSeconds!==null&&s.shotClock<=0&&s.ball.kind!=="shot"){restart(s,other(s.possession),"shot-clock");return;}
   const facingBefore=s.actors.map(a=>a.face);
   const previousHands=s.actors.map(a=>anchor(a,a.z>0?"overhead":"front"));
   for(const a of s.actors) {
@@ -286,7 +316,7 @@ export function step(s:Match,input:Input=NO_INPUT) {
     } else if(a.until<=s.tick&&a.z===0){a.action="idle";a.target=-1;}
   }
   const beforeMovement=s.actors.map(a=>({x:a.x,y:a.y}));
-  const plans=planOffBall(s),neighbors=s.actors.map(a=>({...a}));
+  const freshPlans=planOffBall(s),plans=Object.fromEntries(s.actors.map(a=>[a.id,(s.tick%12===a.id*2||!a.intent||s.events.some(e=>["pass","catch","intercept","block","steal","inbound"].includes(e.type)))?freshPlans[a.id]:a.intent])),neighbors=s.actors.map(a=>({...a}));
   for(const a of s.actors)a.intent=plans[a.id];
   if(!s.buzzer)for(const a of s.actors) {
     if(a.id===s.selected&&!s.auto) {
@@ -322,7 +352,7 @@ export function step(s:Match,input:Input=NO_INPUT) {
   resolveSteals(s);
   selectDefender(s);
   if(s.buzzer&&s.ball.kind!=="shot")finish(s);
-  if(s.shotClock<=0&&s.ball.kind!=="shot"&&s.phase==="playing")restart(s,other(s.possession),"shot-clock");
+  if(s.config.possessionLimitSeconds!==null&&s.shotClock<=0&&s.ball.kind!=="shot"&&s.phase==="playing")restart(s,other(s.possession),"shot-clock");
   // Bounded ball-following camera. Presentation may interpolate, but never changes simulation.
   s.camera+= (clamp(s.ball.x-240,0,420)-s.camera)*.06;
 }

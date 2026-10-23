@@ -39,12 +39,11 @@ try{
  }
  const fake=await press('Space');assert.ok(fake.after.shootReleased&&!fake.after.shootReleasedCommitted,'Quick tap remains a fake');
  const shot=await press('Space',1/60,190);assert.ok(shot.after.shootReleasedCommitted,'Held touch remains a committed shot');
- const flick=await press('ArrowLeft',.05);assert.ok(flick.after.skillFlick&&flick.after.dribbleMove==='horizontal','Short skill tap is a handle flick');
- const gather=await press('ArrowUp',.25);assert.ok(gather.during.skillCommitted&&gather.after.skillReleaseCommitted,'Held skill produces a directional finish');
+ // Directional skill gesture and cancellation coverage lives in verify-vibe-mobile.mjs.
  assert.ok((await press('ShiftLeft')).during.sprint);
- assert.ok((await press('ControlLeft')).during.physical);
+
  assert.equal((await press('KeyK')).during.dribbleMove,'spin');
- assert.ok((await press('KeyE')).during.stealPressed);
+ await page.evaluate(()=>{window.__game.offenseIdx=1-window.__game.userPlayer.team;});await page.waitForFunction(()=>document.documentElement.dataset.vibeRole==='defense');assert.ok((await press('ControlLeft')).during.physical);assert.ok((await press('KeyE')).during.stealPressed);
  report.input=true;await page.close();
 
  const guest=await browser.newPage();await guest.goto(base+'/play/vibe-basketball/');await guest.getByRole('heading',{name:'LOG IN TO PLAY'}).waitFor();report.guestGate=true;await guest.close();
@@ -60,10 +59,25 @@ try{
  await app.screenshot({path:path.join(out,'app-basketball-library.png')});await card.click();
  const frame=app.frameLocator('iframe[title^="Vibe Basketball"]');
  await frame.locator('#mode-menu.show').waitFor({timeout:120000});
+ assert.match(await app.locator('meta[name=viewport]').getAttribute('content'),/viewport-fit=cover/,'Game route enables device safe areas');
  await app.getByRole('heading',{name:'Vibe Basketball',exact:true}).waitFor({state:'hidden'});
  await frame.locator('#mode-1v1').click();await frame.locator('#vibe-shoot').waitFor();
  await frame.locator('#loading.done').waitFor({state:'attached'});await app.waitForTimeout(650);
  await app.screenshot({path:path.join(out,'app-mobile-game.png')});
+ await app.setViewportSize({width:844,height:390});
+ await app.waitForTimeout(150);if(await frame.locator('#vibe-pause').isVisible())await frame.locator('[data-command=resume]').click();
+ const landscapeFrame=await app.locator('iframe').boundingBox();assert.ok(landscapeFrame.y>=16,'Landscape status bar has reserved space');
+ await app.screenshot({path:path.join(out,'app-landscape-safe-area.png')});
+ await app.setViewportSize({width:390,height:844});
+ await app.waitForTimeout(150);if(await frame.locator('#vibe-pause').isVisible())await frame.locator('[data-command=resume]').click();
+ await app.locator('iframe').evaluate(frame=>{frame.parentElement.style.padding='20px 18px 24px';});
+ const safeFrame=await app.locator('iframe').boundingBox();assert.ok(safeFrame.x>=18&&safeFrame.y>=20&&safeFrame.y+safeFrame.height<=820,'Parent safe areas reserve space outside the iframe');
+ await app.screenshot({path:path.join(out,'app-mobile-safe-area.png')});
+ await app.locator('iframe').evaluate(frame=>{frame.parentElement.style.padding='';});
+ await app.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{configurable:true,value:620});window.visualViewport.dispatchEvent(new Event('resize'));});
+ assert.ok((await app.locator('iframe').boundingBox()).height<=620,'Visible viewport height constrains the game frame');report.safeAreas=true;report.landscapeStatusBar=true;report.visualViewport=true;
+ await app.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});
+
  await frame.locator('#vibe-toolbar [data-command=pause]').click();await frame.locator('[data-command=resume]').click();
  await frame.locator('#vibe-toolbar').evaluate(()=>parent.postMessage({protocolVersion:1,gameId:'vibe-basketball',sessionId:'wrong-session',type:'exit'},location.origin));
  await app.waitForTimeout(100);assert.ok(app.url().includes('/play/vibe-basketball'),'Rejects wrong-session messages');

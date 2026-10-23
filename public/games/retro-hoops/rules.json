@@ -1,82 +1,54 @@
 {
   "gameId": "retro-hoops",
-  "briefVersion": "1.0.0",
-  "rulesVersion": "1.7.0",
-  "buildVersion": "future-games-player-look-v1-local",
-  "assetPackVersion": "facing-family-v1+action-family-v2",
-  "date": "2026-10-20",
+  "briefVersion": "2.0.0",
+  "rulesVersion": "2.0.0",
+  "buildVersion": "character-v7-local",
+  "assetPackVersion": "7.0.0",
+  "date": "2026-10-23",
   "reference": {
     "title": "Street Hoop",
     "platform": "Neo Geo",
     "targetEdition": "Europe",
-    "actualRecordingRevision": "unknown",
+    "actualRecordingRevision": "unknown; Steam wrapper is not established by arcade footage",
     "sources": [
       "https://www.youtube.com/watch?v=6fyRg0wTEYY",
       "https://www.youtube.com/watch?v=Q6ThHgZ4Lnk",
-      "https://www.arcade-museum.com/manuals-videogames/S/Street-Slam--Street-Hoop-Soft-DIP-Settings.pdf"
-    ]
+      "https://www.arcade-museum.com/manuals-videogames/S/Street-Slam--Street-Hoop-Soft-DIP-Settings.pdf",
+      "https://www.youtube.com/watch?v=_k8IIS9n3dk"
+    ],
+    "steamApp": 1189520
   },
   "decisions": [
     {
-      "rule": "Full-court 3v3 with two contextual buttons",
+      "rule": "Two periods, each starting at 2:00; documented 1:00\u20134:00 settings in 15-second steps",
       "classification": "observed",
-      "evidence": "evidence.json; instruction and possession studies",
-      "adaptation": "WASD/arrows; J shoot/block; K pass/steal; simultaneous touch equivalents"
+      "evidence": "GameLog ~143 first-half end, ~158 second-half reset; ~270 final result",
+      "adaptation": "2x countdown is an authored fit, not native timing recovery."
     },
     {
-      "rule": "180-second single period; draws",
-      "classification": "proposed",
-      "reason": "Explicit StatOz brief. Settings sheet supports selectable periods/times, but this format is not claimed as the source default."
+      "rule": "No enforced separate possession clock in normal play",
+      "classification": "authored",
+      "evidence": "No separate counter visible in selected footage; prior unsupported NBA 24/14 reset removed. Diagnostic limit remains opt-in."
     },
     {
-      "rule": "Automatic selection follows navy catches; closest navy defender selected each playing tick including free flight",
-      "classification": "proposed",
-      "reason": "Native selection details not recovered; two-button accessible adaptation"
+      "rule": "2/3 points, contextual A shoot/block and B pass/steal, charged shots and dunk",
+      "classification": "documented/observed",
+      "adaptation": "Shot outcomes, collision sizes and AI decisions are authored seeded fits."
     },
     {
-      "rule": "24-second possession clock, 14 after a missed rim shot; stop during60tick restarts",
-      "classification": "proposed",
-      "reason": "Source reset/timing unresolved; explicit original StatOz tuning"
+      "rule": "Second A during dunk fakes; B during dunk passes",
+      "classification": "documented",
+      "adaptation": "Authored 25-tick dunk fake/pass window. Shot fake second-press is a mobile adaptation of the light-press instruction; no native input window claim."
     },
     {
-      "rule": "2 points inside250planar weighted units of rim, 3 outside",
-      "classification": "proposed",
-      "reason": "2/3 retained; arcade geometry and probability are original, not recovered algorithms"
+      "rule": "Already released shots resolve at the buzzer, then interval or final result; draws accepted",
+      "classification": "authored",
+      "reason": "Source edge cases not verifiable from controller-free footage."
     },
     {
-      "rule": "Charge +25 per made shot; at100 next shot automatically consumes charge on release, guarantees unblocked basket",
-      "classification": "proposed",
-      "reason": "Charged super dunks documented by publisher; activation/gain/consumption not recovered. This is an original special-shot adaptation, not a source super-dunk reconstruction. Dedicated dunk animation remains an open art gate."
-    },
-    {
-      "rule": "Shot released before buzzer resolves once; no rebound attempt or pass completion after expiry",
-      "classification": "proposed",
-      "reason": "Original short-match policy. Preparation at buzzer is not a released shot."
-    },
-    {
-      "rule": "Deterministic shot chance, AI movement, steals, physical contact, restarts, bounds and animation holds",
-      "classification": "proposed",
-      "reason": "Seeded original implementation, never recovered source probabilities/timing"
-    },
-    {
-      "rule": "Possession changes on contact only; per-actor recovery; physically held input survives action gates",
-      "classification": "proposed",
-      "reason": "Retains accepted lab constraints; new six-player implementation requires new review"
-    },
-    {
-      "rule": "Possession-clock expiry precedes scheduled release; no friendly shot blocks; acting bodies remain obstacles; steal resolves after movement/separation/held anchoring",
-      "classification": "proposed",
-      "reason": "Fixes for four independently reported code defects. Rules1.1.1 regression tests pass; not source-derived algorithm claims."
-    },
-    {
-      "rule": "J within60units ofrim starts a dunk:6tickgather,250unit/sjump,maximum108unit/s approach; contact must bewithin10units ofrim;2points;opponent3Dhandblock allowed;charge consumesatcontactrelease,notgather;physicaldescentcontinuesduringrestart",
-      "classification": "proposed",
-      "reason": "Original contextual dunk adaptation using observed primary111.9s gather,112.3s contact,114.3-115.1s recovery poses. Not recovered native timing, physics or probability."
-    },
-    {
-      "rule": "Off-ball gait uses three complete-body source poses in6tickholds; stationaryneutral24tickholds; steal uses existinglowreach;recoil low-neutralB-neutralA8ticks each",
-      "classification": "proposed",
-      "reason": "Explicit authored clip adaptation. Originalnativegait and dedicatedsource classifiers remainunknown."
+      "rule": "Original athletes, equipment and code-drawn court; fictional identities and procedural audio",
+      "classification": "authored",
+      "reason": "No commercial raster/audio assets in executable pack."
     }
   ],
   "openGates": [
@@ -102,15 +74,15 @@
     "Travel advances from postcollision movement rather than attempted movement"
   ],
   "presentationViewport": [
-    640,
+    514,
     360
   ],
   "world": [
     900,
     360
   ],
-  "courtArtwork": "Primary park composition reconstructed in original code; see credits.json",
-  "presentationVersion": "court-perspective-v2",
+  "courtArtwork": "Original code-drawn GameLog exhibition venue; exact source likeness remains unapproved",
+  "presentationVersion": "authored-fidelity-v2",
   "userSelectedReference": {
     "url": "https://www.youtube.com/watch?v=_k8IIS9n3dk",
     "title": "[ARCADE 60fps] Street Hoop longplay",
@@ -118,20 +90,33 @@
     "inspectedRangesSeconds": [
       [
         0,
-        53
-      ],
-      [
-        53,
-        113
+        283
       ]
     ],
     "nativeTimingRecovered": false,
-    "design": "Original exhibition-court reconstruction; no new video pixels in playable assets"
+    "design": "Original exhibition-court reconstruction; no new video pixels in playable assets",
+    "inspection": "Dense opening/actions plus coarse surveys of later bounded excerpts, not every recording frame."
   },
   "playerDesign": {
-    "actionPack": "player-look-v1/manifest.json",
-    "locomotionPack": "locomotion-v4/manifest.json",
-    "classification": "authored blue/violet and blue/red kit shading, broader locomotion jerseys; retained reference head/action silhouettes",
+    "actionPack": "authored-v7/manifest.json",
+    "locomotionPack": "authored-v7/manifest.json",
+    "classification": "Original source-directed construction; exact likeness remains unverified",
     "newSourcePixelsExtracted": false
-  }
+  },
+  "defaults": {
+    "periods": 2,
+    "secondsPerPeriod": 120,
+    "countdownTicksPer60HzStep": 2,
+    "countdownClassification": "authored recording fit; native rate unknown",
+    "possessionClock": null,
+    "difficulty": "one balanced authored setting",
+    "drawsAllowed": true
+  },
+  "movementClips": [
+    "12-frame displacement-driven run/dribble-body",
+    "8-frame defence/backpedal; 4-frame pivot/brake",
+    "18-phase dribble arm with hand-side transfer",
+    "30 shot, 12 throw, 24 finish/block, 15 reach, 12 recover/fake/catch and 6 collect entries; explicit authored holds",
+    "Front/back locomotion views, explicit mirrored entries; some holds share pixels"
+  ]
 }

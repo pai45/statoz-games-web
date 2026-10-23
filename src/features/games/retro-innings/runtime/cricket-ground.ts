@@ -16,7 +16,7 @@ export class CricketGround {
     }
     for (let x = 333; x < 530; x += 10) {
       c.fillStyle = green[Math.floor((x - 333) / 10) % 2];
-      c.fillRect(x, 315, 10, 190);
+      c.fillRect(x, 329, 10, 162);
     }
     // Sparse deterministic source-like turf flecks; no screen-space noise overlay.
     for (let y = 0; y < 960; y += 3) for (let x = 0; x < 960; x += 3) {
@@ -63,8 +63,11 @@ export class CricketGround {
     const x = Math.round(camera.x), y = Math.round(camera.y);
     c.clearRect(0, 0, 256, 224);
     c.drawImage(this.surface, x, y, 256, 224, 0, 0, 256, 224);
+    // Reference frame 011: the 62px-wide strip begins just above the far
+    // wicket and ends just below the near crease. These are visual bounds;
+    // authoritative wicket, bounce and bat-contact coordinates stay put.
     c.fillStyle = c.createPattern(pitch, 'repeat')!;
-    c.save(); c.translate(398 - x, 322 - y); c.fillRect(0, 0, 68, 176); c.restore();
+    c.save(); c.translate(399 - x, 340 - y); c.fillRect(0, 0, 62, 140); c.restore();
     // Worn footmarks remain behind athletes and do not act as collision targets.
     c.fillStyle = '#8c9452';
     for (const end of [350, 475]) for (let n = 0; n < 12; n++) {

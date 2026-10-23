@@ -19,7 +19,7 @@ export class CricketPresentation {
   private turfTexture: THREE.CanvasTexture<HTMLCanvasElement|HTMLImageElement>;
   private disposed=false;
   private ground = new CricketGround();
-  private landingCue: ReturnType<typeof deliveryLandingMarker> = null;
+  private landingCue: {screen:{x:number;y:number};stage:string}|null = null;
   public canvas:HTMLCanvasElement;
   public frames=0;
   constructor(private images:Record<string,HTMLImageElement>,canvas?:HTMLCanvasElement){
@@ -47,7 +47,9 @@ export class CricketPresentation {
     if(this.disposed)return;this.used=0;
     const p=(a:any)=>({x:a.x-s.camera.x,y:a.y-s.camera.y-(a.z||0)}),c=this.turf.getContext('2d')!;c.imageSmoothingEnabled=false;
     this.ground.paint(c,s.camera,this.images.pitch);this.turfTexture.needsUpdate=true;this.mesh(this.plane('screen',256,224),this.materials.get('turf')!,128,112);
-    this.landingCue=deliveryLandingMarker(s,data.families);
+    const aiming=s.innings!==s.match.playerBatInnings&&s.status==='playing'&&['ready','dead'].includes(s.phase);
+    if(aiming){const q=p({x:408,y:375});for(let x=0;x<=48;x+=3){this.rect(q.x+x,q.y,2,1,'#fff2d0');this.rect(q.x+x,q.y+41,2,1,'#fff2d0');}for(let y=0;y<=41;y+=3){this.rect(q.x,q.y+y,1,2,'#fff2d0');this.rect(q.x+48,q.y+y,1,2,'#fff2d0');}}
+    this.landingCue=aiming&&s.bowlAim?{screen:p(s.bowlAim.landing),stage:'selected'}:deliveryLandingMarker(s,data.families);
     if(this.landingCue){const q=this.landingCue.screen;for(const [shade,color] of [[1,'#005a00'],[0,'#fff']] as const){landingArrowRows.forEach((row,y)=>{let begin=-1;for(let x=0;x<=row.length;x++){if(row[x]==='#'&&begin<0)begin=x;if(row[x]!=='#'&&begin>=0){this.rect(q.x+begin-3+shade,q.y+y+shade,x-begin,1,color);begin=-1;}}});}}
     const layers:{depth:number,draw:()=>void}[]=[],queue=(depth:number,draw:()=>void)=>layers.push({depth,draw});
     const sprite=(key:string,r:any,x:number,y:number)=>{const q=p({x,y}),a=r.atlas,w=a[2],h=a[3];this.mesh(this.plane(key+':'+a.join(','),w,h,a,this.images[key]),this.materials.get(key)!,Math.round(q.x-r.ground[0])+w/2,Math.round(q.y-r.ground[1])+h/2);};
@@ -67,7 +69,13 @@ export class CricketPresentation {
     layers.sort((a,b)=>a.depth-b.depth);for(const l of layers)l.draw();
     const h=this.hud.getContext('2d')!;h.clearRect(0,0,256,224);const b=view.broadcast;
     const plate=(x:number,y:number,w:number,height:number)=>{h.fillStyle='#182718c0';h.fillRect(x,y,w,height);};
-    if(b.box){const q={x:b.box.x+20,y:b.box.y,w:52,h:29};plate(q.x,q.y,q.w,q.h);h.fillStyle='#fff';h.font='6px "Courier New"';h.fillText(b.team,q.x+4,q.y+8);h.font='bold 9px monospace';h.fillText(b.score,q.x+4,q.y+18);h.font='6px "Courier New"';h.fillText(b.overs+' OV'+(b.target!==null?' T'+b.target:''),q.x+4,q.y+25);}
+    // The source broadcast places compact white score text over the outfield,
+    // without the large dark plate used by the earlier prototype.
+    if(b.box){const x=b.box.x+24,y=b.box.y+8,team=b.team.slice(0,3).toUpperCase();
+      h.textAlign='start';h.font='7px "Courier New"';h.fillStyle='#203018';h.fillText(team,x+1,y+1);h.fillStyle='#fff';h.fillText(team,x,y);
+      h.font='bold 8px "Courier New"';h.fillStyle='#203018';h.fillText(b.score,x+1,y+11);h.fillStyle='#fff';h.fillText(b.score,x,y+10);
+      h.font='6px "Courier New"';h.fillStyle='#203018';h.fillText(b.overs+' OV',x+1,y+19);h.fillStyle='#fff';h.fillText(b.overs+' OV',x,y+18);
+    }
     const inset=view.runningInset;if(inset){const q=inset.box;plate(q.x,q.y,q.w,q.h);h.fillStyle='#b4a977';h.fillRect(q.x+8,inset.ends.striker.y,20,46);for(const y of[inset.ends.striker.y,inset.ends.strikerCrease.y,inset.ends.bowler.y]){h.fillStyle='#fff';h.fillRect(q.x+6,Math.round(y),24,1);}for(const r of inset.runners){h.fillStyle=r.id===0?'#fff5d9':'#fff';h.fillRect(Math.round(r.x)-1,Math.round(r.y)-1,3,3);}h.font='7px "Courier New"';h.fillStyle='#fff';h.fillText('S',q.x+2,inset.ends.striker.y+3);h.fillText('B',q.x+2,inset.ends.bowler.y+3);h.fillText('RUN '+inset.completed+(inset.provisional?'*':''),q.x+5,q.y+71);}
     if(b.banner){plate(42,89,172,46);h.textAlign='center';h.fillStyle='#fff5d9';h.font='bold 10px monospace';h.fillText(b.banner.title,128,107,160);h.fillStyle='#fff';h.font='8px "Courier New"';h.fillText(b.banner.detail,128,123,160);h.textAlign='start';}
     if(s.paused){h.fillStyle='#142614dd';h.fillRect(0,0,256,224);h.fillStyle='#fff';h.font='12px monospace';h.fillText('PAUSED',105,110);}this.hudTexture.needsUpdate=true;this.mesh(this.plane('screen',256,224),this.materials.get('hud')!,128,112);

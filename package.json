@@ -34,7 +34,7 @@
     "test:backgrounds": "node --test tests/hub-backgrounds.test.mjs",
     "test:retro-presentation": "tsx --test tests/retro-presentation.test.ts && node tests/retro-presentation.browser.mjs",
     "test:retro-circuit": "tsx --test tests/retro-circuit.test.ts tests/retro-circuit-account.test.ts",
-    "test:retro-hoops": "tsx --test tests/retro-hoops.test.ts tests/retro-hoops-account.test.ts tests/retro-hoops-protocol.test.ts tests/retro-hoops-catalog.test.ts tests/retro-hoops-animation.test.ts tests/retro-hoops-team-ai.test.ts tests/retro-hoops-view.test.ts tests/retro-hoops-three-points.test.ts tests/retro-hoops-gamelog.test.ts",
+    "test:retro-hoops": "tsx --test tests/retro-hoops.test.ts tests/retro-hoops-account.test.ts tests/retro-hoops-protocol.test.ts tests/retro-hoops-catalog.test.ts tests/retro-hoops-animation.test.ts tests/retro-hoops-team-ai.test.ts tests/retro-hoops-view.test.ts tests/retro-hoops-three-points.test.ts tests/retro-hoops-gamelog.test.ts tests/retro-hoops-fidelity-v2.test.ts",
     "typecheck": "next typegen && tsc --noEmit",
     "test:demo": "tsx --test tests/demo-product.test.ts",
     "typography:sync:all": "node scripts/demo-no-upstream.mjs",
@@ -47,7 +47,7 @@
     "test:vibe-basketball": "tsx --test tests/vibe-basketball.test.ts",
     "predev": "npm run build:vibe-basketball",
     "postinstall": "npm ci --prefix vendor/vibebasketball --omit=dev --no-audit --no-fund",
-    "test:vibe-basketball:browser": "node scripts/verify-vibe-basketball.mjs && node scripts/verify-vibe-extra.mjs"
+    "test:vibe-basketball:browser": "node scripts/verify-vibe-mobile.mjs && node scripts/verify-vibe-basketball.mjs && node scripts/verify-vibe-extra.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

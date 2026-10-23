@@ -75,7 +75,7 @@ try{
    await page.locator('[data-command=resume]').click();
    await page.setViewportSize({width,height});await page.evaluate(()=>window.dispatchEvent(new Event('orientationchange')));await page.locator('[data-command=resume]').click();
   }
-  await page.locator('#vibe-toolbar [data-command=menu]').click();await page.locator('#mode-three-point').click();
+  await page.locator('#vibe-toolbar [data-command=pause]').click();await page.locator('#vibe-pause [data-command=menu]').click();await page.locator('#mode-three-point').click();
   await page.waitForFunction(()=>window.__game?.mode==='three-point');
   await settled(page);
   await page.screenshot({path:path.join(out,`${width}x${height}-contest-setup.png`)});

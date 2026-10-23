@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 
 import { GameLauncher, gameForHref, playableGameHrefs } from "@/features/games";
@@ -16,6 +16,12 @@ export function generateStaticParams() {
 async function resolve(params: Promise<{ slug: string[] }>) {
   const { slug } = await params;
   return gameForHref(`/play/${slug.join("/")}`);
+}
+
+// Enable native safe-area insets for this game’s full-screen mobile frame.
+export async function generateViewport({ params }: PageProps<"/play/[...slug]">): Promise<Viewport> {
+  const found = await resolve(params);
+  return found?.game === "vibe-basketball" ? { viewportFit: "cover", themeColor: "#05070c" } : {};
 }
 
 export async function generateMetadata({

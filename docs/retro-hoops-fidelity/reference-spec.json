@@ -2,9 +2,10 @@
   "version": 1,
   "target": {
     "title": "Street Hoop",
-    "edition": "European Neo Geo MVS",
+    "edition": "Steam target; supplementary European arcade recording",
     "revisionVerified": false,
-    "settingsVerified": false
+    "settingsVerified": false,
+    "product": "Steam app 1189520"
   },
   "status": "target selected; native timing not locked",
   "referenceFrame": {
@@ -16,18 +17,21 @@
     "source": "https://www.youtube.com/watch?v=6fyRg0wTEYY"
   },
   "baseline": {
-    "rules": "1.4.0",
+    "rules": "1.7.0",
     "viewport": [
       640,
       360
     ],
-    "simulationHz": 60
+    "simulationHz": 60,
+    "snapshot": "test-results/retro-hoops-baseline-1.7.0"
   },
   "retainedAdaptations": [
-    "fictional teams",
-    "original audio",
-    "mobile handheld controls",
-    "three-minute match pending source settings confirmation"
+    "fictional teams and authored art",
+    "original procedural audio",
+    "mobile handheld inputs",
+    "second-press shot fake",
+    "2x countdown fit; exact native rate unknown",
+    "draw/result and buzzer edge policy"
   ],
   "firstGate": [
     "align court and actor scale",
@@ -52,10 +56,17 @@
     "selection": "authored red 1P arrow; reference-observed placement"
   },
   "currentCandidate": {
-    "rules": "1.7.0",
-    "slice": "user-selected GameLog venue, timing and player-family reconstruction",
-    "evidence": "gamelog-player-look-v1.md",
+    "rules": "2.0.0",
+    "build": "character-v7-local",
+    "assetPack": "7.0.0",
+    "referenceProfile": 2,
+    "viewport": [
+      514,
+      360
+    ],
     "nativeParityVerified": false,
-    "primaryVideo": "https://www.youtube.com/watch?v=_k8IIS9n3dk"
+    "evidence": "character-v7.md",
+    "primaryVideo": "https://www.youtube.com/watch?v=_k8IIS9n3dk",
+    "slice": "Original adult faces, muscle volume and articulated basketball footwork"
   }
 }

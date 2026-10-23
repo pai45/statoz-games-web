@@ -47,15 +47,37 @@ test('selected direction persists after D-pad release and can be changed before 
  assert.equal(changed.state.plan.nesIntent.selected,'right');
 });
 
+test('a placed pitch point is clamped, visible in state, and used by both speeds',()=>{
+ for(const button of ['A','B'] as const){
+  const s=bowling();
+  assert.equal(s.placeBowlPoint(444,390),true);
+  assert.deepEqual(s.state.bowlAim.landing,{x:444,y:390,z:0});
+  assert.equal(s.state.phase,'ready');
+  assert.equal(s.nesBowl(button),true);
+  assert.equal(s.state.plan.nesIntent.speed,button==='A'?'fast':'slow');
+  assert.deepEqual(s.state.plan.landing,{x:444,y:390,z:0});
+  s.advance(500);
+  s.advance(s.state.plan.duration*.67);
+  for(const axis of ['x','y','z'] as const)assert.ok(Math.abs(s.state.ball[axis]-s.state.plan.landing[axis])<1e-6,`${button}/${axis}`);
+ }
+ const edge=bowling();
+ assert.equal(edge.placeBowlPoint(-100,999),true);
+ assert.deepEqual(edge.state.bowlAim.landing,{x:408,y:416,z:0});
+ assert.equal(edge.placeBowlPoint(NaN,390),false);
+ assert.deepEqual(edge.state.bowlAim.landing,{x:408,y:416,z:0});
+});
+
 test('bowling selection is phase gated, pause safe and reset for the next ball',()=>{
  const s=bowling();s.state.paused=true;
  assert.equal(s.selectBowlDirection('up'),false);
+ assert.equal(s.placeBowlPoint(432,397),false);
  s.state.paused=false;
  assert.equal(s.selectBowlDirection('up'),true);
  const before=structuredClone(s.state.bowlAim);s.advance(100);
  assert.deepEqual(s.state.bowlAim,before);
  assert.equal(s.nesBowl('A'),true);
  assert.equal(s.selectBowlDirection('down'),false);
+ assert.equal(s.placeBowlPoint(432,397),false);
  s.state.phase='dead';
  assert.equal(s.nesBowl('A'),false);
  assert.equal(s.selectBowlDirection('down'),true);

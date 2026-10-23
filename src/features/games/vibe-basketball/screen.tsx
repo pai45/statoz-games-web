@@ -6,7 +6,8 @@ import styles from './screen.module.css';
 
 export function VibeBasketball(){
  const router=useRouter();
- const frame=useRef<HTMLIFrameElement>(null);
+ const frame=useRef<HTMLIFrameElement>(null),viewportRoot=useRef<HTMLElement>(null);
+ useEffect(()=>{const viewport=window.visualViewport;const sync=()=>{if(viewport&&viewport.scale===1){const node=viewportRoot.current;node?.style.setProperty("--vibe-viewport-height",viewport.height+"px");}};sync();viewport?.addEventListener("resize",sync);window.addEventListener("resize",sync);return()=>{viewport?.removeEventListener("resize",sync);window.removeEventListener("resize",sync);};},[]);
  const [attempt,setAttempt]=useState(0);
  const [failure,setFailure]=useState('');
  const [ready,setReady]=useState(false);
@@ -29,7 +30,7 @@ export function VibeBasketball(){
   element.src=publicAsset('/embedded-games/vibe-basketball/index.html')+'?session='+session;
   return()=>{clearTimeout(timer);command('dispose');window.removeEventListener('message',receive);document.removeEventListener('visibilitychange',hide);element.src='about:blank';};
  },[attempt,router]);
- return <main className={styles.root}>
+ return <main ref={viewportRoot} className={styles.root}>
   <iframe ref={frame} title="Vibe Basketball — 1v1 and 3-Point Contest" className={styles.frame} allow="autoplay; fullscreen; gamepad" allowFullScreen/>
   {(!ready||failure)&&<div className={styles.status} role={failure?'alert':'status'}><h1>Vibe Basketball</h1><p>{failure||'Building the park…'}</p>{failure&&<button onClick={()=>{setFailure('');setReady(false);setAttempt(n=>n+1);}}>Retry</button>}<button onClick={()=>router.push('/games/basketball')}>Back to basketball</button></div>}
  </main>;
