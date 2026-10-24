@@ -1,15 +1,15 @@
 {
   "gameId": "retro-hoops",
   "rulesVersion": "2.0.0",
-  "buildVersion": "character-v11-local",
-  "assetVersion": "11.0.0",
+  "buildVersion": "character-v25-local",
+  "assetVersion": "25.0.0",
   "art": {
     "classification": "original authored pixel geometry; no reference rasters",
     "approval": "draft-source-likeness-not-approved",
     "source": "scripts/build-retro-hoops-authored.py + scripts/retro_hoops_character.py + court.ts + crowd.ts",
     "referenceMaterialInRuntime": false,
     "historicalReferenceAssets": "Preserved separately; excluded from executable pack",
-    "processing": "V11 bounded dunk-gather correction: hold original V10 low forward torso until existing age15 ball lift so both arms remain reachable. Lean original anatomy, all six head layers, palettes, foot/contact anchors and simulation retained. Reference recording studied, not traced or included in runtime."
+    "processing": "V25 venue pass (characters unchanged from V24): perforated grey-white backboards in dark steel frames with white nets and orange rims, rim anchors unchanged; court/crowd scenery is code-drawn in court.ts/crowd.ts after the shared reference street-event venue. V24 characters, V23 colour ramps and V14 camera retained. Authored approximations of observed recordings; no extracted or traced source rasters, logos or lettering."
   },
   "audio": {
     "selection": "Existing original procedural synthesis; no third-party samples",
@@ -17,9 +17,9 @@
     "listeningReview": "Prior user provisional approval; new full-mix review pending"
   },
   "assets": {
-    "family-0.png": "5aceabbeea40cacba56b697688cc1560d882f12a3667b603a95450fe11e23cb5",
-    "family-1.png": "235e6687114ffffff1634731f5acf85b3b9085a4a9a1c0c78277f327e505e310",
-    "family-2.png": "2511abd53857f2b07d0bc46ba27610739fa9b7d950469822a64a36e58e011da5"
+    "family-0.png": "2802726a0db3bb55695a0adf8eba5dd327fdad2272842ec9664492472d085a39",
+    "family-1.png": "9672c54bc7b10d760d6e44b36afd2dde742729f72cda0c9938b2f2b0e1398c96",
+    "family-2.png": "7a56a77a38ccacdf8ef129474fc7f5c27099a9e9be9e441092641038381a3433"
   },
   "release": {
     "localOnly": true,

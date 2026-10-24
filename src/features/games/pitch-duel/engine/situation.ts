@@ -28,21 +28,21 @@ export function tier(state: Pick<MatchState, "division">): number {
 const attackerWeights: Partial<Record<StatKey, number>> = { pas: 0.35, dri: 0.35, sho: 0.15, pac: 0.15 };
 const defenderWeights: Partial<Record<StatKey, number>> = { def: 0.6, pac: 0.2, phy: 0.2 };
 
-export function sentOffSet(state: MatchState): Set<string> {
-  return new Set(Object.entries(state.players).filter(([, line]) => line.red).map(([id]) => id));
+/** One team's sent-off outfield ids. Match lines are keyed `side:id`, since both squads can hold the same card. */
+export function sentOffSet(state: MatchState, side: Side): Set<string> {
+  return new Set(state.teams[side].outfield.filter((id) => state.players[`${side}:${id}`]?.red));
 }
 
 export function duelists(state: MatchState): { attackerId: string; defenderId: string } {
   const { side, progress, lane } = state.possession;
-  const off = sentOffSet(state);
-  const attackerId = participantFor(state.teams[side], progress, lane, attackerWeights, off);
-  const defenderId = participantFor(state.teams[opposite(side)], mirror(progress), lane, defenderWeights, off);
+  const defSide = opposite(side);
+  const attackerId = participantFor(state.teams[side], progress, lane, attackerWeights, sentOffSet(state, side));
+  const defenderId = participantFor(state.teams[defSide], mirror(progress), lane, defenderWeights, sentOffSet(state, defSide));
   return { attackerId, defenderId };
 }
 
 function sentOffCount(state: MatchState, side: Side): number {
-  const team = state.teams[side];
-  return team.outfield.filter((id) => state.players[id]?.red).length;
+  return sentOffSet(state, side).size;
 }
 
 export type DuelOdds = { attackerId: string; defenderId: string; relation: Relation; k: number };
@@ -77,7 +77,7 @@ export function duelOdds(state: MatchState, attack: AttackId, defense: DefenseId
 /** The best available player on a team for a stat mix (set-piece takers). */
 export function bestFor(state: MatchState, side: Side, weights: Partial<Record<StatKey, number>>): string {
   const team = state.teams[side];
-  const off = sentOffSet(state);
+  const off = sentOffSet(state, side);
   const pool = team.outfield.filter((id) => !off.has(id));
   if (!pool.length) return team.keeperId;
   return pool.reduce((a, b) => (weighted(team.stats[b], weights) > weighted(team.stats[a], weights) ? b : a));

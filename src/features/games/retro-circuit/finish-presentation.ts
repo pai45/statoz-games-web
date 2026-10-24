@@ -35,10 +35,16 @@ export function finishPresentation(state:RaceSnapshot,track:TrackDefinition,cali
       y:vanishing.y+(start.y-vanishing.y)*ratio,nearClip,curve:0,pit:false};
     // Measured inner asphalt edges include the source's course-specific lean.
     // Extrapolation outside the two observable rows remains an inference.
-    const edges=profile.edges.length===1?[[profile.top[1],profile.top[0],profile.top[0]],...profile.edges]:profile.edges; const left=sample(edges,point.y,1),right=sample(edges,point.y,2);
+    const edges=[[profile.top[1],profile.top[0],profile.top[0]],...profile.edges]; const left=sample(edges,point.y,1),right=sample(edges,point.y,2);
     point.x=(left+right)/2;point.half=Math.max(0,(right-left)/2);
     nearClip=Math.min(nearClip,point.y);return point;
   });
+  // The finite road samples end before the inferred vanishing point. Complete
+  // that same plane rather than leaving a clipped strip of ground at its end.
+  // This cap is presentation only; it adds no track distance or checkpoint.
+  const far=points[points.length-1];
+  points.push({...far,x:vanishing.x,y:vanishing.y,half:0,scale:0,
+    distance:far.distance+24,nearClip:Math.min(nearClip,far.y)});
   const ratio=finishScale(state.sequenceTime);
   const x=vanishing.x+(start.x-vanishing.x)*ratio;
   const ground=profile.ground;

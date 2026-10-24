@@ -1,6 +1,6 @@
 # Pitch Duel (Future Web Games)
 
-Pitch Duel is a landscape-first solo football card game at `/play/pitch-duel`. Its gameplay and layout follow the card-football structure of [Ballers](https://github.com/kiellzz/ballers-game): a zone ladder, one duel per decision, set-piece pick-ems and a three-column match screen. It adds one thing Ballers lacks: the CPU commits a hidden counter every turn. It is skinned entirely in the StatOz design system: Orbitron and Space Grotesk, token colours, chamfered plates and the shared `PlayerCard`. No Ballers art, fonts or palette are used.
+Pitch Duel is a landscape-first solo football card game at `/play/pitch-duel`. Its gameplay and layout follow the card-football structure of [Ballers](https://github.com/kiellzz/ballers-game): a zone ladder, one duel per decision, set-piece pick-ems, and a match screen with the pitch on one side and the duel on the other. It adds one thing Ballers lacks: the CPU commits a hidden counter every turn. It is skinned entirely in the StatOz design system: Orbitron and Space Grotesk, token colours, chamfered plates and the shared `PlayerCard`. No Ballers art, fonts or palette are used.
 
 All code is in `src/features/games/pitch-duel`:
 
@@ -92,9 +92,23 @@ The fictional cards are playable only in Pitch Duel. Real-athlete cards still co
 ## Mobile
 
 - On phones the shared `MobileGameViewport` gives the game a landscape viewport.
-- The match screen fits about 640×360 to 932×430 without scrolling. Player cards scale with the screen height, and every touch target is at least 44px.
-- A narrow portrait desktop window gets a stacked layout and is never blank.
-- With reduced motion turned on, the flips, pulses and stamps are removed, and every result is still shown as text.
+- **Match screen layout:**
+  - a slim scoreboard with a match-time bar;
+  - the pitch on the left, showing all ten players, the ball and the live zone;
+  - the duel on the right: both cards, each with a pick tag ("LOCKED IN" until the reveal);
+  - one row of moves along the bottom, plus a single TACTICS button that opens the tactic tray.
+- **Squads, stats and the log** open in the Match Centre drawer: tap the pitch or the ≡ button. Tap a card or a squad row for player stats.
+- **Player positions** come from `components/pitch-layout.ts`, a pure helper. Each side holds its formation shape and shifts with the ball. The two duellists stand at the ball, keepers stay home, and sent-off players leave the pitch.
+- **Motion follows the play:**
+  - new cards deal in and move buttons scale in;
+  - on a reveal the cards clash, the winner lifts and the loser dims, then the headline stamps in;
+  - after the clash the players and ball glide to the new spot;
+  - a goal sends the ball into the net, shakes it, bumps the score and flashes GOAL!;
+  - a booking shows a yellow or red card;
+  - the NEXT bar fills while a reveal auto-advances.
+- The screen fits about 640×360 to 932×430 without scrolling. Cards scale to the room left, and every touch target is at least 44px. On narrow phones move labels can wrap to two lines.
+- A narrow portrait desktop window stacks the pitch, the duel and the moves, and is never blank.
+- With reduced motion turned on, every animation and glide is removed, and every result is still shown as text.
 
 ## Verification
 

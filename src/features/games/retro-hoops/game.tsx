@@ -7,6 +7,7 @@ import {useCallback,useEffect,useRef,useState} from "react";
 import {createMatch,HZ,step,type Match,type TeamStats} from "./simulation";
 import {loadPictures} from "./presentation";
 import {createRenderer} from "./renderer";
+import {VIEW} from "./view";
 import {HoopsJoystick} from "./joystick";
 import {HoopsInput,type Control} from "./input";
 import {HoopsAudio} from "./audio";
@@ -43,7 +44,7 @@ export function HoopsGame({assetBase,onExit,onEvent,hostSettings,hostCommand}:Ho
     const lost=(e:Event)=>{e.preventDefault();pause();setError("The court display stopped. Reload the game to continue.");};
     window.addEventListener("keydown",key);window.addEventListener("keyup",key);window.addEventListener("blur",blur);window.addEventListener("focusin",focusControl);document.addEventListener("visibilitychange",background);
     const element=canvas.current!;
-    const resize=()=>{if(!render)return;const r=element.parentElement!.getBoundingClientRect();if(r.height>0)render.resize(360*r.width/r.height);};
+    const resize=()=>{if(!render)return;const r=element.parentElement!.getBoundingClientRect();if(r.height>0)render.resize(VIEW.window*r.width/r.height);};
     window.addEventListener("resize",resize);
     element.addEventListener("webglcontextlost",lost);
     const loop=(now:number)=>{if(dead)return;raf=requestAnimationFrame(loop);if(!render)return;
@@ -70,7 +71,7 @@ export function HoopsGame({assetBase,onExit,onEvent,hostSettings,hostCommand}:Ho
       <aside className={styles.leftGrip} aria-label="Movement controls"><HoopsJoystick input={joystickInput} disabled={!controlsActive}/></aside>
       <main className={styles.display}>
         <div className={styles.score} aria-live="off"><span>BLUE <strong>{String(view.score[0]).padStart(2,"0")}</strong></span><span><b>{Math.floor(view.time/60)}:{String(view.time%60).padStart(2,"0")}</b><small>{view.phase==="opening"?"TIP OFF":view.phase==="interval"?"INTERVAL":`PERIOD ${view.period}`}</small></span><span><strong>{String(view.score[1]).padStart(2,"0")}</strong> RED</span></div>
-        <div className={styles.court}><canvas ref={canvas} width={514} height={360} aria-label="Full-court three versus three basketball" />
+        <div className={styles.court}><canvas ref={canvas} width={360} height={252} aria-label="Full-court three versus three basketball" />
           {(view.phase==="opening"||view.phase==="interval")&&view.started&&!view.paused&&<div className={styles.transition} role="status">{view.phase==="opening"?"TIP OFF":"HALF TIME"}<small>{view.phase==="opening"?"GET READY":"NEXT PERIOD"}</small></div>}
           {view.callout&&<div className={styles.callout} aria-live="polite">{view.callout}<small>BUCKET!</small></div>}
           {(error||!loaded||!view.started||view.paused||view.phase==="result")&&<div className={styles.overlay} role={error?"alert":"status"}>

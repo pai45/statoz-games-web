@@ -47,6 +47,8 @@ async function seeded(options) {
 const fits = (target) => target.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.documentElement.scrollHeight <= innerHeight + 1);
 
 async function checkTargets(target, label) {
+  // Let the buttons finish dealing in before measuring them (looping animations never finish).
+  await target.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))));
   const bad = await target.evaluate(() => [...document.querySelectorAll('[data-pitch-duel-option]')].map((el) => {
     const r = el.getBoundingClientRect();
     return { id: el.getAttribute('data-pitch-duel-option'), w: r.width, h: r.height, inside: r.top >= 0 && r.left >= 0 && r.bottom <= innerHeight + 1 && r.right <= innerWidth + 1 };
@@ -68,10 +70,11 @@ async function playMatch(target, label) {
       break;
     }
     const nextButton = target.getByRole('button', { name: /^(NEXT ▶|START SECOND HALF ▶)$/ });
-    if (await nextButton.count()) { await nextButton.first().click(); continue; }
+    // A plain reveal also moves on by itself, so the button can vanish before the tap lands.
+    if (await nextButton.count()) { await nextButton.first().click({ timeout: 3000 }).catch(() => {}); continue; }
     const options = target.locator('[data-pitch-duel-option]');
     const count = await options.count();
-    if (count) { await options.nth(i % count).click(); continue; }
+    if (count) { await options.nth(i % count).click({ timeout: 5000 }).catch(() => {}); continue; }
     await target.waitForTimeout(100);
   }
   await target.locator('[data-pitch-duel-screen="summary"]').waitFor({ timeout: 30000 });

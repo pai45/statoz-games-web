@@ -31,9 +31,10 @@ function painter(){
   return {pixels,rect,poly};
 }
 /** 80×40. Ground at [40,34]. Shadow is intentionally a separate renderer layer. */
-export function carPixels(id:CarId,pose:CarPose,frame=0):PixelRect[]{
+export function carPixels(id:CarId,pose:CarPose,frame=0,turnMagnitude=1):PixelRect[]{
   const {pixels,rect:r,poly:p}=painter(),c=carPaint[id];
-  const turn=pose==='left'?-1:pose==='right'?1:0;
+  const magnitude=Math.max(0,Math.min(1,turnMagnitude));
+  const turn=pose==='left'?-magnitude:pose==='right'?magnitude:0;
   // The near rear shifts only two pixels; the cabin/forward axle moves farther.
   // A separately constructed side face gains depth. The sprite is never rotated.
   const rear=40+turn*2,roof=40-turn*5,low=id==='comet'?10:id==='kestrel'?6:8;
@@ -118,6 +119,27 @@ export function carPixels(id:CarId,pose:CarPose,frame=0):PixelRect[]{
   }
   return pixels;
 }
+/** Discrete original turn construction. Car pixels are rebuilt around the same
+ * axle anchor; no bitmap rotation, shearing or alternate color identities.
+ * Input sign follows the maintained renderer: negative left, positive right.
+ * The thresholds and intermediate hold are designed, not native measurements. */
+export function turnAmountFor(steerAmount:number):0|.5|1|-.5|-1{
+  const a=Math.min(1,Math.abs(Number.isFinite(steerAmount)?steerAmount:0));
+  const magnitude=a<.18?0:a<.65?.5:1;
+  return (steerAmount<0?-magnitude:magnitude)as 0|.5|1|-.5|-1;
+}
+export function turnCarPixels(id:CarId,steerAmount:number,frame=0):PixelRect[]{
+  const amount=turnAmountFor(steerAmount);
+  return carPixels(id,amount<0?'left':amount>0?'right':'straight',frame,Math.abs(amount));
+}
+export const turnFamilyMetadata={
+  id:'circuit-original-soft-steering-v1',version:'1.0.0',native:[80,40],anchor:[40,34],
+  amounts:[-1,-.5,0,.5,1],thresholds:[.18,.65],
+  geometry:'Rear axle moves 0/1/2px; cabin/forward axle moves 0/2.5/5px; original flank and forward tyre geometry rebuilds at half/full magnitude. Integer rasterization, no whole-sprite transform.',
+  holds:{turnInSoftTicks:3,returnSoftTicks:3,oppositeDirectionNeutralTicks:1,tickHz:60,full:'hold while corresponding input/steering remains active'},
+  classification:'Designed intermediate poses and holds; source-informed flank readability, not recovered input or console frame timings',
+  source:'Unchanged maintained original car-family.ts foundation plus turnMagnitude parameter; no commercial pixels',
+}as const;
 /** Deliberately redrawn 24×14 LOD, not a resized near sprite. */
 export function farCarPixels(id:CarId):PixelRect[]{
   const {pixels,rect:r,poly:p}=painter(),c=carPaint[id],roof=id==='kestrel'?2:id==='comet'?4:3;

@@ -5,7 +5,7 @@ out=Path.cwd()/'test-results'/(sys.argv[1]if len(sys.argv)>1 else 'retro-hoops-m
 for kind in ['dribble','block','dunk','super-dunk','pass','shoot','recoil','dunk-pass']:
  for team in [0,1]:
   folder=out/'actions'/f'{kind}-{team}';frames=sorted(folder.glob('[0-9][0-9][0-9][0-9].png'));assert len(frames)==61
-  assert all(Image.open(f).size==(640,360) for f in frames)
+  assert all(Image.open(f).size==(546,252) for f in frames)
   video=folder/'review.mp4';exe=imageio_ffmpeg.get_ffmpeg_exe();subprocess.run([exe,'-hide_banner','-loglevel','error','-y','-framerate','30','-i',str(folder/'%04d.png'),'-c:v','libx264','-pix_fmt','yuv420p',str(video)],check=True);subprocess.run([exe,'-hide_banner','-loglevel','error','-i',str(video),'-f','null','-'],check=True)
   sheet=Image.new('RGB',(1940,1176),'#0d111a');d=ImageDraw.Draw(sheet)
   for i,n in enumerate([0,3,7,10,13,18,25,35,50]):

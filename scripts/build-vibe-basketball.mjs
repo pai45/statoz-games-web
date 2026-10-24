@@ -26,11 +26,24 @@ export async function buildVibeBasketball(){
  await build({entryPoints:[path.join(source,'src/main.js')],outfile:path.join(out,'game.js'),bundle:true,format:'esm',target:'es2022',minify:true,keepNames:true,alias:{three:path.join(source,'node_modules/three')},legalComments:'eof',plugins:[{name:'vibe-host',setup(b){
   b.onLoad({filter:/[\\/]src[\\/]main\.js$/},async args=>{
    let text=await fs.readFile(args.path,'utf8');
+   text="import {renderProfile,prepareMobileScene,createPerformanceController} from "+JSON.stringify(path.join(feature,'performance.js'))+";\n"+text;
+   text=replace(text,"const LITE = params.has('lite');","const LITE = !renderProfile.bloom;");
+   text=replace(text,"antialias: true, powerPreference: 'high-performance'","antialias: renderProfile.antialias, powerPreference: 'high-performance'");
+   text=replace(text,'renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));','renderer.setPixelRatio(renderProfile.maxDpr);');
+   text=replace(text,'const court = buildCourt(scene);','const environmentNodes = new Set(); scene.traverse(node=>{if(node.isMesh)environmentNodes.add(node);}); const court = buildCourt(scene); const batched = prepareMobileScene(scene,env,environmentNodes);');
+   const postStart=text.indexOf('const composer = new EffectComposer(renderer);'),postEnd=text.indexOf('// ---------------------------------------------------------------- game',postStart);
+   if(postStart<0||postEnd<0)throw Error('Post-processing anchor changed');
+   text=text.slice(0,postStart)+'const composer = LITE ? null : (() => {\n'+text.slice(postStart,postEnd)+'return composer;})();\n'+text.slice(postEnd);
+   text=replace(text,'  composer.setSize(w, h);','  composer?.setSize(w, h); performanceController.resize();');
+   text=replace(text,'  const now = performance.now();','  const now = performance.now(); performanceController.frame(now);');
+   text=replace(text,'if (frameCount <= 12)','if (hud.debugOn && frameCount <= 12)');
+   text=replace(text,"if (game?.mode === '1v1' && dbgT > 0.25)","if (hud.debugOn && game?.mode === '1v1' && dbgT > 0.25)");
+   text=replace(text,'hud.doneLoading();','const performanceController = createPerformanceController(renderer,scene,batched); hud.doneLoading();');
    text=replace(text,'if (manualTime) return;', 'if (window.__VIBE_HOST__.paused) { clock.getDelta(); lastNow = performance.now(); return; } if (manualTime) return;');
    text=replace(text,'manualTime = true;', 'if (window.__VIBE_HOST__.paused) return; manualTime = true;');
    text=text.replaceAll('window.innerWidth',"document.getElementById('app').clientWidth").replaceAll('window.innerHeight',"document.getElementById('app').clientHeight");
    text=replace(text,'hud.doneLoading();','hud.doneLoading(); window.__VIBE_HOST__.ready();');
-   text=replace(text,'location.href = location.pathname;', "location.href = location.pathname + '?session=' + encodeURIComponent(new URLSearchParams(location.search).get('session') || '');");
+   text=replace(text,'location.href = location.pathname;', "location.href = (()=>{const url=new URL(location.href);url.searchParams.delete('mode');url.searchParams.delete('attract');return url.href;})();");
    return {contents:text,loader:'js'};
   });
   b.onLoad({filter:/[\\/]cameraRig\.js$/},async args=>{
@@ -52,6 +65,9 @@ export async function buildVibeBasketball(){
    text=replace(text,'normalScale: new THREE.Vector2(0.22, 0.22)','normalScale: new THREE.Vector2(0.10, 0.10)');
    text=replace(text,'normalScale: new THREE.Vector2(0.28, 0.28)','normalScale: new THREE.Vector2(0.12, 0.12)');
    text=replace(text,'normalScale: new THREE.Vector2(0.26, 0.26)','normalScale: new THREE.Vector2(0.12, 0.12)');
+   text="import {renderProfile} from "+JSON.stringify(path.join(feature,'performance.js'))+";\n"+text;
+   text=replace(text,'function ellipsoid(c, r, seg = 14) {','function ellipsoid(c, r, seg = 14) { if(renderProfile.fast)seg=Math.min(seg,10);');
+   text=replace(text,'{ N = 16, round = true, open = false } = {}) {','{ N = renderProfile.fast?10:16, round = true, open = false } = {}) {');
    const start=text.indexOf('  buildHead(put, skin, hair, trim) {');
    const end=text.indexOf('  /** reset all bones to bind */',start);
    if(start<0||end<0)throw Error('Upstream head method changed');
@@ -60,6 +76,14 @@ export async function buildVibeBasketball(){
    text=replace(text,'    // jersey number (front + back), skinned to chest',"    this.meshFaceLight=mk(this.characterDesign.light,new THREE.MeshStandardMaterial({color:0xf6eee0,roughness:.78}));\n    this.meshFaceInk=mk(this.characterDesign.ink,new THREE.MeshStandardMaterial({color:0x24232a,roughness:.85}));\n    this.meshKitAccent=mk(this.characterDesign.accent,new THREE.MeshStandardMaterial({color:config.shoes??0xf4ac61,roughness:.75}));\n    this.group.userData.characterDesign={version:2,name:this.characterDesign.name,hair:this.characterDesign.style};\n    // jersey number (front + back), skinned to chest");
    text=replace(text,'makeNumberTexture(cfg.number, cfg.numberColor)','makeJerseyMark(cfg.number, cfg.numberColor, config.name)');
    text=replace(text,'        g.translate(0, 1.335, z);\n        if (back) g.rotateY(Math.PI);','        if (back) g.rotateY(Math.PI);\n        g.translate(0, 1.335, z);');
+   return {contents:text,loader:'js'};
+  });
+  b.onLoad({filter:/[\\/]hud\.js$/},async args=>{
+   let text=await fs.readFile(args.path,'utf8');
+   text=replace(text,"    if (!data || this.mode !== 'three-point') return;", "    if (!data || this.mode !== 'three-point') return; const displayKey=JSON.stringify([data.stage,data.state,data.entrant,Math.ceil(data.clock),data.clock<10.5,data.score,data.station,data.attempt,data.canSkipCpu,data.attempts.map(a=>[a.kind,a.resolved,a.made]),data.roadmap]);if(this._displayKey===displayKey)return;this._displayKey=displayKey;");
+   text=replace(text,'  setScore(a, b) {','  setScore(a, b) { if(this._scoreA===a&&this._scoreB===b)return;this._scoreA=a;this._scoreB=b;');
+   text=replace(text,'  setPossession(teamIdx) {','  setPossession(teamIdx) { if(this._possession===teamIdx)return;this._possession=teamIdx;');
+   text=replace(text,'    const v = Math.max(0, Math.ceil(s));','    const v = Math.max(0, Math.ceil(s)); const key=v+":"+(s<5.5);if(this._shotClockKey===key)return;this._shotClockKey=key;');
    return {contents:text,loader:'js'};
   });
   b.onLoad({filter:/[\\/]input\.js$/},async args=>({contents:replace(await fs.readFile(args.path,'utf8'),'let mag = Math.hypot(ix, iz);','if (window.__VIBE_HOST__?.move) { ix = window.__VIBE_HOST__.move.x; iz = window.__VIBE_HOST__.move.z; } let mag = Math.hypot(ix, iz);'),loader:'js'}));

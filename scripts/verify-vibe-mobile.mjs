@@ -20,7 +20,7 @@ function check(rects,width,height){for(const r of rects)assert.ok(r.x>=0&&r.y>=0
 try{
  for(const [width,height] of [[320,740],[390,844],[667,375],[844,390],[932,430],[1024,768]]){
   const page=await browser.newPage({viewport:{width,height},hasTouch:true,isMobile:true});page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(base+'?mode=three-point&lite=1&touch=1');await ready(page);
+  await page.goto(base+'?mode=three-point&touch=1');await ready(page);
   await page.screenshot({path:path.join(out,`${width}x${height}-setup.png`)});
   await page.locator('[data-player-count="4"]').click();await page.locator('[data-rack="top"]').click();
   await page.evaluate(()=>window.advanceTime(5000));await page.waitForFunction(()=>!document.getElementById('vibe-touch').hidden);

@@ -1,2 +1,2 @@
 /** Current original character family; earlier packs stay immutable on disk. */
-export const CHARACTER_PACK={folder:"authored-v11",version:"11.0.0"} as const;
+export const CHARACTER_PACK={folder:"authored-v25",version:"25.0.0"} as const;

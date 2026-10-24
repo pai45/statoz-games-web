@@ -53,12 +53,12 @@ const entries={
  'retro-circuit':`import{mountCircuit}from'./src/features/games/retro-circuit/mount';import'./src/features/games/retro-circuit/circuit.css';const host=window.__STATOZ_HOST__;let session,disposed=false;host.command=command=>{if(command==='dispose'){disposed=true;session?.dispose();}else if(command==='pause'){session?.pause();}else if(command==='resume'){session?.resume();}};try{if(!disposed){session=mountCircuit(document.getElementById('root'),{onExit:()=>host.emit('exit'),onResult:result=>host.result(result)});host.emit('ready');}}catch{host.emit('error',{message:'Retro Circuit could not start'});}`,
 };
 async function assetShim(directory){
- const map={};const hoopsAtlases=path.basename(directory)==='retro-hoops'?new Set(JSON.parse(await fs.readFile(path.join(directory,'authored-v11/manifest.json'),'utf8')).atlases):null;
+ const map={};const hoopsAtlases=path.basename(directory)==='retro-hoops'?new Set(JSON.parse(await fs.readFile(path.join(directory,'authored-v25/manifest.json'),'utf8')).atlases):null;
  for(const file of await walk(directory).catch(error=>{if(error.code==='ENOENT')return [];throw error;})){
   if(!/\.(?:png|webp|jpg|jpeg|svg|json|wav|mp3|ogg|woff2?|ttf)$/.test(file)||/provenance/i.test(file))continue;
-  if(hoopsAtlases&&file.includes(path.sep+'authored-v11'+path.sep)&&file.endsWith('.png')&&!hoopsAtlases.has(path.basename(file)))continue;
-  if(path.basename(directory)==='retro-hoops'&&/\.(png|webp|jpe?g)$/.test(file)&&!file.includes(path.sep+'authored-v11'+path.sep))continue;
-  if(path.basename(directory)==='retro-hoops'&&/(?:authored-v(?:[1-9]|10)|player-look-v1|locomotion-v[0-9]+|assets)[\\/]/.test(path.relative(directory,file)))continue;
+  if(hoopsAtlases&&file.includes(path.sep+'authored-v25'+path.sep)&&file.endsWith('.png')&&!hoopsAtlases.has(path.basename(file)))continue;
+  if(path.basename(directory)==='retro-hoops'&&/\.(png|webp|jpe?g)$/.test(file)&&!file.includes(path.sep+'authored-v25'+path.sep))continue;
+  if(path.basename(directory)==='retro-hoops'&&/(?:authored-v(?:[1-9]|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24)|player-look-v1|locomotion-v[0-9]+|assets)[\\/]/.test(path.relative(directory,file)))continue;
   const ext=path.extname(file).toLowerCase(),mime={'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf'}[ext];
   map[path.relative(directory,file).replaceAll('\\','/')]=`data:${mime};base64,${(await fs.readFile(file)).toString('base64')}`;
  }

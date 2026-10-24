@@ -10,7 +10,10 @@ import { seededSource } from "../src/features/games/pitch-duel/engine/rng";
 import { draftOpponent } from "../src/features/games/pitch-duel/engine/setup";
 import { autoplay, sensiblePolicy, uniformPolicy } from "../src/features/games/pitch-duel/engine/simulate";
 import { deriveStats } from "../src/features/games/pitch-duel/engine/stats";
+import { duelOdds, duelists, sentOffSet } from "../src/features/games/pitch-duel/engine/situation";
 import { PitchDuelInputError, type MatchSetup, type Progress } from "../src/features/games/pitch-duel/engine/types";
+import { absoluteX } from "../src/features/games/pitch-duel/engine/zones";
+import { pitchScene } from "../src/features/games/pitch-duel/components/pitch-layout";
 
 const pools = {
   attackers: footballPlayerCards.filter((c) => c.role === "attacker"),
@@ -168,3 +171,49 @@ test("a foul in the box becomes a penalty the human can take", () => {
   }
   assert.ok(found);
 });
+
+test("a sent-off player stops duelling and gives the other side the man advantage", () => {
+  const match = createMatch(setupFor(41));
+  const before = duelOdds(match, "dribble", "tackle");
+  const sent = structuredClone(match);
+  sent.possession = { side: "home", progress: 4, lane: "center", bonus: 0 };
+  const { defenderId } = duelists(sent);
+  sent.players[`away:${defenderId}`].red = true;
+  assert.notEqual(duelists(sent).defenderId, defenderId, "the red-carded player is replaced");
+  assert.ok(sentOffSet(sent, "away").has(defenderId));
+  assert.equal(sentOffSet(sent, "home").size, 0, "red cards are tracked per side");
+  const fresh = structuredClone(match);
+  fresh.possession = sent.possession;
+  assert.ok(duelOdds(sent, "dribble", "tackle").k > duelOdds(fresh, "dribble", "tackle").k, "a man up adds to the attack");
+  assert.ok(Number.isFinite(before.k));
+});
+
+test("the pitch view places every player on the pitch, with the duel at the ball", () => {
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const match = createMatch(setupFor(seed));
+    const turn = structuredClone(match);
+    for (const progress of [1, 4, 8] as Progress[]) {
+      for (const side of ["home", "away"] as const) {
+        turn.possession = { side, progress, lane: "center", bonus: 0 };
+        const { attackerId, defenderId } = duelists(turn);
+        const other = side === "home" ? "away" : "home";
+        const scene = pitchScene(turn, { x: absoluteX(side, progress), lane: "center", possession: side, duel: { [side]: attackerId, [other]: defenderId } as Record<"home" | "away", string> });
+        assert.equal(scene.tokens.length, 10);
+        for (const t of scene.tokens) assert.ok(t.x >= 0 && t.x <= 1 && t.y >= 0 && t.y <= 1, `${t.id} at ${t.x},${t.y}`);
+        const carrier = scene.tokens.find((t) => t.carrier)!;
+        assert.equal(carrier.id, attackerId);
+        assert.ok(Math.abs(carrier.x - scene.ball.x) < 0.06, "the carrier stands at the ball");
+        const keepers = scene.tokens.filter((t) => t.keeper && !t.duel);
+        for (const k of keepers) assert.ok(k.side === "home" ? k.x < 0.1 : k.x > 0.9, "keepers stay home");
+      }
+    }
+    turn.players[`home:${turn.teams.home.outfield[0]}`].red = true;
+    const fewer = pitchScene(turn, { x: 4, lane: "left", possession: "home", duel: duelistsFor(turn) });
+    assert.equal(fewer.tokens.length, 9, "a sent-off player leaves the pitch");
+  }
+});
+
+function duelistsFor(state: ReturnType<typeof createMatch>): Record<"home" | "away", string> {
+  const { attackerId, defenderId } = duelists(state);
+  return state.possession.side === "home" ? { home: attackerId, away: defenderId } : { home: defenderId, away: attackerId };
+}

@@ -1,8 +1,10 @@
+import {paintStartGantry} from './start-gantry-art';
+import {gantryPresentation} from './gantry-presentation';
 import {finishPresentation} from './finish-presentation';
 import {paintHiroshimaPanorama} from './hiroshima-art';
 import {hiroshimaPalette} from './hiroshima-presentation';
 import * as THREE from "three";
-import {poses,carPixels,farCarPixels,overheadCarPixels,paintPixels,type CarPose} from './car-family';
+import {poses,carPixels,farCarPixels,overheadCarPixels,paintPixels,turnAmountFor,type CarPose} from './car-family';
 import {displayFor,sequenceFor} from './fidelity';
 import { sampleTrack, vehicles, biomeFor, propSpacing, roadsideProp,modulo } from "./data";
 import { projectedCar, roadProjection, CAMERA_TRAIL, cameraDistance, mapPoints, type ProjectionCalibration } from "./projection";
@@ -39,6 +41,10 @@ export class CircuitRenderer {
   private shadows:THREE.Mesh<THREE.PlaneGeometry,THREE.MeshBasicMaterial>[]=[];
   private obstacles:THREE.Mesh<THREE.PlaneGeometry,THREE.MeshBasicMaterial>[]=[];
   private obstacleMaterials=new Map<string,THREE.MeshBasicMaterial>();
+  private gantry?:THREE.Mesh<THREE.PlaneGeometry,THREE.MeshBasicMaterial>;
+  private gantryLegs?:THREE.Mesh<THREE.PlaneGeometry,THREE.MeshBasicMaterial>;
+  private gantryGeometries:THREE.PlaneGeometry[]=[];
+  private gantryFrame:ReturnType<typeof gantryPresentation>=null;
   private playerFrame:Record<string,number|boolean>|null=null;
   inspection=false;
   calibration:Partial<ProjectionCalibration>={};
@@ -62,8 +68,8 @@ export class CircuitRenderer {
     this.hudCanvas.width=480;this.hudCanvas.height=this.display.height;this.hudTexture=new THREE.CanvasTexture(this.hudCanvas);this.hudTexture.magFilter=this.hudTexture.minFilter=THREE.NearestFilter;this.hudTexture.colorSpace=THREE.SRGBColorSpace;this.textures.push(this.hudTexture);
     const hudMaterial=new THREE.MeshBasicMaterial({map:this.hudTexture,transparent:true,depthTest:false,side:THREE.DoubleSide});this.sceneryMaterials.push(hudMaterial);const hud=new THREE.Mesh(this.geometry,hudMaterial);hud.position.set(240,this.display.height/2,0);hud.scale.set(480,-this.display.height,1);hud.renderOrder=10000;this.scene.add(hud);this.map=mapPoints(track);
     for(const vehicle of vehicles){
-      for(const pose of poses)for(let frame=0;frame<2;frame++){
-        const c=document.createElement('canvas');c.width=80;c.height=40;paintPixels(c.getContext('2d')!,carPixels(vehicle.id,pose,frame));
+      for(const pose of [...poses,'soft-left','soft-right'] as const)for(let frame=0;frame<2;frame++){
+        const c=document.createElement('canvas');c.width=80;c.height=40;paintPixels(c.getContext('2d')!,carPixels(vehicle.id,pose==='soft-left'?'left':pose==='soft-right'?'right':pose,frame,pose.startsWith('soft-')?.5:1));
         const texture=new THREE.CanvasTexture(c);texture.magFilter=texture.minFilter=THREE.NearestFilter;texture.colorSpace=THREE.SRGBColorSpace;this.textures.push(texture);
         this.materials.set(vehicle.id+'/'+pose+'/'+frame,new THREE.MeshBasicMaterial({map:texture,transparent:true,depthTest:false,side:THREE.DoubleSide}));
       }
@@ -77,6 +83,15 @@ export class CircuitRenderer {
     for(let i=0;i<44;i++){const material=this.propMaterials[0].clone();material.clippingPlanes=[new THREE.Plane(new THREE.Vector3(0,-1,0),270)];this.billboardMaterials.push(material);const mesh=new THREE.Mesh(this.geometry,material);mesh.frustumCulled=false;this.scenery.push(mesh);this.scene.add(mesh);}
     for(const kind of ['cone','barrel','barrier','rock'] as const){const c=document.createElement('canvas');c.width=c.height=64;paintObstacle(c.getContext('2d')!,kind);const t=new THREE.CanvasTexture(c);t.magFilter=t.minFilter=THREE.NearestFilter;t.colorSpace=THREE.SRGBColorSpace;this.textures.push(t);const m=new THREE.MeshBasicMaterial({map:t,transparent:true,depthTest:false,side:THREE.DoubleSide});this.obstacleMaterials.set(kind,m);}
     for(const obstacle of track.obstacles){const m=this.obstacleMaterials.get(obstacle.kind)!.clone();m.clippingPlanes=[new THREE.Plane(new THREE.Vector3(0,-1,0),270)];this.billboardMaterials.push(m);const mesh=new THREE.Mesh(this.geometry,m);mesh.frustumCulled=false;this.obstacles.push(mesh);this.scene.add(mesh);}
+    if(track.profile==='reference'){
+      const c=document.createElement('canvas');c.width=256;c.height=96;paintStartGantry(c.getContext('2d')!);
+      const texture=new THREE.CanvasTexture(c);texture.magFilter=texture.minFilter=THREE.NearestFilter;texture.colorSpace=THREE.SRGBColorSpace;this.textures.push(texture);
+      const material=new THREE.MeshBasicMaterial({map:texture,transparent:true,depthTest:false,side:THREE.DoubleSide});material.clippingPlanes=[new THREE.Plane(new THREE.Vector3(0,-1,0),this.display.height)];this.billboardMaterials.push(material);
+      const header=new THREE.PlaneGeometry(1,1),legs=new THREE.PlaneGeometry(1,1);
+      for(const [geometry,upper]of [[header,true],[legs,false]]as const){const uv=geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setY(i,upper?2/3+uv.getY(i)/3:uv.getY(i)*2/3);this.gantryGeometries.push(geometry);}
+      this.gantry=new THREE.Mesh(header,material);this.gantryLegs=new THREE.Mesh(legs,material);
+      for(const mesh of [this.gantry,this.gantryLegs]){mesh.frustumCulled=false;mesh.visible=false;this.scene.add(mesh);}
+    }
     this.onLost=event=>{event.preventDefault();onError("Graphics interrupted. Return to the garage and retry.");};canvas.addEventListener("webglcontextlost",this.onLost);
   }
   private rect(x:number,y:number,w:number,h:number,color:string,order=0){const material=new THREE.MeshBasicMaterial({color,depthTest:false,side:THREE.DoubleSide});this.sceneryMaterials.push(material);const mesh=new THREE.Mesh(this.geometry,material);mesh.position.set(x+w/2,y+h/2,0);mesh.scale.set(w,h,1);mesh.renderOrder=order;this.scene.add(mesh);}
@@ -89,7 +104,7 @@ export class CircuitRenderer {
     if(this.disposed)return;
     void inputSteer; // Host signature retained; pose steering comes from simulation.
     const lerp=(a:number,b:number)=>a+(b-a)*alpha;
-    const player=state.phase==='finished'&&this.track.profile==='reference'?{...state.player}:previous?{...state.player,distance:lerp(previous[0].distance,state.player.distance),x:lerp(previous[0].x,state.player.x)}:{...state.player};
+    const player=state.phase==='finished'&&this.track.profile==='reference'?{...state.player}:previous?{...state.player,distance:lerp(previous[0].distance,state.player.distance),x:lerp(previous[0].x,state.player.x),steering:lerp(previous[0].steering,state.player.steering)}:{...state.player};
     if(state.phase==='finished'&&this.track.profile!=='reference'&&state.sequenceTime>0)player.distance+=Math.min(85,state.sequenceTime*35);
     const darkRoad=this.track.id==='night'&&player.distance<this.track.length;
     const palette=this.track.id==='night'?hiroshimaPalette(player.distance,this.track.length):this.track;
@@ -126,14 +141,22 @@ export class CircuitRenderer {
         quad(a,b,1.7+patch,1.73+patch,biomeFor(this.track)==='coast'?'#1e6e3c':biomeFor(this.track)==='desert'?'#a87c60':'#30364d');}
     }
     this.road.geometry.setDrawRange(0,vertex);this.road.geometry.attributes.position.needsUpdate=true;this.road.geometry.attributes.color.needsUpdate=true;
+    this.gantryFrame=this.gantry?gantryPresentation(view,this.track,points):null;
+    if(this.gantry){const arch=this.gantryFrame;this.gantry.visible=!!arch&&arch.visible;this.gantryLegs!.visible=this.gantry.visible;
+      if(arch){this.gantry.material.clippingPlanes![0].constant=arch.clip;this.gantry.position.set(Math.round(arch.x),arch.headerY+Math.round(arch.y)-arch.y,0);this.gantry.scale.set(arch.width,-arch.headerHeight,1);this.gantryLegs!.position.set(Math.round(arch.x),arch.legsY+Math.round(arch.y)-arch.y,0);this.gantryLegs!.scale.set(arch.width,-arch.legsHeight,1);this.gantry.renderOrder=this.gantryLegs!.renderOrder=3000-Math.floor(arch.distance)+.05;}
+    }
     for(const car of state.cars){
       const mesh=this.cars[car.id],prior=previous?.[car.id],distance=car.id===0?(departure?.distance??CAMERA_TRAIL+(state.phase==='finished'?state.sequenceTime*75:0)):cameraDistance(lerp(prior?.distance??car.distance,car.distance)+(departure?car.speed*state.sequenceTime:0),player.distance,this.track.length);
       const x=car.id===0?player.x:lerp(prior?.x??car.x,car.x),p=car.id===0&&departure?departure.ego:projectedCar(distance,x,points);mesh.visible=!!p&&p.y-78*p.scale<p.occlusion&&distance>=0&&(!departure||car.id!==0||p.visible)&&!(departure&&this.inspection&&car.id!==0)&&(car.id===0||(!car.dnf&&car.finishedAt===null));
       const shadow=this.shadows[car.id];shadow.visible=mesh.visible;if(!p)continue;
-      let pose:CarPose=car.collisionCooldown>0?"contact":car.boost>0?"boost":(car.id===0&&braking)||(car.id!==0&&!!prior&&car.speed<prior.speed-.08)?"brake":car.id===0&&car.steering<-.18?"left":car.id===0&&car.steering>.18?"right":"straight";
+      let pose:CarPose=car.collisionCooldown>0?"contact":car.boost>0?"boost":(car.id===0&&braking)||(car.id!==0&&!!prior&&car.speed<prior.speed-.08)?"brake":car.id===0&&player.steering<-.18?"left":car.id===0&&player.steering>.18?"right":"straight";
       if(car.id===0&&departure)pose=car.steering<-.18?'left':car.steering>.18?'right':'straight';
       if(car.id!==0&&['straight','left','right'].includes(pose))pose=car.steering<-.18?'left':car.steering>.18?'right':Math.abs(sampleTrack(this.track,car.distance).curve)>.25?(sampleTrack(this.track,car.distance).curve>0?'right':'left'):'straight';
-      mesh.material.map=((car.id===0&&departure?departure.distant:distance>300)&&this.materials.has(car.vehicle+'/far')?this.materials.get(car.vehicle+'/far'):this.materials.get(`${car.vehicle}/${pose}/${Math.floor(state.elapsed*12)%2}`))!.map;mesh.material.clippingPlanes![0].constant=p.occlusion;
+      const steering=car.id===0?player.steering:lerp(prior?.steering??car.steering,car.steering);
+      const turn=turnAmountFor(steering);
+      // Brake lights and boost plumes are separate effects: they must not mask steering.
+      const poseKey=car.id===0&&!departure&&car.collisionCooldown<=0&&turn!==0?(Math.abs(turn)===.5?'soft-':'')+(turn<0?'left':'right'):pose;
+      mesh.material.map=((car.id===0&&departure?departure.distant:distance>300)&&this.materials.has(car.vehicle+'/far')?this.materials.get(car.vehicle+'/far'):this.materials.get(`${car.vehicle}/${poseKey}/${Math.floor(state.elapsed*12)%2}`))!.map;mesh.material.clippingPlanes![0].constant=p.occlusion;
       const scale=p.scale*2.1;
       const contact=car.collisionCooldown>0&&!(car.id===0&&departure)?(Math.floor(state.elapsed*25)%2?2:-2):0;
       if(car.id===0)this.playerFrame={x:p.x,y:p.y,scale:p.scale,clip:p.occlusion,visible:mesh.visible,distant:departure?.distant??distance>300};
@@ -147,7 +170,7 @@ export class CircuitRenderer {
       mesh.position.set(p.x,p.y-72*p.scale,0);mesh.scale.set(100*p.scale,-150*p.scale,1);mesh.renderOrder=3000-Math.floor(d);
     }
     for(let i=0;i<this.track.obstacles.length;i++){const o=this.track.obstacles[i],d=cameraDistance(o.s,player.distance,this.track.length),p=projectedCar(d,o.x,points),mesh=this.obstacles[i];mesh.visible=!departure&&!!p&&d>0&&p.y-100*p.scale<p.occlusion;if(!p)continue;const opaqueWidth={cone:45,barrel:30,barrier:52,rock:48}[o.kind],s=p.scale*(o.radius*740/opaqueWidth);mesh.position.set(Math.round(p.x),Math.round(p.y-28*s),0);mesh.scale.set(64*s,-64*s,1);mesh.renderOrder=3000-Math.floor(d);mesh.material.clippingPlanes![0].constant=p.occlusion;}
-    this.panorama.material.map!.offset.x=state.player.distance/30000+sampleTrack(this.track,state.player.distance).curve*.045;
+    this.panorama.material.map!.offset.x=state.player.distance/30000+sampleTrack(this.track,player.distance).curve*.045+(state.phase==='racing'?player.steering*Math.min(1,player.speed/35)*.035:0);
     const ctx=this.hudCanvas.getContext('2d')!;drawRaceHud(ctx,state,this.track,this.map);
     if(!this.inspection||state.phase!=='finished')this.drawSequence(ctx,state);
     if(state.player.inPit&&state.player.speed<.8){this.drawPit(ctx,state);this.hudTexture.needsUpdate=true;this.renderer.render(this.scene,this.camera);return;}
@@ -181,6 +204,6 @@ export class CircuitRenderer {
       if(t>timing.fade){c.fillStyle='rgba(0,0,0,'+Math.min(1,(t-timing.fade)/(timing.finish-timing.fade))+')';c.fillRect(0,0,480,h);}
     }else if(s.phase==='dnf'){c.fillStyle='#151520dd';c.fillRect(94,h/2-24,292,47);pixelText(c,'OUT OF FUEL',109,h/2-10,3,'#ffca8b');}
   }
-  diagnostics(){return {playerFrame:this.playerFrame,inspection:this.inspection,visibleCars:this.cars.filter(c=>c.visible).length,visibleObstacles:this.obstacles.filter(c=>c.visible).length,playerVisible:!!this.cars[0]?.visible,calls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,textures:this.renderer.info.memory.textures,geometries:this.renderer.info.memory.geometries,disposed:this.disposed};}
-  dispose(){if(this.disposed)return;this.disposed=true;this.renderer.domElement.removeEventListener("webglcontextlost",this.onLost);this.road.geometry.dispose();this.road.material.dispose();this.geometry.dispose();for(const t of this.textures)t.dispose();for(const m of this.materials.values())m.dispose();for(const m of this.obstacleMaterials.values())m.dispose();for(const m of [...this.sceneryMaterials,...this.propMaterials,...this.billboardMaterials])m.dispose();this.scene.clear();this.renderer.dispose();this.renderer.forceContextLoss();}
+  diagnostics(){return {gantry:this.gantryFrame,playerFrame:this.playerFrame,inspection:this.inspection,visibleCars:this.cars.filter(c=>c.visible).length,visibleObstacles:this.obstacles.filter(c=>c.visible).length,playerVisible:!!this.cars[0]?.visible,calls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,textures:this.renderer.info.memory.textures,geometries:this.renderer.info.memory.geometries,disposed:this.disposed};}
+  dispose(){if(this.disposed)return;this.disposed=true;this.renderer.domElement.removeEventListener("webglcontextlost",this.onLost);this.road.geometry.dispose();this.road.material.dispose();this.geometry.dispose();for(const g of this.gantryGeometries)g.dispose();for(const t of this.textures)t.dispose();for(const m of this.materials.values())m.dispose();for(const m of this.obstacleMaterials.values())m.dispose();for(const m of [...this.sceneryMaterials,...this.propMaterials,...this.billboardMaterials])m.dispose();this.scene.clear();this.renderer.dispose();this.renderer.forceContextLoss();}
 }

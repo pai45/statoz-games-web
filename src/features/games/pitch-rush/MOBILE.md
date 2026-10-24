@@ -2,7 +2,7 @@
 
 Maintained target: StatOz Future Games Web only. Independent football cabinet art direction; the cover is illustration only, with no game title. The interface carries the name.
 
-The original 60 Hz deterministic football simulation, assisted ground passes, charged shots, aftertouch, formations and CPU are retained. Mobile adaptations are original decisions, rather than claims about upstream behavior:
+The football simulation still uses fixed 60 Hz steps; wall-clock pacing is now 75% of the original. CPU, formations, aftertouch and charged kicks remain. Human passes and shots use direct chosen aim, without teammate snapping or movement momentum changing the release vector. Mobile adaptations are original decisions, rather than claims about upstream behavior:
 
 - Default match duration is two 45-second halves on touch devices; the player can choose longer matches. Normal CPU remains the default.
 - A 480-pixel logical playfield on mobile makes players larger than fitting the desktop 620-pixel-high image into a phone. Width follows the available landscape area. The existing landscape host supports portrait-held phones by rotating a real inner browser viewport.
@@ -15,3 +15,7 @@ The original 60 Hz deterministic football simulation, assisted ground passes, ch
 The original MIT vendor source is unchanged and hash checked. Build-time adaptations are in scripts/build-pitch-rush.mjs and src/features/games/pitch-rush. The self-contained bundle enters the existing versioned, hashed game manifest. No native Flutter import or release is part of this change.
 
 Physical iOS/Android, hardware gamepads, audible output, browser-chrome interruptions and long-term match balance still require device testing.
+
+## Slower play and manual aim
+
+2026-10-24: gameplay advances at 75% speed. Hold Attack, aim with the joystick, then release. Short holds pass; longer holds shoot. The aiming arrow displays the selected direction while charging. Returning the stick to neutral preserves the last chosen direction; zero horizontal/vertical components remain zero. Charge caps at maximum power and waits for release. No automatic shot at maximum charge. CPU aim behavior is preserved. Match-clock simulation runs at the same reduced pace (the default two 45-second simulation halves take about two real minutes, plus stoppages).

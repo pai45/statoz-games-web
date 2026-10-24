@@ -1,6 +1,6 @@
 /** Public evidence does not establish native input timing or hidden AI. */
-export const BUILD_VERSION="character-v11-local";
-export const ASSET_VERSION="11.0.0";
+export const BUILD_VERSION="character-v25-local";
+export const ASSET_VERSION="25.0.0";
 export const REFERENCE_PROFILE={version:2,steamApp:1189520,revisionVerified:false,
   footage:"https://www.youtube.com/watch?v=_k8IIS9n3dk",
   settingsSheet:"https://www.arcade-museum.com/manuals-videogames/S/Street-Slam--Street-Hoop-Soft-DIP-Settings.pdf",

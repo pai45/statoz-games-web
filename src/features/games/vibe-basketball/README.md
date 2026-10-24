@@ -17,3 +17,7 @@ Local procedural art in `character-design.js` replaces the repeated head/headban
 ## Mobile interface v3
 
 Phones use a 44px score strip between Back and Pause. Mode/camera/touch settings live inside Pause. The contest progress panel is compact, and its release meter sits beside the shooting thumb with no overlap. 1v1 has one movement joystick and contextual actions: Sprint/Dribble/Spin/Shoot on attack, Sprint/Stance/Steal/Block on defense. Portrait 1v1 reserves a separate bottom control dock and resizes the renderer to the actual court surface. The portrait contest camera preserves the horizontal view inside the side fences. The host respects its visible viewport height and reserves parent safe areas outside the iframe. `node scripts/verify-vibe-mobile.mjs` measures control/HUD bounds during shooting and tests joystick-plus-dribble gestures at six sizes.
+
+## Mobile performance
+
+Normal phone launches now select a lightweight renderer automatically; no lite URL flag is needed. Auto bounds resolution and adapts it down if frames remain slow. Pause → Graphics offers Performance (lighter) and High (desktop effects); changing quality restarts the game. HUD updates are cached without reducing touch or simulation frequency. See `PERFORMANCE.md` for measured before/after costs, testing and physical-device limitations.

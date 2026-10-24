@@ -16,7 +16,7 @@ mobileHint.textContent='DRAG TO RUN';document.getElementById('touch').append(mob
 document.getElementById('stick').setAttribute('aria-label','Movement joystick');
 const attackButton=document.getElementById('btnKick');
 attackButton.innerHTML='<strong>ATTACK</strong><small>PASS / SHOOT</small>';
-attackButton.setAttribute('aria-label','Attack: tap to pass; hold and release to shoot');
+attackButton.setAttribute('aria-label','Attack: hold, aim with the joystick, then release to pass or shoot');
 const defenceButton=document.createElement('button');
 defenceButton.type='button';defenceButton.id='btnDefend';
 defenceButton.innerHTML='<strong>DEFENCE</strong><small>SLIDE TACKLE</small>';
@@ -48,7 +48,7 @@ for(const [button,pointers,attack] of [[attackButton,attackPointers,true],[defen
   for(const type of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(type,release);
 }
 document.getElementById('btnPause').setAttribute('aria-label','Pause match');
-const help=document.createElement('p');help.className='mobileHelp';help.textContent='Left stick: move / aim · Attack: tap to pass, hold to shoot · Defence: slide tackle';
+const help=document.createElement('p');help.className='mobileHelp';help.textContent='Hold Attack + aim with the stick, then release. Short hold: pass · Longer hold: shot · Defence: slide tackle';
 document.querySelector('#menu .tag').after(help);
 if(coarse.matches)document.querySelector('[data-mode="2"]').textContent='2 controllers';
 function sizePlayfield(){
@@ -60,6 +60,19 @@ function sizePlayfield(){
   if(game.state)renderer.updateCamera(game.state,true);
 }
 sizePlayfield();
+// Draw the selected direction in the same coordinate system as the players.
+const drawOriginal=renderer.draw.bind(renderer);
+renderer.draw=(state,...args)=>{
+  drawOriginal(state,...args);
+  const team=state.teams[0],p=team.players[team.controlled];
+  if(!p?.charging||state.ball.owner?.team!==0)return;
+  const aim=p.kickAim||{x:p.dirX,y:p.dirY},screen=renderer.toScreen(p.x,p.y);
+  const ctx=renderer.ctx,length=48+Math.min(p.charge,60)*.4;
+  const end={x:screen.x+aim.x*length,y:screen.y+aim.y*length};
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.strokeStyle='#fff0bc';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(screen.x+aim.x*16,screen.y+aim.y*16);ctx.lineTo(end.x,end.y);
+  ctx.moveTo(end.x-aim.x*11-aim.y*7,end.y-aim.y*11+aim.x*7);ctx.lineTo(end.x,end.y);ctx.lineTo(end.x-aim.x*11+aim.y*7,end.y-aim.y*11-aim.x*7);ctx.stroke();ctx.restore();
+};
 window.addEventListener('resize',sizePlayfield);coarse.addEventListener('change',sizePlayfield);
 const endActions=document.createElement('div');endActions.id='endActions';endActions.className='overlay hidden';
 endActions.innerHTML='<div class="panel small"><h2>FULL TIME</h2><p id="endScore"></p><button id="rematch" class="primary">Play again</button><button id="endMenu">Match setup</button></div>';

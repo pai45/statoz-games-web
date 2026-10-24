@@ -2,7 +2,7 @@ import {CHARACTER_PACK} from "./character-pack";
 import {drawContactArm} from "./contact-arm";
 import {actionPose} from "./action-spec";
 import {REFERENCE_TUNING as T} from "./reference-tuning";
-import {courtPoint,cameraOrigin,BASKET_ART} from "./view";
+import {courtPoint,cameraOrigin,cameraTop,BASKET_ART,VIEW} from "./view";
 import {drawParkCourt} from "./court";
 import {gaitFrame,bodyBob,defenseFrame} from "./motion";
 import { anchor, COURT, type Actor, type Match } from "./simulation";
@@ -41,20 +41,20 @@ export function overlayFor(s:Match,a:Actor){
   return {key:`${a.team===0?"navy":"amber"}-${switching?"dribble-switch":"dribble-arm"}-${String(frame).padStart(2,"0")}${view}-${a.face===1?"source":"mirrored"}`,y:bodyBob(a.moving?(a.travel??0):0)};
 }
 export function courtCanvas(frame=0) {
-  const canvas=document.createElement("canvas");canvas.width=900;canvas.height=360;
+  const canvas=document.createElement("canvas");canvas.width=VIEW.width;canvas.height=VIEW.height;
   drawParkCourt(canvas.getContext("2d")!,frame);
   return canvas;
 }
 let contactCanvas:HTMLCanvasElement|undefined;
 export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=false) {
-  const width=c.canvas.width,cam=cameraOrigin(s,width);c.imageSmoothingEnabled=false;c.clearRect(0,0,width,360);
+  const width=c.canvas.width,cam=cameraOrigin(s,width),top=cameraTop(s);c.imageSmoothingEnabled=false;c.clearRect(0,0,width,c.canvas.height);c.save();c.translate(0,-top);const shade=ditherPattern(c);
   c.drawImage(p["court-"+(Math.floor(s.tick/T.crowdFrameTicks)%T.crowdFrames)]??p.court, -cam,0);
   const rows=s.actors.map(a=>({y:a.y,kind:"actor",a}));
   rows.push({y:s.ball.y+.1,kind:"ball",a:s.actors[0]});
   for(const row of rows.sort((a,b)=>a.y-b.y)) {
-    if(row.kind==="ball"){const p0=courtPoint(s.ball.x,s.ball.y),p1=courtPoint(s.ball.x,s.ball.y,s.ball.z);c.fillStyle="#0007";c.beginPath();c.ellipse(p0.x-cam,p0.y,6*p0.scale,2*p0.scale,0,0,Math.PI*2);c.fill();drawPicture(c,p,"ball",Math.round(p1.x-cam-5.5*p1.scale),Math.round(p1.y-5.5*p1.scale),11*p1.scale,11*p1.scale);continue;}
+    if(row.kind==="ball"){const p0=courtPoint(s.ball.x,s.ball.y),p1=courtPoint(s.ball.x,s.ball.y,s.ball.z);c.fillStyle=shade;c.beginPath();c.ellipse(p0.x-cam,p0.y,7*p0.scale,2.5*p0.scale,0,0,Math.PI*2);c.fill();drawPicture(c,p,"ball",Math.round(p1.x-cam-6.5*p1.scale),Math.round(p1.y-6.5*p1.scale),13*p1.scale,13*p1.scale);continue;}
     const a=row.a,p0=courtPoint(a.x,a.y,a.z),scale=p0.scale,x=Math.round(p0.x-cam),y=Math.round(p0.y);
-    c.fillStyle="#0005";c.beginPath();c.ellipse(x,a.y,17*scale,4*scale,0,0,Math.PI*2);c.fill();
+    const ground=courtPoint(a.x,a.y),size=Math.max(.55,1-a.z/250)*scale;c.fillStyle=shade;c.beginPath();c.ellipse(Math.round(ground.x-cam),Math.round(ground.y),19*size,5*size,0,0,Math.PI*2);c.fill();
     if(a.id===s.selected){const marker=characterMarkerHeight(p,poseFor(s,a));c.save();c.translate(x,y);c.scale(scale,scale);c.font="bold 10px monospace";c.textAlign="center";c.fillStyle="#191810";c.fillText("1P",1,3-marker);c.fillStyle="#ef3c27";c.fillText("1P",0,2-marker);c.beginPath();c.moveTo(-4,4-marker);c.lineTo(4,4-marker);c.lineTo(0,8-marker);c.fill();c.restore();}
     const pose=poseFor(s,a),head=headLayer(p,a,pose);
     const drawHead=()=>{if(head)drawPicture(c,p,head.key,x+(head.x-72-16)*scale,y+(head.y-116-16)*scale,32*scale,32*scale);};
@@ -67,8 +67,11 @@ export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=f
     if(debug){c.strokeStyle="#51ff94";c.strokeRect(x-13*scale,a.y-8*scale,26*scale,16*scale);c.font="9px monospace";c.fillStyle="white";c.fillText(a.id+" "+a.action,x-20,y-120*scale);const hand=anchor(a),hp=courtPoint(hand.x,hand.y,hand.z);c.fillRect(hp.x-cam-2,hp.y-2,4,4);}
   }
   for(const [key,x] of [["left",85],["right",815]] as const){const p0=courtPoint(x,COURT.rimY),art=BASKET_ART[key];drawPicture(c,p,key,p0.x-cam-art.rimX*p0.scale,p0.y-(COURT.rimZ+art.rimY)*p0.scale,art.width*p0.scale,art.height*p0.scale);}
-
+  c.restore();
 }
+const patterns=new WeakMap<CanvasRenderingContext2D,CanvasPattern|string>();
+/** Checkerboard fill matching the Three renderer's dithered shadow texture. */
+function ditherPattern(c:CanvasRenderingContext2D){let p=patterns.get(c);if(!p){const tile=document.createElement("canvas");tile.width=tile.height=2;const t=tile.getContext("2d")!;t.fillStyle="#000000b0";t.fillRect(0,0,1,1);t.fillRect(1,1,1,1);p=c.createPattern(tile,"repeat")??"#0006";patterns.set(c,p);}return p;}
 export type CharacterAnchors={view?:"side"|"front"|"back";head?:[number,number];shoulders?:[number,number][];hands?:[number,number][];hips?:[number,number];elbows?:[number,number][]};
 type Atlas={regions:Record<string,[number,number,number,number,number]>;images:HTMLImageElement[];poses:Record<string,CharacterAnchors>};
 const atlases=new WeakMap<Pictures,Atlas>();

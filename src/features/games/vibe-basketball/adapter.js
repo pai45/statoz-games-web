@@ -23,8 +23,9 @@
  controls.innerHTML='<div id="vibe-joystick" role="group" aria-label="Movement joystick"><span>MOVE</span><i></i></div><div class="vibe-actions"><button data-key="ShiftLeft" class="vibe-extra">Sprint</button><button data-key="ControlLeft" class="vibe-extra vibe-defense">Stance</button><button data-key="KeyK" class="vibe-extra vibe-offense">Spin</button><button data-key="KeyE" class="vibe-extra vibe-defense">Steal</button><button data-skill="true" class="vibe-extra vibe-offense" aria-label="Dribble: tap or swipe for a skill move, swipe and hold for a finish">Dribble</button><button data-key="Space" id="vibe-shoot"><b>SHOOT</b><span>HOLD · RELEASE</span></button></div>';
  document.body.append(controls);
  const panel=document.createElement('div');panel.id='vibe-pause';panel.hidden=!paused;panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Game paused');
- panel.innerHTML='<div><h2>Game paused</h2><p>Take your time. Resume when you’re ready.</p><button data-command="resume">Resume game</button><div class="vibe-pause-tools"><button data-command="menu">Modes</button><button data-command="camera">Camera</button><button data-command="touch" aria-pressed="false">Touch controls</button></div><button data-command="rematch">Rematch / restart</button><button data-command="exit">Back to basketball</button></div>';
+ panel.innerHTML='<div><h2>Game paused</h2><p>Take your time. Resume when you’re ready.</p><button data-command="resume">Resume game</button><div class="vibe-pause-tools"><button data-command="menu">Modes</button><button data-command="camera">Camera</button><button data-command="touch" aria-pressed="false">Touch controls</button></div><button data-command="graphics">Graphics: Auto</button><small class="vibe-graphics-note">Changing graphics restarts this game.</small><button data-command="rematch">Rematch / restart</button><button data-command="exit">Back to basketball</button></div>';
  document.body.append(panel);
+ const graphics=panel.querySelector('[data-command=graphics]'),quality=new URLSearchParams(location.search).get('quality')||'auto';graphics.textContent='Graphics: '+quality[0].toUpperCase()+quality.slice(1);
  const guide=document.createElement('p');guide.className='vibe-touch-guide';guide.textContent='TOUCH: Left stick moves. Hold and release SHOOT to time a shot; tap to fake. On defense SHOOT blocks. Hold Sprint or Stance while moving. Tap Dribble for a handle move, or swipe it in a direction. Swipe and hold for a finish. Spin and Steal have their own buttons. In the contest, movement and rack changes are automatic. Pause stops the clock; View changes the camera.';document.querySelector('.how-to-shell')?.append(guide);
  const refs=new Map(),pointers=new Map();let stickPointer=null,clearing=false;
  const key=(code,down)=>window.dispatchEvent(new KeyboardEvent(down?'keydown':'keyup',{code,key:code==='Space'?' ':code,bubbles:true,cancelable:true}));
@@ -45,6 +46,7 @@
   switch(button.dataset.command){
    case 'exit':pause();emit('exit');break;
    case 'menu':menu();break;
+   case 'graphics':{const url=new URL(location.href),values=['auto','performance','high'],current=url.searchParams.get('quality')||'auto';url.searchParams.set('quality',values[(values.indexOf(current)+1)%values.length]);url.searchParams.delete('lite');location.href=url.href;break;}
    case 'camera':key('KeyC',true);key('KeyC',false);break;
    case 'touch':{touch=!touch;const url=new URL(location.href);url.searchParams.set('touch',touch?'1':'0');history.replaceState(null,'',url);clear();window.dispatchEvent(new Event('resize'));break;}
    case 'pause':pause();break;
@@ -115,23 +117,20 @@
  const failure=()=>{emit('error');};window.addEventListener('error',failure,true);window.addEventListener('unhandledrejection',failure);
  document.addEventListener('webglcontextlost',event=>{event.preventDefault();pause();failure();},true);
  let uiFrame=0;
+ const uiMode=new URLSearchParams(location.search).get('mode');
+ const root=document.documentElement,shootLabel=document.querySelector('#vibe-shoot b'),shootHint=document.querySelector('#vibe-shoot span');
+ const touchButtons=[...document.querySelectorAll('[data-command=touch]')],overlays=[...document.querySelectorAll('.ui-overlay')];
+ const assign=(name,value)=>{if(root.dataset[name]!==value)root.dataset[name]=value;};
  function ui(){
   if(disposed)return;
-  const mode=new URLSearchParams(location.search).get('mode');
-  const game=window.__game,role=mode==='1v1'&&game?.offenseIdx!==game?.userPlayer?.team?'defense':'offense';
-  if(document.documentElement.dataset.vibeRole&&document.documentElement.dataset.vibeRole!==role&&pointers.size)clear();
-  document.documentElement.dataset.vibeRole=role;
-  const label=mode==='1v1'&&role==='defense'?'BLOCK':'SHOOT';if(document.querySelector('#vibe-shoot b').textContent!==label)document.querySelector('#vibe-shoot b').textContent=label;
-  document.querySelector('#vibe-shoot span').textContent=mode==='three-point'?'HOLD · RELEASE':role==='defense'?'TAP':'HOLD · TAP FAKE';
-  for(const button of document.querySelectorAll('[data-command=touch]'))button.setAttribute('aria-pressed',String(touch));
-  document.documentElement.dataset.vibeTouch=String(touch);
-  document.documentElement.dataset.vibeMode=mode||'menu';
-  const overlay=!!document.querySelector('.ui-overlay.show');
-  controls.hidden=!touch||host.paused||overlay||!ready;
-  if(mode==='1v1'){
-   const state=window.__game?.state;
-   controls.hidden ||=state==='over';
-  }
+  const game=window.__game,role=uiMode==='1v1'&&game?.offenseIdx!==game?.userPlayer?.team?'defense':'offense';
+  if(root.dataset.vibeRole&&root.dataset.vibeRole!==role&&pointers.size)clear();assign('vibeRole',role);
+  const label=uiMode==='1v1'&&role==='defense'?'BLOCK':'SHOOT',hint=uiMode==='three-point'?'HOLD · RELEASE':role==='defense'?'TAP':'HOLD · TAP FAKE';
+  if(shootLabel.textContent!==label)shootLabel.textContent=label;if(shootHint.textContent!==hint)shootHint.textContent=hint;
+  for(const button of touchButtons)if(button.getAttribute('aria-pressed')!==String(touch))button.setAttribute('aria-pressed',String(touch));
+  assign('vibeTouch',String(touch));assign('vibeMode',uiMode||'menu');
+  const hidden=!touch||host.paused||overlays.some(el=>el.classList.contains('show'))||!ready||(uiMode==='1v1'&&game?.state==='over');
+  if(controls.hidden!==hidden)controls.hidden=hidden;
   uiFrame=requestAnimationFrame(ui);
  }
  ui();

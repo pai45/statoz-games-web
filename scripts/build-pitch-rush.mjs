@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {build} from 'esbuild';
+import {GAMEPLAY_RATE,adaptSimulation,adaptKicks} from '../src/features/games/pitch-rush/gameplay.mjs';
 
 export async function buildPitchRush({prelude}) {
   const root=process.cwd(), source=path.join(root,'vendor/websoccer');
@@ -12,12 +13,15 @@ export async function buildPitchRush({prelude}) {
   const bridge=await fs.readFile(path.join(root,'src/features/games/pitch-rush/bridge.js'),'utf8');
   const result=await build({entryPoints:[path.join(source,'src/main.js')],bundle:true,write:false,format:'iife',target:'es2020',minify:true,plugins:[{name:'pitch-rush-adaptation',setup(b){
     b.onLoad({filter:/[\\/]config\.js$/},()=>({contents:"export const DEFAULT_RELAY=''; export const relayFor=()=>null; export const boardFor=()=>null;",loader:'js'}));
+    b.onLoad({filter:/[\\/]game[\\/]sim\.js$/},async args=>({contents:adaptSimulation(await fs.readFile(args.path,'utf8')),loader:'js'}));
+    b.onLoad({filter:/[\\/]game[\\/]kick\.js$/},async args=>({contents:adaptKicks(await fs.readFile(args.path,'utf8')),loader:'js'}));
     b.onLoad({filter:/[\\/]touch\.js$/},async args=>({contents:(await fs.readFile(args.path,'utf8')).replace('const MAX_THROW = 46;','const MAX_THROW = 28;').replace('    this.button(kick, BTN.FIRE);','    // Separate attack and defence bindings are supplied by the game adapter.'),loader:'js'}));
     b.onLoad({filter:/[\\/]main\.js$/},async args=>{
       let js=await fs.readFile(args.path,'utf8');
       js=js.replace('import { FRAME_TIME, TICK_RATE }','import { BTN, FRAME_TIME, TICK_RATE }');
       js='let hostDisposed=false,hostRaf=0;\n'+js.replaceAll('requestAnimationFrame(frame)', 'hostRaf=requestAnimationFrame(frame)');
       js=js.replace('function frame(now) {','function frame(now) {\n if(hostDisposed)return;\n hostUpdate();');
+      js=js.replace('game.acc += elapsed;',`game.acc += elapsed * ${GAMEPLAY_RATE};`);
       js=js.replace('game.transport.sample(tick);','syncTouchAction(); game.transport.sample(tick);');
       js=js.replace('function beginMatch(state, transport) {','function beginMatch(state, transport) {\n releaseInputs();');
       js=js.replace('  game.paused = on;',"  game.paused = on;\n  if(on){music.stop();audio.ctx?.suspend?.();}else if(soundOn){audio.wake();}");

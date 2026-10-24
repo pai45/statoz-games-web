@@ -47,7 +47,7 @@ try{
  report.input=true;await page.close();
 
  const guest=await browser.newPage();await guest.goto(base+'/play/vibe-basketball/');await guest.getByRole('heading',{name:'LOG IN TO PLAY'}).waitFor();report.guestGate=true;await guest.close();
- const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const context=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true});
  await context.addInitScript(()=>{
   localStorage.setItem('statoz.games.web.auth.v2',JSON.stringify({version:2,authenticated:true,email:'vibe-qa@example.test'}));
   localStorage.setItem('statoz.games.web.accounts.v1',JSON.stringify({version:1,accounts:{'vibe-qa@example.test':{onboardingComplete:true}}}));
@@ -57,39 +57,51 @@ try{
  const card=app.getByRole('link',{name:'Play VIBE BASKETBALL',exact:true});await card.waitFor();
  assert.ok(await app.getByRole('link',{name:'Play RIMFORGE 3',exact:true}).count(),'Existing basketball game retained');
  await app.screenshot({path:path.join(out,'app-basketball-library.png')});await card.click();
- const frame=app.frameLocator('iframe[title^="Vibe Basketball"]');
+ const shell=app.frameLocator('iframe[data-mobile-game-frame]'),frame=shell.frameLocator('iframe[title^="Vibe Basketball"]');
  await frame.locator('#mode-menu.show').waitFor({timeout:120000});
  assert.match(await app.locator('meta[name=viewport]').getAttribute('content'),/viewport-fit=cover/,'Game route enables device safe areas');
- await app.getByRole('heading',{name:'Vibe Basketball',exact:true}).waitFor({state:'hidden'});
+ await shell.getByRole('heading',{name:'Vibe Basketball',exact:true}).waitFor({state:'hidden'});
+ const mobileProfile=await frame.locator('body').evaluate(()=>window.__VIBE_PERFORMANCE__.snapshot());assert.ok(mobileProfile.fast&&!mobileProfile.bloom&&!mobileProfile.shadows&&mobileProfile.pixelRatio<=1,'Normal app launch uses mobile graphics');report.mobilePerformance=true;
  await frame.locator('#mode-1v1').click();await frame.locator('#vibe-shoot').waitFor();
  await frame.locator('#loading.done').waitFor({state:'attached'});await app.waitForTimeout(650);
  await app.screenshot({path:path.join(out,'app-mobile-game.png')});
- await app.setViewportSize({width:844,height:390});
- await app.waitForTimeout(150);if(await frame.locator('#vibe-pause').isVisible())await frame.locator('[data-command=resume]').click();
- const landscapeFrame=await app.locator('iframe').boundingBox();assert.ok(landscapeFrame.y>=16,'Landscape status bar has reserved space');
+ const gameElement=shell.locator('iframe[title^="Vibe Basketball"]');
+ const landscapeFrame=await gameElement.boundingBox();assert.ok(landscapeFrame.y>=16,'Landscape status bar has reserved space');
  await app.screenshot({path:path.join(out,'app-landscape-safe-area.png')});
- await app.setViewportSize({width:390,height:844});
- await app.waitForTimeout(150);if(await frame.locator('#vibe-pause').isVisible())await frame.locator('[data-command=resume]').click();
- await app.locator('iframe').evaluate(frame=>{frame.parentElement.style.padding='20px 18px 24px';});
- const safeFrame=await app.locator('iframe').boundingBox();assert.ok(safeFrame.x>=18&&safeFrame.y>=20&&safeFrame.y+safeFrame.height<=820,'Parent safe areas reserve space outside the iframe');
+ await gameElement.evaluate(frame=>{frame.parentElement.style.padding='20px 18px 24px';});
+ const safeFrame=await gameElement.boundingBox();assert.ok(safeFrame.x>=18&&safeFrame.y>=20&&safeFrame.y+safeFrame.height<=366,'Parent safe areas reserve space outside the iframe');
  await app.screenshot({path:path.join(out,'app-mobile-safe-area.png')});
- await app.locator('iframe').evaluate(frame=>{frame.parentElement.style.padding='';});
- await app.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{configurable:true,value:620});window.visualViewport.dispatchEvent(new Event('resize'));});
- assert.ok((await app.locator('iframe').boundingBox()).height<=620,'Visible viewport height constrains the game frame');report.safeAreas=true;report.landscapeStatusBar=true;report.visualViewport=true;
+ await gameElement.evaluate(frame=>{frame.parentElement.style.padding='';});
+ await app.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{configurable:true,value:260});window.visualViewport.dispatchEvent(new Event('resize'));});
+ await app.waitForFunction(()=>document.querySelector('iframe[data-mobile-game-frame]')?.getBoundingClientRect().height<=260);
+ assert.ok((await gameElement.boundingBox()).height<=260,'Visible viewport height constrains the game frame');report.safeAreas=true;report.landscapeStatusBar=true;report.visualViewport=true;
  await app.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});
-
+ await app.waitForTimeout(100);if(await frame.locator('#vibe-pause').isVisible())await frame.locator('[data-command=resume]').click();
  await frame.locator('#vibe-toolbar [data-command=pause]').click();await frame.locator('[data-command=resume]').click();
  await frame.locator('#vibe-toolbar').evaluate(()=>parent.postMessage({protocolVersion:1,gameId:'vibe-basketball',sessionId:'wrong-session',type:'exit'},location.origin));
  await app.waitForTimeout(100);assert.ok(app.url().includes('/play/vibe-basketball'),'Rejects wrong-session messages');
  await frame.locator('#vibe-toolbar [data-command=exit]').click();await app.waitForURL('**/games/basketball/**');
- assert.equal(await app.locator('iframe[title^="Vibe Basketball"]').count(),0,'Exiting releases the game frame');
+ assert.equal(await app.locator('iframe[data-mobile-game-frame]').count(),0,'Exiting releases the landscape host');assert.ok(!app.frames().some(frame=>frame.url().includes('/embedded-games/vibe-basketball/')),'Exiting releases the game frame');
  assert.deepEqual(errors,[]);report.host=true;
- // Verify failed module load is surfaced and recoverable instead of leaving an endless loader.
- await context.route('**/embedded-games/vibe-basketball/game.js',route=>route.abort());
- await app.goto(base+'/play/vibe-basketball/');
- await app.getByRole('button',{name:'Retry',exact:true}).waitFor({timeout:70000});
- await context.unroute('**/embedded-games/vibe-basketball/game.js');await app.getByRole('button',{name:'Retry',exact:true}).click();
- await app.frameLocator('iframe').locator('#mode-menu.show').waitFor({timeout:120000});report.errorRetry=true;await context.close();
+ await context.close();
+ // A fresh context without service workers makes the network failure deterministic;
+ // the normal app context above exercises the actual cache-enabled launch.
+ const retryContext=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+ await retryContext.addInitScript(()=>{
+  localStorage.setItem('statoz.games.web.auth.v2',JSON.stringify({version:2,authenticated:true,email:'vibe-qa@example.test'}));
+  localStorage.setItem('statoz.games.web.accounts.v1',JSON.stringify({version:1,accounts:{'vibe-qa@example.test':{onboardingComplete:true}}}));
+ });
+ // Exercise the real online fallback while isolating module failure from downloads.
+ await retryContext.route('**/_game-assets/*.json',route=>route.abort());
+ let blocked=0;const blockedScript='**/embedded-games/vibe-basketball/game.js*';
+ await retryContext.route(blockedScript,route=>{blocked++;return route.abort();});
+ const retryApp=await retryContext.newPage();await retryApp.goto(base+'/play/vibe-basketball/');
+ await retryApp.getByRole('button',{name:'Play online',exact:true}).click();
+ const retryShell=retryApp.frameLocator('iframe[data-mobile-game-frame]');
+ await retryShell.getByRole('button',{name:'Play online',exact:true}).click();
+ await retryShell.getByRole('button',{name:'Retry',exact:true}).waitFor({timeout:70000});assert.ok(blocked>0,'Failure injection reached the module request');
+ await retryContext.unroute(blockedScript);await retryShell.getByRole('button',{name:'Retry',exact:true}).click();
+ await retryShell.frameLocator('iframe[title^="Vibe Basketball"]').locator('#mode-menu.show').waitFor({timeout:120000});report.errorRetry=true;await retryContext.close();
 
  // The upstream smoke assertions run unchanged; adapt only runner paths and browser launch.
  const smoke=await fs.readFile(path.join(root,'vendor/vibebasketball/tools/smoke.mjs'),'utf8');
@@ -103,4 +115,9 @@ try{
  report.sourceSmoke=true;
  await fs.writeFile(path.join(out,'extra-validation.json'),JSON.stringify(report,null,2));
  console.log('Vibe Basketball input timing, app launch/exit, guest gate, retry and upstream smoke passed.');
-}finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
+}catch(error){
+ const frames=[];for(const context of browser.contexts())for(const page of context.pages())for(const frame of page.frames()){
+  try{frames.push({url:frame.url(),state:await frame.evaluate(()=>({text:document.body?.innerText.slice(0,2500),hidden:document.hidden,paused:window.__VIBE_HOST__?.paused,profile:window.__VIBE_PERFORMANCE__?.snapshot?.()}))});}catch{}
+ }
+ await fs.writeFile(path.join(out,'host-failure.json'),JSON.stringify({error:String(error),frames},null,2));throw error;
+}finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

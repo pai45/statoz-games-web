@@ -59,14 +59,17 @@ export function usePitchDuelMatch(initial: MatchState, haptics: boolean) {
   );
 
   // Auto-advance plain reveals; anything that changes the scoreline or the period waits for a tap.
+  const needsTap = Boolean(state.lastResolution?.goal) || state.phase !== "choose";
+  const hold = reduced ? reducedRevealHold : revealHold;
   useEffect(() => {
     clear();
-    if (!revealing) return;
-    const needsTap = Boolean(state.lastResolution?.goal) || state.phase !== "choose";
-    if (needsTap) return;
-    timer.current = setTimeout(() => setRevealing(false), reduced ? reducedRevealHold : revealHold);
+    if (!revealing || needsTap) return;
+    timer.current = setTimeout(() => setRevealing(false), hold);
     return clear;
-  }, [revealing, state, reduced]);
+  }, [revealing, state, needsTap, hold]);
 
-  return { state, turn: currentTurn(state), revealing, send, dismiss, reduced };
+  /** How long this reveal holds before moving on by itself, or null when it waits for a tap. */
+  const autoHold = revealing && !needsTap ? hold : null;
+
+  return { state, turn: currentTurn(state), revealing, send, dismiss, reduced, autoHold };
 }

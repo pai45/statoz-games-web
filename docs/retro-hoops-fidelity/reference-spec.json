@@ -57,17 +57,23 @@
   },
   "currentCandidate": {
     "rules": "2.0.0",
-    "build": "character-v11-local",
-    "assetPack": "11.0.0",
+    "build": "character-v24-local",
+    "assetPack": "24.0.0",
     "referenceProfile": 2,
     "viewport": [
-      779,
-      360
+      546,
+      252
     ],
     "nativeParityVerified": false,
-    "evidence": "character-v11.md",
+    "evidence": "character-v24.md",
     "primaryVideo": "https://www.youtube.com/watch?v=_k8IIS9n3dk",
-    "slice": "User-authorized dunk-gather reach correction; crouched low pose retained until ball lift, other V10 art preserved",
-    "viewportPolicy": "360 high, width fits viewport aspect within 320..900; example 844x390 renders 779x360"
-  }
+    "slice": "Front tank construction and hand height; V23 colour ramps, V22 proportions, V21 heads, V20 jersey, V19 renderer, V14 camera/venue retained",
+    "viewportPolicy": "252-high window of the 360-high world, two-axis follow; width fits viewport aspect within 320..900; example 844x390 renders 546x252"
+  },
+  "supplementaryFootage": [
+    "https://www.youtube.com/watch?v=38Qlqw2re1w (Arcadexzone, Street Hoop 1994 arcade gameplay; first 360s downloaded for research-only study in Designer output/retro-hoops/character-study-v2)",
+    "https://www.youtube.com/watch?v=38Qlqw2re1w team select 16.5-24s, aspect-corrected 16:9 to 320x224 proportions",
+    "https://www.youtube.com/watch?v=38Qlqw2re1w defence 103.5-106.5s and dunk/knock-down 34.5-37.5s",
+    "https://www.youtube.com/watch?v=38Qlqw2re1w 360-1566s at 480p surveyed every 15s: venues and team kits for USA, Korea, Japan, China, England"
+  ]
 }

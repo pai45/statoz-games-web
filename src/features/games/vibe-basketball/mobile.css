@@ -54,3 +54,8 @@ html,body{overscroll-behavior:none}button,a{-webkit-tap-highlight-color:transpar
  #mode-menu{padding:66px 24px 18px;align-items:center;gap:24px}.menu-brand{position:static;flex:1}.menu-brand h1{font-size:50px}.mode-cards{width:48%;margin:0;gap:6px}.mode-card{min-height:62px;padding:8px 12px;gap:8px}.mode-card small,.menu-controls,.menu-brand p{display:none}
  #vibe-joystick{left:18px;bottom:16px;width:96px;height:96px}.vibe-actions{bottom:14px}#center-msg{font-size:24px}.contest-dialog,.contest-dialog.setup{align-items:flex-start}.dialog-panel,.how-to-shell{max-height:none}.how-to-shell{padding:18px}#how-to-play{align-items:flex-start}#character-select-options .player-card{min-height:64px}
 }
+
+/* Avoid continuously compositing backdrop blur over a moving WebGL canvas on phones. */
+[data-vibe-graphics=performance] #scoreboard,[data-vibe-graphics=performance] .contest-topline,[data-vibe-graphics=performance] .contest-progress,[data-vibe-graphics=performance] #contest-standings,[data-vibe-graphics=performance] .contest-dialog,[data-vibe-graphics=performance] #possession-task{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+.vibe-graphics-note{font:11px/1.4 "Segoe UI",Arial,sans-serif;color:#bec3cc;margin-top:-5px;text-align:center}
