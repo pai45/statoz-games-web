@@ -54,8 +54,7 @@
     "tools/simtest.js": "0e81cef64cb74208b5cd9821bcda4a92dc64d7e653adfe823d7b0456ccbcffa5",
     "tools/uicheck.js": "bfd5d048b2f96c4b3f37712b4eeec2b7fe7717f46ed58d61f3a38c031a076cd9",
     "tools/workercheck.js": "a624bd3cbd99d5d08acfa1e0b5e2649da1ec4c7b55dd62fa28f266540cb9862e",
-    "worker/.wrangler/cache/wrangler-account.json": "84e32f116f7a17bb78a5f36cccd0a1be0baaffb1c9b8a379f2389e9198a70f7d",
-    "worker/announce.js": "f08569a0c938efebf18920211ef9825f705ad80ce391a0d7c6fbb1e1738393fa",
+"worker/announce.js": "f08569a0c938efebf18920211ef9825f705ad80ce391a0d7c6fbb1e1738393fa",
     "worker/index.js": "071fd616afcc40b269a890ea4e268951aa3dbeeb7bcac4603e83d5e5ed67aaff",
     "worker/README.md": "1689b884f9e044db6e291492c17c423d4cac7a917919bdd414abbba283ff76f9",
     "worker/wrangler.toml": "61061d698e87216fb95b79d8466512b98406f68eeb8acd30e094f736f99cf578"
