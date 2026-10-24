@@ -1,6 +1,7 @@
 import {REFERENCE_TUNING as T} from "../src/features/games/retro-hoops/reference-tuning";
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createMatch,step,NO_INPUT,anchor,HZ} from '../src/features/games/retro-hoops/simulation';
+import {joystickVector} from '../src/features/games/retro-hoops/joystick-math';
 import {HoopsInput} from '../src/features/games/retro-hoops/input';
 import {addResult,emptyArchive,readArchive,writeArchive,STORAGE_KEY} from '../src/features/games/retro-hoops/persistence';
 test('seeded full matches terminate with six finite actors and one authoritative ball',()=>{
@@ -37,3 +38,17 @@ test('a steal records the defender last touch and gives the other team an out-of
 test('contextual near-rim dunk scores only at ball/rim contact and lands during restart',()=>{for(const team of[0,1]as const){const s=createMatch(12,true),id=team===0?0:3,a=s.actors[id];s.actors.forEach(p=>{p.x=450;p.y=330;p.nextAI=9999;});a.x=team===0?770:130;a.y=247;a.nextAI=0;s.ball.owner=id;s.possession=team;s.selected=id;s.auto=team===1;step(s,team===0?{...NO_INPUT,shoot:true}:NO_INPUT);assert.equal(a.action,'dunk');assert.equal(s.score[team],0);let scored=0;for(let i=0;i<60&&s.phase==='playing';i++){step(s);scored+=s.events.filter(e=>e.type==='dunk').length;}assert.equal(s.phase,'restart');assert.equal(s.score[team],2);assert.equal(scored,1);assert.ok(a.z>0);for(let i=0;i<45;i++)step(s);assert.equal(a.z,0);assert.equal(s.score[team],2);}});
 test('charged dunk consumes once at contact and keeps ordinary2point scoring',()=>{const s=createMatch(),a=s.actors[0];s.actors.slice(1).forEach(p=>{p.x=450;p.y=330;p.nextAI=9999;});a.x=770;a.y=247;s.charge[0]=100;step(s,{...NO_INPUT,shoot:true});for(let i=0;i<8;i++)step(s);assert.equal(s.charge[0],100);let superEvents=0;for(let i=0;i<50&&s.phase==='playing';i++){step(s);superEvents+=s.events.filter(e=>e.type==='super-dunk').length;}assert.equal(superEvents,1);assert.equal(s.charge[0],25);assert.equal(s.score[0],2);});
 test('dunk preparation at match expiry cannot score or consume charge',()=>{const s=createMatch(),a=s.actors[0];a.x=770;a.y=247;s.charge[0]=100;s.period=s.config.periods;s.remaining=10;step(s,{...NO_INPUT,shoot:true});for(let i=0;i<12;i++)step(s);assert.equal(s.phase,'result');assert.equal(s.score[0],0);assert.equal(s.charge[0],100);});
+
+test('joystick has a radial dead zone and proportional diagonal movement',()=>{
+ assert.deepEqual(joystickVector(0,0,50),{x:0,y:0,thumbX:0,thumbY:0});
+ const dead=joystickVector(4,4,50);assert.equal(dead.x,0);assert.equal(dead.y,0);
+ const half=joystickVector(29,0,50);assert.ok(Math.abs(half.x-.5)<1e-10);assert.equal(half.y,0);
+ const diagonal=joystickVector(100,-100,50);assert.ok(Math.abs(Math.hypot(diagonal.x,diagonal.y)-1)<1e-10);assert.ok(diagonal.x>0&&diagonal.y<0);assert.ok(Math.abs(Math.hypot(diagonal.thumbX,diagonal.thumbY)-50)<1e-10);
+ assert.deepEqual(joystickVector(Infinity,0,50),{x:0,y:0,thumbX:0,thumbY:0});
+});
+test('analog joystick coexists with actions and cancellation preserves a physical key',()=>{
+ const input=new HoopsInput();input.stick('stick7',.3,-.4);input.down('p8','shoot');assert.deepEqual(input.read(),{x:.3,y:-.4,shoot:true,pass:false});
+ assert.equal(input.read().shoot,false);input.up('p8');assert.deepEqual(input.read(),{x:.3,y:-.4,shoot:false,pass:false});
+ input.key('KeyD',true);input.up('stick7');assert.equal(input.read().x,1);input.key('KeyD',false);assert.deepEqual(input.read(),NO_INPUT);
+ input.stick('stick9',30,40);assert.equal(input.read().x,.6);assert.equal(input.read().y,.8);input.clear();assert.deepEqual(input.read(),NO_INPUT);
+});

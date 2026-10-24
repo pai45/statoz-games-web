@@ -1,10 +1,10 @@
 {
   "gameId": "retro-hoops",
-  "version": "7.0.0",
-  "pack": "authored-v7/manifest.json",
+  "version": "11.0.0",
+  "pack": "authored-v11/manifest.json",
   "actionSource": "src/features/games/retro-hoops/action-spec.ts",
   "contactSource": "src/features/games/retro-hoops/contact-arm.ts",
   "nativeTimingRecovered": false,
   "classification": "Original geometry and animation; authored fit to public recording observations",
-  "review": "test-results/retro-hoops-character-v7"
+  "review": "test-results/retro-hoops-character-v11"
 }

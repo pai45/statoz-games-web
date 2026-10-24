@@ -51,22 +51,23 @@
   "independentStyle": {
     "gameOwned": true,
     "hostNavigationChanged": false,
-    "palette": "cream/olive housing, mustard/red actions",
+    "palette": "Full-viewport pixel court; translucent olive/gold joystick and gold/red action overlay",
     "typography": "monospace arcade",
     "selection": "authored red 1P arrow; reference-observed placement"
   },
   "currentCandidate": {
     "rules": "2.0.0",
-    "build": "character-v7-local",
-    "assetPack": "7.0.0",
+    "build": "character-v11-local",
+    "assetPack": "11.0.0",
     "referenceProfile": 2,
     "viewport": [
-      514,
+      779,
       360
     ],
     "nativeParityVerified": false,
-    "evidence": "character-v7.md",
+    "evidence": "character-v11.md",
     "primaryVideo": "https://www.youtube.com/watch?v=_k8IIS9n3dk",
-    "slice": "Original adult faces, muscle volume and articulated basketball footwork"
+    "slice": "User-authorized dunk-gather reach correction; crouched low pose retained until ball lift, other V10 art preserved",
+    "viewportPolicy": "360 high, width fits viewport aspect within 320..900; example 844x390 renders 779x360"
   }
 }

@@ -25,12 +25,13 @@ test('settings and bests are isolated by normalized account with strict save val
  assert.notEqual(cricketSaveKey('a@example.test'),cricketSaveKey('b@example.test'));
  assert.equal(cricketSaveKey(' A@example.test '),cricketSaveKey('a@example.test'));
  assert.ok(isCricketSave(emptyCricketSave()));
- assert.ok(isCricketSave({...emptyCricketSave(),stores:{'cm-match':'{}','cm-quality':'low','cm-best-club-2-24':'24'}}));
+ assert.ok(isCricketSave({...emptyCricketSave(),stores:{'cm-match':'{}','cm-options':'{"camera":1,"sound":false}','cm-quality':'low','cm-best-club-2-24':'24'}}));
  for(const invalid of [null,[],{schemaVersion:2,stores:{},resultIds:[]},{...emptyCricketSave(),stores:{'statoz.games.web.finalover.v1':'{}'}},{...emptyCricketSave(),stores:{'cm-quality':3}},{...emptyCricketSave(),resultIds:['reward']}])assert.equal(isCricketSave(invalid),false);
 });
 test('bridge rejects another game or session',()=>{
  const message={protocolVersion:1,gameId:'stadium-cricket',sessionId:'current',type:'save',payload:emptyCricketSave()};
  assert.ok(cricketMessage(message,'current'));
+ assert.ok(cricketMessage({...message,type:'exit'},'current'));
  assert.equal(cricketMessage(message,'old'),false);
  assert.equal(cricketMessage({...message,gameId:'final-over'},'current'),false);
  assert.equal(cricketMessage({...message,protocolVersion:2},'current'),false);

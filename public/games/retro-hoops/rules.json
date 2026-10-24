@@ -2,8 +2,8 @@
   "gameId": "retro-hoops",
   "briefVersion": "2.0.0",
   "rulesVersion": "2.0.0",
-  "buildVersion": "character-v7-local",
-  "assetPackVersion": "7.0.0",
+  "buildVersion": "character-v11-local",
+  "assetPackVersion": "11.0.0",
   "date": "2026-10-23",
   "reference": {
     "title": "Street Hoop",
@@ -98,8 +98,8 @@
     "inspection": "Dense opening/actions plus coarse surveys of later bounded excerpts, not every recording frame."
   },
   "playerDesign": {
-    "actionPack": "authored-v7/manifest.json",
-    "locomotionPack": "authored-v7/manifest.json",
+    "actionPack": "authored-v11/manifest.json",
+    "locomotionPack": "authored-v11/manifest.json",
     "classification": "Original source-directed construction; exact likeness remains unverified",
     "newSourcePixelsExtracted": false
   },

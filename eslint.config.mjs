@@ -16,6 +16,7 @@ const eslintConfig = defineConfig([
     "public/games/**",
     "vendor/cricketv2/**",
     "vendor/vibebasketball/**",
+    "vendor/websoccer/**",
     ".cache/vibe-*/**",
     ".cache/vibe-*.mjs",
     "test-results/vibe-basketball/**",

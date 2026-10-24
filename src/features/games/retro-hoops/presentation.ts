@@ -55,8 +55,12 @@ export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=f
     if(row.kind==="ball"){const p0=courtPoint(s.ball.x,s.ball.y),p1=courtPoint(s.ball.x,s.ball.y,s.ball.z);c.fillStyle="#0007";c.beginPath();c.ellipse(p0.x-cam,p0.y,6*p0.scale,2*p0.scale,0,0,Math.PI*2);c.fill();drawPicture(c,p,"ball",Math.round(p1.x-cam-5.5*p1.scale),Math.round(p1.y-5.5*p1.scale),11*p1.scale,11*p1.scale);continue;}
     const a=row.a,p0=courtPoint(a.x,a.y,a.z),scale=p0.scale,x=Math.round(p0.x-cam),y=Math.round(p0.y);
     c.fillStyle="#0005";c.beginPath();c.ellipse(x,a.y,17*scale,4*scale,0,0,Math.PI*2);c.fill();
-    if(a.id===s.selected){c.save();c.translate(x,y);c.scale(scale,scale);c.font="bold 10px monospace";c.textAlign="center";c.fillStyle="#191810";c.fillText("1P",1,-121);c.fillStyle="#ef3c27";c.fillText("1P",0,-122);c.beginPath();c.moveTo(-4,-120);c.lineTo(4,-120);c.lineTo(0,-116);c.fill();c.restore();}
-    drawPicture(c,p,poseFor(s,a),x-72*scale,y-116*scale,144*scale,128*scale);
+    if(a.id===s.selected){const marker=characterMarkerHeight(p,poseFor(s,a));c.save();c.translate(x,y);c.scale(scale,scale);c.font="bold 10px monospace";c.textAlign="center";c.fillStyle="#191810";c.fillText("1P",1,3-marker);c.fillStyle="#ef3c27";c.fillText("1P",0,2-marker);c.beginPath();c.moveTo(-4,4-marker);c.lineTo(4,4-marker);c.lineTo(0,8-marker);c.fill();c.restore();}
+    const pose=poseFor(s,a),head=headLayer(p,a,pose);
+    const drawHead=()=>{if(head)drawPicture(c,p,head.key,x+(head.x-72-16)*scale,y+(head.y-116-16)*scale,32*scale,32*scale);};
+    if(head?.underBody)drawHead();
+    drawPicture(c,p,pose,x-72*scale,y-116*scale,144*scale,128*scale);
+    if(!head?.underBody)drawHead();
     const overlay=overlayFor(s,a);if(overlay)drawPicture(c,p,overlay.key,x-72*scale,y+(-116+overlay.y)*scale,144*scale,128*scale);
     const gripCanvas=contactCanvas??(contactCanvas=document.createElement("canvas"));gripCanvas.width=144;gripCanvas.height=128;
     const grip=drawContactArm(gripCanvas,s,characterAnchors(p,poseFor(s,s.actors[s.ball.owner??0])));if(grip?.actor===a.id)c.drawImage(gripCanvas,x-72*scale,y-116*scale,144*scale,128*scale);
@@ -65,10 +69,17 @@ export function drawCanvas(c:CanvasRenderingContext2D,s:Match,p:Pictures,debug=f
   for(const [key,x] of [["left",85],["right",815]] as const){const p0=courtPoint(x,COURT.rimY),art=BASKET_ART[key];drawPicture(c,p,key,p0.x-cam-art.rimX*p0.scale,p0.y-(COURT.rimZ+art.rimY)*p0.scale,art.width*p0.scale,art.height*p0.scale);}
 
 }
-export type CharacterAnchors={shoulders?:[number,number][];hands?:[number,number][];hips?:[number,number];elbows?:[number,number][]};
+export type CharacterAnchors={view?:"side"|"front"|"back";head?:[number,number];shoulders?:[number,number][];hands?:[number,number][];hips?:[number,number];elbows?:[number,number][]};
 type Atlas={regions:Record<string,[number,number,number,number,number]>;images:HTMLImageElement[];poses:Record<string,CharacterAnchors>};
 const atlases=new WeakMap<Pictures,Atlas>();
 export function characterAnchors(p:Pictures,key:string){return atlases.get(p)?.poses[key];}
+/** Identity is stable per athlete; the action body owns the head anchor/view. */
+export function headLayer(p:Pictures,a:Actor,pose:string){
+ const rig=characterAnchors(p,pose);if(!rig?.head)return null;
+ const key=`${a.team===0?"navy":"amber"}-head-${a.id%3}-${rig.view??"side"}-${a.face===1?"source":"mirrored"}`;
+ return p[key]?{key,x:rig.head[0],y:rig.head[1],underBody:/-(jump-block-[0-9]+|a-overhead|a-reach)-/.test(pose)}:null;
+}
+export function characterMarkerHeight(p:Pictures,key:string){const head=characterAnchors(p,key)?.head;return head?116-head[1]+18:124;}
 export function pictureAtlas(p:Pictures){return atlases.get(p);}
 export function drawPicture(c:CanvasRenderingContext2D,p:Pictures,key:string,x:number,y:number,w:number,h:number){const atlas=atlases.get(p),r=atlas?.regions[key];if(r)c.drawImage(atlas!.images[r[4]],r[0],r[1],r[2],r[3],x,y,w,h);else c.drawImage(p[key],x,y,w,h);}
 export async function loadPictures(base:string,signal:AbortSignal):Promise<Pictures>{
@@ -82,6 +93,6 @@ export async function loadPictures(base:string,signal:AbortSignal):Promise<Pictu
     try{image.src=url;await image.decode();if(signal.aborted)throw new DOMException("Cancelled","AbortError");return image;}finally{URL.revokeObjectURL(url);}
   }));
   for(const [key,rect] of Object.entries(manifest.regions))result[key]=images[(rect as number[])[4]];
-  atlases.set(result,{regions:manifest.regions,images,poses:Object.fromEntries(manifest.frames.map((f:{key:string;anchors:CharacterAnchors})=>[f.key,f.anchors]))});
+  atlases.set(result,{regions:manifest.regions,images,poses:Object.fromEntries(manifest.frames.map((f:{key:string;view:CharacterAnchors['view'];anchors:CharacterAnchors})=>[f.key,{...f.anchors,view:f.view}]))});
   for(let frame=0;frame<T.crowdFrames;frame++){if(signal.aborted)throw new DOMException("Cancelled","AbortError");const canvas=courtCanvas(frame),img=new Image();img.src=canvas.toDataURL();await img.decode();result["court-"+frame]=img;}result.court=result["court-0"];return result;
 }

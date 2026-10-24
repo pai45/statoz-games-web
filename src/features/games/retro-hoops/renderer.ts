@@ -3,7 +3,7 @@ import {REFERENCE_TUNING as T} from "./reference-tuning";
 import {courtPoint,cameraOrigin,BASKET_ART} from "./view";
 import * as THREE from "three";
 import { COURT, type Match } from "./simulation";
-import { poseFor,overlayFor,pictureAtlas,characterAnchors, type Pictures } from "./presentation";
+import { poseFor,overlayFor,headLayer,pictureAtlas,characterAnchors,characterMarkerHeight, type Pictures } from "./presentation";
 
 /** Three owns presentation only. No outcome or possession changes occur here. */
 export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
@@ -22,6 +22,7 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
   const sprite=(key:string,w:number,h:number)=>{const sp=new THREE.Sprite(materials[key]);sp.scale.set(w,h,1);scene.add(sp);return sp;};
   const floor=sprite("court",900,360);floor.position.set(450,180,0);floor.renderOrder=-100;
   const actors=Array.from({length:6},()=>sprite("navy-s-ready-source",144,128));
+  const heads=Array.from({length:6},()=>sprite("navy-head-0-side-source",32,32));
   const arms=Array.from({length:6},()=>sprite("navy-dribble-arm-00-source",144,128));
   const gripCanvas=document.createElement("canvas");gripCanvas.width=144;gripCanvas.height=128;const gripTexture=new THREE.CanvasTexture(gripCanvas);gripTexture.magFilter=gripTexture.minFilter=THREE.NearestFilter;gripTexture.colorSpace=THREE.SRGBColorSpace;const gripMaterial=new THREE.SpriteMaterial({map:gripTexture,transparent:true,depthTest:false,depthWrite:false}),gripSprite=new THREE.Sprite(gripMaterial);scene.add(gripSprite);
   const ball=sprite("ball",11,11),left=sprite("left",47,75),right=sprite("right",92,75);
@@ -44,6 +45,8 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
       for(const a of s.actors){
         const p=courtPoint(a.x,a.y,a.z+52),scale=p.scale,sp=actors[a.id];
         sp.material=materials[poseFor(s,a)];sp.scale.set(144*scale,128*scale,1);sp.position.set(Math.round(p.x),360-Math.round(p.y),0);sp.renderOrder=a.y;
+        const layer=headLayer(pictures,a,poseFor(s,a)),head=heads[a.id];head.visible=!!layer;
+        if(layer){head.material=materials[layer.key];head.scale.set(32*scale,32*scale,1);head.position.set(sp.position.x+(layer.x-72)*scale,sp.position.y+(64-layer.y)*scale,0);head.renderOrder=a.y+(layer.underBody?-.01:.005);}
         const overlay=overlayFor(s,a),arm=arms[a.id];arm.visible=!!overlay;
         if(overlay){arm.material=materials[overlay.key];arm.scale.copy(sp.scale);arm.position.copy(sp.position);arm.position.y-=overlay.y*scale;arm.renderOrder=a.y+.01;}
         const ground=courtPoint(a.x,a.y),shadow=shadows[a.id],size=Math.max(.55,1-a.z/250)*scale;
@@ -54,7 +57,7 @@ export function createRenderer(canvas:HTMLCanvasElement,pictures:Pictures) {
       glow.visible=s.ball.super&&s.ball.kind==="shot";glow.position.copy(ball.position);glow.scale.set(30*b.scale,30*b.scale,1);glow.renderOrder=ball.renderOrder-.01;
       const ground=courtPoint(s.ball.x,s.ball.y),ballShadow=shadows[6];ballShadow.position.set(ground.x,360-ground.y,0);ballShadow.scale.set(12*ground.scale,4*ground.scale,1);ballShadow.renderOrder=s.ball.y-.2;
       for(const [sp,x,key] of [[left,85,"left"],[right,815,"right"]] as const){const p=courtPoint(x,COURT.rimY),art=BASKET_ART[key];sp.scale.set(art.width*p.scale,art.height*p.scale,1);sp.position.set(p.x+(art.width/2-art.rimX)*p.scale,360-(p.y-(COURT.rimZ+art.rimY-art.height/2)*p.scale),0);}
-      const a=s.actors[s.selected],marker=courtPoint(a.x,a.y,a.z+124);ring.scale.set(48*marker.scale,16*marker.scale,1);ring.position.set(marker.x,360-marker.y,0);ring.renderOrder=a.y+.05;
+      const a=s.actors[s.selected],marker=courtPoint(a.x,a.y,a.z+characterMarkerHeight(pictures,poseFor(s,a)));ring.scale.set(48*marker.scale,16*marker.scale,1);ring.position.set(marker.x,360-marker.y,0);ring.renderOrder=a.y+.05;
       renderer.render(scene,camera);
     },
     resize(nextWidth:number){if(disposed||!Number.isFinite(nextWidth))return;width=Math.max(320,Math.min(900,Math.round(nextWidth)));renderer.setSize(width,360,false);},

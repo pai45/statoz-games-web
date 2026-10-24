@@ -5,3 +5,6 @@ vendor/cricketv2/** -text
 
 # Preserve the pinned upstream bytes used by Vibe Basketball's integrity manifest.
 vendor/vibebasketball/** -text
+
+# Preserve the pinned WebSoccer source bytes used by its integrity manifest.
+vendor/websoccer/** -text

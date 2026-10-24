@@ -2,17 +2,22 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import {useEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useRef,useState} from 'react';
 import {Button} from '@/design-system';
 import {useAuthSession} from '@/features/auth';
 import {publicAsset} from '@/shared/config';
 import {cricketMessage,cricketSaveKey,emptyCricketSave,isCricketSave} from './save';
+import {CricketSetup,type CricketLaunch} from './setup';
 import styles from './stadium-cricket.module.css';
 
 export function StadiumCricket(){
  const account=useAuthSession().email;
- const [playing,setPlaying]=useState(false);
- if(playing&&account)return <CricketFrame key={account} account={account} onExit={()=>setPlaying(false)}/>;
+ return <AccountCricket key={account||'guest'} account={account||''}/>;
+}
+function AccountCricket({account}:{account:string}){
+ const [launch,setLaunch]=useState<CricketLaunch|null>(null);
+ const exit=useCallback(()=>setLaunch(null),[]);
+ if(launch&&account)return <CricketFrame account={account} launch={launch} onExit={exit}/>;
  return <main className={styles.lobby}>
   <div className={styles.backdrop} aria-hidden="true"><Image src={publicAsset('/games/stadium-cricket/stadium-preview.jpg')} alt="" fill priority sizes="100vw" unoptimized style={{objectFit:'cover',objectPosition:'65% center'}}/></div>
   <div className={styles.shade} aria-hidden="true"/>
@@ -33,13 +38,12 @@ export function StadiumCricket(){
    </dl>
    </div>
    <div className={styles.lobbyActions}>
-   <Button size="lg" fullWidth glow onClick={()=>setPlaying(true)}>ENTER THE STADIUM</Button>
-   <p className={styles.setupHint}>Choose your role, teams and challenge in Match setup.</p>
+   <CricketSetup account={account} onPlay={setLaunch}/>
    <div className={styles.roles} aria-label="Available roles"><span>BAT</span><span>BOWL</span><span>KEEP</span><span>FIELD</span></div>
    <div className={styles.links}>
     <details className={styles.disclosure}>
      <summary>HOW TO PLAY</summary>
-     <div className={styles.detailsBody}><p><kbd>Space</kbd> or tap the action button to bat, release the ball or attempt a catch. <kbd>L</kbd> switches ground / lofted shots.</p><p><kbd>C</kbd> Camera · <kbd>P</kbd> / <kbd>Esc</kbd> Pause · <kbd>M</kbd> Sound</p><p>Shot direction and running are automatic. Keeper and fielder modes are timing challenges.</p><p>Rookie, Club, Professional and Legend. Choose 2, 5, 10 or 20 overs and your target inside the game.</p></div>
+     <div className={styles.detailsBody}><p><kbd>Space</kbd> or tap the action button to bat, release the ball or attempt a catch. <kbd>L</kbd> switches ground / lofted shots.</p><p><kbd>C</kbd> Camera · <kbd>P</kbd> / <kbd>Esc</kbd> Pause · <kbd>M</kbd> Sound</p><p>Shot direction and running are automatic. Keeper and fielder modes are timing challenges.</p><p>Rookie, Club, Professional and Legend. Set your role, teams, difficulty, overs and target here before playing.</p></div>
     </details>
     <details className={styles.disclosure}>
      <summary>SOURCE &amp; CREDITS</summary>
@@ -53,7 +57,7 @@ export function StadiumCricket(){
   <aside className={styles.pitchLabel}><span>MASTERS OVAL</span><small>ORIGINAL GAME / IN-GAME CAPTURE</small></aside>
  </main>;
 }
-function CricketFrame({account,onExit}:{account:string;onExit:()=>void}){
+function CricketFrame({account,launch,onExit}:{account:string;launch:CricketLaunch;onExit:()=>void}){
  const frame=useRef<HTMLIFrameElement>(null),viewportRoot=useRef<HTMLElement>(null);
  useEffect(()=>{
   const viewport=window.visualViewport;
@@ -72,6 +76,7 @@ function CricketFrame({account,onExit}:{account:string;onExit:()=>void}){
    const message=event.data;
    if(message.type==='ready'){clearTimeout(timeout);setStatus('');if(document.hidden)command('pause');}
    else if(message.type==='error')setError('The 3D stadium could not start. Check WebGL support and retry.');
+   else if(message.type==='exit')onExit();
    else if(message.type==='reload'){setStatus('Preparing the stadium…');setAttempt(value=>value+1);}
    else if(message.type==='save'&&isCricketSave(message.payload)){
     try{localStorage.setItem(key,JSON.stringify(message.payload));}catch{setWarning('Progress could not be saved on this device. You can keep playing.');}
@@ -83,14 +88,16 @@ function CricketFrame({account,onExit}:{account:string;onExit:()=>void}){
    try{
     let raw:string|null=null;try{raw=localStorage.getItem(key);}catch{setWarning('Browser storage is unavailable. Settings and bests will last for this session only.');}
     if(raw!==null){let previous:unknown;try{previous=JSON.parse(raw);}catch{throw Error('save');}if(!isCricketSave(previous))throw Error('save');save=previous;}
+    save={...save,stores:{...save.stores,'cm-match':JSON.stringify(launch.match),'cm-quality':launch.quality,'cm-options':JSON.stringify({sound:launch.sound,camera:launch.camera})}};
+    try{localStorage.setItem(key,JSON.stringify(save));}catch{setWarning('Settings could not be saved on this device. You can keep playing.');}
     const response=await fetch(publicAsset('/embedded-games/stadium-cricket/index.html'),{signal:controller.signal});if(!response.ok)throw Error('bundle');
     const html=await response.text();if(!html.includes('/*__STATOZ_BOOT__*/'))throw Error('bundle');
-    if(active)element.srcdoc=html.replace('/*__STATOZ_BOOT__*/',()=> 'window.__STATOZ_BOOT__='+JSON.stringify({...save,sessionId,origin:location.origin}).replaceAll('<','\\u003c')+';');
+    if(active)element.srcdoc=html.replace('/*__STATOZ_BOOT__*/',()=> 'window.__STATOZ_BOOT__='+JSON.stringify({...save,sessionId,origin:location.origin,autoStart:true,launch:{sound:launch.sound,camera:launch.camera}}).replaceAll('<','\\u003c')+';');
    }catch(cause){if(active&&!controller.signal.aborted)setError(cause instanceof Error&&cause.message==='save'?'Your saved game uses an unreadable format. It has been preserved.':'The local game bundle could not load. Retry or return to the lobby.');}
   };
   window.addEventListener('message',receive);document.addEventListener('visibilitychange',background);void load();
   return()=>{active=false;controller.abort();clearTimeout(timeout);command('dispose');window.removeEventListener('message',receive);document.removeEventListener('visibilitychange',background);element.removeAttribute('srcdoc');element.src='about:blank';};
- },[account,attempt]);
+ },[account,attempt,launch,onExit]);
  return <main ref={viewportRoot} className={styles.game}>
   <div className={styles.gamebar}><Button variant="surface" onClick={onExit}>← Lobby</Button><span>STADIUM CRICKET</span><Button variant="ghost" onClick={()=>{setError('');setStatus('Preparing the stadium…');setAttempt(value=>value+1);}}>RELOAD GAME</Button></div>
   <div className={styles.frameArea}><iframe ref={frame} title="Stadium Cricket — original Cricket Masters game" allow="autoplay; fullscreen" allowFullScreen className={styles.frame}/>{(status||error)&&<div className={styles.loading} role={error?'alert':'status'}><p>{error||status}</p><Button variant="surface" onClick={onExit}>Return to lobby</Button></div>}</div>

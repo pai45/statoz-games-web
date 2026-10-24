@@ -88,13 +88,14 @@ try{
   if(!localStorage.getItem('statoz.games.web.auth.v2'))localStorage.setItem('statoz.games.web.auth.v2',JSON.stringify({version:2,authenticated:true,email}));
   localStorage.setItem('statoz.games.web.accounts.v1',JSON.stringify({version:1,accounts:{[email]:{onboardingComplete:true},'stadium-other@example.test':{onboardingComplete:true}}}));
  });
- await page.goto(app+'/play/final-over');await page.waitForURL('**/play/stadium-cricket');await page.getByRole('button',{name:'ENTER THE STADIUM'}).waitFor({timeout:90000});
+ await page.goto(app+'/play/final-over');await page.waitForURL('**/play/stadium-cricket');await page.getByRole('button',{name:'Play Cricket'}).waitFor({timeout:90000});
  await page.screenshot({path:path.join(out,'lobby-desktop.png'),fullPage:true});
  for(const viewport of [{width:412,height:915},{width:844,height:390}]){await page.setViewportSize(viewport);await page.screenshot({path:path.join(out,'lobby-'+viewport.width+'.png'),fullPage:true});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
  await page.setViewportSize({width:1280,height:800});
- await page.getByRole('button',{name:'ENTER THE STADIUM'}).click();const frame=page.frames().find(frame=>frame!==page.mainFrame());
+ await page.getByText('MATCH SETUP',{exact:true}).click();await page.locator('select[name="quality"]').selectOption('low');await page.locator('input[name="target"]').fill('1');
+ await page.getByRole('button',{name:'Play Cricket'}).click();const frame=page.frames().find(frame=>frame!==page.mainFrame());
  await frame.waitForFunction(()=>window.CM?.ready,{timeout:90000});await page.getByRole('status').filter({hasText:'Preparing'}).waitFor({state:'hidden'});
- await frame.locator('#quality').selectOption('low');await frame.locator('#settings').click();await frame.locator('#matchTarget').fill('1');await frame.locator('#settingsForm button[type="submit"]').click();
+ await frame.waitForFunction(()=>window.CM.snapshot().phase!=='intro');assert.equal(await frame.locator('#intro').isVisible(),false);
  // Drive the action through real animation frames for a short complete innings video.
  await frame.evaluate(()=>{
   let previous='',elapsed=0,last=performance.now();const play=now=>{const state=window.CM.snapshot(),dt=Math.min(.05,(now-last)/1000);last=now;if(state.phase!==previous){previous=state.phase;elapsed=0;}if(state.phase==='over'){window.__finished=true;return;}if(state.phase==='delivery'&&elapsed>=state.deliveryDuration*.92){document.getElementById('loft').click();document.getElementById('swing').click();}elapsed+=dt;requestAnimationFrame(play);};requestAnimationFrame(play);
@@ -102,10 +103,10 @@ try{
  await frame.waitForFunction(()=>window.__finished,{timeout:150000});await page.screenshot({path:path.join(out,'completed-innings.png')});
  assert.ok(await page.evaluate(()=>JSON.parse(localStorage.getItem('statoz.games.web.bundle.stadium-cricket.stadium-review%40example.test')).stores['cm-match']));
  await page.getByRole('button',{name:'← Lobby',exact:true}).click();assert.equal(page.frames().length,1);
- await page.getByRole('button',{name:'ENTER THE STADIUM'}).click();const restored=page.frames().find(frame=>frame!==page.mainFrame());await restored.waitForFunction(()=>window.CM?.ready,{timeout:90000});assert.equal(await restored.evaluate(()=>window.CM.snapshot().config.target),1);
+ await page.getByRole('button',{name:'Play Cricket'}).click();const restored=page.frames().find(frame=>frame!==page.mainFrame());await restored.waitForFunction(()=>window.CM?.ready,{timeout:90000});assert.equal(await restored.evaluate(()=>window.CM.snapshot().config.target),1);
  await page.evaluate(()=>{const key='statoz.games.web.auth.v2',value=JSON.stringify({version:2,authenticated:true,email:'stadium-other@example.test'});localStorage.setItem(key,value);window.dispatchEvent(new StorageEvent('storage',{key,newValue:value}));});
- await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.CM?.ready);const switched=page.frames().find(frame=>frame!==page.mainFrame());assert.equal(await switched.evaluate(()=>window.CM.snapshot().config.target),24);
- await page.getByRole('button',{name:'← Lobby',exact:true}).click();await page.evaluate(()=>localStorage.setItem('statoz.games.web.bundle.stadium-cricket.stadium-other%40example.test','invalid-save'));await page.getByRole('button',{name:'ENTER THE STADIUM'}).click();await page.getByRole('alert').filter({hasText:'preserved'}).waitFor();assert.equal(await page.evaluate(()=>localStorage.getItem('statoz.games.web.bundle.stadium-cricket.stadium-other%40example.test')),'invalid-save');
+ await page.getByRole('button',{name:'Play Cricket'}).waitFor();assert.equal(page.frames().length,1);await page.getByRole('button',{name:'Play Cricket'}).click();await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.CM?.ready);const switched=page.frames().find(frame=>frame!==page.mainFrame());assert.equal(await switched.evaluate(()=>window.CM.snapshot().config.target),24);
+ await page.getByRole('button',{name:'← Lobby',exact:true}).click();await page.evaluate(()=>localStorage.setItem('statoz.games.web.bundle.stadium-cricket.stadium-other%40example.test','invalid-save'));await page.getByRole('button',{name:'Play Cricket'}).click();await page.getByRole('alert').filter({hasText:'preserved'}).waitFor();assert.equal(await page.evaluate(()=>localStorage.getItem('statoz.games.web.bundle.stadium-cricket.stadium-other%40example.test')),'invalid-save');
  report.checks.push('legacy URL forwards','desktop and mobile lobby overflow','original game inside app','complete short innings','settings reload','account switch remount','invalid save preserved','frame removed on exit');
  await context.close();assert.deepEqual(report.errors,[]);report.passed=true;
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));await fs.writeFile(path.join(out,'validation.json'),JSON.stringify(report,null,2)+'\n');}

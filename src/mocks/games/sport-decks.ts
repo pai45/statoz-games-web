@@ -11,6 +11,7 @@ import type { GameId } from "@/features/games/types";
  */
 const sourceDecks: Record<Sport, GameId[]> = {
   football: [
+    "pitch-rush",
     "retro-football",
     "pitch-duel",
     "penalty-shootout",

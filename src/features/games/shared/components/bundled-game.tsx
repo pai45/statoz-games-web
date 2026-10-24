@@ -58,5 +58,5 @@ export function BundledGame({game, entry}: GameLauncherProps) {
       if (element) element.srcdoc = '';
     };
   }, [game, account, router]);
-  return <section className="fixed inset-0 z-[60] h-dvh w-full"><iframe ref={frame} title={entry.title} className="h-full w-full border-0" allow="autoplay; fullscreen" allowFullScreen/>{error && <div role="alert" className="absolute inset-x-0 top-0 bg-background p-4">{error}<button onClick={() => router.push('/')}>Return to Games</button></div>}</section>;
+  return <section className="fixed inset-0 z-[60] h-dvh w-full"><iframe ref={frame} title={entry.title} className="h-full w-full border-0" allow={game === "pitch-rush" ? "autoplay; fullscreen; gamepad" : "autoplay; fullscreen"} allowFullScreen/>{error && <div role="alert" className="absolute inset-x-0 top-0 bg-background p-4">{error}<button onClick={() => router.push('/')}>Return to Games</button></div>}</section>;
 }

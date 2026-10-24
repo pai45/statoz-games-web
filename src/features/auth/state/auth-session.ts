@@ -27,6 +27,7 @@ const playerStorageKeys = [
   "statoz.games.web.finalover.v1",
   "statoz.games.web.pitch-duel.v1",
   "statoz.games.web.pitch-duel.reboot.v2",
+  "statoz.games.web.pitch-duel.v3",
   "statoz.games.web.hoopduel.v1",
   "statoz.games.web.guessplayer.v1",
   "statoz.games.web.streaks.v1",

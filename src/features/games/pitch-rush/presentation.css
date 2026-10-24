@@ -1,0 +1,32 @@
+/* Game-owned football cabinet presentation. No host design-system imports. */
+#menu{background:linear-gradient(90deg,rgba(9,30,16,.12),rgba(9,30,16,.8)),var(--cover) center/cover no-repeat;backdrop-filter:none}
+#menu>.panel{margin-left:auto;margin-right:5vw;background:#173a25f5;border:2px solid #e9d9a0;box-shadow:8px 8px 0 #081d14;padding:22px 28px}
+h1{color:#fff0bc;text-shadow:3px 3px #081d14;letter-spacing:1px;font-size:40px;font-style:italic}h1 span{color:#f4c85e;text-shadow:3px 3px #081d14}
+button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #fff0bc;outline-offset:3px}
+button{min-height:40px}button[hidden]{display:none!important}
+#gameCredits{position:fixed;bottom:3px;left:8px;font-size:10px;color:#eadfbd;pointer-events:none}
+body:has(#menu.hidden) #gameCredits{display:none}
+@media(max-width:960px){#menu>.panel{width:min(540px,94vw);margin:0 auto;padding:14px 22px}h1{font-size:28px}h1 span{display:inline;margin-left:10px}.tag{margin:6px 0 12px}#gameCredits{display:none}}
+@media(max-height:500px){#menu>.panel{max-height:94dvh}#menu .row{margin:8px 0}#menu .panelFooter{position:sticky;bottom:-14px;background:#173a25;padding:10px 0;z-index:1}}
+.mobileHelp{font-size:12px;line-height:1.6;color:#eadfbd;max-width:430px}#endActions{z-index:12}#endActions.hidden{display:none}#endScore{font-size:28px}#mobileHint{position:absolute;left:12px;bottom:154px;width:100px;font-size:10px;text-align:center;color:#eadfbd;letter-spacing:1px;pointer-events:none}#matchOptions{margin-top:10px}#matchOptions>summary{min-height:44px;display:flex;align-items:center}#matchOptions>details{margin:4px 0}
+#touchButtons button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;padding:5px}
+#touchButtons strong{font-size:12px}#touchButtons small{font-size:8px;letter-spacing:0}
+#btnDefend{width:92px;height:92px;background:#315994;color:#fff4cf;border-color:#9db6d0}
+#touchButtons button[aria-disabled="true"]{filter:saturate(.45);opacity:.62}
+#btnSwap{position:absolute;pointer-events:auto;touch-action:none;left:20px;top:16px;width:84px;height:44px;border-radius:5px;font-size:11px}
+@media(pointer:coarse) and (orientation:landscape){
+  :root{--rail:clamp(112px,15vw,136px)}
+  #wrap{padding:env(safe-area-inset-top) max(var(--rail),env(safe-area-inset-right)) env(safe-area-inset-bottom) max(var(--rail),env(safe-area-inset-left));background:#0d2518;grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr)}
+  #game{width:100%;height:100%;min-width:0;min-height:0;max-height:100%;box-shadow:none;object-fit:contain}
+  #stick{width:100px;height:100px;left:calc((var(--rail) - 100px)/2);bottom:34px;border-color:#a8c5a2;background:#1e422b}
+  #knob{width:44px;height:44px}
+  #touchButtons{right:calc((var(--rail) - 92px)/2);bottom:20px;flex-direction:column;align-items:center;gap:14px}
+  #btnKick,#btnDefend{width:92px;height:92px;font-size:13px}
+  #btnSwap{left:calc((var(--rail) - 84px)/2);width:84px;height:44px}
+  #btnPause{left:auto;right:calc((var(--rail) - 48px)/2);top:max(12px,env(safe-area-inset-top));transform:none;width:48px;height:44px}
+  #menu>.panel{width:min(540px,94vw);padding:12px 22px;max-height:96dvh}
+  #menu .row{margin:5px 0}#menu button,#menu select{min-height:44px}#menu h1{font-size:28px}
+  #menu .mobileHelp{font-size:11px;margin:7px 0}.panelFooter{gap:8px;display:flex}.panelFooter button{flex:1}
+  #iosHint{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){.letter.on{animation:none}}

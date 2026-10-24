@@ -27,19 +27,17 @@ try{
  });
  const origin='http://127.0.0.1:'+server.address().port;
  await page.goto(origin+prefix+'/play/final-over/');await page.waitForURL(/\/play\/stadium-cricket\/?$/);
- await page.getByRole('button',{name:'ENTER THE STADIUM'}).waitFor();assert.equal(await page.locator('h1').textContent(),'STADIUMCRICKET');
+ await page.getByRole('button',{name:'Play Cricket'}).waitFor();assert.equal(await page.locator('h1').textContent(),'STADIUMCRICKET');
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.screenshot({path:path.join(root,'test-results/stadium-cricket/static-lobby-mobile.png'),fullPage:true});
- await page.getByRole('button',{name:'ENTER THE STADIUM'}).click();let frame=page.frames().find(frame=>frame!==page.mainFrame());await frame.waitForFunction(()=>window.CM?.ready,null,{timeout:90000});
- // Home returns to the source intro without navigating to an absent index.html.
- await frame.locator('#start').click();await frame.waitForFunction(()=>window.CM.snapshot().phase!=='intro');
+ await page.getByRole('button',{name:'Play Cricket'}).click();let frame=page.frames().find(frame=>frame!==page.mainFrame());await frame.waitForFunction(()=>window.CM?.ready,null,{timeout:90000});
+ // Play starts directly without the source intro.
+ assert.equal(await frame.locator('#intro').isVisible(),false);await frame.waitForFunction(()=>window.CM.snapshot().phase!=='intro');
  await frame.locator('body').press('p');assert.equal(await frame.evaluate(()=>window.CM.snapshot().paused),true);
  await frame.locator('body').press('p');assert.equal(await frame.evaluate(()=>window.CM.snapshot().paused),false);
  await frame.locator('body').press('c');assert.match(await frame.locator('#camera').textContent(),/broadcast/);
  await frame.locator('#sound').click();assert.equal(await frame.locator('#sound').getAttribute('aria-pressed'),'false');
  await frame.locator('#sound').click();assert.equal(await frame.locator('#sound').getAttribute('aria-pressed'),'true');
- await frame.locator('a.brand').click();await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.CM?.snapshot?.().phase==='intro',null,{timeout:90000});
- frame=page.frames().find(frame=>frame!==page.mainFrame());assert.equal(await frame.evaluate(()=>window.CM.snapshot().phase),'intro');
  await page.screenshot({path:path.join(root,'test-results/stadium-cricket/static-game-mobile.png')});
  await page.setViewportSize({width:844,height:390});await page.screenshot({path:path.join(root,'test-results/stadium-cricket/static-game-landscape.png')});
  await page.getByRole('button',{name:'← Lobby',exact:true}).click();
@@ -49,8 +47,8 @@ try{
   Storage.prototype.getItem=function(key){if(key.includes('bundle.stadium-cricket'))throw new DOMException('Blocked','SecurityError');return get.call(this,key);};
   Storage.prototype.setItem=function(key,value){if(key.includes('bundle.stadium-cricket'))throw new DOMException('Blocked','QuotaExceededError');return set.call(this,key,value);};
  });
- await page.getByRole('button',{name:'ENTER THE STADIUM'}).click();await page.getByRole('status').filter({hasText:'Browser storage is unavailable'}).waitFor();
- frame=page.frames().find(frame=>frame!==page.mainFrame());await frame.waitForFunction(()=>window.CM?.ready,null,{timeout:90000});await frame.locator('#quality').selectOption('low');
+ await page.getByRole('button',{name:'Play Cricket'}).click();await page.getByRole('status').filter({hasText:'could not be saved'}).waitFor();
+ frame=page.frames().find(frame=>frame!==page.mainFrame());await frame.waitForFunction(()=>window.CM?.ready,null,{timeout:90000});await frame.evaluate(()=>{const select=document.getElementById('quality');select.value='balanced';select.dispatchEvent(new Event('change'));});
  await page.getByRole('status').filter({hasText:'Progress could not be saved'}).waitFor();
  await page.getByRole('button',{name:'← Lobby',exact:true}).click();await page.getByRole('link',{name:'Back to Cricket',exact:true}).click();await page.waitForURL(/\/games\/cricket\/?$/);
  const broken=await browser.newPage();await broken.addInitScript(()=>{
@@ -58,7 +56,7 @@ try{
   localStorage.setItem('statoz.games.web.accounts.v1',JSON.stringify({version:1,accounts:{[email]:{onboardingComplete:true}}}));
   const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return /webgl/i.test(kind)?null:original.call(this,kind,...args);};
  });
- await broken.goto(origin+prefix+'/play/stadium-cricket/');await broken.getByRole('button',{name:'ENTER THE STADIUM'}).click();await broken.getByRole('alert').filter({hasText:'WebGL support'}).waitFor();await broken.close();
+ await broken.goto(origin+prefix+'/play/stadium-cricket/');await broken.getByRole('button',{name:'Play Cricket'}).click();await broken.getByRole('alert').filter({hasText:'WebGL support'}).waitFor();await broken.close();
  assert.ok(requests.includes(prefix+'/embedded-games/stadium-cricket/index.html'));assert.deepEqual(errors,[]);
  const result={passed:true,checks:['static old URL forwarding','subdirectory assets','mobile lobby','original mobile UI','landscape original UI','source home link','return to cricket','unavailable storage remains playable','save failures visible','WebGL failure recovery'],requests:requests.filter(p=>/stadium-cricket|final-over/.test(p)),errors};
  await fs.writeFile(path.join(root,'test-results/stadium-cricket/static-validation.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

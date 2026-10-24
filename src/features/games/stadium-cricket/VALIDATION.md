@@ -45,6 +45,14 @@ Implemented locally in Future Games Web. No push, hosted integration or publicat
 
 ## Evidence
 
+## Single-lobby update — 2026-10-23
+
+All configuration is now inside one expandable Match setup section on the StatOz lobby. Play Cricket is the sole primary CTA and invokes the original start action directly after readiness; the source intro and masthead are hidden in hosted auto-start mode only.
+
+Verified direct launch with custom settings in all four roles, camera and sound preferences, low graphics, reload persistence and frame removal on exit. The mobile regression passed ten viewports and 80 role/difficulty/rotation checks, including simulated safe areas and visual viewport resizing. Screenshots cover desktop, 320px, 412px and landscape. Lint, typecheck, four Stadium Cricket tests, source hash verification, packaging and production build passed. The existing full deterministic parity and subdirectory suites were updated for the new lobby flow but were not rerun for this UI-only change. No upstream source files or gameplay algorithms were changed. Physical-device and audible-output limitations above still apply.
+
+Repeat the focused flow with node scripts/verify-stadium-lobby.mjs and the expanded mobile suite with node scripts/verify-stadium-mobile.mjs. Earlier evidence above describes the previous two-screen entry flow.
+
 Generated evidence is local and ignored by Git under test-results/stadium-cricket:
 
 - validation.json: gameplay parity and hosted account/lifecycle checks.

@@ -4,18 +4,18 @@ Run from Future Games Web. Source is this editable geometry and palette file.
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
 import math, json, hashlib
-from retro_hoops_character import render_character,RIG
+from retro_hoops_character import render_character,RIG,IDENTITIES,head,PixelDraw
 
-ROOT=Path.cwd(); OUT=ROOT/'public/games/retro-hoops/authored-v7'; OUT.mkdir(parents=True,exist_ok=True)
+ROOT=Path.cwd(); OUT=ROOT/'public/games/retro-hoops/authored-v11'; OUT.mkdir(parents=True,exist_ok=True)
 W,H=144,128
 CLIPS={'run':12,'dribble-body':12,'defend':8,'brake':4,'dribble-arm':18,'backpedal':8,'pivot':4,'dribble-switch':72,
        'shot':30,'throw':12,'finish':24,'jump-block':24,'reach':15,'recover':12,'collect':6,'fake':12,'catch':12}
 POSES=['d-push','d-low','d-down','s-ready','s-rise','s-release','s-follow','p-pass-gather-left','p-pass-extend-left','a-reach','a-overhead','carry-low','carry-front','dunk-gather','dunk-contact','land-recover','neutral-a','neutral-b']
-PALETTES={'navy':{'skin':['#59351f','#a66431','#d9924c','#f8c679'],'short':['#07356c','#1266c2','#68b7ff'],'shirt':['#073d80','#0870cc','#299df3','#91d5ff']},
- 'amber':{'skin':['#6d4028','#b67b49','#e9ac72','#ffdb9b'],'short':['#691d29','#ba283d','#f86b6b'],'shirt':['#751d30','#bd2940','#ef4854','#ffaaa0']}}
+PALETTES={'navy':{'skin':['#6c341b','#bb6120','#ef9a36','#ffd270'],'short':['#07356c','#1266c2','#68b7ff'],'shirt':['#102f6c','#095ba8','#168edc','#65baea']},
+ 'amber':{'skin':['#754125','#c87937','#f3b266','#ffe0a0'],'short':['#691d29','#ba283d','#f86b6b'],'shirt':['#641f25','#a5252b','#e64136','#ff8c60']}}
 frames=[];images={}
-def render(team,kind,index=0,count=1,view='side'):
- return render_character(team,kind,index,count,view,PALETTES)
+def render(team,kind,index=0,count=1,view='side',identity=0,includeHead=True):
+ return render_character(team,kind,index,count,view,PALETTES,identity,includeHead)
 
 def save(key,im,anchors,team,clip,index,view,facing):
  images[key]=im;frames.append({'key':key,'team':team,'clip':clip,'frame':index,'view':view,'facing':facing,'anchors':anchors,'pixelHash':hashlib.sha256(im.tobytes()).hexdigest()})
@@ -24,7 +24,7 @@ for team in PALETTES:
   views=['side','front','back']if kind in ['run','dribble-body','defend','backpedal','neutral-a','neutral-b','carry-front','dribble-arm','dribble-switch']else['side']
   for i in range(count):
    for view in views:
-    im,anchors=render(team,kind,i,count,view);pose=kind+('-'+str(i).zfill(2)if kind in CLIPS else '')+(''if view=='side'else '-'+view)
+    im,anchors=render(team,kind,i,count,view,includeHead=False);pose=kind+('-'+str(i).zfill(2)if kind in CLIPS else '')+(''if view=='side'else '-'+view)
     for facing in ['source','mirrored']:
      mirrored=facing=='mirrored';frame=ImageOps.mirror(im).transform((W,H),Image.Transform.AFFINE,(1,0,-1,0,1,0))if mirrored else im
      a=json.loads(json.dumps(anchors))
@@ -33,6 +33,16 @@ for team in PALETTES:
        if isinstance(v[0],list):a[k]=[[144-q[0],q[1]]for q in v]
        else:a[k]=[144-v[0],v[1]]
      save(f'{team}-{pose}-{facing}',frame,a,team,kind,i,view,facing)
+# Small independent head layers prevent tripling the complete movement atlas.
+headFrames=[]
+for team,styles in IDENTITIES.items():
+ for identity,style in enumerate(styles):
+  for view in ['side','front','back']:
+   low=Image.new('RGBA',(20,20));head(PixelDraw(low),(16,16),PALETTES[team]['skin'],view,team,identity);im=low.resize((32,32),Image.Resampling.NEAREST)
+   for facing in ['source','mirrored']:
+    frame=ImageOps.mirror(im).transform((32,32),Image.Transform.AFFINE,(1,0,-1,0,1,0))if facing=='mirrored'else im
+    key=f'{team}-head-{identity}-{view}-{facing}';images[key]=frame
+    headFrames.append({'key':key,'team':team,'identity':identity,'style':style,'view':view,'facing':facing,'anchor':[16,16],'pixelHash':hashlib.sha256(frame.tobytes()).hexdigest()})
 # Original ball, asymmetric perspective baskets. No historical rasters loaded.
 ball=Image.new('RGBA',(11,11));d=ImageDraw.Draw(ball);d.ellipse((0,0,10,10),fill='#e68b28',outline='#3d271d');d.arc((1,0,9,10),70,270,fill='#ffbd54');d.line([(1,5),(9,5)],fill='#54301e');d.arc((2,-2,7,12),260,100,fill='#54301e');images['ball']=ball
 for side,size in [('left',(47,75)),('right',(92,75))]:
@@ -53,23 +63,24 @@ for key,digest in imageIds.items():regions[key]=locations[digest]
 names=[]
 for i,atlas in enumerate(atlases):
  name=f'family-{i}.png';names.append(name);atlas.save(OUT/name,optimize=True)
-manifest={'version':'7.0.0','classification':'original authored pixel geometry; no reference rasters','approval':'draft-pending-visual-review','sourceCode':'scripts/build-retro-hoops-authored.py','sourceCodeSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'nativeTimingRecovered':False,'rig':RIG,'anatomySource':'scripts/retro_hoops_character.py','anatomySourceSha256':hashlib.sha256((ROOT/'scripts/retro_hoops_character.py').read_bytes()).hexdigest(),'canvas':[W,H],'feet':[72,116],'atlases':names,'regions':regions,'clips':CLIPS,'palettes':PALETTES,'frames':frames,'atlasHashes':{name:hashlib.sha256((OUT/name).read_bytes()).hexdigest()for name in names}}
+manifest={'version':'11.0.0','classification':'original authored pixel geometry; no reference rasters','approval':'draft-pending-visual-review','sourceCode':'scripts/build-retro-hoops-authored.py','sourceCodeSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'nativeTimingRecovered':False,'rig':RIG,'anatomySource':'scripts/retro_hoops_character.py','anatomySourceSha256':hashlib.sha256((ROOT/'scripts/retro_hoops_character.py').read_bytes()).hexdigest(),'canvas':[W,H],'feet':[72,116],'atlases':names,'regions':regions,'clips':CLIPS,'palettes':PALETTES,'frames':frames,'headFrames':headFrames,'identities':IDENTITIES,'headLayer':{'canvas':[32,32],'nativeArtwork':[20,20],'anchor':[16,16],'bodyContainsHead':False},'atlasHashes':{name:hashlib.sha256((OUT/name).read_bytes()).hexdigest()for name in names}}
 (OUT/'manifest.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
-review=ROOT/'test-results/retro-hoops-character-v7';review.mkdir(parents=True,exist_ok=True)
+review=ROOT/'test-results/retro-hoops-character-v11';review.mkdir(parents=True,exist_ok=True)
 sheet=Image.new('RGB',(12*W,10*H),'#393c34')
 for row,kind in enumerate(['run','dribble-body','defend','shot','throw','finish','jump-block','fake','recover','catch']):
  count=CLIPS[kind]
  for col in range(12):
   frame=min(count-1,round(col*(count-1)/11));im,a=render('navy',kind,frame,count)
   if kind in ['dribble-body','shot','throw','finish','fake','catch']:
-   from retro_hoops_character import arm
-   arm(ImageDraw.Draw(im),a['shoulders'][0],a['hands'][0],PALETTES['navy']['skin'],bend=1 if kind in ['shot','finish']else -1)
+   from retro_hoops_character import arm,PixelDraw,export
+   low=im.resize((90,80),Image.Resampling.NEAREST)
+   arm(PixelDraw(low),a['shoulders'][0],a['hands'][0],PALETTES['navy']['skin'],bend=1 if kind in ['shot','finish']else -1);im=export(low)
   sheet.paste(im,(col*W,row*H),im)
 sheet.save(review/'player-family.png')
 print(json.dumps({'frames':len(frames),'atlasPages':[im.size for im in atlases],'referenceRasterInputs':0,'output':str(OUT)}))
 
 # Small comparison specimens, silhouettes and directional views at native and enlarged sizes.
-from retro_hoops_character import arm
+from retro_hoops_character import arm,PixelDraw,export
 selected=['neutral-a','run','dribble-body','defend','shot','throw','finish','jump-block']
 specimens=Image.new('RGB',(8*144,3*154),'#343a32');sd=ImageDraw.Draw(specimens)
 for row,view in enumerate(['side','front','back']):
@@ -77,10 +88,19 @@ for row,view in enumerate(['side','front','back']):
   count=CLIPS.get(kind,1);index=3 if kind in ['run','dribble-body','defend']else 8 if kind=='shot'else 5 if kind=='throw'else 7 if kind=='finish'else 6 if kind=='jump-block'else 0
   im,a=render('navy',kind,index,count,view)
   if kind in ['dribble-body','shot','throw','finish']:
-   arm(ImageDraw.Draw(im),a['shoulders'][0],a['hands'][0],PALETTES['navy']['skin'],bend=1 if kind in ['shot','finish']else -1)
+   low=im.resize((90,80),Image.Resampling.NEAREST)
+   arm(PixelDraw(low),a['shoulders'][0],a['hands'][0],PALETTES['navy']['skin'],bend=1 if kind in ['shot','finish']else -1);im=export(low)
   specimens.paste(im,(col*144,row*154+20),im);sd.text((col*144+3,row*154+4),kind+' / '+view,fill='#eee4c8')
 specimens.save(review/'specimens.png')
 silhouette=Image.new('RGB',(6*144,154),'#ded9bb')
 for col,kind in enumerate(['neutral-a','run','defend','shot','throw','jump-block']):
  im,a=render('navy',kind,0,CLIPS.get(kind,1));mask=im.getchannel('A');silhouette.paste('#25282b',(col*144,20,col*144+144,148),mask)
 silhouette.save(review/'silhouettes.png')
+
+# Complete athlete family, using the same authored identity definitions as production.
+family=Image.new('RGB',(6*144,3*154),'#30392d');fd=ImageDraw.Draw(family)
+for row,view in enumerate(['side','front','back']):
+ for actor in range(6):
+  team='navy'if actor<3 else'amber';identity=actor%3;im,a=render(team,'neutral-a',view=view,identity=identity)
+  family.paste(im,(actor*144,row*154+20),im);fd.text((actor*144+3,row*154+4),('BLUE'if actor<3 else'RED')+' '+str(identity+1)+' / '+view,fill='#e9dfbc')
+family.save(review/'six-athletes.png')

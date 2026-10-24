@@ -27,7 +27,7 @@ export function VibeBasketball(){
   const hide=()=>{if(document.hidden)command('pause');};
   window.addEventListener('message',receive);document.addEventListener('visibilitychange',hide);
   timer=setTimeout(()=>setFailure('The local game bundle could not load. Retry or return to basketball.'),60000);
-  element.src=publicAsset('/embedded-games/vibe-basketball/index.html')+'?session='+session;
+  element.src=publicAsset('/embedded-games/vibe-basketball/index.html')+'?session='+session+'&assetBuild='+encodeURIComponent(process.env.NEXT_PUBLIC_ASSET_BUILD_ID || '');
   return()=>{clearTimeout(timer);command('dispose');window.removeEventListener('message',receive);document.removeEventListener('visibilitychange',hide);element.src='about:blank';};
  },[attempt,router]);
  return <main ref={viewportRoot} className={styles.root}>

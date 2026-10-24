@@ -34,6 +34,7 @@ export type GameSceneProps = {
 };
 
 export function GameScene(props: GameSceneProps) {
+  if (props.game === "pitch-rush") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/pitch-rush/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "vibe-basketball") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/vibe-basketball/gameplay.jpg")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "stadium-cricket") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/stadium-cricket/stadium-preview.jpg")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (["retro-football","retro-hoops","retro-innings","retro-circuit"].includes(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(`/assets/games/identity/${props.game}.svg`)} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized className={styles.layerImage}/></div>;

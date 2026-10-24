@@ -1,4 +1,4 @@
-import { sampleTrack, targetSpeed, trackById, vehicleById, vehicles, propSpacing, roadsideProp,physicalSeparation,nearbyObstacles } from "./data";
+import { sampleTrack, targetSpeed, trackById, vehicleFor, vehicles, propSpacing, roadsideProp,physicalSeparation,nearbyObstacles } from "./data";
 import { BUILD_VERSION, RULES_VERSION, STEP, type CarState, type RaceEvent, type RaceInput, type RacePhase, type RaceSnapshot, type RuntimeOptions } from "./types";
 
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max,n));
@@ -19,9 +19,10 @@ export class RaceSimulation {
   private skidCooldown = 0;
   constructor(options: RuntimeOptions) {
     this.options = {...options}; this.track = trackById(options.trackId); this.randomState = options.seed >>> 0 || 1;
+    this.countdown=this.track.profile==='reference'?4.5:3;
     this.cars = Array.from({length:20},(_,id) => ({ pitLockUntil:0,steering:0,decisionTime:0,id, vehicle: id===0 ? options.vehicleId : vehicles[(id-1)%4].id,
-      distance: id===0 ? 0 : Math.ceil(id/2)*20+(id%2?0:5), x: id===0 ? -.36 : id%2 ? .36 : -.36,
-      speed: 0, fuel: 66, nitro: 3, boost: 0, collisionCooldown: 0, finishedAt: null, dnf: false,
+      distance: id===0 ? 0 : Math.ceil(id/2)*(this.track.profile==='reference'?12:20)+(id%2?0:5), x: id===0 ? -.36 : id%2 ? .36 : -.36,
+      speed: 0, fuel: this.track.profile==='reference'?100:66, nitro: 3, boost: 0, collisionCooldown: 0, finishedAt: null, dnf: false,
       pitStops: 0, inPit: false, pitRequested: false, pitFilled: false, targetX: id===0?-.36:id%2?.36:-.36,
       skill: 0.89 + this.random()*0.13, checkpoint: 0, lapStart: 0, lapTimes: [] }));
   }
@@ -36,21 +37,21 @@ export class RaceSimulation {
   update(input: RaceInput, dt=STEP) {
     if (!Number.isFinite(dt)||dt<=0||dt>STEP*1.01) throw new Error("Use bounded fixed simulation steps");
     if(this.phase==="countdown") { const before=Math.ceil(this.countdown); this.countdown=Math.max(0,this.countdown-dt); if(Math.ceil(this.countdown)!==before && this.countdown>0)this.emit("countdown"); if(this.countdown===0){this.phase="racing";this.notice="GO";this.emit("go");} return; }
-    if(this.phase==='finished'||this.phase==='dnf'){this.sequenceTime=Math.min(4,this.sequenceTime+dt);return;}
+    if(this.phase==='finished'||this.phase==='dnf'){this.sequenceTime=Math.min(6,this.sequenceTime+dt);return;}
     if(this.phase!=="racing") return;
     this.elapsed+=dt;
     this.skidCooldown=Math.max(0,this.skidCooldown-dt);
     for(const car of this.cars) {
       if(car.finishedAt!==null || car.dnf)continue;
-      const spec=vehicleById(car.vehicle), road=sampleTrack(this.track,car.distance),previousSpeed=car.speed;
+      const spec=vehicleFor(this.track,car.vehicle), road=sampleTrack(this.track,car.distance),previousSpeed=car.speed;
       const pitZone=road.s>=this.track.pit.start&&road.s<=this.track.pit.end;
       const ai=car.id!==0;
       let throttle=input.throttle||!!this.options.autoThrottle, brake=input.brake, steer=Number(input.right)-Number(input.left);
       if(ai){
         car.decisionTime=Math.max(0,car.decisionTime-dt);
         if(car.fuel<42&&!car.pitRequested){car.pitRequested=true;car.pitFilled=false;}
-        const approaching=road.s>this.track.pit.start-260&&road.s<this.track.pit.end;
-        let wanted=targetSpeed(this.track,car.distance,spec)*car.skill;
+        const approaching=road.s>Math.max(0,this.track.pit.start-(this.track.profile==='reference'?105:260))&&road.s<this.track.pit.end;
+        let wanted=targetSpeed(this.track,car.distance,spec)*car.skill;if(this.track.profile==='reference'&&car.boost>0)wanted*=1.36;else if(this.track.profile==='reference'&&car.speed>spec.maxSpeed&&Math.abs(road.curve)<.45)wanted=Math.max(wanted,car.speed+.5);
         if(car.pitRequested&&approaching){car.targetX=1.2; wanted=road.s<this.track.pit.start||car.x<1.04?18:0;}
         else if(!car.pitRequested&&car.x>0.95)car.targetX=0.55;
         else {
@@ -67,14 +68,14 @@ export class RaceSimulation {
           if(leader&&Math.abs(car.targetX-car.x)<.25)wanted=Math.min(wanted,leader.speed+Math.max(0,(ahead(leader)-12)*.65));
           if(blocked&&Math.abs(car.targetX-car.x)<.2)wanted=Math.min(wanted,48);
           // Individual straight-line boost opportunities; no rubber-band teleporting.
-          if(car.nitro>0&&car.boost===0&&car.fuel>35&&Math.abs(road.curve)<.13&&!leader&&!blocked&&this.elapsed>9+car.id*3.7&&this.elapsed%27>car.id%6&&this.elapsed%27<car.id%6+.05){car.nitro--;car.boost=2.8;}
+          if(car.nitro>0&&car.boost===0&&car.fuel>35&&Math.abs(road.curve)<.13&&!leader&&!blocked&&this.elapsed>9+car.id*3.7&&this.elapsed%27>car.id%6&&this.elapsed%27<car.id%6+.05){car.nitro--;car.boost=this.track.profile==='reference'?5.5:2.8;}
         }
         throttle=car.speed<wanted; brake=car.speed>wanted+2;
         steer=clamp((car.targetX-car.x)*5+road.curve*(car.speed/spec.maxSpeed)**2*0.95,-1,1);
       }
       car.steering+=(steer-car.steering)*Math.min(1,dt*12);
       car.collisionCooldown=Math.max(0,car.collisionCooldown-dt);car.boost=Math.max(0,car.boost-dt);
-      if(!ai&&input.nitro&&!this.nitroHeld&&car.nitro>0&&car.fuel>0&&!car.inPit){car.nitro--;car.boost=2.8;this.emit("nitro");}
+      if(!ai&&input.nitro&&!this.nitroHeld&&car.nitro>0&&car.fuel>0&&!car.inPit){car.nitro--;car.boost=this.track.profile==='reference'?5.5:2.8;this.emit("nitro");}
       const canEnter=pitZone&&car.distance>=car.pitLockUntil&&car.x>1.02&&car.speed<24;
       if(canEnter&&!car.inPit){car.inPit=true;car.pitFilled=false;car.pitStops++;if(!ai){this.notice="PIT / BRAKE TO REFUEL";this.emit("pit");}}
       if(car.inPit){
@@ -83,8 +84,10 @@ export class RaceSimulation {
         if((!ai&&throttle&&!brake&&car.pitFilled)||(ai&&car.fuel>=93)){car.inPit=false;car.pitRequested=false;car.pitLockUntil=Math.floor(car.distance/this.track.length)*this.track.length+this.track.pit.end;car.targetX=0.45;car.x=0.92;if(!ai)this.notice="BACK ON TRACK";}
       } else {
         const drag=throttle&&car.fuel>0?2:9;
-        car.speed+=((throttle&&car.fuel>0 ? spec.acceleration*(car.boost>0?1.65:1) : 0)-drag-(brake?61:0)-Math.max(-3,Math.min(3,road.grade*14)))*dt;
-        const max=spec.maxSpeed*(car.boost>0?1.24:1);car.speed=clamp(car.speed,0,max);
+        car.speed+=((throttle&&car.fuel>0 ? spec.acceleration*(this.track.profile==='reference'?1-.75*Math.min(1,car.speed/spec.maxSpeed):1)*(car.boost>0?(this.track.profile==='reference'?2.1:1.65):1) : 0)-drag-(brake?(this.track.profile==='reference'?24:61):0)-Math.max(-3,Math.min(3,road.grade*14)))*dt;
+        const ref=this.track.profile==='reference',max=spec.maxSpeed*(car.boost>0?(ref?1.36:1.24):1);
+        // Reference boost decays through coasting drag; it must not snap to base speed.
+        const ceiling=ref&&car.boost===0&&previousSpeed>max?Math.max(max,previousSpeed-2.7*dt):max;car.speed=clamp(car.speed,0,ceiling);
         const ratio=car.speed/spec.maxSpeed;
         if(car.speed>0.5){car.x+= (car.steering*(0.48+ratio*0.95)*spec.grip-road.curve*ratio*ratio*0.95)*dt;}
         const offroad=Math.abs(car.x)>1;

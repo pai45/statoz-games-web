@@ -8,7 +8,7 @@ The user confirmed permission to import and adapt this game on 2026-10-22. The o
 
 ## Boundaries
 
-The imported source in vendor/cricketv2 is the unchanged upstream baseline. Game rules, timing, random shot direction, all four roles, 3D models, source UI and synthesized audio are retained. The StatOz lobby, isolated frame, storage, lifecycle and bundle packaging live outside the baseline. build-stadium-cricket.mjs verifies the baseline hashes, inlines the original CSS and scripts and preserves Three.js r160.
+The imported source in vendor/cricketv2 is the unchanged upstream baseline. Game rules, timing, random shot direction, all four roles, 3D models, in-match UI and synthesized audio are retained. The source intro and masthead are hidden only for auto-start hosted sessions; the original baseline remains intact. The StatOz lobby, isolated frame, storage, lifecycle and bundle packaging live outside the baseline. build-stadium-cricket.mjs verifies the baseline hashes, inlines the original CSS and scripts and preserves Three.js r160.
 
 Saves use the versioned bundle schema under an account-specific Stadium Cricket key. No Final Over progress is converted, and no card gate, XP, coin award or economy event is added. Invalid saved data is preserved and does not get silently overwritten. Final Over's runtime is retired from the launcher; history, statistics and shared kit dependencies remain.
 
@@ -18,7 +18,7 @@ README aiming keys are stale: source gameplay chooses direction randomly at cont
 
 ## Build and validation
 
-Mobile presentation overrides live in mobile.css and are appended by build-stadium-cricket.mjs after the original CSS. They fix landscape control overflow, touch targets, narrow forms and short viewports without editing vendor files. The host sizes the iframe to the unzoomed visual viewport and reserves device safe areas; opening setup on a touch device focuses its close control rather than summoning a keyboard.
+Mobile presentation overrides live in mobile.css and are appended by build-stadium-cricket.mjs after the original CSS. They fix landscape control overflow, touch targets, narrow forms and short viewports without editing vendor files. All pre-match configuration lives in the StatOz lobby under one expandable Match setup section, with Play Cricket as the sole primary CTA. It includes all four roles, teams, difficulty, overs, target, graphics, camera and sound. Play seeds the source storage and invokes the original Start action after readiness, so there is no second lobby. Camera and sound preferences use the additional account-scoped cm-options store. The host sizes the iframe to the unzoomed visual viewport and reserves device safe areas; opening setup on a touch device focuses its close control rather than summoning a keyboard.
 
 With the local preview running, run node scripts/verify-stadium-mobile.mjs (CRICKET_APP_URL optionally changes its address). It checks ten touch viewports, all four roles at Club and Legend, setup controls, rotation and simulated safe-area/keyboard sizing. Evidence is saved under test-results/stadium-cricket/mobile-regression.
 

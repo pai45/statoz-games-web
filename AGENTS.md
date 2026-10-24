@@ -23,3 +23,15 @@ User direction: Retro Football uses its own classic arcade identity. Follow the 
 ## Penalty Shootout ownership
 
 This repository is the canonical home for all future Penalty Shootout changes, per the user. The complete 3D game was transferred from statoz_web on 2026-10-21. Develop, test and maintain it here; do not sync changes back to statoz_web or edit Designer staging copies as the runtime source. Preserve local namespaced progress and account isolation.
+
+## Retro Hoops asset agent
+
+For Retro Hoops asset generation, modification, animation and Street Hoop likeness
+work, delegate to one `street_hoop_artist` agent when delegation is available.
+Its project role is `.codex/agents/street-hoop-artist.toml`. Read the canonical
+`street-hoop-assets` skill in the Designer research workspace named by that role;
+if custom roles or delegation are unavailable, the executing agent reads the same
+role and workflow. Give it a concrete defect target and exclusive asset-file
+ownership for the pass. Keep runtime changes here, preserve unrelated work and
+Retro Hoops' independent arcade style, and keep builds local unless a separate
+current release request authorizes a push/pipeline/publication.

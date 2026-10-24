@@ -1,0 +1,9 @@
+{
+  "title": "Pitch Rush",
+  "type": "AI-generated original illustration",
+  "generator": "built-in image_gen",
+  "created": "2026-10-24",
+  "prompt": "Use case: stylized-concept. Asset type: finished landscape 3:2 cover artwork for an independent top-down arcade football game called PITCH RUSH. Create energetic premium 1990s illustrated game-box artwork, hand-painted gouache and screenprint grain, strong graphic shapes, warm cream title and deep grass green palette with tomato red and royal blue kits. Scene: anonymous adult footballer in blue shirt, white shorts, swinging boot toward a black and white football in foreground, opposing red-shirt player runs behind, a small football goal and sunlit striped pitch recede in steep elevated perspective, packed simple stadium stands. Strong sporting action, anatomically plausible legs and ball contact. Huge bespoke condensed cream athletic block lettering at top reads exactly 'PITCH RUSH' on two lines. Keep title and focal football action inside central 80 percent for thumbnail crops. Bright warm late-afternoon light, lively editorial illustration. No real clubs, athletes, sponsors, StatOz marks, neon, sci-fi HUD, techno type, watermarks, extra text. Landscape 1536x1024.\nFinal edit: Remove all title lettering and the title backplate. Reconstruct the pitch and distant stadium seamlessly. Preserve footballers, ball, goal, warm light and gouache illustration. No cover title, logos or watermark; the kit number remains.\n",
+  "sourceGame": "https://github.com/markclausing/websoccer",
+  "approval": "Created at user request; local integration only"
+}

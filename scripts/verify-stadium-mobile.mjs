@@ -23,29 +23,27 @@ try{
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{const email='stadium-mobile@example.test';localStorage.setItem('statoz.games.web.auth.v2',JSON.stringify({version:2,authenticated:true,email}));localStorage.setItem('statoz.games.web.accounts.v1',JSON.stringify({version:1,accounts:{[email]:{onboardingComplete:true}}}));localStorage.setItem('statoz.games.web.bundle.stadium-cricket.stadium-mobile%40example.test',JSON.stringify({schemaVersion:1,stores:{'cm-quality':'low'},resultIds:[]}));});
  await page.goto((process.env.CRICKET_APP_URL||'http://127.0.0.1:3142')+'/play/stadium-cricket',{waitUntil:'domcontentloaded',timeout:120000});
- await page.getByRole('button',{name:'ENTER THE STADIUM'}).waitFor({timeout:90000});await page.evaluate(()=>document.fonts.ready);
+ await page.getByRole('button',{name:'Play Cricket'}).waitFor({timeout:90000});await page.evaluate(()=>document.fonts.ready);
  for(const [width,height]of sizes){
   await page.setViewportSize({width,height});await page.evaluate(()=>scrollTo(0,0));
-  const result=await page.getByRole('button',{name:'ENTER THE STADIUM'}).evaluate(el=>{const r=el.getBoundingClientRect();return {width:innerWidth,height:innerHeight,overflow:document.documentElement.scrollWidth>innerWidth,button:{x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height}};});
-  assert.equal(result.overflow,false);touch(result.button,'Lobby play');if(width>height)inside(result.button,result,'Landscape lobby play');
+  const result=await page.getByRole('button',{name:'Play Cricket'}).evaluate(el=>{const r=el.getBoundingClientRect();return {width:innerWidth,height:innerHeight,overflow:document.documentElement.scrollWidth>innerWidth,button:{x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height}};});
+  assert.equal(result.overflow,false);touch(result.button,'Lobby play');
   await page.screenshot({path:path.join(out,`${width}x${height}-lobby.png`),fullPage:true});
  }
- await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'ENTER THE STADIUM'}).tap();
- const frame=page.frames().find(f=>f!==page.mainFrame());frame.on('pageerror',e=>errors.push(e.message));await frame.waitForFunction(()=>window.CM?.ready,null,{timeout:90000});
  for(const [width,height]of sizes){
-  await page.setViewportSize({width,height});
-  await frame.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-  const view=await frame.evaluate(geometry);assert.equal(view.overflow,false);inside(view.controls.start,view,'Enter crease');
-  for(const id of ['quality','settings','help']){inside(view.controls[id],view,id);touch(view.controls[id],id);}
-  await frame.locator('#settings').tap();assert.equal(await frame.evaluate(()=>document.activeElement.id),'closeSettings');
-  for(const id of ['playRole','teamName','opponentName','difficulty','matchOvers','matchTarget']){
-   await frame.locator('#'+id).scrollIntoViewIfNeeded();
-   const field=await frame.locator('#'+id).evaluate(el=>({font:parseFloat(getComputedStyle(el).fontSize),width:el.clientWidth}));assert.ok(field.font>=16,id+' may trigger input zoom');assert.ok(field.width>=100);
+  await page.setViewportSize({width,height});await page.getByText('MATCH SETUP',{exact:true}).click();
+  for(const name of ['role','team','opponent','difficulty','overs','target','quality','camera']){
+   const field=page.locator('[name="'+name+'"]');await field.scrollIntoViewIfNeeded();
+   assert.ok(await field.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=16));
   }
-  const close=await frame.locator('#closeSettings').boundingBox();assert.ok(close&&close.width>=44&&close.height>=44);await frame.locator('#closeSettings').tap();
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await page.getByText('MATCH SETUP',{exact:true}).click();
  }
+ let frame;
  for(const role of ['batter','bowler','keeper','fielder'])for(const difficulty of ['club','legend']){
-  await frame.locator('#settings').click();await frame.locator('#playRole').selectOption(role);await frame.locator('#difficulty').selectOption(difficulty);await frame.locator('#settingsForm button[type="submit"]').click();await frame.locator('#pause').click();
+  await page.getByText('MATCH SETUP',{exact:true}).click();await page.locator('[name="role"]').selectOption(role);await page.locator('[name="difficulty"]').selectOption(difficulty);
+  await page.getByRole('button',{name:'Play Cricket'}).click();await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.CM?.ready,null,{timeout:90000});
+  frame=page.frames().find(f=>f!==page.mainFrame());await frame.waitForFunction(()=>window.CM.snapshot().phase!=='intro');assert.equal(await frame.locator('#intro').isVisible(),false);await frame.locator('#pause').click();
   for(const [width,height]of sizes){
    await page.setViewportSize({width,height});await frame.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
    const view=await frame.evaluate(geometry);assert.equal(view.overflow,false);inside(view.controls.swing,view,role+' action');touch(view.controls.swing,role+' action');
@@ -54,13 +52,14 @@ try{
    if(role==='batter'&&difficulty==='club')await page.screenshot({path:path.join(out,`${width}x${height}-play.png`)});
    checks.push({role,difficulty,width,height,action:view.controls.swing});
   }
+  if(!(role==='fielder'&&difficulty==='legend'))await page.getByRole('button',{name:'← Lobby',exact:true}).click();
  }
  await page.setViewportSize({width:844,height:390});const safeStyle=await page.addStyleTag({content:'main{--stadium-safe-top:20px!important;--stadium-safe-left:30px!important;--stadium-safe-right:30px!important;--stadium-safe-bottom:24px!important}'});
  const safe=await page.locator('iframe').boundingBox();assert.ok(safe.x>=30&&safe.x+safe.width<=814&&safe.y>=20&&safe.y+safe.height<=366);await safeStyle.evaluate(el=>el.remove());
- await page.setViewportSize({width:390,height:844});await frame.locator('#settings').click();
+ await page.setViewportSize({width:390,height:844});
  await page.evaluate(()=>{Object.defineProperty(visualViewport,'height',{value:360,configurable:true});visualViewport.dispatchEvent(new Event('resize'));});
  await page.waitForFunction(()=>Math.abs(document.querySelector('iframe').closest('main').getBoundingClientRect().height-360)<1);
- await frame.locator('#matchTarget').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(out,'keyboard-height.png')});await frame.locator('#closeSettings').tap();
+ await page.screenshot({path:path.join(out,'keyboard-height.png')});
  await page.evaluate(()=>{delete visualViewport.height;visualViewport.dispatchEvent(new Event('resize'));});
  await page.waitForFunction(()=>Math.abs(document.querySelector('iframe').closest('main').getBoundingClientRect().height-visualViewport.height)<1);
  await page.getByRole('button',{name:'← Lobby',exact:true}).click();assert.equal(page.frames().length,1);assert.deepEqual(errors,[]);

@@ -1,26 +1,35 @@
+import {displayFor} from './fidelity';
 import { modulo, sampleTrack,courseFor,physicalSeparation,terrainHeight } from "./data";
 import type { RaceSnapshot, TrackDefinition } from "./types";
-export type RoadPoint={x:number;y:number;half:number;scale:number;distance:number;curve:number;pit:boolean;stripe:boolean};
+export type RoadPoint={x:number;y:number;half:number;scale:number;distance:number;nearClip:number;curve:number;pit:boolean;stripe:boolean};
 export const CAMERA_TRAIL=22;
 export const cameraDistance=(world:number,player:number,length=5400)=>physicalSeparation(world,player,length)+CAMERA_TRAIL;
 /** Original visual elevation, periodic at the lap seam; simulation stays on track distance. */
 export const roadElevation=terrainHeight;
-export function roadProjection(state: RaceSnapshot,track: TrackDefinition): RoadPoint[]{
-  const result:RoadPoint[]=[];let offset=0,heading=0;
+export type ProjectionCalibration={horizonOffset:number;roadWidth:number;curveGain:number};
+export function roadProjection(state: RaceSnapshot,track: TrackDefinition,calibration:Partial<ProjectionCalibration>={}): RoadPoint[]{
+  const result:RoadPoint[]=[];let offset=0,heading=0,nearClip=Infinity;const display=displayFor(track);
   const egoScale=1+(125/149-1)*CAMERA_TRAIL/24;
-  const cameraShift=state.player.x*370*egoScale-Math.max(-160,Math.min(160,state.player.x*130));
+  const roadWidth=calibration.roadWidth??370;
+  const cameraShift=state.player.x*roadWidth*egoScale-Math.max(-160,Math.min(160,state.player.x*130));
   for(let i=0;i<=80;i++){
     const distance=i*24,world=state.player.distance-CAMERA_TRAIL+distance,road=sampleTrack(track,world),scale=125/(125+distance);
-    heading+=road.curve*0.0035;offset+=heading;
-    const elevation=(roadElevation(track,world)-roadElevation(track,state.player.distance))*3.2;
-    result.push({x:240+offset*330*scale-cameraShift,y:70+(200-elevation)*scale,half:370*scale,scale,distance,curve:road.curve,pit:road.s>=track.pit.start&&road.s<=track.pit.end,stripe:Math.floor(world/38)%2===0});
+    heading+=road.curve*(calibration.curveGain??.0035);offset+=heading;
+    // The local road carries the camera. Ease into distant height displacement so
+    // a steep crest cannot fold the camera-to-player strip over the player.
+    // This is a presentation calibration, not a change to physical terrain.
+    const near=Math.max(0,Math.min(1,(distance-CAMERA_TRAIL)/64)),follow=near*near*(3-2*near);
+    const far=Math.max(0,Math.min(1,(distance-300)/240)),distant=1-far*far*(3-2*far);
+    const elevation=(roadElevation(track,world)-roadElevation(track,state.player.distance))*(track.profile==='reference'?(track.id==='vegas'?16:['harbour','night'].includes(track.id)?8:3.2)*follow*distant:3.2);
+    result.push({nearClip,x:240+offset*330*scale-cameraShift,y:display.horizon+(calibration.horizonOffset??0)+(display.roadHeight-elevation)*scale,half:roadWidth*scale,scale,distance,curve:road.curve,pit:road.s>=track.pit.start&&road.s<=track.pit.end,stripe:Math.floor(world/display.stripe)%2===0});
+    nearClip=Math.min(nearClip,result[result.length-1].y);
   }return result;
 }
 export function projectedCar(distance:number,x:number,points:RoadPoint[]){
   const i=Math.floor(distance/24);if(i<0||i>=points.length-1)return null;
   const t=distance/24-i,a=points[i],b=points[i+1];
   const center=a.x+(b.x-a.x)*t,scale=a.scale+(b.scale-a.scale)*t;
-  const y=a.y+(b.y-a.y)*t,occlusion=Math.min(...points.slice(0,i+1).map(p=>p.y));
+  const y=a.y+(b.y-a.y)*t,occlusion=Math.min(a.nearClip,a.y);
   return {x:center+x*(a.half+(b.half-a.half)*t),y,scale,occlusion,visible:y<=occlusion+3};
 }
 /** Compact distance diagram, derived from the canonical sectors. Non-metric: the

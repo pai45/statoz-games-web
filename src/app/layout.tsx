@@ -4,6 +4,10 @@ import localFont from "next/font/local";
 import { AuthProvider } from "@/features/auth";
 import { StreakCelebrationHost } from "@/features/streaks";
 
+import { DeviceAssets } from "@/features/device-assets/device-assets";
+
+import { MobileGameNavigationBridge } from "@/features/games/shared/mobile-viewport/mobile-game-viewport";
+
 import "./globals.css";
 
 /**
@@ -31,6 +35,7 @@ const orbitron = localFont({
 });
 
 export const metadata: Metadata = {
+  other: { "statoz-assets-build": process.env.NEXT_PUBLIC_ASSET_BUILD_ID || "development" },
   title: "StatOz Games Demo",
   description: "Sports arcade demo and UI reference.",
 };
@@ -42,9 +47,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${spaceGrotesk.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <MobileGameNavigationBridge />
         <AuthProvider>
-          {children}
-          <StreakCelebrationHost />
+          <DeviceAssets>
+            {children}
+            <StreakCelebrationHost />
+          </DeviceAssets>
         </AuthProvider>
       </body>
     </html>

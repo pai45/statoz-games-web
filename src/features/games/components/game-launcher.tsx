@@ -1,5 +1,8 @@
 "use client";
 
+import { MobileGameViewport } from "../shared/mobile-viewport/mobile-game-viewport";
+import { usesMobileLandscape } from "../shared/mobile-viewport/policy";
+
 import { isGameEnabled } from "@/domain/demo-product";
 import { BundledGame } from '../shared/components/bundled-game';
 import type { ComponentType } from "react";
@@ -26,8 +29,7 @@ import { FootballChess } from "../football-chess";
 const GrandPrix = dynamic(() => import("../grand-prix/rebuild/screen").then(m => m.GrandPrix), { ssr: false, loading: () => <div role="status">Loading Grand Prix Dash…</div> });
 import { GuessPlayer } from "../guess-player";
 const PenaltyShootout = dynamic(() => import("../penalty-shootout").then(m => m.PenaltyShootout), { ssr: false, loading: () => <div role="status">PREPARING THE PITCH…</div> });
-import { PitchDuel } from "../pitch-duel";
-import { PitchDuelStarterPack } from "../pitch-duel-next/starter-pack";
+const PitchDuel = dynamic(() => import("../pitch-duel").then(m => m.PitchDuel), { ssr: false, loading: () => <div role="status" className="grid min-h-dvh place-content-center">PREPARING THE PITCH…</div> });
 import { SportQuiz } from "../quiz";
 import { TennisRally } from "../tennis";
 import { sportForGame, type GameEntry } from "@/mocks/games";
@@ -80,7 +82,7 @@ const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
 };
 
 function GameSurface({ game, entry }: GameLauncherProps) {
-  const Game = ["retro-hoops","retro-circuit","retro-football","retro-innings"].includes(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
+  const Game = ["pitch-rush","retro-hoops","retro-circuit","retro-football","retro-innings"].includes(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
   return <Game game={game} entry={entry} />;
 }
 
@@ -93,7 +95,12 @@ function GameSurface({ game, entry }: GameLauncherProps) {
  * re-issue the launch once it clears — with the flag in browser storage rather
  * than a bloc.
  */
-export function GameLauncher({ game, entry }: GameLauncherProps) {
+export function GameLauncher(props: GameLauncherProps) {
+  if (isGameEnabled(props.game) && usesMobileLandscape(props.game)) return <MobileGameViewport key={props.game} title={props.entry.title}><GameLauncherContent {...props} /></MobileGameViewport>;
+  return <GameLauncherContent {...props} />;
+}
+
+function GameLauncherContent({ game, entry }: GameLauncherProps) {
   if (!isGameEnabled(game)) return <div role="status">This mode belongs to the other StatOz demo. <Link href="/">Return home</Link></div>;
   return (
     <AuthBoundary
@@ -150,11 +157,6 @@ function StarterPackGate({
   const [opened, setOpened] = useState(false);
 
   if (opened) return <GameSurface game={game} entry={entry} />;
-
-  if (game === "pitch-duel") return <PitchDuelStarterPack reveal={reveal} onComplete={() => {
-    claimPack(sport, reveal);
-    setOpened(true);
-  }} />;
 
   return (
     <StarterPackReveal

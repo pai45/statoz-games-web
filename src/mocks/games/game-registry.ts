@@ -42,6 +42,7 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
+  "pitch-rush": {kind:"hero",title:"PITCH RUSH",titleLines:["PITCH","RUSH"],subtitle:"ELEVEN A SIDE. ONE MORE MATCH.",badgeLabel:"ARCADE FOOTBALL // 1–2 LOCAL PLAYERS",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/pitch-rush"},
   "vibe-basketball": {kind:"hero",title:"VIBE BASKETBALL",titleLines:["VIBE","BASKETBALL"],subtitle:"1V1 STREETBALL. 3-POINT CONTEST.",badgeLabel:"3D BASKETBALL // TOUCH + GAMEPAD",ctaLabel:"ENTER THE PARK",accent:"game-hoop-duel",scene:"hoop-duel",href:"/play/vibe-basketball"},
   "stadium-cricket": {
     kind: "hero", title: "STADIUM CRICKET", titleLines: ["STADIUM", "CRICKET"],
@@ -56,8 +57,8 @@ export const gameRegistry: Record<GameId, GameEntry> = {
   "pitch-duel": {
     kind: "hero",
     title: "PITCH DUEL",
-    subtitle: "SIX MOMENTS. BUILD YOUR CLUB.",
-    badgeLabel: "PIXEL FOOTBALL // CARD STRATEGY",
+    subtitle: "READ THE PLAY. WIN THE DUEL.",
+    badgeLabel: "CARD FOOTBALL // MIND GAMES",
     ctaLabel: "ENTER THE DUEL",
     accent: "game-pitch-duel",
     glow: true,

@@ -1,15 +1,15 @@
 {
   "gameId": "retro-hoops",
   "rulesVersion": "2.0.0",
-  "buildVersion": "character-v7-local",
-  "assetVersion": "7.0.0",
+  "buildVersion": "character-v11-local",
+  "assetVersion": "11.0.0",
   "art": {
     "classification": "original authored pixel geometry; no reference rasters",
     "approval": "draft-source-likeness-not-approved",
-    "source": "scripts/build-retro-hoops-authored.py + scripts/retro_hoops_character.py",
+    "source": "scripts/build-retro-hoops-authored.py + scripts/retro_hoops_character.py + court.ts + crowd.ts",
     "referenceMaterialInRuntime": false,
     "historicalReferenceAssets": "Preserved separately; excluded from executable pack",
-    "processing": "Original compact adult faces, cropped hair, fuller limbs, articulated knee paths, rolled high-top footwear and directional shoe geometry. Blue/red kits preserved. No source pixels extracted or traced."
+    "processing": "V11 bounded dunk-gather correction: hold original V10 low forward torso until existing age15 ball lift so both arms remain reachable. Lean original anatomy, all six head layers, palettes, foot/contact anchors and simulation retained. Reference recording studied, not traced or included in runtime."
   },
   "audio": {
     "selection": "Existing original procedural synthesis; no third-party samples",
@@ -17,9 +17,9 @@
     "listeningReview": "Prior user provisional approval; new full-mix review pending"
   },
   "assets": {
-    "family-0.png": "ee671920fa42bb5b970344535fb5790e1c782d1a96b7cf553976dced0546eabc",
-    "family-1.png": "d2e7432e2f830e25a4658ab182a614118a21cfbf6ed24167b5c23b234247c220",
-    "family-2.png": "4d1335a3ee94d72bb41a81f41ce4dc2c5f03b946d9858b5014c74b26c4b1ad6c"
+    "family-0.png": "5aceabbeea40cacba56b697688cc1560d882f12a3667b603a95450fe11e23cb5",
+    "family-1.png": "235e6687114ffffff1634731f5acf85b3b9085a4a9a1c0c78277f327e505e310",
+    "family-2.png": "2511abd53857f2b07d0bc46ba27610739fa9b7d950469822a64a36e58e011da5"
   },
   "release": {
     "localOnly": true,

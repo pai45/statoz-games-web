@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/build-with-assets.mjs",
     "start": "next start",
     "lint": "eslint",
     "build:pages": "node scripts/build-github-pages.mjs",
@@ -17,7 +17,7 @@
     "check:card-game": "node scripts/demo-no-upstream.mjs",
     "typography:sync": "node scripts/typography-library.mjs",
     "typography:check": "node scripts/typography-library.mjs --check",
-    "prebuild": "npm run build:vibe-basketball && npm run build:stadium-cricket && npm run typography:check && npm run artwork:check && npm run match-discovery:check && npm run discovery:check && npm run backgrounds:check",
+    "prebuild": "npm run build:vibe-basketball && npm run build:games && npm run typography:check && npm run artwork:check && npm run match-discovery:check && npm run discovery:check && npm run backgrounds:check",
     "build:stadium-cricket": "node scripts/build-game-bundles.mjs --game=stadium-cricket",
     "test:stadium-cricket": "tsx --test tests/stadium-cricket.test.ts",
     "prebuild:pages": "npm run build:vibe-basketball && npm run build:games && npm run typography:check && npm run artwork:check && npm run backgrounds:check",
@@ -47,7 +47,16 @@
     "test:vibe-basketball": "tsx --test tests/vibe-basketball.test.ts",
     "predev": "npm run build:vibe-basketball",
     "postinstall": "npm ci --prefix vendor/vibebasketball --omit=dev --no-audit --no-fund",
-    "test:vibe-basketball:browser": "node scripts/verify-vibe-mobile.mjs && node scripts/verify-vibe-basketball.mjs && node scripts/verify-vibe-extra.mjs"
+    "test:vibe-basketball:browser": "node scripts/verify-vibe-mobile.mjs && node scripts/verify-vibe-basketball.mjs && node scripts/verify-vibe-extra.mjs",
+    "test:device-assets": "node --test tests/device-assets.test.mjs",
+    "test:device-assets:browser": "node tests/device-assets.browser.mjs",
+    "test:mobile-viewport": "tsx --test tests/mobile-game-viewport.test.ts",
+    "test:mobile-viewport:browser": "node tests/mobile-game-viewport.browser.mjs",
+    "test:pitch-rush": "tsx --test tests/pitch-rush.test.ts",
+    "test:pitch-duel": "tsx --test tests/pitch-duel-engine.test.ts tests/pitch-duel-cpu.test.ts tests/pitch-duel-career.test.ts",
+    "test:pitch-duel:browser": "node tests/pitch-duel.browser.mjs",
+    "build:pitch-rush": "node scripts/build-game-bundles.mjs --game=pitch-rush",
+    "test:pitch-rush:browser": "node scripts/verify-pitch-rush.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

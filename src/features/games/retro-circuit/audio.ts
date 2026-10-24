@@ -43,7 +43,7 @@ export class CircuitAudio {
     if(!active){this.stopLoops();return;}
     if(this.sfxOn&&!this.engine){const loop=this.loop("engine");this.engine=loop.source;this.engineGain=loop.gain;}
     if(this.musicOn&&!this.music){const loop=this.loop("music");this.music=loop.source;this.musicGain=loop.gain;}
-    if(this.engine){this.engine.playbackRate.setTargetAtTime(.65+state.player.speed/40,this.context.currentTime,.08);this.engineGain!.gain.setTargetAtTime(this.sfxOn?.32:0,this.context.currentTime,.05);}
+    if(this.engine){const kmh=state.player.speed*3.6,gear=Math.max(1,Math.min(5,Math.ceil(kmh/43))),rev=Math.max(0,Math.min(1,(kmh-(gear-1)*43)/43));this.engine.playbackRate.setTargetAtTime(.78+rev*1.02,this.context.currentTime,.08);this.engineGain!.gain.setTargetAtTime(this.sfxOn?.32:0,this.context.currentTime,.05);}
     if(this.musicGain)this.musicGain.gain.setTargetAtTime(this.musicOn?.6:0,this.context.currentTime,.05);
   }
   event(event:RaceEvent){if(!this.context||!this.sfxOn||this.disposed)return;if(this.voices.length>=6){try{this.voices.shift()!.stop();}catch{}}const source=this.context.createBufferSource();source.buffer=this.buffer(event.type);source.connect(this.master!);source.onended=()=>{source.disconnect();this.voices=this.voices.filter(v=>v!==source);};this.voices.push(source);source.start();}

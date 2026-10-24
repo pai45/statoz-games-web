@@ -55,3 +55,9 @@ next-env.d.ts
 /test-results/retro-hoops-*/
 /hoops-console-build-exit.txt
 /test-results/stadium-cricket/
+
+# Generated versioned device-download manifests
+/public/_game-assets/
+
+# Local WebSoccer worker tooling cache
+/vendor/websoccer/worker/.wrangler/
