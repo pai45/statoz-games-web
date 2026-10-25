@@ -12,7 +12,7 @@ test("Anatomical rig, detail levels, equipment, presets and motion markers are e
   assert.ok(metadata.bones <= 64); assert.equal(metadata.ballContactSeconds, 1); assert.equal(metadata.aimLockSeconds, .9);
   for (const file of ["athlete.glb", "athlete-low.glb"]) {
     const bytes=fs.readFileSync(root+file), data=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString());
-    for (const prefix of ["Jersey", "Shorts", "Boot", "Sole", "Glove_L", "Glove_R", "HairPreset_0", "HairPreset_1", "HairPreset_2", "HairPreset_3"]) assert.ok(data.nodes.some((n:{name:string}) => n.name.startsWith(prefix)),prefix);
+    for (const prefix of ["Jersey", "Shorts", "Boot", "Sole", "Glove_L", "Glove_R", "HandSkin_L", "HandSkin_R", "HairPreset_0", "HairPreset_1", "HairPreset_2", "HairPreset_3"]) assert.ok(data.nodes.some((n:{name:string}) => n.name.startsWith(prefix)),prefix);
     for (const bone of ["clavicle_L", "toe_R", "forearm_twist_L", "finger_4_2_R"]) assert.ok(data.nodes.some((n:{name:string})=>n.name===bone));
   }
   for (const name of ["kick_driven", "kick_placed", "kick_chip"]) assert.deepEqual(metadata.clips.find((c:{name:string})=>c.name===name).markers.contact,[1]);
@@ -108,4 +108,21 @@ test("Approach stance feet stay anchored while the taker advances toward contact
     } }
     assert.equal(anchors.size, 4); assert.ok(max <= .02, `Approach foot drift ${max}: ${worst}`);
   } finally { sim.dispose(); }
+});
+
+
+test("Surface refinement keeps face maps, layered scalp shapes and the shared skeleton in both detail levels", () => {
+  for (const file of ["athlete.glb", "athlete-low.glb"]) {
+    const bytes=fs.readFileSync("public/assets/games/penalty-shootout/"+file),data=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString());
+    assert.equal(data.skins[0].joints.length,60);
+    const face=data.materials.find((m:{name:string})=>m.name==="SkinFace");
+    assert.ok(face?.pbrMetallicRoughness.baseColorTexture,"Pigment texture is exported");
+    assert.ok(face.normalTexture,"Fine facial normals are exported");
+    assert.ok(face.pbrMetallicRoughness.metallicRoughnessTexture,"Regional roughness is exported");
+    for (let preset=0;preset<4;preset++) {
+      const node=data.nodes.find((n:{name:string})=>n.name.startsWith("HairPreset_"+preset)),mesh=data.meshes[node.mesh];
+      assert.ok(mesh.primitives[0].attributes.COLOR_0!==undefined,"Hair lock colours survive export");
+      assert.ok(mesh.extras.targetNames.includes("FacePreset_1"),"Scalp follows the facial preset");
+    }
+  }
 });

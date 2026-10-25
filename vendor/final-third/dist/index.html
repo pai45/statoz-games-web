@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1530" />
+    <title>Final Third</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27%23f6f6f0%27 stroke=%27%2313244d%27 stroke-width=%273%27/%3E%3Cpath d=%27M16 9l6 4-2 7h-8l-2-7z%27 fill=%27%2313244d%27/%3E%3C/svg%3E" />
+    <script type="module" crossorigin src="./assets/index-DdAd4YHW.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DJ6pBgjR.css">
+  </head>
+  <body>
+    <div id="stage">
+      <div id="canvas-host"></div>
+      <canvas id="trail"></canvas>
+    </div>
+
+    <div id="hud" class="hidden">
+      <div class="scoreboard">
+        <div class="team home"><span class="crest home"></span><span class="team-short" id="home-short">HAR</span></div>
+        <div class="score"><span id="score-home">0</span><span class="dash">-</span><span id="score-away">0</span></div>
+        <div class="team away"><span class="team-short" id="away-short">RED</span><span class="crest away"></span></div>
+      </div>
+      <div class="pips" id="pips"></div>
+      <div class="chance-label" id="chance-label">Chance 1 of 6 &middot; You attack</div>
+      <div class="clock" id="clock">
+        <div class="clock-bar"><div class="clock-fill" id="clock-fill"></div></div>
+        <div class="clock-meta"><span id="clock-secs">8.0s</span><span id="touches">Touches 0/8</span></div>
+      </div>
+      <div class="controls">
+        <button class="icon-btn" id="btn-mute" aria-label="Mute sound">&#128266;</button>
+        <button class="icon-btn" id="btn-pause" aria-label="Pause">&#10074;&#10074;</button>
+      </div>
+      <div class="banner" id="banner"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+
+    <div class="overlay" id="loading">
+      <div class="card">
+        <h1 class="logo">FINAL <span>THIRD</span></h1>
+        <p class="sub">Loading the stadium&hellip;</p>
+        <div class="progress"><div id="progress-fill"></div></div>
+        <p class="error hidden" id="load-error"></p>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="menu">
+      <div class="card">
+        <h1 class="logo">FINAL <span>THIRD</span></h1>
+        <p class="sub">Six chances. Swipe it, bend it, finish it.</p>
+        <div class="fixture">
+          <div><span class="crest home big"></span><b>Harbour Blues</b><small>You</small></div>
+          <em>vs</em>
+          <div><span class="crest away big"></span><b>Redmoor Athletic</b><small>CPU</small></div>
+        </div>
+        <div class="segmented" id="difficulty" role="radiogroup" aria-label="Difficulty">
+          <button data-d="easy" role="radio">Easy</button>
+          <button data-d="normal" role="radio" class="on">Normal</button>
+          <button data-d="hard" role="radio">Hard</button>
+        </div>
+        <button class="primary" id="btn-play">Kick off</button>
+        <button class="ghost hidden" id="btn-exit">Back to games</button>
+        <ul class="howto">
+          <li><b>Tap</b> the grass to dribble there. Tap a teammate to pass.</li>
+          <li><b>Swipe</b> at the goal to shoot. Faster = harder. Bend your swipe to curl it.</li>
+          <li>Where your swipe ends is where you aim. Beat defenders by cutting past them.</li>
+          <li>Defending? <b>Tap the goal</b> to choose where your keeper dives.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="overlay hidden soft" id="between">
+      <div class="card slim">
+        <p class="eyebrow" id="between-eyebrow">Chance 2 of 6</p>
+        <h2 id="between-title">You defend</h2>
+        <p class="sub" id="between-sub">Tap the goal to pick your dive</p>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="paused">
+      <div class="card slim">
+        <h2>Paused</h2>
+        <button class="primary" id="btn-resume">Resume</button>
+        <button class="ghost" id="btn-quit">Quit to menu</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="end">
+      <div class="card">
+        <p class="eyebrow">Full time</p>
+        <h2 id="end-title">You win!</h2>
+        <div class="final-score"><span class="crest home big"></span><b id="end-score">2 - 1</b><span class="crest away big"></span></div>
+        <div class="pips big" id="end-pips"></div>
+        <button class="primary" id="btn-again">Play again</button>
+        <button class="ghost" id="btn-menu">Change difficulty</button>
+      </div>
+    </div>
+
+  </body>
+</html>

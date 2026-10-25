@@ -1,3 +1,4 @@
+import type { GameSport } from '@/domain/game-sports';
 import { isGameEnabled } from "@/domain/demo-product";
 import type { Sport } from "@/domain/sports";
 
@@ -9,9 +10,11 @@ import type { GameId } from "@/features/games/types";
  * quick games follow — the deck reads the `kind` off the registry rather than
  * keeping two lists, so a game can be promoted by editing one field.
  */
-const sourceDecks: Record<Sport, GameId[]> = {
+const sourceDecks: Record<GameSport, GameId[]> = {
+  golf: ["open-golf"],
   football: [
     "pitch-rush",
+    "final-third",
     "retro-football",
     "pitch-duel",
     "penalty-shootout",
@@ -26,16 +29,16 @@ const sourceDecks: Record<Sport, GameId[]> = {
   motorsport: ["retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
 };
 
-export const sportGameDecks = Object.fromEntries(Object.entries(sourceDecks).map(([sport, games]) => [sport, games.filter(isGameEnabled)])) as Record<Sport, GameId[]>;
+export const sportGameDecks = Object.fromEntries(Object.entries(sourceDecks).map(([sport, games]) => [sport, games.filter(isGameEnabled)])) as Record<GameSport, GameId[]>;
 
 export type SportDeck = {
-  sport: Sport;
+  sport: GameSport;
   heroes: GameId[];
   quick: GameId[];
 };
 
 /** A sport's deck, split into the two shelves it renders as. */
-export function deckFor(sport: Sport): SportDeck {
+export function deckFor(sport: GameSport): SportDeck {
   const games = sportGameDecks[sport];
   return {
     sport,
@@ -45,7 +48,7 @@ export function deckFor(sport: Sport): SportDeck {
 }
 
 /** Small summary used by the shared All Sports picker. */
-export function gameCountForSport(sport: Sport): number {
+export function gameCountForSport(sport: GameSport): number {
   return sportGameDecks[sport].length;
 }
 
@@ -53,12 +56,14 @@ export function gameCountForSport(sport: Sport): number {
  * Which sport a game belongs to, inverted from the decks above so the two can
  * never disagree about it.
  */
-const sportByGame: Record<GameId, Sport> = {"final-over":"cricket", ...Object.fromEntries(
+const sportByGame: Record<GameId, GameSport> = {"final-over":"cricket", ...Object.fromEntries(
   Object.entries(sportGameDecks).flatMap(([sport, games]) =>
-    games.map((id) => [id, sport as Sport] as const),
+    games.map((id) => [id, sport as GameSport] as const),
   ),
-)} as Record<GameId, Sport>;
+)} as Record<GameId, GameSport>;
 
 export function sportForGame(game: GameId): Sport {
-  return sportByGame[game];
+  const sport = sportByGame[game];
+  if (sport === "golf") throw new Error("Golf does not use a card-sport deck.");
+  return sport;
 }

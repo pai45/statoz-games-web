@@ -57,6 +57,18 @@ export function TennisIcon(props: IconProps) {
   );
 }
 
+/** Original StatOz golf mark: angled iron, ball and tee. */
+export function GolfIcon(props: IconProps) {
+  return (
+    <Icon viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit={2} {...props}>
+      <path d="M24 3L13.5 21.5" />
+      <path d="M13.5 21.5L8 23.5L5 27L9 29L15 27L16.5 24Z" fill="currentColor" stroke="none" />
+      <path d="M23 20.5a4 4 0 1 0 0 8a4 4 0 1 0 0-8Z" />
+      <path d="M23 28.5v1.5M19 30h8" />
+    </Icon>
+  );
+}
+
 /** Original StatOz motorsport mark: open-wheel racer and cockpit. */
 export function MotorsportIcon(props: IconProps) {
   return (

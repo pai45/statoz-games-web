@@ -173,6 +173,13 @@ async function cachedResponse(event) {
   headers.set('Accept-Ranges', 'bytes');
   return new Response(bytes.slice(start, end + 1), { status: 206, headers });
 }
+function golfIsolation(response, url) {
+  if (!/\/(?:play\/open-golf|embedded-games\/open-golf)(?:\/|$)/.test(url.pathname)) return response;
+  const headers = new Headers(response.headers);
+  headers.set('Cross-Origin-Opener-Policy','same-origin');
+  headers.set('Cross-Origin-Embedder-Policy','require-corp');
+  return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
+}
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
@@ -191,9 +198,9 @@ self.addEventListener('fetch', event => {
           if (pin) await maintain(() => metadata.put(pinKey(event.resultingClientId), pin));
         }
       } } catch { /* Storage denial must not prevent ordinary online navigation. */ }
-      return response;
+      return golfIsolation(response, url);
     })());
     return;
   }
-  event.respondWith(cachedResponse(event).catch(error => { console.warn('Device cache read failed:', event.request.url, String(error)); return fetch(event.request); }));
+  event.respondWith(cachedResponse(event).then(response => golfIsolation(response, url)).catch(error => { console.warn('Device cache read failed:', event.request.url, String(error)); return fetch(event.request); }));
 });

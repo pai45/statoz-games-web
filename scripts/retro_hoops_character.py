@@ -9,7 +9,7 @@ HEAD_SCALE=.9;HK=1.12;SHOE_SCALE=.8
 RIG={'nativeArtwork':[144,128],'exportScale':1.0,'canvas':[144,128],'feet':[72,116],'hipY':76,'shoulderY':51,
  'shoulderSpan':22,'waistSpan':18,'headHeight':13,'upperArmLength':21,'forearmLength':20,
  'thighLength':20,'shinLength':19,'armWidths':[11,8,4.5],'legWidths':[15,10,6],
- 'construction':'V25 venue pass (characters unchanged); V24 tank straps over bare shoulders, hip-height front hands; V23 measured source colour ramps (near-black outlines, deep saturated skin and cloth shadows); V22 fuller upper body, baggier shorts, larger heads, V-tapered front torso; V21 volume-lit heads; V20 waist-length jersey and crotch seat; V19 volume-shaded lean in-game figure (continuous limb volumes, 5-tone lit ramps, single outlines, slimmer limbs, smaller head and shoes); V18 hanging-leg dunk; V17 arms-out defence; V16 team-select bulk build (thick arms, broad shoulders, square front stance, chest band, shades/moustaches); V15 reference crouch, hanging airborne legs; V14 original forward-leaning arcade basketball build: spine-aligned short jersey with rounded back, contrasting loose knee-length shorts, high-top shoes with socks, larger hands and six distinct head identities; authored approximate reference study, no tracing',
+ 'construction':'V28 held shot follow-through, one-arm block; V27 shot follow-through arm, cloth creases; V26 in-front dribble, upright pumping run, receiver-facing pass; V25 venue pass (characters unchanged); V24 tank straps over bare shoulders, hip-height front hands; V23 measured source colour ramps (near-black outlines, deep saturated skin and cloth shadows); V22 fuller upper body, baggier shorts, larger heads, V-tapered front torso; V21 volume-lit heads; V20 waist-length jersey and crotch seat; V19 volume-shaded lean in-game figure (continuous limb volumes, 5-tone lit ramps, single outlines, slimmer limbs, smaller head and shoes); V18 hanging-leg dunk; V17 arms-out defence; V16 team-select bulk build (thick arms, broad shoulders, square front stance, chest band, shades/moustaches); V15 reference crouch, hanging airborne legs; V14 original forward-leaning arcade basketball build: spine-aligned short jersey with rounded back, contrasting loose knee-length shorts, high-top shoes with socks, larger hands and six distinct head identities; authored approximate reference study, no tracing',
  'gait':{'classification':'Authored displacement-driven poses','footRollDegrees':[0,0,5,12,24,38,28,8,-15,-10,-4,0]}}
 class PixelDraw:
  """Author deliberate hard pixel clusters directly on144x128; no export rescale or antialiasing."""
@@ -268,12 +268,18 @@ def render_character(team,kind,index,count,view,palettes,identity=0,includeHead=
  overlay=kind in ['dribble-arm','dribble-switch'];dynamic=kind in ['dribble-body','shot','throw','finish','fake','catch']
  if kind in ['run','dribble-body'] or overlay:
   # V14 deeper forward lean over the ball; feet/hand endpoints unchanged from V13.
-  bob=round(-2*math.sin(phase*math.tau*2))if not overlay else 0;chest=(89,58+bob);hips=[(67,77+bob),(78,77+bob)];roll=0 if kind!='run'else 2*stride;headOffset=4
+  bob=round(-2*math.sin(phase*math.tau*2))if not overlay else 0;running=kind=='run';chest=(83,54+bob)if running else(88,57+bob);hips=[(67,77+bob),(78,77+bob)];roll=0 if not running else 2*stride;headOffset=3 if running else 4
   feet=[(94,112),(87,112),(76,112),(65,112),(53,109),(49,100),(56,86),(67,83),(81,88),(92,96),(98,106),(98,112)]
   kneesPath=[(88,95),(84,95),(79,94),(75,92),(71,87),(71,82),(77,78),(85,80),(92,84),(96,89),(97,94),(94,96)]
   step=index%12;ankles=[feet[(step+6)%12],feet[step]];knees=[(kneesPath[(step+6)%12][0]-9,kneesPath[(step+6)%12][1]+bob),(kneesPath[step][0],kneesPath[step][1]+bob)]
   footRoll=[RIG['gait']['footRollDegrees'][(step+6)%12],RIG['gait']['footRollDegrees'][step]]
   hands=[(81-15*stride,72-8*max(0,stride)),(96+11*stride,69+6*max(0,-stride))];elbows=[(66-5*stride,72-2*stride),(99+4*stride,65+4*stride)]
+  if running:
+   # V26 reference sprint: elbows bent ~90 degrees, fists pumping opposite to the legs.
+   pump=[]
+   for sh,th in(((chest[0]-8,chest[1]),.95*stride),((chest[0]+9,chest[1]),-.95*stride)):
+    e=(sh[0]+14*math.sin(th),sh[1]+14*math.cos(th));pump.append((e,(e[0]+12*math.cos(th*.45),e[1]-12*math.sin(th*.45)+1)))
+   elbows=[pump[0][0],pump[1][0]];hands=[pump[0][1],pump[1][1]]
  elif kind in ['defend','backpedal','neutral-a','neutral-b']:
   t=1-phase if kind=='backpedal'else phase;shuffle=math.sin(t*math.tau)*4 if kind in ['defend','backpedal']else 0
   # V15 reference crouch: hips pushed back, both thighs angled forward, knees together over narrow feet, hands hanging by the knees.
@@ -288,17 +294,22 @@ def render_character(team,kind,index,count,view,palettes,identity=0,includeHead=
   # Held wrists follow the authoritative low/high phases; only torso anticipation is smoothed.
   age=index*2 if kind=='shot'else{'s-ready':4,'s-rise':16,'s-release':24,'s-follow':34}[kind];lift=clamp((age-8)/10,0,1);hips=[(65,78-5*lift),(77,78-5*lift)];chest=(78,55-7*lift);roll=-1
   extendT=clamp((age-18)/4,0,1);hands=[(90,54)if age<10 else(82+17*extendT,21-9*extendT),(85,56)if age<10 else(80+17*extendT,24-9*extendT)]
-  if age>26:hands=[mix((99,12),(86,65),clamp((age-26)/24,0,1)),mix((93,15),(92,70),clamp((age-26)/24,0,1))]
+  # V28 reference follow-through: the released arm stays extended through the descent, then lowers.
+  if age>26:hands=[mix((99,12),(86,65),clamp((age-36)/14,0,1)),mix((93,15),(92,70),clamp((age-36)/14,0,1))]
   # V15: airborne legs hang straight and together with pointed toes, as in the reference jump shot.
   hang=lift if 10<=age<=48 else 0;ankles=[mix((60,112),(67,106),hang),mix((85,112),(74,107),hang)];knees=[mix((66,95),(68,91),hang),mix((87,93),(75,92),hang)];footRoll=[48*hang,40*hang];elbows=[None,None]
  elif kind in ['throw','p-pass-gather-left','p-pass-extend-left']:
-  age=index*2 if kind=='throw'else 4 if kind=='p-pass-gather-left'else 12;t=clamp((age-8)/6,0,1);chest=(69+4*t,55);roll=-3+4*t;hands=[mix((46,55),(40,44),t),mix((51,58),(45,47),t)];ankles=[(52,112),(92,112)];knees=[(55,96),(88,96)];elbows=[None,None]
+  # V26: drawn facing the receiver (stepping into a two-hand push) and mirrored at the end, so the
+  # ball-holding hand endpoints stay exactly where the simulation expects them.
+  age=index*2 if kind=='throw'else 4 if kind=='p-pass-gather-left'else 12;t=clamp((age-8)/6,0,1);chest=mix((80,57),(86,55),t);roll=0;headOffset=2;hips=[(66,78),(77,78)];hands=[mix((98,55),(104,44),t),mix((93,58),(99,47),t)];ankles=[(58,112),(90,112)];knees=[(62,96),(87,95)];elbows=[None,None]
  elif kind in ['finish','dunk-gather','dunk-contact']:
   # V11 bounded correction: keep shoulder over the low held ball until its existing age15 lift.
   age=index*3 if kind=='finish'else 9 if kind=='dunk-gather'else 21;t=0 if age<15 else 1;chest=mix((92,62),(85,51),t);hips=[mix((68,78),(65,74),t),mix((79,78),(76,74),t)];roll=-3;headOffset=1;hands=[(117,89)if age<15 else(100,47),(109,92)if age<15 else(92,51)];# V18 reference dunk: legs hang together, slightly bent, toes pointed; arms/shoulders keep the V11 contract.
   ankles=[(64,105),(72,106)]if age<40 else[(60,112),(85,112)];knees=[(67,90),(75,91)]if age<40 else[(64,85),(89,89)];footRoll=[40,34]if age<40 else[0,0];elbows=[None,None]
  elif kind in ['jump-block','a-overhead','a-reach']:
   age=index*2 if kind=='jump-block'else 14 if kind=='a-overhead'else 4;t=clamp((age-28)/16,0,1);chest=(73,48);hips=[(65,73),(77,73)];hands=[mix((77,12),(90,53),t),mix((62,17),(55,62),t)];ankles=[(66,105),(74,106)];knees=[(67,89),(75,90)];footRoll=[46,38];elbows=[None,None]
+  # V28 reference block: one straight arm reaches up, the other stays out at shoulder height (no ball held).
+  if kind=='jump-block':hands=[mix((79,10),(90,53),t),mix((53,42),(55,62),t)]
  elif kind in ['reach','collect','d-low','d-down']:
   chest=(87,67);hips=[(65,86),(77,86)];hands=[(104,88)if kind=='reach'else(59,103),(93,85)];ankles=[(46,112),(98,112)];knees=[(51,99),(98,97)];elbows=[None,(98,76)];roll=4;headOffset=3
  elif kind in ['recover','land-recover']:
@@ -321,7 +332,7 @@ def render_character(team,kind,index,count,view,palettes,identity=0,includeHead=
  nearShoulder=(chest[0]-8,chest[1]-roll);farShoulder=(chest[0]+9,chest[1]+roll)
  if view in ['front','back']:nearShoulder=(chest[0]-13,chest[1]);farShoulder=(chest[0]+13,chest[1])
  if overlay:
-  tick=index//4 if kind=='dribble-switch'else index;mixT=[-1,-.5,0,.5][index%4]if kind=='dribble-switch'else 1;j=tick//6;t=(tick%6)/6;e=t*t*(3-2*t);offsets=[-12,8,-20,-12];bx=(offsets[j]+(offsets[j+1]-offsets[j])*e)*mixT;bz=6+30*abs(1-tick/9);wrist=(72+bx,116-max(29,bz+4));elbow=arm(d,nearShoulder,wrist,skin,sleeve=sleeve)
+  tick=index//4 if kind=='dribble-switch'else index;mixT=[-1,-.5,0,.5][index%4]if kind=='dribble-switch'else 1;j=tick//6;t=(tick%6)/6;e=t*t*(3-2*t);offsets=[14,22,10,14];bx=(offsets[j]+(offsets[j+1]-offsets[j])*e)*mixT;bz=6+30*abs(1-tick/9);wrist=(72+bx,116-max(29,bz+4));elbow=arm(d,nearShoulder,wrist,skin,sleeve=sleeve)
   return export(im),{'feet':[72,116],'hands':[list(wrist)],'ball':[72+bx,116-bz],'shoulder':list(nearShoulder),'elbows':[list(elbow)]}
  farFoot=leg(d,hips[0],knees[0],ankles[0],skin,short,True,view,footRoll[0]);farElbow=arm(d,farShoulder,hands[1],skin,True,-1 if hands[1][1]<farShoulder[1]else 1,sleeve if view!='side'else False,elbows[1])
  hx,hy=mix(hips[0],hips[1],.5);vol_seat(d.im,hips,palette,view)
@@ -329,5 +340,12 @@ def render_character(team,kind,index,count,view,palettes,identity=0,includeHead=
  compact=kind in ['run','dribble-body','defend','backpedal','neutral-a','neutral-b','brake','pivot','dribble-arm','dribble-switch'];neck=(chest[0]+headOffset,chest[1]-(5 if compact else 8));headCenter=(neck[0]+1,chest[1]-(11 if compact else 14));vol_neck(d.im,(chest[0]+headOffset*.4,chest[1]-1),(headCenter[0],headCenter[1]+3),palette);
  if includeHead:head(d,headCenter,skin,view,team,identity)
  nearElbow=elbows[0]or hinge(nearShoulder,hands[0],21,20,1 if hands[0][1]<nearShoulder[1]else-1)
- if not dynamic:nearElbow=arm(d,nearShoulder,hands[0],skin,False,1 if hands[0][1]<nearShoulder[1]else-1,sleeve,nearElbow)
- return export(im),{'feet':[72,116],'hips':[hx,hy],'shoulders':[list(nearShoulder),list(farShoulder)],'hands':[list(p)for p in hands],'ankles':[list(p)for p in ankles],'knees':[list(p)for p in knees],'toes':[list(farFoot['toe']),list(nearFoot['toe'])],'heels':[list(farFoot['heel']),list(nearFoot['heel'])],'elbows':[list(nearElbow),list(farElbow)],'neck':list(neck),'head':list(headCenter)}
+ # V27: after the shot release the live grip arm stops, so the atlas draws the near (shooting) arm.
+ if not dynamic or(kind=='shot'and index*2>=22):nearElbow=arm(d,nearShoulder,hands[0],skin,False,1 if hands[0][1]<nearShoulder[1]else-1,sleeve,nearElbow)
+ res=export(im),{'feet':[72,116],'hips':[hx,hy],'shoulders':[list(nearShoulder),list(farShoulder)],'hands':[list(p)for p in hands],'ankles':[list(p)for p in ankles],'knees':[list(p)for p in knees],'toes':[list(farFoot['toe']),list(nearFoot['toe'])],'heels':[list(farFoot['heel']),list(nearFoot['heel'])],'elbows':[list(nearElbow),list(farElbow)],'neck':list(neck),'head':list(headCenter)}
+ if view=='side'and kind in['throw','p-pass-gather-left','p-pass-extend-left']:
+  from PIL import ImageOps
+  img,an=res;img=ImageOps.mirror(img).transform((144,128),Image.Transform.AFFINE,(1,0,-1,0,1,0)) # same 144-x convention as the pack builder
+  def fx(v):return[[144-q[0],q[1]]for q in v]if isinstance(v[0],(list,tuple))else[144-v[0],v[1]]
+  an={k:(v if k=='feet'else fx(v))for k,v in an.items()};res=(img,an)
+ return res

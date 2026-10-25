@@ -59,3 +59,19 @@ See [character/reference notes](CHARACTER_ANIMATION.md) and the [validation repo
 ## Current character realism pass
 
 Runtime `character-motion-4`: [kit/character/movement notes](CHARACTER_REALISM_V4.md), [review video and final validation](MOTION_VALIDATION.md).
+
+## Current model refinement
+
+Runtime `character-model-5`: [model changes, before/after comparison, editable source and validation](CHARACTER_MODEL_V5.md). Maintained assets and runtime live only in this Future Games Web checkout.
+
+## Current surface and hair pass
+
+Runtime `character-surface-6`: [original surface assets, timestamped review and validation](CHARACTER_SURFACES_V6.md). This is a documented improvement toward the reference, with the remaining visual quality gap stated explicitly.
+
+## Current construction pass
+
+Runtime `character-construction-7`: [rebuilt jersey/gloves, rejected iterations and validation](CHARACTER_CONSTRUCTION_V7.md). This supersedes v6 while preserving its original surface maps and gameplay contracts.
+
+## Current shoulder pass
+
+Runtime `character-shoulders-8`: [sleeves and upper arms follow raised arms, before/after and validation](CHARACTER_SHOULDERS_V8.md). Supersedes v7 for deformation only; v7 geometry and all gameplay contracts are retained.

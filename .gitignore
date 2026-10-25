@@ -61,3 +61,10 @@ next-env.d.ts
 
 # Local WebSoccer worker tooling cache
 /vendor/websoccer/worker/.wrangler/
+
+# Local character export and review working files
+/.cache/penalty-model-v5/
+
+/.cache/penalty-model-v6/
+
+/.cache/penalty-model-v7/

@@ -14,6 +14,7 @@ export type AuthBoundaryProps = {
   message: string;
   returnTo: string;
   fullScreen?: boolean;
+  allowGuest?: boolean;
 };
 
 export function AuthBoundary({
@@ -22,6 +23,7 @@ export function AuthBoundary({
   message,
   returnTo,
   fullScreen = false,
+  allowGuest = false,
 }: AuthBoundaryProps) {
   const session = useAuthSession();
 
@@ -38,7 +40,7 @@ export function AuthBoundary({
     );
   }
 
-  if (session.status === "guest") {
+  if (session.status === "guest" && !allowGuest) {
     const accent = accentVar("cyan");
     return (
       <div

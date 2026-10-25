@@ -1,5 +1,6 @@
 export function usesMobileLandscape(game: string): boolean {
-  return game !== 'football-chess' && game !== 'tennis-rally';
+  // Final Third is designed portrait-first (swipe up at the goal), like a phone football game.
+  return game !== 'football-chess' && game !== 'tennis-rally' && game !== 'final-third';
 }
 
 export function landscapeGeometry(width: number, height: number) {

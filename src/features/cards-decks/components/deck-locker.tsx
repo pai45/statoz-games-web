@@ -17,7 +17,7 @@ import styles from "./deck-system.module.css";
 const icons = { football: "sports_soccer", cricket: "sports_cricket", basketball: "sports_basketball", tennis: "sports_tennis", motorsport: "sports_motorsports" } as const;
 
 export function DeckLocker() {
-  return <AuthBoundary intent="manage your deck locker" message="Log in to create, apply, and edit saved squads." returnTo="/decks"><AuthenticatedLocker /></AuthBoundary>;
+  return <AuthBoundary allowGuest intent="manage your deck locker" message="Log in to create, apply, and edit saved squads." returnTo="/decks"><AuthenticatedLocker /></AuthBoundary>;
 }
 
 function AuthenticatedLocker() {

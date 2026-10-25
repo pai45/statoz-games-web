@@ -42,7 +42,7 @@ export async function generateAssetManifest({ root, buildId, basePath = '', expo
         /^assets\/ads\/ad-space-[\w-]+\.svg$/.test(file) ||
         file === 'games/stadium-cricket/stadium-preview.jpg') selected.add(file);
   }
-  for (const game of ['pitch-rush', 'retro-hoops', 'retro-football', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) {
+  for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) {
     if (!selected.has(`embedded-games/${game}/index.html`)) throw Error('Missing built game: ' + game);
   }
   const records = [];

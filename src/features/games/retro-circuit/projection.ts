@@ -18,7 +18,7 @@ export function roadProjection(state: RaceSnapshot,track: TrackDefinition,calibr
   const result:RoadPoint[]=[];let offset=0,heading=0,nearClip=Infinity;const display=displayFor(track),opening=openingRoadBlend(state,track);
   const egoScale=1+(125/149-1)*CAMERA_TRAIL/24;
   const roadWidth=calibration.roadWidth??370;
-  const cameraShift=state.player.x*roadWidth*egoScale-Math.max(-160,Math.min(160,state.player.x*130));
+  const cameraShift=state.player.x*roadWidth*egoScale-(track.profile==='reference'?0:Math.max(-160,Math.min(160,state.player.x*130)));
   for(let i=0;i<=80;i++){
     const distance=i*24,world=state.player.distance-CAMERA_TRAIL+distance,road=sampleTrack(track,world),scale=125/(125+distance);
     heading+=road.curve*(calibration.curveGain??.0035);offset+=heading;

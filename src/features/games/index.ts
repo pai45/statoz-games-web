@@ -4,7 +4,16 @@ export { GameLeaderboardCta } from "./components/game-leaderboard-cta";
 export { GamePlaceholder } from "./components/game-placeholder";
 export { PitchDuel } from "./pitch-duel";
 export { GameScene, gameSceneAssets, type GameSceneProps } from "./components/game-scenes";
+export { FeaturedGameSpotlight } from "./components/featured-game-spotlight";
+export { GameLibrary, type GameLibraryProps } from "./components/game-library";
 export { GamesTrendingFeed } from "./components/games-trending-feed";
+export {
+  allGamesInFeedOrder,
+  libraryCardLayout,
+  spotlightGames,
+  sportGamesInDeckOrder,
+  type LibraryCardLayout,
+} from "./home-catalog";
 export { QuickGameTile } from "./components/quick-game-tile";
 export { QuickPlayHeader } from "./components/quick-play-header";
 export { SportGameDeck } from "./components/sport-game-deck";

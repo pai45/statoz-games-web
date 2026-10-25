@@ -1,9 +1,9 @@
 {
   "gameId": "retro-hoops",
   "briefVersion": "2.0.0",
-  "rulesVersion": "2.0.0",
-  "buildVersion": "character-v25-local",
-  "assetPackVersion": "25.0.0",
+  "rulesVersion": "2.1.0",
+  "buildVersion": "character-v28-local",
+  "assetPackVersion": "28.0.0",
   "date": "2026-10-23",
   "reference": {
     "title": "Street Hoop",
@@ -65,7 +65,7 @@
     "quote": "auto approve for now",
     "listeningPerformed": false
   },
-  "motionVersion": "2.0.0",
+  "motionVersion": "2.1.0",
   "motionChanges": [
     "Dedicated12frame running and dribbling body cycles",
     "Independent18frame hand/ball layer and shared bob/contact",
@@ -98,8 +98,8 @@
     "inspection": "Dense opening/actions plus coarse surveys of later bounded excerpts, not every recording frame."
   },
   "playerDesign": {
-    "actionPack": "authored-v25/manifest.json",
-    "locomotionPack": "authored-v25/manifest.json",
+    "actionPack": "authored-v28/manifest.json",
+    "locomotionPack": "authored-v28/manifest.json",
     "classification": "Original source-directed construction; exact likeness remains unverified",
     "newSourcePixelsExtracted": false
   },

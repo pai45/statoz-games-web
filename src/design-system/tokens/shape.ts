@@ -51,6 +51,15 @@ export const shape = {
   cardCutRatio: 0.13,
   cardCutMin: 10,
   cardCutMax: 30,
+  /**
+   * The arcade bevel the statoz.in game cards wear: one cut on the top-right
+   * and one on the bottom-left, the other two corners square. Banner, card,
+   * compact (phone) card and the small plates inside them.
+   */
+  bevelBannerCut: 22,
+  bevelCut: 16,
+  bevelCompactCut: 11,
+  bevelPlateCut: 9,
   /** The only rounded radii in the system — reserved for pills and meters. */
   radius: {
     none: "0",
@@ -231,5 +240,14 @@ export function bottomCutPath(cut: number): string {
 
 /** Active tab plate: square on top, cut on both bottom corners. */
 export const tabPlateClipPath = bottomCutPath(shape.tabChamfer);
+
+/**
+ * The arcade bevel: top-right and bottom-left cut, the other corners square.
+ * CSS builds the same polygon from `--ds-shape-bevel-*` with a local `--cut`.
+ */
+export function bevelClipPath(cut: number): string {
+  const c = `${cut}px`;
+  return `polygon(0 0, calc(100% - ${c}) 0, 100% ${c}, 100% 100%, ${c} 100%, 0 calc(100% - ${c}))`;
+}
 
 export type ShapeTokens = typeof shape;

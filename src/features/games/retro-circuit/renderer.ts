@@ -4,7 +4,7 @@ import {finishPresentation} from './finish-presentation';
 import {paintHiroshimaPanorama} from './hiroshima-art';
 import {hiroshimaPalette} from './hiroshima-presentation';
 import * as THREE from "three";
-import {poses,carPixels,farCarPixels,overheadCarPixels,paintPixels,turnAmountFor,type CarPose} from './car-family';
+import {poses,carPixels,farCarPixels,overheadCarPixels,paintPixels,turnAmountFor,carPoseAnchors,carFamilyMetadata,type CarPose} from './car-family';
 import {displayFor,sequenceFor} from './fidelity';
 import { sampleTrack, vehicles, biomeFor, propSpacing, roadsideProp,modulo } from "./data";
 import { projectedCar, roadProjection, CAMERA_TRAIL, cameraDistance, mapPoints, type ProjectionCalibration } from "./projection";
@@ -45,7 +45,7 @@ export class CircuitRenderer {
   private gantryLegs?:THREE.Mesh<THREE.PlaneGeometry,THREE.MeshBasicMaterial>;
   private gantryGeometries:THREE.PlaneGeometry[]=[];
   private gantryFrame:ReturnType<typeof gantryPresentation>=null;
-  private playerFrame:Record<string,number|boolean>|null=null;
+  private playerFrame:Record<string,number|boolean|string>|null=null;
   inspection=false;
   calibration:Partial<ProjectionCalibration>={};
   constructor(canvas:HTMLCanvasElement,readonly track:TrackDefinition,onError:(message:string)=>void){
@@ -73,7 +73,7 @@ export class CircuitRenderer {
         const texture=new THREE.CanvasTexture(c);texture.magFilter=texture.minFilter=THREE.NearestFilter;texture.colorSpace=THREE.SRGBColorSpace;this.textures.push(texture);
         this.materials.set(vehicle.id+'/'+pose+'/'+frame,new THREE.MeshBasicMaterial({map:texture,transparent:true,depthTest:false,side:THREE.DoubleSide}));
       }
-      const far=document.createElement('canvas');far.width=80;far.height=40;const fc=far.getContext('2d')!;const native=document.createElement('canvas');native.width=24;native.height=14;paintPixels(native.getContext('2d')!,farCarPixels(vehicle.id));fc.imageSmoothingEnabled=false;fc.drawImage(native,6,1,67,39);
+      const far=document.createElement('canvas');far.width=80;far.height=40;const fc=far.getContext('2d')!;const native=document.createElement('canvas');native.width=24;native.height=14;paintPixels(native.getContext('2d')!,farCarPixels(vehicle.id));fc.imageSmoothingEnabled=false;fc.drawImage(native,10,34-carFamilyMetadata.far.anchor[1]*2.5,60,35);
       const ft=new THREE.CanvasTexture(far);ft.magFilter=ft.minFilter=THREE.NearestFilter;ft.colorSpace=THREE.SRGBColorSpace;this.textures.push(ft);this.materials.set(vehicle.id+'/far',new THREE.MeshBasicMaterial({map:ft,transparent:true,depthTest:false,side:THREE.DoubleSide}));
       const overhead=document.createElement('canvas');overhead.width=48;overhead.height=80;paintPixels(overhead.getContext('2d')!,overheadCarPixels(vehicle.id));this.overhead.set(vehicle.id,overhead);
     }
@@ -153,14 +153,17 @@ export class CircuitRenderer {
       if(car.id===0&&departure)pose=car.steering<-.18?'left':car.steering>.18?'right':'straight';
       if(car.id!==0&&['straight','left','right'].includes(pose))pose=car.steering<-.18?'left':car.steering>.18?'right':Math.abs(sampleTrack(this.track,car.distance).curve)>.25?(sampleTrack(this.track,car.distance).curve>0?'right':'left'):'straight';
       const steering=car.id===0?player.steering:lerp(prior?.steering??car.steering,car.steering);
-      const turn=turnAmountFor(steering);
+      const roadTurn=sampleTrack(this.track,car.distance).curve;
+      const visualSteering=car.id!==0&&Math.abs(steering)<.18&&Math.abs(roadTurn)>.25?Math.sign(roadTurn)*.5:steering;
+      const turn=turnAmountFor(visualSteering);
       // Brake lights and boost plumes are separate effects: they must not mask steering.
-      const poseKey=car.id===0&&!departure&&car.collisionCooldown<=0&&turn!==0?(Math.abs(turn)===.5?'soft-':'')+(turn<0?'left':'right'):pose;
+      const poseKey=!departure&&car.collisionCooldown<=0&&turn!==0?(Math.abs(turn)===.5?'soft-':'')+(turn<0?'left':'right'):car.id===0&&pose==='boost'?'straight':pose;
       mesh.material.map=((car.id===0&&departure?departure.distant:distance>300)&&this.materials.has(car.vehicle+'/far')?this.materials.get(car.vehicle+'/far'):this.materials.get(`${car.vehicle}/${poseKey}/${Math.floor(state.elapsed*12)%2}`))!.map;mesh.material.clippingPlanes![0].constant=p.occlusion;
       const scale=p.scale*2.1;
       const contact=car.collisionCooldown>0&&!(car.id===0&&departure)?(Math.floor(state.elapsed*25)%2?2:-2):0;
-      if(car.id===0)this.playerFrame={x:p.x,y:p.y,scale:p.scale,clip:p.occlusion,visible:mesh.visible,distant:departure?.distant??distance>300};
-      const verticalScale=scale*(this.track.profile==='reference'?1.23:1);mesh.scale.set(80*scale,-40*verticalScale,1);mesh.position.set(Math.round(p.x)+contact,Math.round(p.y-14*verticalScale),1);mesh.renderOrder=3000-Math.floor(distance);
+      if(car.id===0)this.playerFrame={x:p.x,y:p.y,scale:p.scale,clip:p.occlusion,visible:mesh.visible,distant:departure?.distant??distance>300,pose:poseKey,steering:player.steering};
+      // Native art proportions are preserved on both axes.
+      const verticalScale=scale;mesh.scale.set(80*scale,-40*verticalScale,1);mesh.position.set(Math.round(p.x)+contact,Math.round(p.y-14*verticalScale),1);mesh.renderOrder=3000-Math.floor(distance);
       shadow.visible=mesh.visible&&p.visible;shadow.position.set(Math.round(p.x),Math.round(p.y+1),0);shadow.scale.set(80*scale,-12*scale,1);shadow.renderOrder=mesh.renderOrder-.1;shadow.material.clippingPlanes![0].constant=p.occlusion;
     }
     for(let i=0;i<this.scenery.length;i++){
@@ -175,8 +178,10 @@ export class CircuitRenderer {
     if(!this.inspection||state.phase!=='finished')this.drawSequence(ctx,state);
     if(state.player.inPit&&state.player.speed<.8){this.drawPit(ctx,state);this.hudTexture.needsUpdate=true;this.renderer.render(this.scene,this.camera);return;}
     const ego=departure?.ego??projectedCar(CAMERA_TRAIL,player.x,points);if(ego){const s=ego.scale*2.1,x=Math.round(ego.x),y=Math.round(ego.y);
-      if(state.phase==='racing'&&state.player.boost>0){for(const dx of [-12,12]){ctx.fillStyle='#f38a2a';ctx.fillRect(Math.round(x+dx*s),y,Math.round(4*s),Math.floor(state.elapsed*30)%2?9:6);ctx.fillStyle='#fff0c4';ctx.fillRect(Math.round(x+(dx+1)*s),y,Math.round(2*s),5);}}
-      if(state.phase==='racing'&&braking&&state.player.speed>20){ctx.fillStyle='#e84a43';for(const dx of [-17,16])ctx.fillRect(Math.round(x+dx*s),Math.round(y-10*s),Math.round(5*s),2);}
+      const anchors=carPoseAnchors(player.vehicle,turnAmountFor(player.steering));
+      const screen=(a:readonly[number,number])=>({x:Math.round(x+(a[0]-40)*s),y:Math.round(y+(a[1]-34)*s)});
+      if(state.phase==='racing'&&player.boost>0){for(const anchor of anchors.exhausts){const jet=screen(anchor),radius=Math.floor(state.elapsed*12)%2?4:3;ctx.fillStyle='#d93438';ctx.fillRect(jet.x-radius,jet.y-2,radius*2+1,5);ctx.fillRect(jet.x-2,jet.y-radius,5,radius*2+1);ctx.fillStyle='#fff0c4';ctx.fillRect(jet.x-1,jet.y-3,3,7);ctx.fillRect(jet.x-3,jet.y-1,7,3);}}
+      if(state.phase==='racing'&&braking&&player.speed>20){ctx.fillStyle='#ff5c52';for(const anchor of anchors.lamps){const lamp=screen(anchor);ctx.fillRect(lamp.x-2,lamp.y,Math.round(4*s),Math.max(1,Math.round(s)));}}
       if(state.phase==='racing'&&state.player.collisionCooldown>0&&Math.floor(state.elapsed*20)%2){ctx.fillStyle='#fff0ae';ctx.fillRect(x-52,y-20,5,2);ctx.fillRect(x+48,y-25,3,4);}
       if(this.inspection){ctx.strokeStyle='#53dcef';ctx.lineWidth=1;const l=departure?{x:x-20*s}:projectedCar(CAMERA_TRAIL,player.x-.125,points)!,r=departure?{x:x+20*s}:projectedCar(CAMERA_TRAIL,player.x+.125,points)!;ctx.strokeRect(Math.round(l.x),y-5,Math.round(r.x-l.x),10);ctx.fillStyle='#ffed91';ctx.fillRect(x-2,y-2,5,5);}
     }

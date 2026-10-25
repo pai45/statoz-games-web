@@ -42,6 +42,8 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
+  "open-golf": {kind:"hero",title:"OPEN GOLF",titleLines:["OPEN","GOLF"],subtitle:"ORIGINAL COURSES. ONE PERFECT PUTT.",badgeLabel:"3D MINI GOLF",ctaLabel:"TEE OFF",accent:"lime",scene:"tennis-rally",href:"/play/open-golf"},
+  "final-third": {kind:"hero",title:"FINAL THIRD",titleLines:["FINAL","THIRD"],subtitle:"SIX CHANCES. SWIPE IT, BEND IT, FINISH IT.",badgeLabel:"3D FOOTBALL // ATTACK AND DEFEND",ctaLabel:"KICK OFF",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/final-third"},
   "pitch-rush": {kind:"hero",title:"PITCH RUSH",titleLines:["PITCH","RUSH"],subtitle:"ELEVEN A SIDE. ONE MORE MATCH.",badgeLabel:"ARCADE FOOTBALL // 1–2 LOCAL PLAYERS",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/pitch-rush"},
   "vibe-basketball": {kind:"hero",title:"VIBE BASKETBALL",titleLines:["VIBE","BASKETBALL"],subtitle:"1V1 STREETBALL. 3-POINT CONTEST.",badgeLabel:"3D BASKETBALL // TOUCH + GAMEPAD",ctaLabel:"ENTER THE PARK",accent:"game-hoop-duel",scene:"hoop-duel",href:"/play/vibe-basketball"},
   "stadium-cricket": {

@@ -1,15 +1,15 @@
 {
   "gameId": "retro-hoops",
-  "rulesVersion": "2.0.0",
-  "buildVersion": "character-v25-local",
-  "assetVersion": "25.0.0",
+  "rulesVersion": "2.1.0",
+  "buildVersion": "character-v28-local",
+  "assetVersion": "28.0.0",
   "art": {
     "classification": "original authored pixel geometry; no reference rasters",
     "approval": "draft-source-likeness-not-approved",
     "source": "scripts/build-retro-hoops-authored.py + scripts/retro_hoops_character.py + court.ts + crowd.ts",
     "referenceMaterialInRuntime": false,
     "historicalReferenceAssets": "Preserved separately; excluded from executable pack",
-    "processing": "V25 venue pass (characters unchanged from V24): perforated grey-white backboards in dark steel frames with white nets and orange rims, rim anchors unchanged; court/crowd scenery is code-drawn in court.ts/crowd.ts after the shared reference street-event venue. V24 characters, V23 colour ramps and V14 camera retained. Authored approximations of observed recordings; no extracted or traced source rasters, logos or lettering."
+    "processing": "V28 held shot follow-through (released arm stays extended through the descent) and one-arm block jump; V27 creases and shot arm, V26 in-front dribble (rules 2.1.0), receiver-facing pass, V25 venue and V24 characters retained. Ball-holding hand endpoints, ground origin, 41-pixel reach and V11 dunk construction preserved. Authored approximations of observed recordings; no extracted or traced source rasters or recovered native timing."
   },
   "audio": {
     "selection": "Existing original procedural synthesis; no third-party samples",

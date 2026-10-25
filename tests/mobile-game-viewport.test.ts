@@ -4,9 +4,9 @@ import { usesMobileLandscape, landscapeGeometry } from '../src/features/games/sh
 import { gameRegistry } from '../src/mocks/games/game-registry';
 import { isGameEnabled } from '../src/domain/demo-product';
 
-test('every enabled game uses mobile landscape except chess and tennis', () => {
+test('every enabled game uses mobile landscape except chess, tennis and portrait-first Final Third', () => {
   for (const game of Object.keys(gameRegistry).filter(isGameEnabled)) {
-    assert.equal(usesMobileLandscape(game), !['football-chess', 'tennis-rally'].includes(game), game);
+    assert.equal(usesMobileLandscape(game), !['football-chess', 'tennis-rally', 'final-third'].includes(game), game);
   }
 });
 test('portrait screens get an exact landscape viewport without scaling touch targets', () => {

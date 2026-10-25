@@ -1,5 +1,5 @@
 /** Portable runtime contracts. No app stores, navigation, React or Three.js. */
-export const BUILD_VERSION = "0.10.2-steering";
+export const BUILD_VERSION = "0.11.0-car-motion";
 export const RULES_VERSION = 107;
 export const STEP = 1 / 60;
 export type TrackId = "coast" | "desert" | "city" | "vegas" | "harbour" | "night";

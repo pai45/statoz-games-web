@@ -5,13 +5,14 @@ import {
   createContext,
   useCallback,
   useContext,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 
 import { loginHref, sanitizeReturnTo } from "../return-path";
-import { useAuthSession } from "../state/auth-session";
+import { prepareGuestData, useAuthSession } from "../state/auth-session";
 import type { AuthGateRequest } from "../types";
 
 import { AuthGateDialog } from "./auth-gate-dialog";
@@ -26,6 +27,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const session = useAuthSession();
+  useLayoutEffect(() => {
+    if (session.status === "guest") prepareGuestData();
+  }, [session.status]);
   const [request, setRequest] = useState<AuthGateRequest | null>(null);
 
   const requireAuth = useCallback(

@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useState, type CSSProperties } from "react";
 
 import { accentVar, GameIcon, MatchIcon, PickIcon } from "@/design-system";
 import { AdSlot } from "@/features/ads";
-import { AuthBoundary } from "@/features/auth";
+import { AuthBoundary, loginHref, useAuthSession } from "@/features/auth";
 import { equipCosmetic } from "@/features/economy";
 import {
   pickHistoryRecords,
@@ -29,6 +31,7 @@ import { LoadoutCard } from "./loadout-card";
 import { OzCoinTracker } from "./oz-coin-tracker";
 import { ProfileActions } from "./profile-actions";
 import { ProfileHero } from "./profile-hero";
+import { ProfilePanel } from "./profile-panel";
 import styles from "./profile.module.css";
 import { StatBand } from "./stat-band";
 import { TimeZoneCard } from "./time-zone-card";
@@ -87,7 +90,7 @@ type Editing = "avatar" | "banner" | null;
 
 export function ProfileScreen() {
   return (
-    <AuthBoundary
+    <AuthBoundary allowGuest
       intent="view your profile"
       message="Log in to see your profile, history, achievements, and loadouts."
       returnTo="/profile"
@@ -98,6 +101,7 @@ export function ProfileScreen() {
 }
 
 function ProfileDossier() {
+  const session = useAuthSession();
   const hydrated = useIsHydrated();
   const identity = useProfileIdentity();
   const progress = usePlayerProgress();
@@ -139,6 +143,22 @@ function ProfileDossier() {
   return (
     <div className="flex flex-1 flex-col pb-7">
       <div className="mx-auto w-full max-w-160 lg:max-w-260">
+        {session.status === "guest" ? (
+          <div className="px-4 py-4 lg:px-0">
+            <ProfilePanel borderColor={cyan}>
+              <section aria-label="Save progress" className="flex flex-col gap-3 p-5">
+                <h1 className="font-display text-lg font-black tracking-wide text-cyan">SAVE PROGRESS</h1>
+                <p className="text-sm leading-relaxed text-muted">
+                  Playing as a guest. Your progress stays in this browser. Log in or create an account to keep it with your local profile.
+                </p>
+                <p className="text-xs leading-relaxed text-muted">Local demo accounts only. Cloud backup and cross-device sync are not available yet.</p>
+                <Link href={loginHref("/profile")} className="flex min-h-12 items-center justify-center bg-cyan px-4 text-center font-display text-xs font-black tracking-wide text-inverse hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan">
+                  LOG IN / CREATE ACCOUNT
+                </Link>
+              </section>
+            </ProfilePanel>
+          </div>
+        ) : null}
         <ProfileHero
           progress={progress}
           displayName={identity.displayName || playerDisplayName}

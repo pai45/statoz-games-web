@@ -2,9 +2,11 @@ import {matchOptions,type MatchOptions} from "./reference-profile";
 import {REFERENCE_TUNING as T} from "./reference-tuning";
 import {planOffBall,offBallSteering,type OffBallIntent} from "./off-ball";
 import {dribbleSample,bodyBob} from "./motion";
-/** Retro Hoops rules 2.0.0. Documented format with separately labelled authored tuning.
+/** Retro Hoops rules 2.1.0 (V26: dribble in front of the body, steal reach retuned). Documented format with separately labelled authored tuning.
  * No rendering, wall clock, platform storage or random global state belongs here. */
-export const RULES_VERSION = "2.0.0";
+export const RULES_VERSION = "2.1.0";
+/** V26 authored tuning: steal reach against a dribbled (in-front) ball, measured to keep steal success unchanged. */
+export const STEAL_REACH_DRIBBLE = 16;
 export const HZ = 60;
 export const COURT = { left: 60, right: 840, top: 164, bottom: 330, rimY: 247, rimZ: 120 } as const;
 export type Team = 0 | 1;
@@ -134,7 +136,7 @@ function resolveSteals(s:Match) {
   if(!owner||!ready(s,owner))return;
   const candidates=s.actors.filter(a=>a.action==="steal"&&a.started===s.tick&&a.team!==owner.team&&distance(a,owner)<38)
     .map(a=>({a,gap:Math.hypot(a.x+8*a.face-s.ball.x,a.y-s.ball.y,38+a.z-s.ball.z)}))
-    .filter(c=>c.gap<26).sort((a,b)=>a.gap-b.gap||a.a.id-b.a.id);
+    .filter(c=>c.gap<((owner.dribbleTick??-1)>=0?STEAL_REACH_DRIBBLE:26)) // V26: dribble now bounces in front of the body; its reach is retuned so steal success is unchanged, carry reach unchanged.sort((a,b)=>a.gap-b.gap||a.a.id-b.a.id);
   if(!candidates.length)return;
   const a=candidates[0].a;
   Object.assign(s.ball,{owner:null,kind:"loose",to:-1,vx:direction(a.team)*90,vy:0,vz:130,from:a.id});

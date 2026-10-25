@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Frame } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -12,10 +12,15 @@ test.afterEach(async ({ page }, info) => {
 });
 async function open(page: Page) {
   await page.goto("./play/penalty-shootout");
-  await expect(page.getByRole("button", { name: "PLAY SHOOTOUT", exact: false })).toBeEnabled({ timeout: 60000 });
-  await page.getByRole("button", { name: "Dismiss advertisement" }).click({ timeout: 1500 }).catch(() => {});
+  // The maintained launcher hosts coarse-pointer games in a landscape iframe.
+  await page.waitForFunction(() => document.querySelector("[data-mobile-game-frame]") || [...document.querySelectorAll("button")].some(b => b.textContent?.includes("PLAY SHOOTOUT")), null, { timeout: 60000 });
+  const host = page.locator("[data-mobile-game-frame]");
+  const game: Page | Frame = await host.count() ? (await (await host.elementHandle())!.contentFrame())! : page;
+  await expect(game.getByRole("button", { name: "PLAY SHOOTOUT", exact: false })).toBeEnabled({ timeout: 60000 });
+  await game.getByRole("button", { name: "Dismiss advertisement" }).click({ timeout: 1500 }).catch(() => {});
+  return game;
 }
-async function phase(page: Page, value: string) { await expect(page.locator("[data-shootout-phase]")).toHaveAttribute("data-shootout-phase", value); }
+async function phase(page: Page | Frame, value: string) { await expect(page.locator("[data-shootout-phase]")).toHaveAttribute("data-shootout-phase", value); }
 async function shoot(page: Page) {
   await page.keyboard.down("Space"); await page.keyboard.down("KeyD"); await page.waitForTimeout(540); await page.keyboard.up("Space"); await page.keyboard.up("KeyD"); await phase(page, "resolution");
 }
@@ -53,26 +58,26 @@ for (const [name, width, height] of [["portrait", 412, 915], ["landscape", 915, 
     const context = await browser.newContext({ viewport: { width, height }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
     const page = await context.newPage();
     await page.addInitScript(() => localStorage.setItem("statoz.games.web.auth.v2", JSON.stringify({ version: 2, authenticated: true, email: "mobile-qa@example.test" })));
-    await open(page); await page.screenshot({ path: info.outputPath(`${name}-lobby.png`) });
-    await page.getByRole("button", { name: "PRACTICE SHOTS", exact: true }).tap(); await page.screenshot({ path: info.outputPath(`${name}-shooting.png`) });
-    const stick = await page.getByRole("group", { name: "AIM virtual stick" }).boundingBox(), shoot = await page.getByRole("button", { name: "Hold to charge shot" }).boundingBox();
+    const game = await open(page); await page.screenshot({ path: info.outputPath(`${name}-lobby.png`) });
+    await game.getByRole("button", { name: "PRACTICE SHOTS", exact: true }).tap(); await page.screenshot({ path: info.outputPath(`${name}-shooting.png`) });
+    const stick = await game.getByRole("group", { name: "AIM virtual stick" }).boundingBox(), shoot = await game.getByRole("button", { name: "Hold to charge shot" }).boundingBox();
     expect(stick).not.toBeNull(); expect(shoot).not.toBeNull();
     const cdp = await context.newCDPSession(page);
     const points = [{ x: stick!.x + stick!.width * 0.78, y: stick!.y + stick!.height / 2, id: 1 }, { x: shoot!.x + shoot!.width / 2, y: shoot!.y + shoot!.height / 2, id: 2 }];
     // Observe the transient phase inside the page. A delayed CDP response must
     // not make a successful touch appear to have skipped charging.
-    await page.evaluate(() => {
+    await game.evaluate(() => {
       const game = document.querySelector<HTMLElement>("[data-shootout-phase]")!; game.dataset.testChargingObserved = "false";
       const observer = new MutationObserver(() => { if (game.dataset.shootoutPhase === "charging") { game.dataset.testChargingObserved = "true"; observer.disconnect(); } });
       observer.observe(game, { attributes: true, attributeFilter: ["data-shootout-phase"] });
     });
-    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: points }); await expect(page.locator("[data-shootout-phase]")).toHaveAttribute("data-test-charging-observed", "true"); await page.waitForTimeout(450); await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-    await phase(page, "resolution"); await page.screenshot({ path: info.outputPath(`${name}-result.png`) });
-    await page.getByRole("button", { name: "Leave shootout" }).tap(); await page.getByRole("button", { name: "QUIT TO LOBBY" }).tap(); await page.getByRole("button", { name: "PRACTICE SAVES", exact: true }).tap();
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: points }); await expect(game.locator("[data-shootout-phase]")).toHaveAttribute("data-test-charging-observed", "true"); await page.waitForTimeout(450); await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await phase(game, "resolution"); await page.screenshot({ path: info.outputPath(`${name}-result.png`) });
+    await game.getByRole("button", { name: "Leave shootout" }).tap(); await game.getByRole("button", { name: "QUIT TO LOBBY" }).tap(); await game.getByRole("button", { name: "PRACTICE SAVES", exact: true }).tap();
     await page.screenshot({ path: info.outputPath(`${name}-keeping.png`) });
-    const dive = page.getByRole("button", { name: "Dive right high" }); const bounds = await dive.boundingBox(); expect(bounds!.width).toBeGreaterThanOrEqual(44); expect(bounds!.height).toBeGreaterThanOrEqual(44);
-    await dive.tap(); await phase(page, "resolution");
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    const dive = game.getByRole("button", { name: "Dive right high" }); const bounds = await dive.boundingBox(); expect(bounds!.width).toBeGreaterThanOrEqual(44); expect(bounds!.height).toBeGreaterThanOrEqual(44);
+    await dive.tap(); await phase(game, "resolution");
+    expect(await game.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.goto("about:blank"); await context.close();
   });
 }
@@ -94,12 +99,19 @@ test("Full shootout settles once; replay, summary and reload preserve the result
   await page.waitForTimeout(500); console.log("Reloading completed match"); await page.reload(); await expect(page.getByRole("button", { name: "PLAY SHOOTOUT", exact: false })).toBeEnabled(); console.log("Reload complete");
   expect(await page.evaluate(() => ({ progress: localStorage.getItem("statoz.games.web.shootout.v1"), economy: localStorage.getItem("statoz.games.web.economy.v1") }))).toEqual(before);
 });
-test("Asset loading failure can retry; context loss pauses and requires resume", async ({ page }) => {
-  await page.route("**/athlete.glb", route => route.abort()); await page.goto("./play/penalty-shootout"); await expect(page.getByRole("alert").filter({ hasText: "THE PITCH" })).toBeVisible({ timeout: 60000 });
-  await page.unroute("**/athlete.glb"); await page.getByRole("button", { name: "RETRY", exact: true }).click(); await expect(page.getByRole("button", { name: "PLAY SHOOTOUT", exact: false })).toBeEnabled();
-  await page.getByRole("button", { name: "Dismiss advertisement" }).click({ timeout: 1500 }).catch(() => {}); await page.getByRole("button", { name: "PRACTICE SHOTS", exact: true }).click();
-  const canLose = await page.evaluate(() => { const gl = document.querySelector("canvas")?.getContext("webgl2"), extension = gl?.getExtension("WEBGL_lose_context"); if (!extension) return false; extension.loseContext(); setTimeout(() => extension.restoreContext(), 600); return true; });
-  expect(canLose).toBe(true); await expect(page.getByRole("dialog")).toBeVisible(); await expect(page.getByRole("button", { name: "RESUME PLAY" })).toBeEnabled(); await page.getByRole("button", { name: "RESUME PLAY" }).click(); await phase(page, "preparation");
+test.describe("Renderer recovery without the device cache", () => {
+  // A controlling service worker serves cached GLBs before Playwright routes.
+  // Fault injection must exercise the game loader through the online path.
+  test.use({ serviceWorkers: "block" });
+  test("Asset loading failure can retry; context loss pauses and requires resume", async ({ page }) => {
+    await page.route("**/athlete*.glb", route => route.abort()); await page.goto("./play/penalty-shootout");
+    await page.getByRole("button", { name: "Play online", exact: true }).click({ timeout: 45000 }).catch(() => {});
+    await expect(page.getByRole("alert").filter({ hasText: "THE PITCH" })).toBeVisible({ timeout: 60000 });
+    await page.unroute("**/athlete*.glb"); await page.getByRole("button", { name: "RETRY", exact: true }).click(); await expect(page.getByRole("button", { name: "PLAY SHOOTOUT", exact: false })).toBeEnabled();
+    await page.getByRole("button", { name: "Dismiss advertisement" }).click({ timeout: 1500 }).catch(() => {}); await page.getByRole("button", { name: "PRACTICE SHOTS", exact: true }).click();
+    const canLose = await page.evaluate(() => { const gl = document.querySelector("canvas")?.getContext("webgl2"), extension = gl?.getExtension("WEBGL_lose_context"); if (!extension) return false; extension.loseContext(); setTimeout(() => extension.restoreContext(), 600); return true; });
+    expect(canLose).toBe(true); await expect(page.getByRole("dialog")).toBeVisible(); await expect(page.getByRole("button", { name: "RESUME PLAY" })).toBeEnabled(); await page.getByRole("button", { name: "RESUME PLAY" }).click(); await phase(page, "preparation");
+  });
 });
 
 test("Starting muted can unmute crowd ambience without restarting the match", async ({ page }) => {

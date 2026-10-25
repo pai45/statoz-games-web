@@ -1,10 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import type { Sport } from "@/domain/sports";
+import type { GameSport } from "@/domain/game-sports";
 import { GameSportTabs } from "./game-sport-tabs";
 
-export function SportGamesHub({sport,children}:{sport:Sport;children:ReactNode}) {
+export function SportGamesHub({sport,children}:{sport:GameSport;children:ReactNode}) {
   const router=useRouter();
   return <div className="flex min-h-0 flex-1 flex-col">
     <GameSportTabs selected={sport} onSelect={next=>router.push(next?`/?sport=${next}`:"/")}/>

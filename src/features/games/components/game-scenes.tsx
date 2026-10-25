@@ -34,6 +34,8 @@ export type GameSceneProps = {
 };
 
 export function GameScene(props: GameSceneProps) {
+  if (props.game === "open-golf") return <div className={styles.scene} aria-hidden="true"><Image src={publicAsset('/assets/games/covers/open-golf.webp')} alt="" fill unoptimized style={{objectFit:'cover'}} /></div>;
+  if (props.game === "final-third") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/final-third/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "pitch-rush") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/pitch-rush/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "vibe-basketball") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/vibe-basketball/gameplay.jpg")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "stadium-cricket") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/stadium-cricket/stadium-preview.jpg")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
@@ -43,7 +45,7 @@ export function GameScene(props: GameSceneProps) {
 }
 function CatalogGameScene({ game, opacity = 1, animate = true, locked = false, phase }: GameSceneProps) {
   const root = useRef<HTMLDivElement>(null);
-  const scene = discoveryFamily.games[game === "retro-innings" ? "final-over" : game === "retro-hoops" ? "hoop-duel" : game];
+  const scene = discoveryFamily.games[game === "open-golf" ? "tennis-rally" : game === "retro-innings" ? "final-over" : game === "retro-hoops" ? "hoop-duel" : game];
 
   useEffect(() => {
     const element = root.current;

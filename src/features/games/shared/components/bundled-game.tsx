@@ -28,7 +28,7 @@ export function BundledGame({game, entry}: GameLauncherProps) {
     const receive = (event: MessageEvent) => {
       const value = event.data;
       if (!active || event.source !== element?.contentWindow || event.origin !== location.origin || value?.protocolVersion !== 1 || value.gameId !== game || value.sessionId !== sessionId) return;
-      if (value.type === 'exit') router.push('/games/' + (game === 'retro-hoops' ? 'basketball' : game === 'retro-circuit' ? 'motorsport' : game === 'retro-innings' ? 'cricket' : 'football'));
+      if (value.type === 'exit') router.push('/games/' + (game === 'open-golf' ? 'golf' : game === 'retro-hoops' ? 'basketball' : game === 'retro-circuit' ? 'motorsport' : game === 'retro-innings' ? 'cricket' : 'football'));
       if (value.type === 'presentation') {
         const next = readPresentation(value.payload);
         if (next) try { localStorage.setItem(displayKey, JSON.stringify(next)); } catch { setError('Display preferences could not be saved on this device.'); }
@@ -58,5 +58,5 @@ export function BundledGame({game, entry}: GameLauncherProps) {
       if (element) element.srcdoc = '';
     };
   }, [game, account, router]);
-  return <section className="fixed inset-0 z-[60] h-dvh w-full"><iframe ref={frame} title={entry.title} className="h-full w-full border-0" allow={game === "pitch-rush" ? "autoplay; fullscreen; gamepad" : "autoplay; fullscreen"} allowFullScreen/>{error && <div role="alert" className="absolute inset-x-0 top-0 bg-background p-4">{error}<button onClick={() => router.push('/')}>Return to Games</button></div>}</section>;
+  return <section className="fixed inset-0 z-[60] h-dvh w-full"><iframe ref={frame} title={entry.title} className="h-full w-full border-0" allow={game === "pitch-rush" ? "autoplay; fullscreen; gamepad" : "autoplay; fullscreen"} allowFullScreen/>{game === 'open-golf' && <button aria-label="Return to Golf" className="absolute left-3 top-3 rounded bg-black/70 px-4 py-2 text-white" onClick={()=>router.push('/?sport=golf')}>← GOLF</button>}{error && <div role="alert" className="absolute inset-x-0 top-0 bg-background p-4">{error}<button onClick={() => router.push('/')}>Return to Games</button></div>}</section>;
 }

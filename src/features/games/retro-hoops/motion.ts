@@ -2,7 +2,7 @@
 export const DRIBBLE_TICKS=18;
 export function dribbleSample(tick:number){
   const phase=((tick%DRIBBLE_TICKS)+DRIBBLE_TICKS)%DRIBBLE_TICKS;
-  const index=Math.floor(phase/6),t=(phase%6)/6,ease=t*t*(3-2*t),offsets=[-12,8,-20,-12];
+  const index=Math.floor(phase/6),t=(phase%6)/6,ease=t*t*(3-2*t),offsets=[14,22,10,14]; // V26: in front of the lead leg, as in the reference (was behind the body)
   return {frame:index,x:offsets[index]+(offsets[index+1]-offsets[index])*ease,z:6+30*Math.abs(1-phase/9),contact:phase===9};
 }
 export const RUN_FRAMES=12;

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { BrandIcon } from "@/design-system";
 import type { ActionCard, PlayerCard } from "@/domain/cards";
 import { activeLoadout, useDecks } from "@/features/cards-decks";
 import { useEconomy } from "@/features/economy";
@@ -24,7 +25,8 @@ import { divisionFor, divisions, draftOpponent, teamFromClub } from "../engine/s
 import type { MatchState } from "../engine/types";
 import { ensureMigrated, markTutorialSeen, saveClub, settleMatch, usePitchDuelCareer, type MatchSettlement } from "../state/progress";
 
-import { GuideScreen, HomeScreen, LeagueScreen, LineupScreen, SummaryScreen } from "./hub-screens";
+import { HomeScreen } from "./home-screen";
+import { GuideScreen, LeagueScreen, LineupScreen, SummaryScreen } from "./hub-screens";
 import { MatchScreen } from "./match-screen";
 import styles from "./pitch-duel.module.css";
 
@@ -136,7 +138,20 @@ export function PitchDuel({ entry }: GameLauncherProps) {
         <span className={styles.brand}>
           <span>PITCH DUEL</span>{titles[view] ? ` / ${titles[view]}` : ""}
         </span>
-        <span className={`${styles.plate} ${styles.chip}`}>DIV {divisionFor(career.points)} · {career.points} PTS</span>
+        {view === "home" ? (
+          <span className={styles.counters}>
+            <span className={`${styles.plate} ${styles.chip} ${styles.counter}`} aria-label={`${economy.coins} coins`}>
+              <BrandIcon name="coin" size={16} alt="" />
+              {economy.coins}
+            </span>
+            <span className={`${styles.plate} ${styles.chip} ${styles.counter}`} aria-label={`Win streak ${career.currentStreak}, best ${career.bestStreak}`}>
+              <BrandIcon name="streak" size={16} alt="" />
+              {career.currentStreak}
+            </span>
+          </span>
+        ) : (
+          <span className={`${styles.plate} ${styles.chip}`}>DIV {divisionFor(career.points)} · {career.points} PTS</span>
+        )}
       </header>
 
       <div className={styles.body}>

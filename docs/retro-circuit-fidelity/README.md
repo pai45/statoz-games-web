@@ -1,3 +1,3 @@
 # Current Circuit fidelity evidence
 
-0.10.2-steering / rules107. See steering-status.md and steering-source-pin.json. Adds depth-dependent steering camera yaw, panorama parallax and authored half-turn poses for all four cars. Boost/braking retain turn silhouettes. Track geometry, physics and records are unchanged. Prior opening-grid/finish/course research is preserved. No deployment or Flutter import.
+0.11.0-car-motion / rules107. See car-motion-status.md and car-motion-source-pin.json. Four original rear-perspective car families, corrected turn direction and native proportions, attached effects, coherent distant sprites and centred camera for reference profiles. Prior steering/grid/source studies remain preserved. Exact1:1, owner approval, physical phones and human audio listening remain open. Local only.

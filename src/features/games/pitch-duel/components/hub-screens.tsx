@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 
-import { Button, FilterChips, Progress, accentVar, feedbackVar } from "@/design-system";
+import { Button, FilterChips, accentVar, feedbackVar } from "@/design-system";
 import type { ActionCard, PlayerCard as PlayerCardData } from "@/domain/cards";
 
 import { attacks, defenses, families } from "../engine/actions";
@@ -19,77 +19,6 @@ import { DuelCard, StatBlock, primaryPosition, roleAccent, sideAccent } from "./
 import styles from "./pitch-duel.module.css";
 
 const resultTone = { Victory: accentVar("lime"), Draw: accentVar("gold"), Defeat: feedbackVar("danger") } as const;
-
-/* ---- Home ----------------------------------------------------------------- */
-
-export function HomeScreen({
-  career,
-  club,
-  cardFor,
-  onKickOff,
-  onLineup,
-  onLeague,
-  onGuide,
-}: {
-  career: Career;
-  club: ClubSetup | null;
-  cardFor: (id: string) => PlayerCardData | undefined;
-  onKickOff: () => void;
-  onLineup: () => void;
-  onLeague: () => void;
-  onGuide: () => void;
-}) {
-  const division = divisionFor(career.points);
-  const toNext = division >= 5 ? 1 : (career.points % 9) / 9;
-  const names = club ? [club.keeperId, ...club.outfield].map((id) => cardFor(id)?.shortName ?? "?").join(" · ") : "Build your five-a-side";
-  return (
-    <div className={styles.home}>
-      <section className={`${styles.plate} ${styles.hero}`} aria-label="Season">
-        <div className={styles.heroPitch} aria-hidden />
-        <div>
-          <div className={styles.kicker}>SEASON 01 · {divisions[division - 1]}</div>
-          <h1 className={styles.title}>READ THE PLAY.<br />WIN THE DUEL.</h1>
-        </div>
-        <p className={styles.lead}>Pick your move, they pick their counter in secret. Thirty decisions, ninety minutes.</p>
-        <div className={styles.record}>
-          <span>PLAYED <b>{career.played}</b></span>
-          <span>W-D-L <b>{career.wins}-{career.draws}-{career.losses}</b></span>
-          <span>GOALS <b>{career.goalsFor}:{career.goalsAgainst}</b></span>
-          <span>STREAK <b>{career.currentStreak}</b></span>
-        </div>
-        <Progress value={toNext} accent={accentVar("cyan")} label={division >= 5 ? "Top division" : `${career.points % 9} of 9 points to promotion`} />
-        <div className={styles.heroActions}>
-          <Button size="lg" glow accent={accentVar("lime")} onClick={onKickOff} label="Kick off">
-            KICK OFF ▶
-          </Button>
-          {!career.tutorialSeen ? (
-            <button type="button" className={`${styles.plate} ${styles.notice}`} onClick={onGuide}>
-              NEW RULES — see how a turn works
-            </button>
-          ) : null}
-        </div>
-      </section>
-
-      <nav className={styles.tiles} aria-label="Club">
-        <button type="button" className={`${styles.plate} ${styles.tile}`} style={{ "--tone": accentVar("lime") } as CSSProperties} onClick={onLineup}>
-          <small>01 · LINEUP</small>
-          <strong>{club ? `${club.formation} ${formations[club.formation].label}` : "PICK YOUR FIVE"}</strong>
-          <span>{names}</span>
-        </button>
-        <button type="button" className={`${styles.plate} ${styles.tile}`} style={{ "--tone": accentVar("cyan") } as CSSProperties} onClick={onLeague}>
-          <small>02 · LEAGUE</small>
-          <strong>DIVISION {division} · {career.points} PTS</strong>
-          <span>{division >= 5 ? "Champions division" : `${9 - (career.points % 9)} points to promotion`}</span>
-        </button>
-        <button type="button" className={`${styles.plate} ${styles.tile}`} style={{ "--tone": accentVar("pink") } as CSSProperties} onClick={onGuide}>
-          <small>03 · HOW TO PLAY</small>
-          <strong>MIND GAMES</strong>
-          <span>Moves, counters, set pieces</span>
-        </button>
-      </nav>
-    </div>
-  );
-}
 
 /* ---- Lineup --------------------------------------------------------------- */
 

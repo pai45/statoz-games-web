@@ -79,7 +79,8 @@ export function characterAnchors(p:Pictures,key:string){return atlases.get(p)?.p
 /** Identity is stable per athlete; the action body owns the head anchor/view. */
 export function headLayer(p:Pictures,a:Actor,pose:string){
  const rig=characterAnchors(p,pose);if(!rig?.head)return null;
- const key=`${a.team===0?"navy":"amber"}-head-${a.id%3}-${rig.view??"side"}-${a.face===1?"source":"mirrored"}`;
+ // Pass frames are drawn facing the receiver (mirrored body), so their head layer flips too.
+ const flip=/-(throw-[0-9]+|p-pass-gather-left|p-pass-extend-left)-(source|mirrored)$/.test(pose),key=`${a.team===0?"navy":"amber"}-head-${a.id%3}-${rig.view??"side"}-${(a.face===1)!==flip?"source":"mirrored"}`;
  return p[key]?{key,x:rig.head[0],y:rig.head[1],underBody:/-(jump-block-[0-9]+|a-overhead|a-reach)-/.test(pose)}:null;
 }
 export function characterMarkerHeight(p:Pictures,key:string){const head=characterAnchors(p,key)?.head;return head?116-head[1]+18:124;}

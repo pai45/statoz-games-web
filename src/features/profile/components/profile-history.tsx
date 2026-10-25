@@ -112,7 +112,7 @@ export type ProfileHistoryScreenProps = {
  */
 export function ProfileHistoryScreen({ section }: ProfileHistoryScreenProps) {
   return (
-    <AuthBoundary
+    <AuthBoundary allowGuest
       intent="view your history"
       message="Log in to review your predictions, picks, and game results."
       returnTo={`/profile/history/${section}`}

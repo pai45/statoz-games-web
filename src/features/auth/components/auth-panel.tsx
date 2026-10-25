@@ -89,8 +89,11 @@ export function AuthPanel({ className }: AuthPanelProps) {
         .join(" ")}
     >
       <h1 className="font-display text-3xl font-black leading-tight tracking-tight">
-        LET&apos;S GET STARTED
+        SAVE YOUR PROGRESS
       </h1>
+
+      <p className="text-sm leading-relaxed text-muted">Log in or create a local demo account. New accounts keep your guest progress; logging in to an existing account restores its saved progress. Saves stay in this browser.</p>
+      <Link href={returnTo} className="min-h-11 py-3 text-sm font-semibold text-cyan underline underline-offset-4">CONTINUE AS GUEST</Link>
 
       <form action={submitEmail} noValidate className="flex flex-col gap-5">
         <InputField

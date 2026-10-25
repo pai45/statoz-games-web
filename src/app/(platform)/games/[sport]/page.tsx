@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { sportModules, sportOrder, type Sport } from "@/domain/sports";
+import { gameSportModules, gameSportOrder, type GameSport } from "@/domain/game-sports";
 import { AdSlot } from "@/features/ads";
 import { SportGameDeck, SportGamesHub } from "@/features/games";
 
 /** Every sport is known up front, so all five decks prerender. */
 export function generateStaticParams() {
-  return sportOrder.map((sport) => ({ sport }));
+  return gameSportOrder.map((sport) => ({ sport }));
 }
 
-function resolve(sport: string): Sport | null {
-  return sport in sportModules ? (sport as Sport) : null;
+function resolve(sport: string): GameSport | null {
+  return sport in gameSportModules ? (sport as GameSport) : null;
 }
 
 export async function generateMetadata({
@@ -20,7 +20,7 @@ export async function generateMetadata({
   const sport = resolve((await params).sport);
   if (!sport) return { title: "Games" };
 
-  const label = sportModules[sport].label;
+  const label = gameSportModules[sport].label;
   return {
     title: `${label} games`,
     description: `Every StatOz game you can play on ${label.toLowerCase()}.`,

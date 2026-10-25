@@ -89,6 +89,17 @@ FOREARM=[(0,3.0),(.25,3.3),(1,2.3)]
 THIGH=[(0,5.4),(.35,4.8),(1,3.4)]
 SHIN=[(0,3.4),(.3,3.8),(1,2.4)]
 
+def fold(im,mask,pts,color):
+ """Cloth crease: a 1px line kept strictly inside the part (never on its outline)."""
+ from PIL import ImageDraw
+ tmp=Image.new('L',im.size,0);ImageDraw.Draw(tmp).line([(round(x),round(y))for x,y in pts],fill=255,width=1)
+ line=np.array(tmp)>0;pad=np.pad(mask,1);inner=mask&pad[:-2,1:-1]&pad[2:,1:-1]&pad[1:-1,:-2]&pad[1:-1,2:]
+ sel=line&inner
+ if sel.any():arr=np.array(im);arr[sel,:3]=hexrgb(color);im.paste(Image.fromarray(arr))
+def axis(a,b):
+ dx,dy=b[0]-a[0],b[1]-a[1];l=max(.01,math.hypot(dx,dy));nx,ny=-dy/l,dx/l
+ return lambda t,w:(a[0]+dx*t+nx*w,a[1]+dy*t+ny*w)
+
 def far_tones(t):return [t[0],t[0],t[1],t[2],t[3]]
 def mixp(a,b,t):return(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t)
 SOCK=['#7e858c','#b9bec2','#e3e6e2','#f6f7f3','#ffffff']
@@ -108,7 +119,9 @@ def vol_leg(im,hip,knee,ankle,palette,far=False):
  if far:t=far_tones(t);ct=far_tones(ct)
  render_group(im,[Capsule(hip,knee,THIGH),Capsule(knee,ankle,SHIN)],t,skin[0])
  cuff=mixp(knee,ankle,.72);render_group(im,[Capsule(cuff,ankle,[(0,3.2),(1,3.0)])],far_tones(SOCK)if far else SOCK,'#5d646b')
- hem=mixp(hip,knee,.86);hem=mixp(hip,knee,.9);render_group(im,[Capsule(hip,hem,[(0,5.4),(.6,5.6),(1,6.0)])],ct,kit[0])
+ hem=mixp(hip,knee,.9);sm=render_group(im,[Capsule(hip,hem,[(0,5.4),(.6,5.6),(1,6.0)])],ct,kit[0])
+ # V27 shorts creases: inner-leg fold and hem fold.
+ q=axis(hip,hem);fold(im,sm,[q(.2,1.5),q(.75,3.2)],ct[0]);fold(im,sm,[q(.88,-3.5),q(.92,1)],ct[1])
 def vol_seat(im,hips,palette,view):
  kit=palette['short'];hx,hy=mixp(hips[0],hips[1],.5)
  if view=='side':render_group(im,[Capsule((hx-3,hy),(hx+3,hy),[(0,4.4),(1,4.4)])],cloth_tones(kit),kit[0])
@@ -144,4 +157,10 @@ def vol_torso(im,chest,hip,palette,view):
    return c
  base=cloth_tones(kit)
  m=Material(fn,{k:v for k,v in tones.items()if v})
- return render_group(im,caps,base,ink,material=m)
+ tm=render_group(im,caps,base,ink,material=m)
+ # V27 jersey creases: diagonal folds from the armpit toward the waist, kept inside the jersey.
+ if view=='side':
+  q=axis(waist,chest);fold(im,tm,[q(.85,-3.5),q(.35,2.5)],base[0]);fold(im,tm,[q(.6,-5),q(.15,0)],base[1])
+ else:
+  for sgn in(-1,1):fold(im,tm,[(chest[0]+sgn*5,chest[1]+6),(hip[0]+sgn*3,hip[1]-6)],base[1])
+ return tm

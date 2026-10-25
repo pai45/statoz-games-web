@@ -100,11 +100,13 @@ test("Runtime model has a skin, required clips and a complete hashed asset manif
   for (const file of manifest.files) assert.equal(createHash("sha256").update(fs.readFileSync(root + file.path)).digest("hex"), file.sha256);
 });
 
-test("The exported skinned boot reaches the ball on the authored contact frame", async () => {
+test("The exported skinned boots reach the ball for every shot style on the contact frame", async () => {
   const THREE = await import("three"), { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
   const bytes = fs.readFileSync("public/assets/games/penalty-shootout/athlete.glb"), model = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
   const group = new THREE.Group(); group.add(model.scene); group.rotation.y = Math.PI; group.position.set(TAKER.x, 0, GOAL.spot + TAKER.contactOffset);
-  const mixer = new THREE.AnimationMixer(model.scene); mixer.clipAction(model.animations.find(a => a.name === "kick_driven")!).play(); mixer.setTime(1); group.updateMatrixWorld(true);
+  const mixer = new THREE.AnimationMixer(model.scene);
+  for (const style of ["driven", "placed", "chip"]) {
+  mixer.stopAllAction(); mixer.setTime(0); mixer.clipAction(model.animations.find(a => a.name === "kick_" + style)!).reset().play(); mixer.setTime(1); group.updateMatrixWorld(true);
   let nearest = Infinity;
   model.scene.traverse(object => {
     const mesh = object as import("three").SkinnedMesh;
@@ -112,7 +114,8 @@ test("The exported skinned boot reaches the ball on the authored contact frame",
     mesh.skeleton.update();
     for (let i = 0; i < mesh.geometry.attributes.position.count; i++) { const p = mesh.getVertexPosition(i, new THREE.Vector3()).applyMatrix4(mesh.matrixWorld); nearest = Math.min(nearest, p.distanceTo(new THREE.Vector3(0, 0.11, 11))); }
   });
-  assert.ok(nearest < 0.14, `Boot must meet the ball, nearest distance was ${nearest}`);
+  assert.ok(nearest < 0.14, `${style} boot must meet the ball, nearest distance was ${nearest}`);
+  }
 });
 
 test("Complete physical shootouts reach wins, losses and paired sudden death", () => {

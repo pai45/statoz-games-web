@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "assetVersion": "character-motion-4",
-  "runtimeVersion": "character-motion-4",
+  "assetVersion": "character-shoulders-8",
+  "runtimeVersion": "character-shoulders-8",
   "model": {
     "file": "athlete.glb",
     "foundation": "Blender Studio Human Base Meshes v1.4.1, GEO-body_male_realistic",
@@ -10,7 +10,7 @@
     "archiveSha256": "811f43accbb31a88266d932f8f5563b2d13586fca0ba2693aad1f5fe582b3515",
     "license": "CC0-1.0",
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "adaptation": "Original panelled football kits with sleeve ribs, shorts hems and fabric normals; refined athletic anatomy, boot laces/tongues/heel counters, padded glove ridges and eyebrows; 60-bone rig, two detail levels and 35 named clips including compatibility aliases; world-anchored approach footfalls and seeded keeper gestures. Blender 4.5.9 LTS.",
+    "adaptation": "Original panelled football kits with sleeve ribs, shorts hems and fabric normals; refined athletic anatomy, boot laces/tongues/heel counters, padded glove ridges and eyebrows; 60-bone rig, two detail levels and 35 named clips including compatibility aliases; world-anchored approach footfalls and seeded keeper gestures. Blender 4.5.9 LTS. Model v5: repaired anatomical eye sockets, fitted irises/pupils and brows, scalp-conforming original hair, distinct jaw/cheek/nose presets, skin vertex tones, smooth jersey panels and slimmed boots. No EA asset data. Surface v6: original pigment/roughness/pores face maps, scalp-projected tapered hair locks sharing scalp primitives, cleaned garment shading normals and neck taper. Existing skeleton, motion and contacts retained. Construction v7: authored continuous jersey torso with shared-vertex sleeve bridges, articulated continuous glove fingers and curved palms, tapered brows, restrained chin/cheek sculpt and asymmetric quiff. Existing rig, clips and contact markers retained. Shoulders v8: continuous chest-clavicle-upper-arm sleeve weights so sleeves, cuffs and upper-arm skin follow raised arms. Construction v7 geometry, rig, clips and contact markers retained.",
     "approval": "approved for this requested local game",
     "detailLevels": [
       "athlete.glb",
@@ -26,7 +26,20 @@
       "four hair/face presets, brows, blink and gaze",
       "world-anchored run-up footfalls",
       "keeper wave/crouch with immediate command interruption",
-      "two mesh detail levels"
+      "two mesh detail levels",
+      "scalp-conforming hair with original directional normal map",
+      "anatomical eye sockets with separate pupils",
+      "distinct jaw, cheek and nose preset geometry",
+      "original face vertex tones",
+      "original facial pigment, pore and regional roughness maps",
+      "scalp-projected layered hair locks",
+      "garment depth and shading refinement",
+      "continuous jersey torso with sleeve bridge topology",
+      "continuous articulated glove fingers",
+      "curved latex palms and shaped glove backs",
+      "tapered brows and asymmetric quiff",
+      "role-specific bare hands and enclosed keeper cuffs",
+      "sleeves and cuffs follow raised arms"
     ]
   },
   "audio": {
@@ -48,8 +61,8 @@
   "files": [
     {
       "path": "athlete.glb",
-      "bytes": 3349704,
-      "sha256": "0773408b6ad1c5645c3304cf64db5f4641eaee095c7219c65b874e08047d926c"
+      "bytes": 6288112,
+      "sha256": "1a611884e7dff6794bac63d411b07ced5cf0f9e849b7a7f73c1bb1fd423fca31"
     },
     {
       "path": "audio/crowd.ogg",
@@ -93,8 +106,8 @@
     },
     {
       "path": "athlete-low.glb",
-      "bytes": 2588868,
-      "sha256": "f8b47f93daa9fdaddf092210dc85e56c699e546a0b284fbd590f078f05b40994"
+      "bytes": 4613168,
+      "sha256": "f03413ac2ea0767f34a9dace645ca44565b9957e6c7b9834047a293aec67432b"
     },
     {
       "path": "fabric-weave.png",
@@ -115,6 +128,31 @@
       "path": "skin-normal.png",
       "bytes": 115615,
       "sha256": "c0ebbab9f73d09fa51fe305216ef2f84b41b5c80c52e9fed908ab573215dfa43"
+    },
+    {
+      "path": "hair-strands-normal.png",
+      "bytes": 15384,
+      "sha256": "8087b9a12c71e1430a46ca77337bb1ef463b50a7e113b8fc94d3946dd5877603"
+    },
+    {
+      "path": "model-refinement.json",
+      "bytes": 484,
+      "sha256": "6d900067321943aad3c9663ed870b97619354ff234126da1cf837767cb347bda"
+    },
+    {
+      "path": "face-pigment-v6.png",
+      "bytes": 243810,
+      "sha256": "3a6e658129a8a5ce55142571008932a8737be6841e9b9b59221c64d15a7a418d"
+    },
+    {
+      "path": "face-pores-v6.png",
+      "bytes": 340288,
+      "sha256": "b1aded1187c739f0cc8f2c33380e893d253a7b4d1370bfd72efb94ea9814cf8d"
+    },
+    {
+      "path": "face-roughness-v6.png",
+      "bytes": 307622,
+      "sha256": "462d5a6c66cae15e65bd6259480e2979e1e0b62974545934fcd04da9aff2ebcc"
     }
   ],
   "authoring": {
@@ -122,8 +160,8 @@
     "files": [
       {
         "path": "docs/penalty-shootout/assets/athlete-source.blend",
-        "bytes": 2959429,
-        "sha256": "cfc1d8410333fe07ba5d66c461a257d2690c196d7153946e22fdef200da00a1c"
+        "bytes": 4927728,
+        "sha256": "95e0a78880b7a6907d99e44acc29f3518b1dadfe6ad3d31824f219ce7a983828"
       },
       {
         "path": "docs/penalty-shootout/assets/build-athlete.py",
@@ -131,10 +169,46 @@
         "sha256": "992a2dd0f814531740b94148bda87796b759e343236a4b9e71837cdbf889a121"
       },
       {
-        "path": "scripts/build-shootout-motion.mjs",
-        "bytes": 2832,
-        "sha256": "8aaeb1da065e69e21d0982bc305ddd6b3b7b8b8c4bdcca7c67bd6ae2c933e7fa"
+        "path": "docs/penalty-shootout/assets/athlete-source-v4.blend",
+        "bytes": 2959429,
+        "sha256": "cfc1d8410333fe07ba5d66c461a257d2690c196d7153946e22fdef200da00a1c"
+      },
+      {
+        "path": "docs/penalty-shootout/assets/refine-athlete.py",
+        "bytes": 17117,
+        "sha256": "641159dc7be1cdc566efdae24fcd9dcda22c4a82e21d4f72c7c7e1a0ff6b8041"
+      },
+      {
+        "path": "docs/penalty-shootout/assets/refine-surfaces.py",
+        "bytes": 10045,
+        "sha256": "63c46d01e8540cfeba4973eff381dd16f85f609e69495c7a0a873eabce5d7142"
+      },
+      {
+        "path": "docs/penalty-shootout/assets/athlete-source-v5.blend",
+        "bytes": 3391111,
+        "sha256": "b21b7c862b306931f069822f258cdc0670858930646e16a25d0229fbb133aaec"
+      },
+      {
+        "path": "docs/penalty-shootout/assets/refine-construction.py",
+        "bytes": 12117,
+        "sha256": "046aa269e48fdae478b80348434f0ad014d20ba077e9609470717619e0aeb15f"
+      },
+      {
+        "path": "docs/penalty-shootout/assets/athlete-source-v6.blend",
+        "bytes": 4708478,
+        "sha256": "fb2216363377d8d6f4e0dbc460fa094c10dda258666d38fe2522659d21678190"
+      },
+      {
+        "path": "docs/penalty-shootout/assets/refine-shoulders.py",
+        "bytes": 5251,
+        "sha256": "0a6e47cfbce40b60711f39b5de412e8559593c11e1da250d75639622437ac965"
+      },
+      {
+        "path": "docs/penalty-shootout/assets/athlete-source-v7.blend",
+        "bytes": 4921251,
+        "sha256": "7f480683357b43c139974072cb84ffdde9155143d04a22d5efe85185dbe53321"
       }
-    ]
+    ],
+    "note": "The historical motion compiler is absent from this migrated checkout. Model v5 retains the existing CPU motion data, skeleton and clip names; refine-athlete.py consumes the preserved v4 editable source and the CC0 foundation."
   }
 }

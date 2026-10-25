@@ -89,6 +89,20 @@ The first club is drafted from the football loadout and owned cards.
 
 The fictional cards are playable only in Pitch Duel. Real-athlete cards still come from the existing catalog, and their presence does not imply endorsement.
 
+## Home screen
+
+The landing screen (`components/home-screen.tsx`) is a matchday hub:
+- **Header:** coin and win-streak counters.
+- **Left:** your five shown on a mini pitch in formation, with portraits, ratings and the club OVR. Tap it to edit the lineup.
+- **Right:**
+  - the division emblem and matchday number;
+  - a 9-pip promotion track, ending in the fictional card that promotion unlocks;
+  - the last five results;
+  - KICK OFF, the one glowing action, with what a win pays;
+  - League and How to play links. How to play shows "NEW · START HERE" until the rules have been read.
+
+Gold is used only for rewards. Entrance and pip-fill animations are switched off with reduced motion.
+
 ## Mobile
 
 - On phones the shared `MobileGameViewport` gives the game a landscape viewport.

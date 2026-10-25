@@ -9,6 +9,7 @@ const sourceCatalog: GamesTrendingTileConfig[] = [
   { id: "trend-game-retro-hoops", sourceId: "retro-hoops", sport: "basketball", span: "square" },
   { id: "trend-game-retro-circuit", sourceId: "retro-circuit", sport: "motorsport", span: "square" },
   { id: "trend-game-retro-football", sourceId: "retro-football", sport: "football", span: "wide" },
+  {id:"trend-game-open-golf",sourceId:"open-golf",sport:"golf",span:"wide"},
   { id: "trend-game-retro-innings", sourceId: "retro-innings", sport: "cricket", span: "wide" },
   {
     id: "trend-game-pitch-duel",

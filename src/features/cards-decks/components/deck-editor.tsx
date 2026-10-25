@@ -54,7 +54,7 @@ export function DeckEditor({ sport, returnTo }: { sport: Sport; returnTo?: strin
   const queryReturnTo = searchParams.get("returnTo") ?? undefined;
   const resolvedReturnTo = safeReturnTo(returnTo ?? queryReturnTo);
 
-  return <AuthBoundary intent="edit your loadout" message="Log in to manage owned cards and save an active lineup." returnTo={`/decks/${sport}`}><AuthenticatedDeckEditor sport={sport} returnTo={resolvedReturnTo} /></AuthBoundary>;
+  return <AuthBoundary allowGuest intent="edit your loadout" message="Log in to manage owned cards and save an active lineup." returnTo={`/decks/${sport}`}><AuthenticatedDeckEditor sport={sport} returnTo={resolvedReturnTo} /></AuthBoundary>;
 }
 
 function AuthenticatedDeckEditor({ sport, returnTo }: { sport: Sport; returnTo: string }) {

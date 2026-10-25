@@ -17,7 +17,7 @@ export function drawParkCourt(c:CanvasRenderingContext2D,frame=0){
   for(const [x,key,side] of [[85,"left",-1],[815,"right",1]] as const){
     const p=courtPoint(x,COURT.rimY),art=BASKET_ART[key],board=side<0?p.x-(art.rimX-9)*p.scale:p.x+4*p.scale,armY=p.y-(COURT.rimZ+art.rimY-20)*p.scale;
     // Two depth planes of the tower, each with an inner and outer upright, projected like the court.
-    const planes=[COURT.rimY-20,COURT.rimY+14].map(y=>{const g=courtPoint(side<0?48:852,y),h=courtPoint(side<0?26:874,y),top=g.y-(COURT.rimZ+32)*g.scale;return{inner:g,outer:h,top};});
+    const planes=[COURT.rimY-20,COURT.rimY+14].map(y=>{const g=courtPoint(side<0?48:852,y),h=courtPoint(side<0?26:874,y),top=g.y-(COURT.rimZ+16)*g.scale;return{inner:g,outer:h,top};});
     for(const pl of planes){tube(pl.inner.x,pl.inner.y,pl.inner.x,pl.top);tube(pl.outer.x,pl.outer.y,pl.outer.x,pl.top);
       for(let k=0;k<3;k++){const f=k/2,yi=pl.inner.y+(pl.top-pl.inner.y)*f,yo=pl.outer.y+(pl.top-pl.outer.y)*f;tube(pl.inner.x,yi,pl.outer.x,yo,2);if(k<2){const f2=(k+1)/2;tube(pl.inner.x,yi,pl.outer.x,pl.outer.y+(pl.top-pl.outer.y)*f2,2);}}}
     tube(planes[0].inner.x,planes[0].top,planes[1].inner.x,planes[1].top,2);tube(planes[0].outer.x,planes[0].top,planes[1].outer.x,planes[1].top,2);
@@ -25,7 +25,8 @@ export function drawParkCourt(c:CanvasRenderingContext2D,frame=0){
     for(const pl of planes){c.globalAlpha=.4;c.fillStyle="#000";c.beginPath();c.ellipse((pl.inner.x+pl.outer.x)/2,pl.inner.y+1,Math.abs(pl.outer.x-pl.inner.x)/2+5,3,0,0,Math.PI*2);c.fill();c.globalAlpha=1;}
     // Spare balls and a duffel bag at the foot of the tower.
     for(let k=0;k<4;k++){const b=courtPoint((side<0?40:860)+side*-k*8,COURT.rimY+44+(k%2)*6),r=5*b.scale;c.fillStyle="#3a1a0e";c.beginPath();c.arc(b.x,b.y-r,r+1,0,Math.PI*2);c.fill();c.fillStyle="#b4561e";c.beginPath();c.arc(b.x,b.y-r,r,0,Math.PI*2);c.fill();c.fillStyle="#e08a3a";c.beginPath();c.arc(b.x-r*.35,b.y-r*1.35,r*.45,0,Math.PI*2);c.fill();c.strokeStyle="#3a1a0e";c.lineWidth=1;c.beginPath();c.moveTo(b.x-r,b.y-r);c.lineTo(b.x+r,b.y-r);c.stroke();}
-    const bag=courtPoint(side<0?24:876,COURT.rimY-40);rect(bag.x-11,bag.y-9,22,9,"#121316");rect(bag.x-11,bag.y-9,22,2,"#2c2e34");rect(bag.x-4,bag.y-12,8,3,"#121316");
+    // Duffel bag on the floor by the crowd: rounded body, lighter top edge and a carry strap.
+    const bag=courtPoint(side<0?36:864,COURT.top+6);c.fillStyle="#0d0e10";c.beginPath();c.ellipse(bag.x,bag.y-5,13,6,0,0,Math.PI*2);c.fill();c.fillStyle="#24262c";c.beginPath();c.ellipse(bag.x,bag.y-6,12,5,0,Math.PI,Math.PI*2);c.fill();c.strokeStyle="#3a3d44";c.lineWidth=1;c.beginPath();c.arc(bag.x,bag.y-10,5,Math.PI,Math.PI*2);c.stroke();rect(bag.x-12,bag.y-6,24,1,"#0d0e10");
   }
   // Project all court markings through the same ground plane as actors and ball.
   const path=(points:{x:number;y:number}[],color:string,fill=false,close=false)=>{c.beginPath();points.forEach((p,i)=>{const q=courtPoint(p.x,p.y);if(i===0)c.moveTo(q.x,q.y);else c.lineTo(q.x,q.y);});if(close)c.closePath();if(fill){c.fillStyle=color;c.fill();}else{c.strokeStyle=color;c.stroke();}};

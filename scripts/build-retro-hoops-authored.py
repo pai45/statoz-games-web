@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageOps
 import math, json, hashlib
 from retro_hoops_character import render_character,RIG,IDENTITIES,head,PixelDraw
 
-ROOT=Path.cwd(); OUT=ROOT/'public/games/retro-hoops/authored-v25'; OUT.mkdir(parents=True,exist_ok=True)
+ROOT=Path.cwd(); OUT=ROOT/'public/games/retro-hoops/authored-v28'; OUT.mkdir(parents=True,exist_ok=True)
 W,H=144,128
 CLIPS={'run':12,'dribble-body':12,'defend':8,'brake':4,'dribble-arm':18,'backpedal':8,'pivot':4,'dribble-switch':72,
        'shot':30,'throw':12,'finish':24,'jump-block':24,'reach':15,'recover':12,'collect':6,'fake':12,'catch':12}
@@ -70,9 +70,9 @@ for key,digest in imageIds.items():regions[key]=locations[digest]
 names=[]
 for i,atlas in enumerate(atlases):
  name=f'family-{i}.png';names.append(name);atlas.save(OUT/name,optimize=True)
-manifest={'version':'25.0.0','classification':'original authored pixel geometry; no reference rasters','approval':'draft-pending-visual-review','sourceCode':'scripts/build-retro-hoops-authored.py','sourceCodeSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'nativeTimingRecovered':False,'rig':RIG,'anatomySource':'scripts/retro_hoops_character.py','anatomySourceSha256':hashlib.sha256((ROOT/'scripts/retro_hoops_character.py').read_bytes()).hexdigest(),'canvas':[W,H],'feet':[72,116],'atlases':names,'regions':regions,'clips':CLIPS,'palettes':PALETTES,'frames':frames,'headFrames':headFrames,'identities':IDENTITIES,'headLayer':{'canvas':[32,32],'nativeArtwork':[32,32],'anchor':[16,16],'bodyContainsHead':False},'atlasHashes':{name:hashlib.sha256((OUT/name).read_bytes()).hexdigest()for name in names}}
+manifest={'version':'28.0.0','classification':'original authored pixel geometry; no reference rasters','approval':'draft-pending-visual-review','sourceCode':'scripts/build-retro-hoops-authored.py','sourceCodeSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'nativeTimingRecovered':False,'rig':RIG,'anatomySource':'scripts/retro_hoops_character.py','anatomySourceSha256':hashlib.sha256((ROOT/'scripts/retro_hoops_character.py').read_bytes()).hexdigest(),'canvas':[W,H],'feet':[72,116],'atlases':names,'regions':regions,'clips':CLIPS,'palettes':PALETTES,'frames':frames,'headFrames':headFrames,'identities':IDENTITIES,'headLayer':{'canvas':[32,32],'nativeArtwork':[32,32],'anchor':[16,16],'bodyContainsHead':False},'atlasHashes':{name:hashlib.sha256((OUT/name).read_bytes()).hexdigest()for name in names}}
 (OUT/'manifest.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
-review=ROOT/'test-results/retro-hoops-character-v25';review.mkdir(parents=True,exist_ok=True)
+review=ROOT/'test-results/retro-hoops-character-v28';review.mkdir(parents=True,exist_ok=True)
 sheet=Image.new('RGB',(12*W,10*H),'#393c34')
 for row,kind in enumerate(['run','dribble-body','defend','shot','throw','finish','jump-block','fake','recover','catch']):
  count=CLIPS[kind]

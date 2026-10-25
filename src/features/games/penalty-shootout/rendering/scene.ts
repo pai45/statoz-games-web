@@ -77,7 +77,7 @@ export class ShootoutScene {
     if (this.disposed) { model.scene.traverse(o => { if (o instanceof THREE.Mesh) o.geometry.dispose(); }); return; }
     if (!model.animations.some(a => a.name === "kick_driven")) throw new Error("Athlete animation clips are missing");
     let missingTexture = false;
-    model.scene.traverse(object => { if (object instanceof THREE.Mesh) for (const material of Array.isArray(object.material) ? object.material : [object.material]) if (["Skin", "Jersey", "Socks"].includes(material.name) && !(material as THREE.MeshStandardMaterial).map) missingTexture = true; });
+    model.scene.traverse(object => { if (object instanceof THREE.Mesh) for (const material of Array.isArray(object.material) ? object.material : [object.material]) if (["Skin", "SkinFace", "Jersey", "Socks"].includes(material.name) && !(material as THREE.MeshStandardMaterial).map) missingTexture = true; });
     if (missingTexture) throw new Error("Character textures could not load. Please retry the pitch.");
     for (const bone of ["hips", "head", "hand_L", "hand_R", "foot_L", "foot_R"]) if (!model.scene.getObjectByName(bone)) throw new Error("Character skeleton is incomplete");
     this.model = model; this.shooter = this.athlete(model, false); this.keeper = this.athlete(model, true);
@@ -93,6 +93,7 @@ export class ShootoutScene {
     character.traverse(o => {
       nodes.set(o.name, o);
       if (o.name.startsWith("Glove")) o.visible = keeping;
+      if (o.name.startsWith("HandSkin_")) o.visible = !keeping;
       if (o instanceof THREE.Bone) bones.set(o.name, o);
       if (o instanceof THREE.Mesh) {
         o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
@@ -104,7 +105,7 @@ export class ShootoutScene {
           if (m.name === "Jersey") mat.map ??= kit;
           if (palette[m.name] !== undefined) mat.color.setHex(palette[m.name]);
           if (m.name === "Gloves" || m.name === "GloveBack") mat.visible = keeping;
-          if (m.name === "Skin") { mat.color.setHex(0x9f7354); mat.roughness = .72; }
+          if (m.name === "Skin" || m.name === "SkinFace") { mat.color.setHex(0x9f7354); if (m.name === "Skin") mat.roughness = .72; }
           return mat;
         };
         o.material = Array.isArray(o.material) ? o.material.map(convert) : convert(o.material);
@@ -168,7 +169,7 @@ export class ShootoutScene {
         if (object.morphTargetDictionary && object.morphTargetInfluences) {
           for (const [name, index] of Object.entries(object.morphTargetDictionary)) object.morphTargetInfluences[index] = name.startsWith("FacePreset_") ? Number(name.slice(-1)) === pose.preset ? 1 : 0 : name === "Blink" ? pose.blink : name === "LookLeft" ? Math.max(0, -Math.sin(pose.time * 1.4 + pose.preset)) * .6 : name === "LookRight" ? Math.max(0, Math.sin(pose.time * 1.4 + pose.preset)) * .6 : name === "Smile" ? pose.expression === "smile" ? .7 : 0 : name === "Tension" ? pose.expression === "tension" ? .6 : 0 : 0;
         }
-        if (athlete.preset !== pose.preset) for (const material of Array.isArray(object.material) ? object.material : [object.material]) if (material.name === "Skin") (material as THREE.MeshStandardMaterial).color.setHex([0xad805c, 0x80533a, 0xc39470, 0x60432f][pose.preset]);
+        if (athlete.preset !== pose.preset) for (const material of Array.isArray(object.material) ? object.material : [object.material]) if (material.name === "Skin" || material.name === "SkinFace") (material as THREE.MeshStandardMaterial).color.setHex([0xad805c, 0x80533a, 0xc39470, 0x60432f][pose.preset]);
       }); athlete.preset = pose.preset;
     };
     update(this.shooter, frame.shooterPose, samplePrevious?.shooterPose); update(this.keeper, frame.keeperPose, samplePrevious?.keeperPose);

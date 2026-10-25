@@ -16,7 +16,7 @@ import {
   StyleIcon,
   withAlpha,
 } from "@/design-system";
-import { signOut } from "@/features/auth";
+import { loginHref, signOut, useAuthSession } from "@/features/auth";
 
 import { ProfileOverlay } from "./profile-overlay";
 import styles from "./profile.module.css";
@@ -127,6 +127,7 @@ function NavRow({
 /* ---- Settings -------------------------------------------------------------- */
 
 function SettingsSheet({ onClose }: { onClose: () => void }) {
+  const session = useAuthSession();
   const [confirming, setConfirming] = useState(false);
 
   if (confirming) {
@@ -139,7 +140,9 @@ function SettingsSheet({ onClose }: { onClose: () => void }) {
       icon={<SettingsIcon size={17} />}
       onClose={onClose}
     >
-      <button
+      {session.status === "guest" ? (
+        <div className="p-4"><NavLink icon={<SettingsIcon size={20} />} label="Save progress â€” Log in / Create account" href={loginHref("/profile")} /></div>
+      ) : <button
         type="button"
         onClick={() => setConfirming(true)}
         className="flex w-full cursor-pointer items-center gap-3 px-4.5 py-4 text-left transition-colors hover:bg-white/4"
@@ -171,7 +174,7 @@ function SettingsSheet({ onClose }: { onClose: () => void }) {
           </span>
         </span>
         <ChevronRightIcon size={20} style={{ color: danger }} />
-      </button>
+      </button>}
     </ProfileOverlay>
   );
 }

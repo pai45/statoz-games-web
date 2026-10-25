@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     "vendor/cricketv2/**",
     "vendor/vibebasketball/**",
     "vendor/websoccer/**",
+    "vendor/open-golf/**",
+    "vendor/final-third/dist/**",
     ".cache/vibe-*/**",
     ".cache/vibe-*.mjs",
     "test-results/vibe-basketball/**",
@@ -24,6 +26,9 @@ const eslintConfig = defineConfig([
     "public/embedded-games/**",
     // Generated diagnostic renderer bundles; authored game and review scripts remain linted.
     "test-results/retro-hoops-*/**",
+    ".cache/penalty-model-v5/review.js",
+    ".cache/penalty-model-v6/review.js",
+    ".cache/penalty-model-v7/review.js",
     "next-env.d.ts",
   ]),
 ]);

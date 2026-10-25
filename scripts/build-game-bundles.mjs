@@ -4,11 +4,13 @@ import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import { execFileSync } from 'node:child_process';
 import { buildStadiumCricket } from './build-stadium-cricket.mjs';
+import { buildOpenGolf } from './build-open-golf.mjs';
 import { buildPitchRush } from './build-pitch-rush.mjs';
+import { buildFinalThird } from './build-final-third.mjs';
 
 const root=process.cwd();
 const output=path.join(root,'public','embedded-games');
-const ids=['pitch-rush','retro-hoops','retro-circuit','retro-football','retro-innings','stadium-cricket'];
+const ids=['open-golf','pitch-rush','final-third','retro-hoops','retro-circuit','retro-football','retro-innings','stadium-cricket'];
 const customRoot=path.join(root,'public/assets/games/designer');
 for(const entry of await fs.readdir(customRoot,{withFileTypes:true}).catch(()=>[])) if(entry.isDirectory()&&/^[a-f0-9-]{36}$/.test(entry.name)) ids.push('designer-'+entry.name);
 const selected=process.argv.find(arg=>arg.startsWith('--game='))?.slice(7);
@@ -46,19 +48,19 @@ const boot=String.raw`
 })();`;
 if(!selected||selected==='retro-circuit')execFileSync(process.execPath,['scripts/build-retro-circuit-assets.mjs'],{cwd:root,stdio:'inherit'});
 const fontStyle=`@font-face{font-family:'Space Grotesk';src:url(data:font/ttf;base64,${(await fs.readFile(path.join(root,'src/app/fonts/space-grotesk-variable.ttf'))).toString('base64')}) format('truetype');font-weight:300 700;font-display:swap}@font-face{font-family:Orbitron;src:url(data:font/woff2;base64,${(await fs.readFile(path.join(root,'src/app/fonts/orbitron-latin-variable.woff2'))).toString('base64')}) format('woff2');font-weight:400 900;font-display:swap}:root{--font-space-grotesk:'Space Grotesk';--font-orbitron:Orbitron}body,button,input{font-family:'Space Grotesk',sans-serif}`;
-const prelude=gameId=>`${['pitch-rush','retro-football','retro-innings','stadium-cricket'].includes(gameId)?'':'<style>'+fontStyle+'</style>'}<script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
+const prelude=gameId=>`${['pitch-rush','final-third','retro-football','retro-innings','stadium-cricket'].includes(gameId)?'':'<style>'+fontStyle+'</style>'}<script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
 const style='html,body,#root{margin:0;width:100%;height:100%;background:#0d111a;color:white;overflow:hidden}*{box-sizing:border-box}button{touch-action:manipulation}canvas{image-rendering:pixelated}';
 const entries={
  'retro-hoops':`import React from 'react';import{createRoot}from'react-dom/client';import{HoopsGame}from'./src/features/games/retro-hoops/game';const host=window.__STATOZ_HOST__;let commandId=0;const render=command=>createRootOnce.render(<HoopsGame assetBase="assets" onExit={()=>host.emit('exit')} hostCommand={command?{id:++commandId,type:command}:undefined} onEvent={event=>{if(event.type==='result')host.result(event.payload);else host.emit(event.type,event.payload);}}/>);const createRootOnce=createRoot(document.getElementById('root'));host.command=command=>{if(command==='dispose')createRootOnce.unmount();else render(command);};render();`,
  'retro-circuit':`import{mountCircuit}from'./src/features/games/retro-circuit/mount';import'./src/features/games/retro-circuit/circuit.css';const host=window.__STATOZ_HOST__;let session,disposed=false;host.command=command=>{if(command==='dispose'){disposed=true;session?.dispose();}else if(command==='pause'){session?.pause();}else if(command==='resume'){session?.resume();}};try{if(!disposed){session=mountCircuit(document.getElementById('root'),{onExit:()=>host.emit('exit'),onResult:result=>host.result(result)});host.emit('ready');}}catch{host.emit('error',{message:'Retro Circuit could not start'});}`,
 };
 async function assetShim(directory){
- const map={};const hoopsAtlases=path.basename(directory)==='retro-hoops'?new Set(JSON.parse(await fs.readFile(path.join(directory,'authored-v25/manifest.json'),'utf8')).atlases):null;
+ const map={};const hoopsAtlases=path.basename(directory)==='retro-hoops'?new Set(JSON.parse(await fs.readFile(path.join(directory,'authored-v28/manifest.json'),'utf8')).atlases):null;
  for(const file of await walk(directory).catch(error=>{if(error.code==='ENOENT')return [];throw error;})){
   if(!/\.(?:png|webp|jpg|jpeg|svg|json|wav|mp3|ogg|woff2?|ttf)$/.test(file)||/provenance/i.test(file))continue;
-  if(hoopsAtlases&&file.includes(path.sep+'authored-v25'+path.sep)&&file.endsWith('.png')&&!hoopsAtlases.has(path.basename(file)))continue;
-  if(path.basename(directory)==='retro-hoops'&&/\.(png|webp|jpe?g)$/.test(file)&&!file.includes(path.sep+'authored-v25'+path.sep))continue;
-  if(path.basename(directory)==='retro-hoops'&&/(?:authored-v(?:[1-9]|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24)|player-look-v1|locomotion-v[0-9]+|assets)[\\/]/.test(path.relative(directory,file)))continue;
+  if(hoopsAtlases&&file.includes(path.sep+'authored-v28'+path.sep)&&file.endsWith('.png')&&!hoopsAtlases.has(path.basename(file)))continue;
+  if(path.basename(directory)==='retro-hoops'&&/\.(png|webp|jpe?g)$/.test(file)&&!file.includes(path.sep+'authored-v28'+path.sep))continue;
+  if(path.basename(directory)==='retro-hoops'&&/(?:authored-v(?:[1-9]|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27)|player-look-v1|locomotion-v[0-9]+|assets)[\\/]/.test(path.relative(directory,file)))continue;
   const ext=path.extname(file).toLowerCase(),mime={'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf'}[ext];
   map[path.relative(directory,file).replaceAll('\\','/')]=`data:${mime};base64,${(await fs.readFile(file)).toString('base64')}`;
  }
@@ -70,7 +72,11 @@ const manifest={schemaVersion:1,protocolVersion:1,sourceSha:'uncommitted',games:
 try{manifest.sourceSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}
 for(const gameId of selected?[selected]:ids){
  const dir=path.join(output,gameId);await fs.mkdir(dir,{recursive:true});let html;
- if(gameId==='pitch-rush'){
+ if(gameId==='open-golf'){
+  html=await buildOpenGolf({prelude:prelude(gameId)});
+ }else if(gameId==='final-third'){
+  html=await buildFinalThird({prelude:prelude(gameId)});
+ }else if(gameId==='pitch-rush'){
   html=await buildPitchRush({prelude:prelude(gameId)});
  }else if(gameId==='stadium-cricket'){
   html=await buildStadiumCricket({prelude:prelude(gameId)});
@@ -96,9 +102,9 @@ for(const gameId of selected?[selected]:ids){
   const relative='../../assets/games/identity/'+id+'.svg';
   if(html.includes(relative))html=html.replaceAll(relative,'data:image/svg+xml;base64,'+(await fs.readFile(path.join(root,'public/assets/games/identity',id+'.svg'))).toString('base64'));
  }
- const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'pitch-rush':'football','retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket','stadium-cricket':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:'landscape',saveSchemaVersion:1});
+ const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'open-golf':'golf','pitch-rush':'football','final-third':'football','retro-hoops':'basketball','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket','stadium-cricket':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:'landscape',saveSchemaVersion:1});
  console.log(`${gameId}: ${(Buffer.byteLength(html)/1048576).toFixed(1)} MiB offline bundle`);
 }
 await fs.writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-const notices=[];for(const file of ['vendor/websoccer/LICENSE','node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt','public/games/retro-circuit/reference/NOTICE.txt','vendor/cricketv2/CREDITS.md','vendor/cricketv2/assets/THREE-LICENSE.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
+const notices=[];for(const file of ['vendor/open-golf/LICENSE','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/websoccer/LICENSE','vendor/final-third/ASSETS.md','vendor/final-third/OFL-barlow-condensed.txt','node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt','public/games/retro-circuit/reference/NOTICE.txt','vendor/cricketv2/CREDITS.md','vendor/cricketv2/assets/THREE-LICENSE.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
 await fs.writeFile(path.join(output,'LICENSES.txt'),notices.join('\n\n---\n\n'));

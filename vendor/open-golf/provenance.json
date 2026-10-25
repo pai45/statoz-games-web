@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/mgerdes/Open-Golf",
+  "browserBuild": "https://mgerdes.github.io/minigolf.html",
+  "license": "MIT; Michael Gerdes. Includes upstream third-party notices in source.",
+  "files": {
+    "golf.js": "ee0418527fd95ba435d29ccbe270e608722ffea6317dd9f38c1109c6f3e955eb",
+    "golf.worker.js": "9b00bd97fa608ca1aa1196817413a2824e42f3cd7513a0eaffde7e9f4d18e633",
+    "golf.wasm": "130d95a9aa9fba4010e702050c8b0c1891ef09b1b67e76cfbc2c3c82f1daec27"
+  }
+}

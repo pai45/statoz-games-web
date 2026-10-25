@@ -14,6 +14,13 @@ const activeDataOwnerKey = "statoz.games.web.account-data-owner.v1";
 const playerStorageKeys = [
   "statoz.games.web.grandprix.v2",
   "statoz.games.web.profile.v1",
+  "statoz.games.web.xp-ledger.v1",
+  "statoz.games.web.footballbingo.v1",
+  "statoz.games.web.grandprix.v1",
+  "statoz.games.web.predictions.v1",
+  "statoz.games.web.friends.v1",
+  "statoz.games.web.referrals.v1",
+  "statoz.games.web.matchcircle.v1",
   "statoz.games.web.economy.v1",
   "statoz.games.web.packs.v1",
   "statoz.games.web.decks.v1",
@@ -104,11 +111,34 @@ function readActiveDataOwner(): string | null {
   }
 }
 
-function switchPlayerData(nextEmail: string): void {
-  const previousEmail = readActiveDataOwner();
+const guestOwner = "__guest__";
+
+function adoptGuestScopedSaves(email: string): void {
+  const storage = window.localStorage;
+  const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index));
+  for (const key of keys) {
+    if (!key || !(key.startsWith("statoz.games.web.bundle.") || key.startsWith("statoz.games.web.retro.presentation.")) || !key.endsWith(".guest")) continue;
+    const target = key.slice(0, -"guest".length) + encodeURIComponent(email);
+    if (storage.getItem(target) !== null) continue;
+    const raw = storage.getItem(key);
+    if (raw !== null) {
+      storage.setItem(target, raw);
+      storage.removeItem(key);
+    }
+  }
+}
+
+function switchPlayerData(nextEmail: string, adoptGuest = false): void {
+  const previousEmail = readActiveDataOwner() ?? guestOwner;
   if (previousEmail === nextEmail) return;
 
   try {
+    if (adoptGuest && previousEmail === guestOwner) {
+      adoptGuestScopedSaves(nextEmail);
+      for (const key of playerStorageKeys) window.localStorage.removeItem(accountBackupKey(guestOwner, key));
+      window.localStorage.setItem(activeDataOwnerKey, nextEmail);
+      return;
+    }
     if (previousEmail) {
       for (const key of playerStorageKeys) {
         const raw = window.localStorage.getItem(key);
@@ -194,8 +224,8 @@ export function useAuthSession(): AuthSessionSnapshot {
 
 export function signInLocal(emailInput: string): AuthSessionSnapshot {
   const email = normalizeEmail(emailInput);
-  switchPlayerData(email);
   const accounts = readDirectory();
+  switchPlayerData(email, !accounts[email]);
   if (!accounts[email]) writeDirectory({ ...accounts, [email]: { onboardingComplete: false } });
 
   const raw = JSON.stringify({ version: 2, authenticated: true, email });
@@ -221,7 +251,15 @@ export function completeOnboarding(): void {
   notify();
 }
 
+/** Isolate data left behind by the older logout flow before guest screens paint. */
+export function prepareGuestData(): void {
+  if (readRaw() || !readActiveDataOwner() || readActiveDataOwner() === guestOwner) return;
+  switchPlayerData(guestOwner);
+  notifyPlayerStores();
+}
+
 export function signOut(): void {
+  switchPlayerData(guestOwner);
   memoryRaw = null;
   try {
     window.localStorage.removeItem(storageKey);

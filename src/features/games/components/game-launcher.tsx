@@ -4,6 +4,7 @@ import { MobileGameViewport } from "../shared/mobile-viewport/mobile-game-viewpo
 import { usesMobileLandscape } from "../shared/mobile-viewport/policy";
 
 import { isGameEnabled } from "@/domain/demo-product";
+import { OpenGolf } from '../open-golf/screen';
 import { BundledGame } from '../shared/components/bundled-game';
 import type { ComponentType } from "react";
 import dynamic from "next/dynamic";
@@ -82,7 +83,7 @@ const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
 };
 
 function GameSurface({ game, entry }: GameLauncherProps) {
-  const Game = ["pitch-rush","retro-hoops","retro-circuit","retro-football","retro-innings"].includes(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
+  const Game = ["pitch-rush","final-third","retro-hoops","retro-circuit","retro-football","retro-innings"].includes(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
   return <Game game={game} entry={entry} />;
 }
 
@@ -103,20 +104,24 @@ export function GameLauncher(props: GameLauncherProps) {
 function GameLauncherContent({ game, entry }: GameLauncherProps) {
   if (!isGameEnabled(game)) return <div role="status">This mode belongs to the other StatOz demo. <Link href="/">Return home</Link></div>;
   return (
-    <AuthBoundary
+    <AuthBoundary allowGuest
       intent="play"
       message={`Log in to play ${entry.title} and save your progress.`}
       returnTo={entry.href}
       fullScreen
     >
       <GameLandingAdProvider>
-        <AuthenticatedGameLauncher game={game} entry={entry} />
+        <GuestReadyGameLauncher game={game} entry={entry} />
       </GameLandingAdProvider>
     </AuthBoundary>
   );
 }
 
-function AuthenticatedGameLauncher({ game, entry }: GameLauncherProps) {
+function GuestReadyGameLauncher(props: GameLauncherProps) {
+  if (props.game === 'open-golf') return <OpenGolf {...props} />;
+  return <DeckGameLauncher {...props} />;
+}
+function DeckGameLauncher({ game, entry }: GameLauncherProps) {
   const sport = sportForGame(game);
   const hydrated = useIsHydrated();
   const claimed = useIsPackClaimed(sport);

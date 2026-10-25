@@ -1,0 +1,571 @@
+/*
+ * Pitch Duel landing screen, landscape first: the club card on the left, the
+ * matchday panel on the right. One glow on the page (KICK OFF); gold marks
+ * rewards only. Clipped surfaces use the edge layer + inset fill pattern.
+ */
+
+.home {
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: var(--gap);
+  height: 100%;
+  min-height: 0;
+}
+
+.plate {
+  position: relative;
+  isolation: isolate;
+  clip-path: var(--clip, var(--ds-clip-panel));
+  background: var(--edge, var(--ds-color-border-default));
+}
+
+.plate::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  clip-path: var(--clip, var(--ds-clip-panel));
+  background: var(--fill, var(--ds-color-background-data));
+  transition: background 160ms ease;
+}
+
+.home small {
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-micro);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--ds-color-text-muted);
+}
+
+/* ---- Club card ------------------------------------------------------------ */
+
+.club {
+  --clip: var(--ds-clip-hud);
+  --edge: color-mix(in srgb, var(--ds-color-accent-cyan) 40%, var(--ds-color-border-default));
+  --fill: linear-gradient(160deg, color-mix(in srgb, var(--ds-color-accent-cyan) 9%, var(--ds-color-background-secondary)), var(--ds-color-background-muted) 75%);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 0.75rem 0.875rem;
+  color: var(--ds-color-text-default);
+  text-align: left;
+  cursor: pointer;
+  border: 0;
+  animation: enter 420ms ease-out both;
+}
+
+.club:hover {
+  --edge: color-mix(in srgb, var(--ds-color-accent-cyan) 70%, var(--ds-color-border-default));
+}
+
+.club:focus-visible {
+  outline: 2px solid var(--ds-color-accent-cyan);
+  outline-offset: 2px;
+}
+
+.clubHead {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.clubHead strong {
+  flex: 1;
+  overflow: hidden;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-sm);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clubHead em {
+  font-style: normal;
+  color: var(--ds-color-accent-cyan);
+}
+
+.ovr {
+  --clip: var(--ds-clip-chip);
+  display: grid;
+  justify-items: center;
+  min-width: 3rem;
+  padding: 0.1875rem 0.5rem;
+  line-height: 1;
+  background: color-mix(in srgb, var(--ds-color-accent-cyan) 16%, transparent);
+  border-bottom: 2px solid var(--ds-color-accent-cyan);
+}
+
+.ovr b {
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-xl);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.ovr small {
+  font-size: var(--ds-text-nano);
+  color: var(--ds-color-accent-cyan);
+}
+
+.miniPitch {
+  position: relative;
+  min-height: 0;
+  container-type: size;
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--ds-color-success) 8%, transparent) 0 12.5%, transparent 12.5% 25%),
+    color-mix(in srgb, var(--ds-color-success) 6%, var(--ds-color-background-primary));
+}
+
+.miniPitch svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.miniPitch svg * {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ds-color-text-default) 22%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.player {
+  --face: clamp(1.875rem, 21cqh, 3.5rem);
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  transform: translate(-50%, -50%);
+  animation: pop 460ms var(--ease-pop) calc(160ms + var(--i) * 70ms) both;
+}
+
+.face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--face);
+  height: var(--face);
+  overflow: hidden;
+  font-family: var(--ds-font-display);
+  font-size: calc(var(--face) * 0.3);
+  font-weight: 900;
+  color: var(--role);
+  background: color-mix(in srgb, var(--role) 18%, var(--ds-color-background-secondary));
+  border: 2px solid var(--role);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.5);
+}
+
+.faceImg {
+  object-fit: cover;
+  object-position: top;
+}
+
+.rating {
+  position: absolute;
+  top: calc(var(--face) - 0.75rem);
+  right: -0.375rem;
+  padding: 0 0.25rem;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xs);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-color-text-inverse);
+  background: var(--role);
+  clip-path: var(--ds-clip-chip);
+}
+
+.name {
+  display: grid;
+  justify-items: center;
+  margin-top: 0.1875rem;
+  padding: 0 0.25rem;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xs);
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--ds-color-background-primary) 75%, transparent);
+}
+
+.name small {
+  font-size: var(--ds-text-nano);
+  letter-spacing: 0.1em;
+}
+
+.clubFoot {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xs);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--ds-color-text-muted);
+}
+
+.clubFoot span:last-child {
+  color: var(--ds-color-accent-cyan);
+}
+
+.clubEmpty {
+  align-self: center;
+  font-size: var(--ds-text-sm);
+  color: var(--ds-color-text-subtle);
+}
+
+/* ---- Matchday ------------------------------------------------------------- */
+
+.matchday {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  min-height: 0;
+}
+
+.matchday > * {
+  animation: enter 420ms ease-out both;
+}
+
+.matchday > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.matchday > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.matchday > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.matchday > :nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.division {
+  --clip: var(--ds-clip-chip);
+  --edge: color-mix(in srgb, var(--ds-color-accent-cyan) 45%, var(--ds-color-border-default));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.375rem 0.75rem 0.375rem 0.375rem;
+}
+
+.emblem {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  line-height: 1;
+  color: var(--ds-color-text-inverse);
+  background: linear-gradient(160deg, var(--ds-color-accent-cyan), color-mix(in srgb, var(--ds-color-accent-cyan) 55%, var(--ds-color-accent-blue)));
+  clip-path: var(--ds-clip-octagon);
+}
+
+.emblem small {
+  font-size: var(--ds-text-nano);
+  color: inherit;
+}
+
+.emblem b {
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-xl);
+  font-weight: 900;
+}
+
+.divisionText {
+  display: grid;
+  min-width: 0;
+}
+
+.divisionText strong {
+  overflow: hidden;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-sm);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.points {
+  display: grid;
+  justify-items: end;
+  line-height: 1;
+}
+
+.points b {
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xl);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  display: grid;
+  gap: 0.3125rem;
+}
+
+.trackHead {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.reward {
+  overflow: hidden;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-micro);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--ds-color-accent-gold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reward b {
+  color: var(--ds-color-text-default);
+}
+
+.pips {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.pips i {
+  height: 0.5rem;
+  background: var(--ds-color-border-muted);
+  clip-path: var(--ds-clip-chip);
+}
+
+/* The last pip is the promotion itself, so it carries the reward colour. */
+.pips i:last-child {
+  background: color-mix(in srgb, var(--ds-color-accent-gold) 35%, var(--ds-color-border-muted));
+}
+
+.pips i[data-on] {
+  background: var(--ds-color-accent-cyan);
+  animation: fillPip 320ms var(--ease-pop) calc(300ms + var(--i) * 60ms) both;
+}
+
+.pips i:last-child[data-on] {
+  background: var(--ds-color-accent-gold);
+}
+
+.formRow {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.form {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.form li {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xs);
+  font-weight: 900;
+  color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tone) 60%, transparent);
+  animation: pop 360ms var(--ease-pop) calc(360ms + var(--i, 0) * 60ms) both;
+}
+
+.form li[data-empty] {
+  color: var(--ds-color-text-disabled);
+  background: transparent;
+  border: 1px dashed var(--ds-color-border-muted);
+  animation: none;
+}
+
+.recordLine {
+  flex: 1;
+  overflow: hidden;
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xs);
+  letter-spacing: 0.06em;
+  color: var(--ds-color-text-muted);
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recordLine b {
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-color-text-default);
+}
+
+.cta {
+  display: grid;
+  gap: 0.3125rem;
+  align-content: center;
+  min-height: 0;
+}
+
+.cta > :first-child {
+  width: 100%;
+  animation: ready 2.4s ease-in-out 1s infinite;
+}
+
+.stakes {
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xs);
+  letter-spacing: 0.12em;
+  color: var(--ds-color-text-muted);
+  text-align: center;
+}
+
+.stakes b {
+  color: var(--ds-color-text-default);
+}
+
+.stakes .coin {
+  color: var(--ds-color-accent-gold);
+}
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.link {
+  --clip: var(--ds-clip-chip);
+  display: grid;
+  gap: 1px;
+  min-height: 2.75rem;
+  padding: 0.3125rem 0.75rem;
+  color: var(--ds-color-text-default);
+  text-align: left;
+  cursor: pointer;
+  border: 0;
+}
+
+.link b {
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-text-2xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.link:hover {
+  --fill: color-mix(in srgb, var(--ds-color-accent-cyan) 10%, var(--ds-color-background-data));
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--ds-color-accent-cyan);
+  outline-offset: 2px;
+}
+
+.link[data-new] {
+  --edge: var(--ds-color-accent-cyan);
+}
+
+.link[data-new] small {
+  color: var(--ds-color-accent-cyan);
+}
+
+/* ---- Motion --------------------------------------------------------------- */
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+@keyframes fillPip {
+  from {
+    background: var(--ds-color-border-muted);
+    scale: 1 0.4;
+  }
+}
+
+/* A slow breath on the one focal action, so the eye finds it. */
+@keyframes ready {
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+/* ---- Tall windows: keep the hub a comfortable size instead of stretching -- */
+
+@media (min-height: 560px) and (orientation: landscape) {
+  .home {
+    grid-template-rows: minmax(0, 32rem);
+    width: min(100%, 68rem);
+    height: auto;
+    margin: clamp(0rem, 4vh, 3rem) auto 0;
+  }
+
+  .player {
+    --face: clamp(1.875rem, 21cqh, 4.5rem);
+  }
+}
+
+/* ---- Small and portrait screens ------------------------------------------ */
+
+@media (max-height: 380px) {
+  .club {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .matchday {
+    gap: 0.375rem;
+  }
+
+  .stakes {
+    display: none;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 760px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+
+  .club {
+    grid-template-rows: auto 14rem auto;
+  }
+
+  .matchday {
+    grid-template-rows: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .club,
+  .matchday > *,
+  .player,
+  .pips i[data-on],
+  .form li,
+  .cta > :first-child {
+    animation: none;
+  }
+}

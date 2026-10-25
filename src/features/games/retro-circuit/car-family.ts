@@ -16,143 +16,71 @@ export const carPaint = {
   kestrel:{light:'#e885d6',body:'#a6389b',shade:'#6a286d',deep:'#351f47',shine:'#ffd8ef'},
   nomad:{light:'#9397a9',body:'#4a4c60',shade:'#292b3c',deep:'#1d1e2b',shine:'#d7d5df'},
 } as const;
-const ink='#15131e', rubber='#201d28', rim='#777786', chrome='#b6adb3', glass='#252c42', glassMid='#4d506a', glassLight='#8a839a';
-function painter(){
-  const pixels:PixelRect[]=[];
-  const rect=(x:number,y:number,width:number,height:number,color:string)=>{if(width>0&&height>0)pixels.push({x:Math.round(x),y:Math.round(y),width:Math.round(width),height:Math.round(height),color});};
-  const poly=(points:readonly (readonly number[])[],color:string)=>{
-    const minY=Math.floor(Math.min(...points.map(p=>p[1]))),maxY=Math.ceil(Math.max(...points.map(p=>p[1])));
-    for(let y=minY;y<maxY;y++){
-      const crossings:number[]=[];
-      for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length];if((a[1]<=y+.5&&b[1]>y+.5)||(b[1]<=y+.5&&a[1]>y+.5))crossings.push(a[0]+(y+.5-a[1])*(b[0]-a[0])/(b[1]-a[1]));}
-      crossings.sort((a,b)=>a-b);for(let i=0;i+1<crossings.length;i+=2){const x=Math.ceil(crossings[i]-.5),right=Math.ceil(crossings[i+1]-.5);rect(x,y,right-x,1,color);}
-    }
-  };
-  return {pixels,rect,poly};
-}
-/** 80×40. Ground at [40,34]. Shadow is intentionally a separate renderer layer. */
+
+/** Original low-rear coupe construction. Source-inspired proportions, no source
+ * pixels or traced contours. Scanline faces change perspective independently. */
+type Pt=readonly[number,number];
+const ink='#15131e',rubber='#201d28',chrome='#b6adb3',glass='#252c42',glassMid='#4d506a',glassLight='#8a839a';
+function painter(){const pixels:PixelRect[]=[];const r=(x:number,y:number,width:number,height:number,color:string)=>{if(width>0&&height>0)pixels.push({x:Math.round(x),y:Math.round(y),width:Math.round(width),height:Math.round(height),color});};const p=(a:readonly Pt[],color:string)=>{for(let y=Math.floor(Math.min(...a.map(q=>q[1])));y<Math.ceil(Math.max(...a.map(q=>q[1])));y++){const xs:number[]=[];for(let i=0,j=a.length-1;i<a.length;j=i++){const v=a[j],w=a[i];if((v[1]<=y+.5&&w[1]>y+.5)||(w[1]<=y+.5&&v[1]>y+.5))xs.push(v[0]+(y+.5-v[1])*(w[0]-v[0])/(w[1]-v[1]));}xs.sort((v,w)=>v-w);for(let i=0;i<xs.length;i+=2){const x=Math.ceil(xs[i]-.5);r(x,y,Math.ceil(xs[i+1]-.5)-x,1,color);}}};return{pixels,r,p,rect:r,poly:p};}
+export function turnAmountFor(amount:number):0|.5|1|-.5|-1{const a=Number.isFinite(amount)?Math.min(1,Math.abs(amount)):0,m=a<.18?0:a<.65?.5:1;return(amount<0?-m:m)as 0|.5|1|-.5|-1;}
+function geometry(id:CarId,amount:number){const t=Math.max(-1,Math.min(1,amount)),a=Math.abs(t),rear=40-t*7,half=24-a*2,cabin=40+t*1,roof=id==='comet'?9:id==='kestrel'?6:7;return{t,a,rear,half,cabin,roof,left:rear-half,right:rear+half};}
+export function carPoseAnchors(id:CarId,turnAmount=0){const g=geometry(id,turnAmount);return{ground:[40,34]as const,rearAxle:[g.rear,34]as const,cabin:[g.cabin,g.roof+3]as const,exhausts:[[g.rear-g.half*.62,30],[g.rear+g.half*.62,30]]as const,lamps:[[g.rear-g.half*.62,23],[g.rear+g.half*.62,23]]as const};}
 export function carPixels(id:CarId,pose:CarPose,frame=0,turnMagnitude=1):PixelRect[]{
-  const {pixels,rect:r,poly:p}=painter(),c=carPaint[id];
-  const magnitude=Math.max(0,Math.min(1,turnMagnitude));
-  const turn=pose==='left'?-magnitude:pose==='right'?magnitude:0;
-  // The near rear shifts only two pixels; the cabin/forward axle moves farther.
-  // A separately constructed side face gains depth. The sprite is never rotated.
-  const rear=40+turn*2,roof=40-turn*5,low=id==='comet'?10:id==='kestrel'?6:8;
-  const left=rear-25,right=rear+25;
-  const x=(offset:number)=>rear+offset;
-  const roofX=(offset:number)=>roof+offset;
-  // Both rubber contacts share y34 in every pose; forward tyre stays above it.
-  r(left+1,24,7,10,rubber);r(right-8,24,7,10,rubber);
-  r(left+2,27,2,5,rim);r(right-4,27,2,5,rim);
-  if(turn){
-    const side=turn<0?right:left,forward=side-turn*12;
-    p([[side,21],[forward,16],[forward-turn*2,25],[side-turn*2,33]],ink);
-    p([[side,22],[forward,17],[forward-turn,24],[side-turn*2,30]],c.shade);
-    p([[side-turn,22],[forward,17],[forward,19],[side-turn,24]],c.light);
-    p([[side-turn*2,25],[forward-turn,21],[forward-turn,23],[side-turn*2,28]],c.deep);
-    const tyre=turn<0?forward-3:forward-2;
-    r(tyre,22,5,8,rubber);r(tyre+2,23,1,5,chrome);
-    r(turn<0?side-2:side,25,2,7,rubber);
-    r(turn<0?side-1:side,26,1,5,chrome);
-  }
-  // Chassis silhouette and stepped shoulder, not a stretched rectangular car.
-  p([[left+1,20],[roofX(-20),low+5],[roofX(-14),low],[roofX(13),low],[roofX(20),low+5],[right-1,20],[right+1,25],[right-2,32],[left+2,32],[left-1,26]],ink);
-  p([[left+2,20],[roofX(-19),low+5],[roofX(-13),low+1],[roofX(12),low+1],[roofX(19),low+5],[right-2,20],[right-1,25],[left+1,25]],c.shade);
-  p([[roofX(-18),low+5],[roofX(-13),low+1],[roofX(12),low+1],[roofX(18),low+5],[roofX(18),19],[roofX(-18),19]],c.body);
-  r(roofX(-12),low+1,24,1,c.shine);
-  // Rear glass is recessed in a solid pillar frame, with one quiet reflection.
-  p([[roofX(-15),low+5],[roofX(-11),low+3],[roofX(11),low+3],[roofX(15),low+5],[roofX(17),17],[roofX(-17),17]],ink);
-  p([[roofX(-13),low+5],[roofX(-10),low+4],[roofX(10),low+4],[roofX(13),low+5],[roofX(15),16],[roofX(-15),16]],glass);
-  p([[roofX(-12),low+5],[roofX(10),low+5],[roofX(12),low+7],[roofX(-13),low+7]],glassLight);
-  r(roofX(-14),low+8,27,1,glassMid);r(roofX(-15),16,30,1,c.light);
-  // Two mirrors remain attached to the cabin shoulder rather than floating.
-  r(roofX(-23),15,6,3,ink);r(roofX(-22),15,4,1,c.light);
-  r(roofX(17),15,6,3,ink);r(roofX(18),15,4,1,c.light);
-  p([[left+1,21],[roofX(-18),18],[roofX(18),18],[right-1,21],[right,24],[right-2,30],[left+2,30],[left,24]],c.body);
-  p([[left+3,20],[roofX(-17),18],[roofX(17),18],[right-3,20],[right-3,22],[left+3,22]],c.light);
-  r(left+4,21,right-left-8,1,c.shine);
-  r(left+1,24,3,5,c.light);r(right-4,24,3,5,c.shade);
-  // Rear fascia and lamps deliberately differ between all four silhouettes.
-  r(x(-21),23,42,6,c.deep);r(x(-20),24,40,4,ink);
-  const red=pose==='brake'?'#ff4841':'#a3293c',hot=pose==='brake'?'#fff1a6':'#ee6970';
-  if(id==='vector'){
-    for(const lamp of [-19,-12,8,15]){r(x(lamp),24,5,3,red);r(x(lamp),24,4,1,hot);}
-    r(x(-5),24,10,2,c.shade);r(x(-2),24,4,1,chrome);
-    r(x(-16),19,32,1,c.shade);r(x(-18),29,36,1,c.shine);
-  }else if(id==='comet'){
-    // Low engine cover, rear louvres and an integrated narrow wing.
-    r(roofX(-19),17,38,2,ink);r(roofX(-18),17,36,1,c.light);
-    for(let line=19;line<22;line++)r(roofX(-11),line,22,1,line%2?c.deep:c.shade);
-    r(x(-20),24,10,4,red);r(x(10),24,10,4,red);
-    r(x(-20),24,8,1,hot);r(x(12),24,8,1,hot);
-    r(x(-8),24,16,1,c.light);r(x(-4),26,8,1,c.shade);
-  }else if(id==='kestrel'){
-    // Tall liftback, split glass, narrow upright outer lamps and broad shoulders.
-    r(roofX(-1),low+4,2,12,c.shade);r(roofX(0),low+4,1,10,c.light);
-    for(const lamp of [-20,15]){r(x(lamp),23,5,6,red);r(x(lamp+1),24,3,2,hot);r(x(lamp+1),27,3,1,'#d7c8b7');}
-    r(x(-12),25,24,2,c.body);r(x(-8),26,16,1,c.shade);
-    r(x(-22),20,7,2,c.shine);r(x(15),20,7,2,c.shine);
-  }else{
-    // Black long-tail touring coupe: wide red strips, silver boot trim, twin pipes.
-    r(roofX(-14),low,28,1,chrome);r(roofX(-16),low+1,2,5,c.light);r(roofX(14),low+1,2,5,c.light);
-    r(x(-21),24,13,3,red);r(x(8),24,13,3,red);
-    r(x(-20),24,11,1,hot);r(x(9),24,11,1,hot);
-    r(x(-8),24,16,1,chrome);r(x(-2),25,4,1,c.shine);
-    r(x(-22),28,44,1,chrome);
-  }
-  // Bumper, wheel wells and shared plate position; plate has no borrowed mark.
-  p([[left+3,29],[right-3,29],[right-4,32],[left+4,32]],c.light);
-  r(x(-20),30,40,1,c.shine);r(x(-19),32,38,1,c.shade);
-  r(x(-7),28,14,5,ink);r(x(-6),29,12,2,'#e0d8cc');r(x(-3),30,6,1,c.shade);
-  r(x(-18),31,7,2,ink);r(x(11),31,7,2,ink);
-  r(x(-17),31,2,1,chrome);r(x(-14),31,2,1,chrome);
-  r(x(12),31,2,1,chrome);r(x(15),31,2,1,chrome);
-  r(x(-14),33,28,1,ink);
-  if(pose==='boost'){
-    const length=frame%2?6:4;
-    for(const jet of [-16,14]){p([[x(jet-2),33],[x(jet+3),33],[x(jet+1),33+length],[x(jet-1),35+Math.floor(length/2)]],'#e76229');p([[x(jet-1),33],[x(jet+2),33],[x(jet),34+Math.floor(length*.6)]],'#fff3ba');}
-  }
-  if(pose==='contact'){
-    const side=frame%2?1:-1,edge=side<0?left-3:right+1;
-    r(edge,23,2,3,'#fff3bd');r(edge+side*3,24,3,1,'#ffc465');r(edge+side*2,28,2,2,'#f18435');
-    r(edge+side*5,20,1,2,'#fff3bd');
-  }
-  return pixels;
+ const turn=(pose==='left'?-1:pose==='right'?1:0)*Math.max(0,Math.min(1,turnMagnitude));
+ return bodyPixels(id,turn,pose,frame);
 }
-/** Discrete original turn construction. Car pixels are rebuilt around the same
- * axle anchor; no bitmap rotation, shearing or alternate color identities.
- * Input sign follows the maintained renderer: negative left, positive right.
- * The thresholds and intermediate hold are designed, not native measurements. */
-export function turnAmountFor(steerAmount:number):0|.5|1|-.5|-1{
-  const a=Math.min(1,Math.abs(Number.isFinite(steerAmount)?steerAmount:0));
-  const magnitude=a<.18?0:a<.65?.5:1;
-  return (steerAmount<0?-magnitude:magnitude)as 0|.5|1|-.5|-1;
+export function turnCarPixels(id:CarId,amount:number,frame=0){const t=turnAmountFor(amount);return bodyPixels(id,t,'straight',frame);}
+function bodyPixels(id:CarId,turn:number,pose:CarPose,frame:number):PixelRect[]{
+ const{pixels,r,p}=painter(),c=carPaint[id],g=geometry(id,turn),{left:L,right:R,rear:cx,cabin:nx,roof:y,a,t}=g;
+ const face=(u:number)=>cx+u*g.half;
+ // Rear contact width foreshortens with the fascia; contacts remain at y34.
+ r(L+2,25,6,9,rubber);r(R-8,25,6,9,rubber);r(L+3,29,2,3,'#777786');r(R-5,29,2,3,'#777786');
+ // Visible flank is on the steering side. Nose/cabin follows steering sign.
+ if(a){const side=t<0?L:R,front=side+t*13,near=side+(t<0?2:-2);
+  p([[side,20],[front,16],[front,26],[near,33],[side,30]],ink);
+  p([[side,21],[front+t,18],[front+t,25],[near,30]],c.shade);
+  p([[side,21],[front+t,18],[front+t,20],[side,24]],c.light);
+  p([[side,27],[front+t,23],[front+t,26],[near,31]],c.deep);
+  r(front-2,23,5,8,rubber);r(front,24,1,5,chrome);
+ }
+ // Original shallow roof/glass/deck envelope; reduced rear width at yaw.
+ p([[L,20],[nx-21,15],[nx-14,y],[nx+13,y],[nx+21,15],[R,20],[R+1,28],[R-3,33],[L+3,33],[L-1,28]],ink);
+ p([[L+2,20],[nx-20,15],[nx-13,y+1],[nx+12,y+1],[nx+19,15],[R-2,20],[R-1,29],[L+1,29]],c.shade);
+ p([[nx-20,16],[nx-13,y+1],[nx+12,y+1],[nx+20,16]],c.light);r(nx-12,y+1,24,1,c.shine);
+ p([[nx-17,16],[nx-11,y+3],[nx+11,y+3],[nx+17,16],[nx+17,18],[nx-17,18]],ink);
+ p([[nx-15,16],[nx-10,y+4],[nx+10,y+4],[nx+15,16],[nx+15,17],[nx-15,17]],glass);
+ r(nx-10,y+4,19,1,'#8a839a');r(nx-16,17,32,1,c.shade);
+ // Attached mirrors, wider outer deck and a broad recessed dark rear fascia.
+ r(nx-23,17,6,2,ink);r(nx-22,17,4,1,c.light);r(nx+17,17,6,2,ink);r(nx+18,17,4,1,c.light);
+ p([[L+1,21],[nx-20,18],[nx+20,18],[R-1,21],[R-2,23],[L+2,23]],c.light);
+ r(L+3,20,R-L-6,1,c.shine);r(L+1,22,R-L-2,6,c.deep);r(L+3,22,R-L-6,5,ink);
+ const red=pose==='brake'?'#ff4841':'#a3293c',hot=pose==='brake'?'#fff1a6':'#ee6970';
+ if(id==='vector'){
+  for(const u of[-.79,-.58,.4,.61]){r(face(u),23,4-a,3,red);r(face(u),23,3-a,1,hot);}r(face(-.37),23,g.half*.74,1,c.shade);r(face(-.37),25,g.half*.74,1,c.shade);r(cx-3,23,6,1,chrome);r(face(-.28),26,g.half*.56,1,c.deep);
+ }else if(id==='comet'){
+  r(nx-20,18,40,2,ink);r(nx-19,18,38,1,c.light);for(let yy=20;yy<22;yy++)r(nx-12,yy,24,1,yy%2?c.deep:c.shade);
+  r(face(-.82),23,9-a*2,4,red);r(face(.48),23,9-a*2,4,red);r(face(-.82),23,8-a*2,1,hot);r(face(.52),23,7-a*2,1,hot);
+ }else if(id==='kestrel'){
+  r(nx,13,1,5,c.light);for(const u of[-.81,.63]){r(face(u),22,4,6,red);r(face(u)+1,23,2,2,hot);}r(face(-.5),24,g.half,2,c.body);
+ }else{
+  r(nx-13,y,26,1,chrome);r(face(-.83),23,g.half*.5,3,red);r(face(.32),23,g.half*.5,3,red);r(face(-.8),23,g.half*.43,1,hot);r(face(.35),23,g.half*.43,1,hot);r(face(-.87),28,g.half*1.74,1,chrome);
+ }
+ p([[L+2,28],[R-2,28],[R-3,32],[L+3,32]],c.light);r(L+4,29,R-L-8,1,c.shine);
+ // Recessed intake pairs, squared plate and separate lower tyre contacts.
+ r(face(-.82),29,8-a,3,ink);r(face(.5),29,8-a,3,ink);for(const u of[-.75,-.6,.56,.72])r(face(u),29,1,2,chrome);
+ r(cx-8,27,16,5,ink);r(cx-6,28,12,2,'#e0d8cc');r(cx-3,29,6,1,c.shade);r(L+5,32,R-L-10,1,c.shade);
+ if(pose==='boost'){const anchors=carPoseAnchors(id,turn);for(const[x,yy]of anchors.exhausts){const h=frame%2?6:4;p([[x-2,yy],[x+2,yy],[x,yy+h]],'#e76229');p([[x-1,yy],[x+1,yy],[x,yy+h*.6]],'#fff3ba');}}
+ if(pose==='contact'){const x=frame%2?R+2:L-4;r(x,23,2,3,'#fff3bd');r(x+(frame%2?3:-3),25,3,1,'#ffc465');}
+ return pixels;
 }
-export function turnCarPixels(id:CarId,steerAmount:number,frame=0):PixelRect[]{
-  const amount=turnAmountFor(steerAmount);
-  return carPixels(id,amount<0?'left':amount>0?'right':'straight',frame,Math.abs(amount));
-}
-export const turnFamilyMetadata={
-  id:'circuit-original-soft-steering-v1',version:'1.0.0',native:[80,40],anchor:[40,34],
-  amounts:[-1,-.5,0,.5,1],thresholds:[.18,.65],
-  geometry:'Rear axle moves 0/1/2px; cabin/forward axle moves 0/2.5/5px; original flank and forward tyre geometry rebuilds at half/full magnitude. Integer rasterization, no whole-sprite transform.',
-  holds:{turnInSoftTicks:3,returnSoftTicks:3,oppositeDirectionNeutralTicks:1,tickHz:60,full:'hold while corresponding input/steering remains active'},
-  classification:'Designed intermediate poses and holds; source-informed flank readability, not recovered input or console frame timings',
-  source:'Unchanged maintained original car-family.ts foundation plus turnMagnitude parameter; no commercial pixels',
-}as const;
-/** Deliberately redrawn 24×14 LOD, not a resized near sprite. */
-export function farCarPixels(id:CarId):PixelRect[]{
-  const {pixels,rect:r,poly:p}=painter(),c=carPaint[id],roof=id==='kestrel'?2:id==='comet'?4:3;
-  r(3,9,3,3,rubber);r(18,9,3,3,rubber);
-  p([[3,7],[6,roof+1],[8,roof],[16,roof],[18,roof+1],[21,7],[21,11],[3,11]],ink);
-  p([[5,7],[8,roof+1],[16,roof+1],[19,7],[20,10],[4,10]],c.body);
-  r(8,roof+1,8,1,c.light);r(7,roof+2,10,2,glass);
-  r(4,7,16,1,c.light);r(4,8,16,2,c.deep);
-  r(4,8,id==='kestrel'?2:5,1,'#dd5763');r(id==='kestrel'?18:15,8,id==='kestrel'?2:5,1,'#dd5763');
-  r(4,10,16,1,c.light);r(10,10,4,1,'#ded4c5');
-  if(id==='comet')r(6,6,12,1,c.shade);if(id==='nomad')r(6,10,12,1,chrome);
-  return pixels;
-}
+/** Distant geometry deliberately retains each identity at reduced detail. */
+export function farCarPixels(id:CarId):PixelRect[]{const{pixels,r,p}=painter(),c=carPaint[id],roof=id==='comet'?3:id==='kestrel'?1:2;p([[2,8],[6,roof+1],[8,roof],[16,roof],[19,roof+1],[22,8],[21,12],[3,12]],ink);r(3,10,3,3,rubber);r(18,10,3,3,rubber);p([[4,8],[8,roof+1],[16,roof+1],[20,8],[20,11],[4,11]],c.body);r(8,roof+1,8,1,c.light);r(7,roof+2,10,1,glass);r(4,8,16,2,c.deep);if(id==='kestrel'){r(4,8,2,3,'#dd5763');r(18,8,2,3,'#dd5763');}else{r(4,8,5,1,'#dd5763');r(15,8,5,1,'#dd5763');}r(4,11,16,1,c.light);r(10,10,4,1,'#ded4c5');if(id==='nomad')r(5,10,14,1,chrome);if(id==='comet')r(6,7,12,1,c.light);return pixels;}
+export const carFamilyMetadata={version:'original-rear-perspective-2.2.0',near:{width:80,height:40,anchor:[40,34]},far:{width:24,height:14,anchor:[12,13]},poses:{amounts:[-1,-.5,0,.5,1],holds:'Designed 3ticks soft turn-in/release; held full pose; no body bob or wheel spin claim'},provenance:{commercialPixels:false,tracedContours:false,source:'Manual source proportion study; wholly original scanline pixels',approval:'reference'}}as const;
+
+
+
+
+
 /** Nose-up overhead, 48×80; rear axle ground anchor [24,72]. */
 export function overheadCarPixels(id:CarId):PixelRect[]{
   const {pixels,rect:r,poly:p}=painter(),c=carPaint[id],wide=id==='kestrel'?1:0;
@@ -177,12 +105,3 @@ export function overheadCarPixels(id:CarId):PixelRect[]{
   return pixels;
 }
 export function paintPixels(ctx:Pick<CanvasRenderingContext2D,'fillStyle'|'fillRect'>,pixels:readonly PixelRect[]){for(const pixel of pixels){ctx.fillStyle=pixel.color;ctx.fillRect(pixel.x,pixel.y,pixel.width,pixel.height);}}
-export const carFamilyMetadata={
-  schemaVersion:1,id:'apexbreak-original-car-family-v1',version:'1.0.0',created:'2026-10-23',
-  provenance:{kind:'original-code-authored',source:'car-family.ts',commercialPixelsUsed:false,tracedContoursUsed:false,approval:'reviewed-locally-not-user-accepted',referenceStudy:['https://www.youtube.com/watch?v=E9QJZSBpvg0','https://www.youtube.com/watch?v=gFMgYrdlTF8'],observed:['low rear view','separate tyre contact','colour-readable opponents','flank change'],designed:['all pixel clusters','car body details','dimensions and anchors','two boost/contact effect holds']},
-  near:{width:80,height:40,anchor:[40,34],collisionPixels:{left:15,right:65,front:24,rear:34},shadow:'separate plane at road anchor'},
-  far:{width:24,height:14,anchor:[12,12],lod:'deliberately redrawn; preserve physical width via anchor/extent ratio'},
-  overhead:{width:48,height:80,anchor:[24,72],orientation:'nose-up'},
-  poses:poses.map(name=>({name,frames:name==='boost'||name==='contact'?2:1,holdsMs:name==='boost'?[80,80]:name==='contact'?[80,80]:[120],loop:name==='boost'||name==='contact',timing:'designed; state-driven; not recovered native timing'})),
-  palette:carPaint,vehicles:{vector:{description:'white rounded coupe / paired rectangular lamps'},comet:{description:'orange low wedge / louvres and integrated wing'},kestrel:{description:'purple tall liftback / split glass and upright lamps'},nomad:{description:'black long-tail touring coupe / chrome trim and wide lamps'}},
-};
