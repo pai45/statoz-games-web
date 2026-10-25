@@ -8,3 +8,7 @@ vendor/vibebasketball/** -text
 
 # Preserve the pinned WebSoccer source bytes used by its integrity manifest.
 vendor/websoccer/** -text
+
+# Preserve exact vendor bytes verified by the game source manifests.
+vendor/final-third/** -text
+vendor/open-golf/** -text
