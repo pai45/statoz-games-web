@@ -10,4 +10,4 @@
 | Barlow Condensed font | Loaded from Google Fonts at runtime. | SIL Open Font License 1.1. |
 
 Club names ("Harbour Blues", "Redmoor Athletic") and board slogans are invented.
-No assets from any reference game are included. A private study copy of a reference game's art was viewed for timing and pose reference only; none of its files, keyframes or textures are used.
+Production assets contain no reference-game files. The private development preview can mount the existing Soccer REAL study copy outside this project, including its character, native clips and team/keeper atlases. These files are copyrighted by splax.net; no redistribution rights are recorded. They are excluded from production builds. See `art/soccer-real-study.json` and the README local-study section.
