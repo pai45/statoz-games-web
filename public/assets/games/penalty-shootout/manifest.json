@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "assetVersion": "character-shoulders-8",
-  "runtimeVersion": "character-shoulders-8",
+  "assetVersion": "imported-characters-9",
+  "runtimeVersion": "aim-first-10",
   "model": {
     "file": "athlete.glb",
     "foundation": "Blender Studio Human Base Meshes v1.4.1, GEO-body_male_realistic",
@@ -40,7 +40,8 @@
       "tapered brows and asymmetric quiff",
       "role-specific bare hands and enclosed keeper cuffs",
       "sleeves and cuffs follow raised arms"
-    ]
+    ],
+    "status": "Retired visible model; retained for history and legacy collision-motion authoring"
   },
   "audio": {
     "effects": "Original deterministic StatOz synthesis; build-audio.py",
@@ -153,6 +154,21 @@
       "path": "face-roughness-v6.png",
       "bytes": 307622,
       "sha256": "462d5a6c66cae15e65bd6259480e2979e1e0b62974545934fcd04da9aff2ebcc"
+    },
+    {
+      "path": "imported-characters/manifest.json",
+      "bytes": 17188,
+      "sha256": "7e3eb46db16d1cb881a45d9e8451917db85bb464e14971db8b352b89c9c4d967"
+    },
+    {
+      "path": "imported-characters/striker.webp",
+      "bytes": 744568,
+      "sha256": "ee5be4c54dd9a57c89e5103cd624544f1585891ff65d9f7a98ebb93b333d0776"
+    },
+    {
+      "path": "imported-characters/keeper.webp",
+      "bytes": 612094,
+      "sha256": "7c8a5520ba4565bf554629f279e9e89ac06183ed319139dd165564cbeb40ca6a"
     }
   ],
   "authoring": {
@@ -210,5 +226,13 @@
       }
     ],
     "note": "The historical motion compiler is absent from this migrated checkout. Model v5 retains the existing CPU motion data, skeleton and clip names; refine-athlete.py consumes the preserved v4 editable source and the CC0 foundation."
+  },
+  "activeCharacters": {
+    "renderer": "camera-facing sprite atlases",
+    "manifest": "imported-characters/manifest.json",
+    "source": "Penalty Shooters 2 by 10x10games",
+    "license": "Commercial reference source; reuse licence not established",
+    "approval": "User-requested local replacement only",
+    "documentation": "docs/penalty-shootout/IMPORTED_CHARACTERS.md"
   }
 }

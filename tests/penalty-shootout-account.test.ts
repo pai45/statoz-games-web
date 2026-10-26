@@ -39,10 +39,11 @@ test("Keyboard, simultaneous touch and gamepad input converge; cancellation and 
     key("KeyD"); key("Space"); assert.equal(input.sample().x, 1); assert.equal(input.sample().shoot, true);
     input.clear(); input.aim(-0.5, 0.25); input.shoot(true); assert.equal(input.sample().shoot, true); assert.equal(input.sample().x, -0.5);
     input.setPaused(true); assert.equal(input.sample().shoot, false); input.setPaused(false); assert.equal(input.sample().x, 0);
-    input.setRole("keeping"); key("ArrowRight"); key("ArrowUp"); assert.deepEqual(input.sample().dive, { x: 1, y: 1 });
+    // Screen-right maps to the simulation's retained behind-keeper convention.
+    input.setRole("keeping"); key("ArrowRight"); key("ArrowUp"); assert.deepEqual(input.sample().dive, { x: -1, y: 1 });
     const buttons = Array.from({ length: 17 }, () => ({ pressed: false, touched: false, value: 0 })); buttons[4].pressed = true;
     pads = [{ id: "test", mapping: "standard", connected: true, axes: [0.5, -0.5, -1, -1], buttons } as unknown as Gamepad];
-    const frame = input.sample(); assert.deepEqual(frame.dive, { x: -1, y: 1 }); assert.equal(frame.style, "chip"); assert.equal(frame.x, 0.5);
+    const frame = input.sample(); assert.deepEqual(frame.dive, { x: 1, y: 1 }); assert.equal(frame.style, "chip"); assert.equal(frame.x, -0.5);
     pads = []; input.sample(); assert.equal(pauses, 1); assert.equal(input.sample().shoot, false);
     input.shoot(true); handlers.get("blur")?.({} as KeyboardEvent); assert.equal(input.sample().shoot, false); assert.equal(pauses, 2);
   } finally { input.dispose(); if (oldWindow) Object.defineProperty(globalThis, "window", oldWindow); else Reflect.deleteProperty(globalThis, "window"); if (oldNavigator) Object.defineProperty(globalThis, "navigator", oldNavigator); else Reflect.deleteProperty(globalThis, "navigator"); }

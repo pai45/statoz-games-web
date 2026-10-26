@@ -56,7 +56,10 @@ export class ShootoutInput {
       this.previousPause = pause;
     } else if (this.lastPadId) { this.onDisconnected(); }
     const dive = this.queuedDive; this.queuedDive = null;
-    return { x: Math.max(-1, Math.min(1, x)), y: Math.max(-1, Math.min(1, y)), shoot, dive, style: this.style, pause: false };
+    // The simulation retains its original behind-keeper command convention.
+    // Imported front-facing sprites use the striker-side camera in both roles.
+    const horizontal = this.role === "keeping" ? -1 : 1;
+    return { x: horizontal * Math.max(-1, Math.min(1, x)), y: Math.max(-1, Math.min(1, y)), shoot, dive: dive ? { x: dive.x * horizontal, y: dive.y } : null, style: this.style, pause: false };
   }
   dispose() { this.clear(); window.removeEventListener("keydown", this.onKeyDown); window.removeEventListener("keyup", this.onKeyUp); window.removeEventListener("blur", this.onBlur); window.removeEventListener("gamepaddisconnected", this.onDisconnected); }
 }

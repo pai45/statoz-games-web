@@ -1,10 +1,12 @@
-# Penalty Shootout 3D
+# Penalty Shootout
 
 Local implementation at `/play/penalty-shootout`. Next.js/React owns the lobby, HUD, settings and results; Three.js owns the scene; Rapier owns the 120 Hz ball/contact simulation. Input, simulation, rendering and audio remain feature-local. No server, account service or multiplayer backend was added.
 
+Current character renderer: [imported Penalty Shooters 2 sprites](IMPORTED_CHARACTERS.md). The 3D stadium/ball and existing physics remain, while camera-facing source sprites replace the visible athletes. The earlier Blender assets/documents below are retained as historical and collision-motion references.
+
 ## Playing
 
-- Shoot: press in the centre composure window, hold to charge, release for the run-up. Aim with WASD, the left gamepad stick or the touch stick. Holding aim past the opening can miss. `1/2/3` selects Driven/Placed/Chip. Gamepad B/Circle shoots, RB places and LB chips.
+- Shoot: first aim with WASD, the left gamepad stick or the touch stick. Release the stick to keep that target. Press Shoot in the centre composure window to lock the aim, hold to charge, then release for the run-up. The target stays locked during charging and the run-up. `1/2/3` selects Driven/Placed/Chip. Gamepad B/Circle shoots, RB places and LB chips.
 - Keep: A/D or the left stick moves on the line. Arrow keys/right stick/right touch pad select a timed dive; Space/A/Cross holds centre. Inputs follow the current screen orientation.
 - Five kicks each, an early finish when the trailing side cannot catch up, then paired sudden death. Player takes first. Practice shots/saves award no XP, coins, history or streak activity.
 - Escape or Pause stops simulation and clears held inputs. Visibility loss and controller disconnection also pause. Resume is explicit. Losing a graphics context preserves the simulation and waits for restoration.
@@ -20,9 +22,9 @@ Progress retains `statoz.shootout.v1` and the existing career/XP readers. Older 
 
 ## Assets and reproducibility
 
-The runtime manifest is `public/assets/games/penalty-shootout/manifest.json`, with source URLs, licences, adaptations, hashes and sizes. Blender Studio's realistic human base mesh is the CC0 foundation; StatOz authored the rig, skin weights, garment materials, gloves and football clips. The crowd is the CC0 recording **Stadium Crowd** by stomachache; effects are original deterministic synthesis. No reference-game assets are bundled.
+The runtime manifest is `public/assets/games/penalty-shootout/manifest.json`, with source URLs, licences, adaptations, hashes and sizes. Blender Studio's realistic human base mesh is the CC0 foundation; StatOz authored the rig, skin weights, garment materials, gloves and football clips. The crowd is the CC0 recording **Stadium Crowd** by stomachache; effects are original deterministic synthesis. The active imported characters have separate commercial-source provenance and are not covered by the legacy model licence; see [IMPORTED_CHARACTERS.md](IMPORTED_CHARACTERS.md).
 
-Editable source: `assets/athlete-source.blend`. Blender 4.5.9 LTS was used. The saved file contains the rig, materials and 16 named action clips. Their contact event is 1.0 seconds; aiming locks at 0.9 seconds. `TAKER` is the measured boot-placement calibration shared by rendering, simulation and the geometric contact regression.
+Editable source: `assets/athlete-source.blend`. Blender 4.5.9 LTS was used. The saved file contains the rig, materials and 16 named action clips. Their contact event is 1.0 seconds; the historical clip has an aim-lock marker at 0.9 seconds. Current gameplay locks aim when Shoot is pressed, before charging. `TAKER` is the measured boot-placement calibration shared by rendering, simulation and the geometric contact regression.
 
 To regenerate from the original official human-mesh bundle:
 

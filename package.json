@@ -45,7 +45,7 @@
     "prebuild:games": "node scripts/build-football-motion.mjs && node scripts/build-football-chance.mjs && node scripts/build-retro-football.mjs && node scripts/build-retro-innings.mjs",
     "build:games": "node scripts/build-game-bundles.mjs",
     "test:grand-prix": "tsx --test tests/grand-prix-rebuild.test.ts",
-    "test:shootout": "tsx --test tests/penalty-shootout.test.ts tests/penalty-shootout-account.test.ts tests/penalty-shootout-animation.test.ts",
+    "test:shootout": "tsx --test tests/penalty-shootout.test.ts tests/penalty-shootout-account.test.ts tests/penalty-shootout-animation.test.ts tests/penalty-shootout-sprites.test.ts",
     "test:shootout:e2e": "playwright test --config playwright.shootout.config.ts",
     "build:vibe-basketball": "node scripts/build-vibe-basketball.mjs",
     "test:vibe-basketball": "tsx --test tests/vibe-basketball.test.ts && node --test tests/vibe-performance.test.mjs",

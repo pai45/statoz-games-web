@@ -194,9 +194,11 @@ export class ShootoutSimulation {
     const age = this.age(), shootPressed = input.shoot && !this.wasShoot;
     if (this.role === "shooting") {
       if (this.phase === "preparation" || this.phase === "charging") this.style = input.style;
+      // Pick the target while waiting. Pressing Shoot commits that target;
+      // charging and the run-up only determine power and execute the kick.
+      if (this.phase === "preparation") { this.target.x = clamp(this.target.x + input.x * STEP * 4.3, -4.7, 4.7); this.target.y = clamp(this.target.y + input.y * STEP * 2.8, -0.1, 3.25); }
       if (this.phase === "preparation" && shootPressed) { this.composure = clamp(1 - Math.abs(this.marker - 0.5) * 2, 0, 1); this.chargeTick = this.tick; this.setPhase("charging"); }
       if (this.phase === "charging") { this.power = clamp((this.tick - this.chargeTick) * STEP / 0.9, 0.05, 1); if (!input.shoot || this.power === 1) this.setPhase("runup"); }
-      if (this.phase === "charging" || this.phase === "runup" && age < 0.9) { this.target.x = clamp(this.target.x + input.x * STEP * 4.3, -4.7, 4.7); this.target.y = clamp(this.target.y + input.y * STEP * 2.8, -0.1, 3.25); }
       if (!this.dive) {
         if (this.ai.early && this.phase === "runup" && age > 0.65) this.commitDive(this.ai.x, this.ai.y);
         // Reactive AI observes launched velocity only, after its reaction delay.
@@ -262,7 +264,7 @@ export class ShootoutSimulation {
   frame(): Frame { return this.phase === "replay" && this.frames.length ? this.frames[Math.min(this.frames.length - 1, Math.floor(this.replayIndex))] : this.liveFrame(); }
   snapshot(): Snapshot {
     const match = matchStatus(this.kicks);
-    return { phase: this.phase, role: this.role, mode: this.mode, tick: this.tick, ...match, kicks: [...this.kicks], power: this.power, composure: this.composure, marker: this.marker, aim: copy(this.target), spread: accuracy({ power: this.power, composure: this.composure, style: this.style }), style: this.style, result: this.result, replayProgress: this.frames.length ? this.replayIndex / this.frames.length : 0, notice: this.role === "shooting" ? this.phase === "preparation" ? "Time your press in the green" : this.phase === "charging" ? "Release to shoot  -  aim with your stick" : this.phase === "runup" ? "Aim until the plant foot lands" : "" : this.phase === "preparation" ? "Move on the line  -  read the taker" : this.phase === "runup" ? "Commit early for reach, or react late" : "" };
+    return { phase: this.phase, role: this.role, mode: this.mode, tick: this.tick, ...match, kicks: [...this.kicks], power: this.power, composure: this.composure, marker: this.marker, aim: copy(this.target), spread: accuracy({ power: this.power, composure: this.composure, style: this.style }), style: this.style, result: this.result, replayProgress: this.frames.length ? this.replayIndex / this.frames.length : 0, notice: this.role === "shooting" ? this.phase === "preparation" ? "Aim first, then hold Shoot to charge" : this.phase === "charging" ? "Aim locked  -  release to shoot" : this.phase === "runup" ? "Aim locked  -  taking the shot" : "" : this.phase === "preparation" ? "Move on the line  -  read the taker" : this.phase === "runup" ? "Commit early for reach, or react late" : "" };
   }
   dispose() { this.queue.free(); this.world.free(); }
 }

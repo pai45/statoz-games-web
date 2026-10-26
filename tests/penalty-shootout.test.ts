@@ -13,23 +13,42 @@ before(async () => {
 });
 const advance = (sim: ShootoutSimulation, steps: number, input = emptyInput()) => { for (let i = 0; i < steps; i++) sim.step(input); };
 function toFlight(sim: ShootoutSimulation, style: Style = "driven", x = 0) {
-  sim.step({ ...emptyInput(), style, shoot: true }); advance(sim, 50, { ...emptyInput(), style, shoot: true, x });
+  if (x) advance(sim, 50, { ...emptyInput(), style, x });
+  sim.step({ ...emptyInput(), style, shoot: true }); advance(sim, 50, { ...emptyInput(), style, shoot: true });
   sim.step({ ...emptyInput(), style });
   for (let i = 0; i < 125 && sim.phase !== "flight"; i++) sim.step(emptyInput());
   assert.equal(sim.phase, "flight");
 }
 function finish(sim: ShootoutSimulation) { for (let i = 0; i < 1000 && sim.phase === "flight"; i++) sim.step(emptyInput()); assert.equal(sim.phase, "resolution"); return sim.result!; }
 
-test("Composure is captured once, power charges, aim holds and locks before contact", () => {
+test("Aim is chosen before shooting and stays locked through charge, run-up and release", () => {
   const sim = new ShootoutSimulation("shooting", 1, 42);
   try {
-    advance(sim, 30); sim.step({ ...emptyInput(), shoot: true }); const captured = sim.snapshot().composure;
-    advance(sim, 20, { ...emptyInput(), shoot: true, x: 1 }); const aimed = sim.snapshot().aim.x;
-    assert.ok(captured < 0.2); assert.ok(aimed > 0.6); assert.ok(sim.snapshot().power > 0.1);
-    advance(sim, 10, { ...emptyInput(), shoot: true }); assert.equal(sim.snapshot().aim.x, aimed); assert.equal(sim.snapshot().composure, captured);
-    sim.step(emptyInput()); advance(sim, 110, { ...emptyInput(), x: 1 }); const locked = sim.snapshot().aim.x;
-    advance(sim, 20, { ...emptyInput(), x: -1 }); assert.equal(sim.snapshot().aim.x, locked);
+    advance(sim, 30, { ...emptyInput(), x: 1, y: .5 });
+    const aimed = sim.snapshot().aim;
+    assert.equal(sim.phase, "preparation"); assert.equal(sim.snapshot().power, 0);
+    assert.ok(aimed.x > 1); assert.ok(aimed.y > 1.4);
+    assert.ok(!sim.consumeEvents().some(e => e.type === "kick"));
+    sim.step({ ...emptyInput(), shoot: true }); const captured = sim.snapshot().composure;
+    advance(sim, 20, { ...emptyInput(), shoot: true, x: -1, y: -1 });
+    assert.deepEqual(sim.snapshot().aim, aimed); assert.ok(sim.snapshot().power > .1);
+    assert.equal(sim.snapshot().composure, captured);
+    sim.step(emptyInput()); advance(sim, 110, { ...emptyInput(), x: 1, y: 1 });
+    assert.deepEqual(sim.snapshot().aim, aimed);
+    advance(sim, 20, { ...emptyInput(), x: -1, y: -1 });
+    assert.deepEqual(sim.snapshot().aim, aimed);
     assert.ok(sim.consumeEvents().some(e => e.type === "kick"));
+  } finally { sim.dispose(); }
+});
+
+test("Aiming can wait without starting a shot; cancelling charge restores aiming at the same target", () => {
+  const sim = new ShootoutSimulation("shooting", 1, 42);
+  try {
+    advance(sim, 45, { ...emptyInput(), x: 1 }); const aimed = sim.snapshot().aim;
+    advance(sim, 600); assert.equal(sim.phase, "preparation"); assert.deepEqual(sim.snapshot().aim, aimed);
+    sim.step({ ...emptyInput(), shoot: true }); advance(sim, 10, { ...emptyInput(), shoot: true });
+    sim.cancelInput(); assert.equal(sim.phase, "preparation"); assert.deepEqual(sim.snapshot().aim, aimed);
+    advance(sim, 20, { ...emptyInput(), x: -1 }); assert.ok(sim.snapshot().aim.x < aimed.x);
   } finally { sim.dispose(); }
 });
 test("All shot styles launch through physics with distinct speed and spread", () => {

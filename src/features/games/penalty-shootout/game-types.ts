@@ -1,4 +1,4 @@
-export const RUNTIME_VERSION = "character-shoulders-8";
+export const RUNTIME_VERSION = "aim-first-10";
 export const STEP = 1 / 120;
 export const GOAL = { halfWidth: 3.66, height: 2.44, depth: 2, ballRadius: 0.11, spot: 11 } as const;
 /** Authored boot placement at the one-second contact marker, in metres. */
