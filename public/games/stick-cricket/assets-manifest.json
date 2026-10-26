@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 1,
+  "title": "Stick Cricket Chase",
+  "version": "2.3.5",
+  "unityVersion": "6000.0.69f1",
+  "source": "https://poki.com/en/g/stick-cricket-chase",
+  "localOnly": true,
+  "files": [
+    {
+      "path": "unity/bridge.js",
+      "bytes": 7873,
+      "sha256": "ca87313a755d7ccd2ba84475f23dfcdd4b493cce2097effd5d0e557e15cf1012"
+    },
+    {
+      "path": "unity/Build/296abb27336d10ea63f15f54f141c151.loader.js",
+      "bytes": 26454,
+      "sha256": "368be33bbcefc7b0dce0f1c80887b558cfb2b445ddd38a6de6005ffe85348eca"
+    },
+    {
+      "path": "unity/Build/6c91f4163ca45d08346b05f4325e525e.wasm",
+      "bytes": 43475016,
+      "sha256": "39ce8ce2919b5e3aece7d9110463e2d4dc7d3d7ae4c8bea6c9fc5855b201ac3d"
+    },
+    {
+      "path": "unity/Build/6fb0739827ecb9473c0c24a7414d2065.framework.js",
+      "bytes": 477499,
+      "sha256": "be42fd8d96ee7284a51d0296ffd7b5599f4ec100cf93c75cf116926d04ac8ba3"
+    },
+    {
+      "path": "unity/Build/e6b3b1a38819775b7daab3e7aed9983e.data",
+      "bytes": 18641833,
+      "sha256": "733d4c46c6fe4875c821c19abd0299c2b71cdc7fba0957c058aa21576625e4f4"
+    },
+    {
+      "path": "unity/index.html",
+      "bytes": 751,
+      "sha256": "669b520236cf1d41d20dcca0a6fd305809a17fa58565955a9e6b148e9f2eed67"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/catalog.bin",
+      "bytes": 43644,
+      "sha256": "9dc93d6045091203f9ea634e485f94a5cd0dc4e2eab7beb0fc40bfc420a75a53"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/settings.json",
+      "bytes": 850,
+      "sha256": "41b4c787e80f98bbf3a5396c7eddae0cce9ee7d816ad3e21f1093f3aded66697"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/a76ddee18b2c5b84377431e62512bd34_monoscripts_53eb771e9d267f38dc10264caca51017.bundle",
+      "bytes": 4148,
+      "sha256": "fcd82251a71e729dda9133f38c1ec8aa03db5cca65b77e09d7aa6c212fcd5bf6"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/a76ddee18b2c5b84377431e62512bd34_unitybuiltinassets_74106b34a298368b586f554a421e132b.bundle",
+      "bytes": 592859,
+      "sha256": "f20523362b0637d90adef9c3dac8b46d6ae2842903ef75a10a24621abc29705e"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_batter_characters_batter_99_83c8db79eafed1df225a7a5a45712d31.bundle",
+      "bytes": 3677164,
+      "sha256": "65f677bf4ca0e430c8ed9369a7e440dd11c3d09c1b2f745aaa7feede32d2705a"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_19_945b7013fda921ca6f6fc9a71f4d64b3.bundle",
+      "bytes": 90634,
+      "sha256": "7ad27afb0d202dda0b030283b9d99d4f7ace614cb3ed53402a3c942904a5a34f"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_20_39f8700d048b9c92b4d0698513ec9e5d.bundle",
+      "bytes": 90370,
+      "sha256": "83857866e2945d40dd19c16ea7bd2e128f5be97ab8987625c2d530c42c0a8319"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_21_999f84a5d69624b831d456e072488d93.bundle",
+      "bytes": 91673,
+      "sha256": "dd632d141b261fb32ced5640bd7a2216b83b978df4b5d43d8f1305ee2bfdda47"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_22_b2c5e05721034c8d231d6551cf81e30a.bundle",
+      "bytes": 86538,
+      "sha256": "1692775f17eff5865313ecffbee0d4659b3ed9104b3110c1ca55139be8b73840"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_23_93056e9c2c224554ca8f0523134c1879.bundle",
+      "bytes": 93603,
+      "sha256": "a19a7d54a311db61f2cd8ca273cc066ef9806ee15a6fb04b948e490ffd978ee0"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_24_e332a64982712f13e3def9c7b2b9871a.bundle",
+      "bytes": 89556,
+      "sha256": "f5e4f3dae4f6b5182ca6eb83e31729a03c1460689f190448569623f18208e348"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_25_3602eb33befdc3e37854cdb470d95713.bundle",
+      "bytes": 108313,
+      "sha256": "1a1d780a6ff11a9284d39a7e65831c35114c73b165bf742c6a35fd02b3ab29bc"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_26_6071f906ce0df4d6694881d1a7bfd4e4.bundle",
+      "bytes": 93035,
+      "sha256": "f6ce8ba3e97229e08e6196ae48038e46af2c64baee77c320ac2cc4067fcabdf3"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_27_4ca482dd4f342dbec5a8db301d07853d.bundle",
+      "bytes": 98112,
+      "sha256": "821d30c4430c35cac7e130322a37c298658936eaea148a8cf4fddfdeef4b1663"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_28_cf0abc6d60277b8984be59d3ac24ecfe.bundle",
+      "bytes": 87926,
+      "sha256": "92f02600aff101fd35d8c4c352237b3ad84f5ba68d0a5460bf503e6cf60d1632"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_29_0a3d63b6f3c5fbc3747dda132b125273.bundle",
+      "bytes": 93178,
+      "sha256": "58be68c7ee3d94c257a0152a898bf56bd6a76b3eb2e748ea72cf36d98fe14e0d"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_30_7f7137b8230ce311a87361d44fe096fb.bundle",
+      "bytes": 92211,
+      "sha256": "a223501e71e2a28c291579603f731cd4a1239306b65d9ca9dd2d093815aebbac"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_31_ce19cb24e7422513c15f0e721c5a14dc.bundle",
+      "bytes": 82153,
+      "sha256": "7eba45bf996b4292b7ae7fae5471d1cf6d3ff3871b19cffe95944b2de65cac78"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_32_97b598ef1a25a8f8b6e335ed43ff3010.bundle",
+      "bytes": 91723,
+      "sha256": "b9c3d7c6c147d92292c0112aa85afa65919a1c7b5f6daa2881b03423786c335d"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_33_f26e0f8696f19a110c9e16110a4f70c5.bundle",
+      "bytes": 98345,
+      "sha256": "8b4bc6ab7196413340cf88585b61714116bca5b068369821ca2d9c5efdb4cee2"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_34_1dbc1a3e08c3d5ede0f89dc8dae7ede3.bundle",
+      "bytes": 95538,
+      "sha256": "75a9fc2915ff223d37c3090b83838390d62560907ac553b0a1d9219b6834046d"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_35_24ee753d877b908b59df3d3c5faed98b.bundle",
+      "bytes": 85695,
+      "sha256": "fb8ae3fe5fffa0d91493154d2a93619a7357ef44019f39d9625cc19a63307140"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_36_8d932b578c5d834504cbfd5807a7fc6c.bundle",
+      "bytes": 94706,
+      "sha256": "90804d1e4cb10f5ca0e8353ca5d16a0a7d85fd6890b3f4aee0775e82a6eb3f95"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_37_6d5329abb79dc50fad97cde7903d295a.bundle",
+      "bytes": 88097,
+      "sha256": "62ce01896629a622255060c9a1703a0531074fb4e2c7263105cd688de3210547"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_38_533e06583a9407d26c29fb8fd7d4aa32.bundle",
+      "bytes": 95561,
+      "sha256": "ea591f7e3389ebbcf4d7723408de5f8ee436b9196b0659777ab97e8a34b3d0c1"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_39_61f7a66c0761f2b9c80dddc7eb20ef4b.bundle",
+      "bytes": 96981,
+      "sha256": "0e2f4347a15f7e53775ed85f400c40ed6a613496a3b9eda9656281f0c7ccc15a"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_40_188e52bc09773cecdeddcdac6daed16d.bundle",
+      "bytes": 85916,
+      "sha256": "35afc1eb26f82bd7e23c9f543d5786f9083b73413ac6704b59fe58e9d92073a3"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_41_5cf31d4893b78a72dd89c0a4edc9cb70.bundle",
+      "bytes": 90629,
+      "sha256": "6ea486a14d561b1e1219bc14b48acf1d8dfc477ad31235826ed295eedc269b08"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_42_4b7da0fc283a51f31f6e64d1ad104340.bundle",
+      "bytes": 89934,
+      "sha256": "e504e564b2fb509cf12a32a714de2124ae3c088b23bf2fd787cca29a870ec133"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_43_da601f37f364cf38a6696facd7280518.bundle",
+      "bytes": 91336,
+      "sha256": "a68f8233ab5eea4456148f5707abfcffddb25144f605f089c0006cb0319bd3e7"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_44_1761d4b6a1ee02dfdc6f466668cddf81.bundle",
+      "bytes": 82601,
+      "sha256": "abfb1940242e870b078ecb0ac502e93b6450464725712a99ef6d8f061e740c4a"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_45_3a2fba5e3c758fa8dabe10e8d1bdffb5.bundle",
+      "bytes": 85726,
+      "sha256": "92583e14c56eb72de8301fd73f3ef45a056f0d0ba57c4b0a1dec22c70c9b8554"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_46_a64d804179d117cfb9972b7f8450c181.bundle",
+      "bytes": 97052,
+      "sha256": "06c948d36dac4e3ee91838834fe44f64a02223107d073a68e772573b5d1673dc"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_47_204a09ab3e1fa4d090caea5e3ea9f217.bundle",
+      "bytes": 95866,
+      "sha256": "43a6cbf08795cfb3b193258b856995025e88df2b8e07ce8c894b609e4b6960d1"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_48_1c0931fa484ed1db3c7efe81d5243587.bundle",
+      "bytes": 88286,
+      "sha256": "3fc10fdc46cf4eaea4b97921ace402428d6d55a3120c0d0fe9a8b3cf63cefefc"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/level_12_scenes_all_0946481d5a62b0ae5f7c6f1155feae51.bundle",
+      "bytes": 2561142,
+      "sha256": "229aceb5837d484020f9a96a4bd8d9eed78ff30134271e15198ac2b1c9bb6ded"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/level_13_scenes_all_34a112947b350421ab338e318b8b903b.bundle",
+      "bytes": 2982146,
+      "sha256": "7e709acb9196adef0a3d0d7f9fb407baecf9467c264f75de560e65201c375d4f"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/level_6_assets_all_a31753acf1999329500416b5349f5c87.bundle",
+      "bytes": 882628,
+      "sha256": "b39ce17e52735e48566094f20631eb93f3e00046879a47ecffe386152f768218"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/level_6_scenes_all_95ffeeb78d5f213860bf9517f7d2138a.bundle",
+      "bytes": 1932597,
+      "sha256": "3cb85958e0a56f273ea9cd7765282db45263198f22eabc95bc06d684c86832ac"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/localization-assets-shared_assets_all.bundle",
+      "bytes": 14188,
+      "sha256": "c8291a0f5988fe5f9623938b1c48ecd395febaf06b66dcc23eac49ffddc54655"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/localization-locales_assets_all.bundle",
+      "bytes": 2095,
+      "sha256": "30f365b04c6f7cd6f43e8321a98292d0c09038049515a838a954e97df3c7d776"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/localization-string-tables-english(en)_assets_all.bundle",
+      "bytes": 21413,
+      "sha256": "18a371e78f9291a105153196bb42804c8e5d908dc881a43813b7452a3f5ca1e2"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/localization-string-tables-hindi(hi)_assets_all.bundle",
+      "bytes": 22042,
+      "sha256": "46b31dc26a10efe67ddcf80b4d9d6e6d484a5d704a52a34aa93efb0da3316b8b"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/stadiums_shared_assets_all_ac9eea0aa8b18f091e11661c0f1c3d24.bundle",
+      "bytes": 446990,
+      "sha256": "9853881d5e4f87da9e2047040e3f6776dda2c27fc1dace10df84632fd5df8f8f"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/weblite_deferred_assets_all_37b6440c71b79a3da39b698575e9aecf.bundle",
+      "bytes": 4115287,
+      "sha256": "888f271229df2dd0f98b7a3def8ea3011ef770105b1ccdde32103751c1a6ea05"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/weblite_tutorial_assets_all_c6601bde3f4ed0cfaedf22e355de75bb.bundle",
+      "bytes": 2253278,
+      "sha256": "28288617f52f65b026db8f4394408a53c63e56b23c9e0814710af5d27b611026"
+    },
+    {
+      "path": "unity/StreamingAssets/aa/WebGL/weblite_tutorial_scenes_all_624560701143be739c96995880f09763.bundle",
+      "bytes": 596442,
+      "sha256": "8db7d829e56b91ee1008c98c66436df0b5386fcdb870e9b46cfbe37ae51e51a5"
+    }
+  ],
+  "catalogEvidence": {
+    "source": "https://a0afaccc-1aaf-4d8f-989e-c95976049afd.gdn.poki.com/325dd4e3-efc9-4e8a-96d4-55fdbe7e68c6/",
+    "method": "Bounds-checked ASCII filename records with stored 32-bit byte length in the shipped catalog; hashed and alias records retained",
+    "files": [
+      {
+        "path": "StreamingAssets/aa/WebGL/a76ddee18b2c5b84377431e62512bd34_monoscripts_53eb771e9d267f38dc10264caca51017.bundle",
+        "bytes": 4148,
+        "sha256": "fcd82251a71e729dda9133f38c1ec8aa03db5cca65b77e09d7aa6c212fcd5bf6"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/a76ddee18b2c5b84377431e62512bd34_unitybuiltinassets_74106b34a298368b586f554a421e132b.bundle",
+        "bytes": 592859,
+        "sha256": "f20523362b0637d90adef9c3dac8b46d6ae2842903ef75a10a24621abc29705e"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_batter_characters_batter_99_83c8db79eafed1df225a7a5a45712d31.bundle",
+        "bytes": 3677164,
+        "sha256": "65f677bf4ca0e430c8ed9369a7e440dd11c3d09c1b2f745aaa7feede32d2705a"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_19_945b7013fda921ca6f6fc9a71f4d64b3.bundle",
+        "bytes": 90634,
+        "sha256": "7ad27afb0d202dda0b030283b9d99d4f7ace614cb3ed53402a3c942904a5a34f"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_20_39f8700d048b9c92b4d0698513ec9e5d.bundle",
+        "bytes": 90370,
+        "sha256": "83857866e2945d40dd19c16ea7bd2e128f5be97ab8987625c2d530c42c0a8319"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_21_999f84a5d69624b831d456e072488d93.bundle",
+        "bytes": 91673,
+        "sha256": "dd632d141b261fb32ced5640bd7a2216b83b978df4b5d43d8f1305ee2bfdda47"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_22_b2c5e05721034c8d231d6551cf81e30a.bundle",
+        "bytes": 86538,
+        "sha256": "1692775f17eff5865313ecffbee0d4659b3ed9104b3110c1ca55139be8b73840"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_23_93056e9c2c224554ca8f0523134c1879.bundle",
+        "bytes": 93603,
+        "sha256": "a19a7d54a311db61f2cd8ca273cc066ef9806ee15a6fb04b948e490ffd978ee0"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_24_e332a64982712f13e3def9c7b2b9871a.bundle",
+        "bytes": 89556,
+        "sha256": "f5e4f3dae4f6b5182ca6eb83e31729a03c1460689f190448569623f18208e348"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_25_3602eb33befdc3e37854cdb470d95713.bundle",
+        "bytes": 108313,
+        "sha256": "1a1d780a6ff11a9284d39a7e65831c35114c73b165bf742c6a35fd02b3ab29bc"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_26_6071f906ce0df4d6694881d1a7bfd4e4.bundle",
+        "bytes": 93035,
+        "sha256": "f6ce8ba3e97229e08e6196ae48038e46af2c64baee77c320ac2cc4067fcabdf3"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_27_4ca482dd4f342dbec5a8db301d07853d.bundle",
+        "bytes": 98112,
+        "sha256": "821d30c4430c35cac7e130322a37c298658936eaea148a8cf4fddfdeef4b1663"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_28_cf0abc6d60277b8984be59d3ac24ecfe.bundle",
+        "bytes": 87926,
+        "sha256": "92f02600aff101fd35d8c4c352237b3ad84f5ba68d0a5460bf503e6cf60d1632"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_29_0a3d63b6f3c5fbc3747dda132b125273.bundle",
+        "bytes": 93178,
+        "sha256": "58be68c7ee3d94c257a0152a898bf56bd6a76b3eb2e748ea72cf36d98fe14e0d"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_30_7f7137b8230ce311a87361d44fe096fb.bundle",
+        "bytes": 92211,
+        "sha256": "a223501e71e2a28c291579603f731cd4a1239306b65d9ca9dd2d093815aebbac"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_31_ce19cb24e7422513c15f0e721c5a14dc.bundle",
+        "bytes": 82153,
+        "sha256": "7eba45bf996b4292b7ae7fae5471d1cf6d3ff3871b19cffe95944b2de65cac78"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_32_97b598ef1a25a8f8b6e335ed43ff3010.bundle",
+        "bytes": 91723,
+        "sha256": "b9c3d7c6c147d92292c0112aa85afa65919a1c7b5f6daa2881b03423786c335d"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_33_f26e0f8696f19a110c9e16110a4f70c5.bundle",
+        "bytes": 98345,
+        "sha256": "8b4bc6ab7196413340cf88585b61714116bca5b068369821ca2d9c5efdb4cee2"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_34_1dbc1a3e08c3d5ede0f89dc8dae7ede3.bundle",
+        "bytes": 95538,
+        "sha256": "75a9fc2915ff223d37c3090b83838390d62560907ac553b0a1d9219b6834046d"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_35_24ee753d877b908b59df3d3c5faed98b.bundle",
+        "bytes": 85695,
+        "sha256": "fb8ae3fe5fffa0d91493154d2a93619a7357ef44019f39d9625cc19a63307140"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_36_8d932b578c5d834504cbfd5807a7fc6c.bundle",
+        "bytes": 94706,
+        "sha256": "90804d1e4cb10f5ca0e8353ca5d16a0a7d85fd6890b3f4aee0775e82a6eb3f95"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_37_6d5329abb79dc50fad97cde7903d295a.bundle",
+        "bytes": 88097,
+        "sha256": "62ce01896629a622255060c9a1703a0531074fb4e2c7263105cd688de3210547"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_38_533e06583a9407d26c29fb8fd7d4aa32.bundle",
+        "bytes": 95561,
+        "sha256": "ea591f7e3389ebbcf4d7723408de5f8ee436b9196b0659777ab97e8a34b3d0c1"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_39_61f7a66c0761f2b9c80dddc7eb20ef4b.bundle",
+        "bytes": 96981,
+        "sha256": "0e2f4347a15f7e53775ed85f400c40ed6a613496a3b9eda9656281f0c7ccc15a"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_40_188e52bc09773cecdeddcdac6daed16d.bundle",
+        "bytes": 85916,
+        "sha256": "35afc1eb26f82bd7e23c9f543d5786f9083b73413ac6704b59fe58e9d92073a3"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_41_5cf31d4893b78a72dd89c0a4edc9cb70.bundle",
+        "bytes": 90629,
+        "sha256": "6ea486a14d561b1e1219bc14b48acf1d8dfc477ad31235826ed295eedc269b08"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_42_4b7da0fc283a51f31f6e64d1ad104340.bundle",
+        "bytes": 89934,
+        "sha256": "e504e564b2fb509cf12a32a714de2124ae3c088b23bf2fd787cca29a870ec133"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_43_da601f37f364cf38a6696facd7280518.bundle",
+        "bytes": 91336,
+        "sha256": "a68f8233ab5eea4456148f5707abfcffddb25144f605f089c0006cb0319bd3e7"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_44_1761d4b6a1ee02dfdc6f466668cddf81.bundle",
+        "bytes": 82601,
+        "sha256": "abfb1940242e870b078ecb0ac502e93b6450464725712a99ef6d8f061e740c4a"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_45_3a2fba5e3c758fa8dabe10e8d1bdffb5.bundle",
+        "bytes": 85726,
+        "sha256": "92583e14c56eb72de8301fd73f3ef45a056f0d0ba57c4b0a1dec22c70c9b8554"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_46_a64d804179d117cfb9972b7f8450c181.bundle",
+        "bytes": 97052,
+        "sha256": "06c948d36dac4e3ee91838834fe44f64a02223107d073a68e772573b5d1673dc"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_47_204a09ab3e1fa4d090caea5e3ea9f217.bundle",
+        "bytes": 95866,
+        "sha256": "43a6cbf08795cfb3b193258b856995025e88df2b8e07ce8c894b609e4b6960d1"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/characters_local_assets_game_bowler_bowlercharacters_bowlerobj_48_1c0931fa484ed1db3c7efe81d5243587.bundle",
+        "bytes": 88286,
+        "sha256": "3fc10fdc46cf4eaea4b97921ace402428d6d55a3120c0d0fe9a8b3cf63cefefc"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/english(en)_assets_all_5f37e4e140fe9672f0a80deb036968f1.bundle",
+        "sourceStatus": 404
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/hindi(hi)_assets_all_b2ef016378da8390adfc88bae83235fc.bundle",
+        "sourceStatus": 404
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/level_12_scenes_all_0946481d5a62b0ae5f7c6f1155feae51.bundle",
+        "bytes": 2561142,
+        "sha256": "229aceb5837d484020f9a96a4bd8d9eed78ff30134271e15198ac2b1c9bb6ded"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/level_13_scenes_all_34a112947b350421ab338e318b8b903b.bundle",
+        "bytes": 2982146,
+        "sha256": "7e709acb9196adef0a3d0d7f9fb407baecf9467c264f75de560e65201c375d4f"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/level_6_assets_all_a31753acf1999329500416b5349f5c87.bundle",
+        "bytes": 882628,
+        "sha256": "b39ce17e52735e48566094f20631eb93f3e00046879a47ecffe386152f768218"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/level_6_scenes_all_95ffeeb78d5f213860bf9517f7d2138a.bundle",
+        "bytes": 1932597,
+        "sha256": "3cb85958e0a56f273ea9cd7765282db45263198f22eabc95bc06d684c86832ac"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-assets-shared_assets_all.bundle",
+        "bytes": 14188,
+        "sha256": "c8291a0f5988fe5f9623938b1c48ecd395febaf06b66dcc23eac49ffddc54655"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-assets-shared_assets_all_374b4cde68dfe1adf2bc3876ecbaa648.bundle",
+        "sourceStatus": 404
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-locales_assets_all.bundle",
+        "bytes": 2095,
+        "sha256": "30f365b04c6f7cd6f43e8321a98292d0c09038049515a838a954e97df3c7d776"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-locales_assets_all_164675fca88dfaa2e17be9fd83425cd5.bundle",
+        "sourceStatus": 404
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-string-tables-english(en)_assets_all.bundle",
+        "bytes": 21413,
+        "sha256": "18a371e78f9291a105153196bb42804c8e5d908dc881a43813b7452a3f5ca1e2"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-string-tables-english(en)_assets_all_5f37e4e140fe9672f0a80deb036968f1.bundle",
+        "sourceStatus": 404
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-string-tables-hindi(hi)_assets_all.bundle",
+        "bytes": 22042,
+        "sha256": "46b31dc26a10efe67ddcf80b4d9d6e6d484a5d704a52a34aa93efb0da3316b8b"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/localization-string-tables-hindi(hi)_assets_all_b2ef016378da8390adfc88bae83235fc.bundle",
+        "sourceStatus": 404
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/stadiums_shared_assets_all_ac9eea0aa8b18f091e11661c0f1c3d24.bundle",
+        "bytes": 446990,
+        "sha256": "9853881d5e4f87da9e2047040e3f6776dda2c27fc1dace10df84632fd5df8f8f"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/weblite_deferred_assets_all_37b6440c71b79a3da39b698575e9aecf.bundle",
+        "bytes": 4115287,
+        "sha256": "888f271229df2dd0f98b7a3def8ea3011ef770105b1ccdde32103751c1a6ea05"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/weblite_tutorial_assets_all_c6601bde3f4ed0cfaedf22e355de75bb.bundle",
+        "bytes": 2253278,
+        "sha256": "28288617f52f65b026db8f4394408a53c63e56b23c9e0814710af5d27b611026"
+      },
+      {
+        "path": "StreamingAssets/aa/WebGL/weblite_tutorial_scenes_all_624560701143be739c96995880f09763.bundle",
+        "bytes": 596442,
+        "sha256": "8db7d829e56b91ee1008c98c66436df0b5386fcdb870e9b46cfbe37ae51e51a5"
+      }
+    ]
+  }
+}

@@ -42,7 +42,7 @@
     "test:demo": "tsx --test tests/demo-product.test.ts",
     "test:home": "tsx --test tests/home-catalog.test.ts && node tests/home-hub.browser.mjs",
     "typography:sync:all": "node scripts/demo-no-upstream.mjs",
-    "prebuild:games": "node scripts/build-football-motion.mjs && node scripts/build-football-chance.mjs && node scripts/build-retro-football.mjs && node scripts/build-retro-innings.mjs",
+    "prebuild:games": "node -e \"console.log('Building active games only')\"",
     "build:games": "node scripts/build-game-bundles.mjs",
     "test:grand-prix": "tsx --test tests/grand-prix-rebuild.test.ts",
     "test:shootout": "tsx --test tests/penalty-shootout.test.ts tests/penalty-shootout-account.test.ts tests/penalty-shootout-animation.test.ts tests/penalty-shootout-sprites.test.ts",
@@ -61,7 +61,13 @@
     "test:pitch-duel:browser": "node tests/pitch-duel.browser.mjs",
     "build:pitch-rush": "node scripts/build-game-bundles.mjs --game=pitch-rush",
     "test:pitch-rush:browser": "node scripts/verify-pitch-rush.mjs",
-    "test:pitch-rush:aim": "node scripts/verify-pitch-rush-aim.mjs"
+    "test:pitch-rush:aim": "node scripts/verify-pitch-rush-aim.mjs",
+    "test:street-hoop": "tsx --test tests/street-hoop-input.test.ts tests/retro-hoops-catalog.test.ts",
+    "test:retro-football-2": "tsx --test tests/retro-football-2-input.test.ts tests/retro-football-2-catalog.test.ts",
+    "test:retro-football-2:browser": "node tests/retro-football-2.browser.mjs",
+    "build:stick-cricket": "node scripts/build-game-bundles.mjs --game=stick-cricket",
+    "test:stick-cricket": "tsx --test tests/stick-cricket.test.ts",
+    "test:stick-cricket:browser": "node tests/stick-cricket.browser.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

@@ -68,3 +68,15 @@ next-env.d.ts
 /.cache/penalty-model-v6/
 
 /.cache/penalty-model-v7/
+
+/public/games/retro-hoops/street-hoop/data/
+
+/public/games/retro-hoops/street-hoop/roms/
+
+/public/games/retro-football-2/arcade/data/
+
+/public/games/retro-football-2/arcade/roms/
+
+# Native Stick Cricket files are local reference artifacts, not licensed source.
+/public/games/stick-cricket/unity/Build/
+/public/games/stick-cricket/unity/StreamingAssets/

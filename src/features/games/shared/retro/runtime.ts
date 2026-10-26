@@ -18,7 +18,7 @@ class PresentationSettings extends HTMLElement {
     if (status) status.textContent = screenStatus;
   };
   connectedCallback() {
-    this.innerHTML = '<fieldset class="retro-presentation"><legend>DISPLAY &amp; CONTROLS &middot; ALL RETRO GAMES</legend><label>Control layout<select aria-label="Control layout"><option value="onscreen">On-screen buttons</option><option value="handheld">Handheld side buttons</option></select></label><label>Fullscreen by default<input aria-label="Fullscreen by default" type="checkbox"></label><p>Shared across all four retro games. Rotate your phone to landscape.</p><p class="retro-screen-status" role="status"></p></fieldset>';
+    this.innerHTML = '<fieldset class="retro-presentation"><legend>DISPLAY &amp; CONTROLS &middot; ALL RETRO GAMES</legend><label>Control layout<select aria-label="Control layout"><option value="onscreen">On-screen buttons</option><option value="handheld">Handheld side buttons</option></select></label><label>Fullscreen by default<input aria-label="Fullscreen by default" type="checkbox"></label><p>Shared across the retro games. Rotate your phone to landscape.</p><p class="retro-screen-status" role="status"></p></fieldset>';
     this.onchange = () => {
       const layout = this.querySelector<HTMLSelectElement>("select")!.value;
       change?.({...current, layout: layout === "handheld" ? "handheld" : "onscreen", fullscreen: this.querySelector<HTMLInputElement>("input")!.checked});
@@ -86,7 +86,8 @@ export function mountRetroPresentation(root: HTMLElement, pause: () => void) {
   };
   window.addEventListener("resize", rotation, {signal});
   window.addEventListener("orientationchange", () => { pause(); rotation(); }, {signal});
-  window.addEventListener("blur", pause, {signal});
+  // Entering a same-origin native game iframe is still focus inside this game.
+  window.addEventListener("blur", () => { if (!document.hasFocus()) pause(); }, {signal});
   document.addEventListener("visibilitychange", () => { if (document.hidden) pause(); }, {signal});
   const interaction = () => { if (!attemptedInteraction && !pending) { attemptedInteraction = true; void fullscreen(); } };
   window.addEventListener("pointerdown", interaction, {capture: true, signal});

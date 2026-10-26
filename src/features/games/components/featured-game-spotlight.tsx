@@ -115,7 +115,7 @@ export function FeaturedGameSpotlight({ sport }: { sport: GameSport | null }) {
             return <div key={id} className={`${styles.fanCard} ${fanPosition[position]}`} style={accentStyle(gameRegistry[id], "--fan-accent")}>
               <div className={styles.fanEdge} />
               <div className={styles.fanFill}>
-                <Image src={publicAsset(`/assets/games/covers/${id}.webp`)} alt="" fill sizes="(min-width: 1024px) 36vw, 80vw" unoptimized priority={i === 0} loading={i === 0 ? undefined : "eager"} className={styles.fanCover} />
+                <Image src={publicAsset(["retro-football-2","stick-cricket"].includes(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`)} alt="" fill sizes="(min-width: 1024px) 36vw, 80vw" unoptimized priority={i === 0} loading={i === 0 ? undefined : "eager"} className={styles.fanCover} />
                 <div className={styles.fanVignette} />
                 <div className={styles.holo} />
                 <div className={styles.sheen} />

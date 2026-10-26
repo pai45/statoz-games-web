@@ -42,6 +42,7 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
+  "stick-cricket": {kind:"hero",title:"STICK CRICKET",titleLines:["STICK","CRICKET"],subtitle:"STICK CRICKET CHASE. TIME YOUR SHOT.",badgeLabel:"3D CRICKET // BATTING CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/stick-cricket"},
   "open-golf": {kind:"hero",title:"OPEN GOLF",titleLines:["OPEN","GOLF"],subtitle:"ORIGINAL COURSES. ONE PERFECT PUTT.",badgeLabel:"3D MINI GOLF",ctaLabel:"TEE OFF",accent:"lime",scene:"tennis-rally",href:"/play/open-golf"},
   "final-third": {kind:"hero",title:"FINAL THIRD",titleLines:["FINAL","THIRD"],subtitle:"SIX CHANCES. SWIPE IT, BEND IT, FINISH IT.",badgeLabel:"3D FOOTBALL // ATTACK AND DEFEND",ctaLabel:"KICK OFF",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/final-third"},
   "pitch-rush": {kind:"hero",title:"PITCH RUSH",titleLines:["PITCH","RUSH"],subtitle:"ELEVEN A SIDE. ONE MORE MATCH.",badgeLabel:"ARCADE FOOTBALL // 1–2 LOCAL PLAYERS",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/pitch-rush"},
@@ -52,8 +53,9 @@ export const gameRegistry: Record<GameId, GameEntry> = {
     ctaLabel: "ENTER THE STADIUM", accent: "game-final-over", scene: "final-over",
     href: "/play/stadium-cricket",
   },
-  "retro-hoops": {kind:"hero",title: "RIMFORGE 3",titleLines: ["RIMFORGE", "3"],subtitle:"THREE MINUTES. FULL COURT.",badgeLabel:"RETRO // 3V3 BASKETBALL",ctaLabel:"TAKE THE COURT",accent:"game-hoop-duel",scene:"hoop-duel",href:"/play/retro-hoops"},
+  "retro-hoops": {kind:"hero",title: "STREET HOOP",titleLines: ["STREET", "HOOP"],subtitle:"CLASSIC ARCADE. FULL COURT.",badgeLabel:"NEO GEO // 3V3 BASKETBALL",ctaLabel:"PLAY STREET HOOP",accent:"game-hoop-duel",scene:"hoop-duel",href:"/play/retro-hoops"},
   "retro-circuit": {kind:"hero",title: "APEXBREAK 3",titleLines: ["APEXBREAK", "3"],subtitle:"THREE LAPS. ONE CLEAN LINE.",badgeLabel:"RETRO // ARCADE RACING",ctaLabel:"CHASE THE HORIZON",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/retro-circuit"},
+  "retro-football-2": {kind:"hero",title:"RETRO FOOTBALL 2",titleLines:["RETRO","FOOTBALL 2"],subtitle:"SUPER SIDEKICKS 2. THE WORLD CHAMPIONSHIP.",badgeLabel:"NEO GEO // ARCADE FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/retro-football-2"},
   "retro-football": {kind:"hero",title: "PITCHFLARE XI",titleLines: ["PITCHFLARE", "XI"],subtitle:"TWO HALVES. ONE EXHIBITION.",badgeLabel:"RETRO // FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/retro-football"},
   /* ---- football ------------------------------------------------------- */
   "pitch-duel": {

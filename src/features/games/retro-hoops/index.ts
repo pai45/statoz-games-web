@@ -1,3 +1,3 @@
 export { RetroHoops } from "./screen";
-export { HoopsGame } from "./game";
+export { StreetHoopGame as HoopsGame } from "./street-hoop-game";
 export type { HoopsGameProps, HoopsHostEvent } from "./game";

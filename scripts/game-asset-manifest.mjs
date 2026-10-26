@@ -30,19 +30,26 @@ export function referencedShopFiles(source, files) {
 export async function generateAssetManifest({ root, buildId, basePath = '', exportDir }) {
   basePath = basePath.replace(/\/$/, '');
   if (basePath && !/^\/[\w/-]+$/.test(basePath)) throw Error('Invalid asset base path');
+  const removedGames = JSON.parse(await fs.readFile(path.join(root, 'src/domain/removed-games.json'), 'utf8'));
   const publicRoot = path.join(root, 'public');
   const publicFiles = (await walk(publicRoot)).map(file => path.relative(publicRoot, file).split(path.sep).join('/'));
   const sourceFiles = (await walk(path.join(root, 'src'))).filter(file => /\.(?:tsx?|css|json)$/.test(file));
   const source = (await Promise.all(sourceFiles.map(file => fs.readFile(file, 'utf8')))).join('\n');
   const selected = referencedShopFiles(source, publicFiles);
   for (const file of publicFiles) {
+    if (removedGames.some(id => file.startsWith(`embedded-games/${id}/`) || file.startsWith(`games/${id}/`))) continue;
+    // Self-hosted arcade games need their local core, BIOS, cartridge and cover cached too.
+    if ((file.startsWith('games/retro-hoops/street-hoop/') || file.startsWith('games/retro-football-2/') || file.startsWith('games/stick-cricket/')) && /\.(?:html|js|css|json|wasm|data|zip|7z|png|webp|bundle|bin)$/i.test(file) && !file.endsWith('assets-manifest.json')) {
+      selected.add(file);
+      continue;
+    }
     if (!runtime.test(file) || /(?:^|\/)(?:reference|source|previews?)(?:\/|\.)|(?:credits|rules|manifest)\.json$/i.test(file)) continue;
     if (file.startsWith('embedded-games/') ||
         (file.startsWith('assets/') && !/^assets\/(?:shop|ads|quiz)\//.test(file) && !file.startsWith('assets/games/designer/')) ||
         /^assets\/ads\/ad-space-[\w-]+\.svg$/.test(file) ||
         file === 'games/stadium-cricket/stadium-preview.jpg') selected.add(file);
   }
-  for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) {
+  for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball'].filter(id => !removedGames.includes(id))) {
     if (!selected.has(`embedded-games/${game}/index.html`)) throw Error('Missing built game: ' + game);
   }
   const records = [];

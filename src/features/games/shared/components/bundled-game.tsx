@@ -28,7 +28,7 @@ export function BundledGame({game, entry}: GameLauncherProps) {
     const receive = (event: MessageEvent) => {
       const value = event.data;
       if (!active || event.source !== element?.contentWindow || event.origin !== location.origin || value?.protocolVersion !== 1 || value.gameId !== game || value.sessionId !== sessionId) return;
-      if (value.type === 'exit') router.push('/games/' + (game === 'open-golf' ? 'golf' : game === 'retro-hoops' ? 'basketball' : game === 'retro-circuit' ? 'motorsport' : game === 'retro-innings' ? 'cricket' : 'football'));
+      if (value.type === 'exit') router.push('/games/' + (game === 'open-golf' ? 'golf' : game === 'retro-hoops' ? 'basketball' : game === 'retro-circuit' ? 'motorsport' : ['stick-cricket','retro-innings'].includes(game) ? 'cricket' : 'football'));
       if (value.type === 'presentation') {
         const next = readPresentation(value.payload);
         if (next) try { localStorage.setItem(displayKey, JSON.stringify(next)); } catch { setError('Display preferences could not be saved on this device.'); }
@@ -43,10 +43,11 @@ export function BundledGame({game, entry}: GameLauncherProps) {
     void fetch(publicAsset('/embedded-games/' + game + '/index.html'), {signal: abort.signal}).then(r => {
       if (!r.ok) throw Error('Missing game bundle');
       return r.text();
-    }).then(html => {
+    }).then(async html => {
+      const storageScope = ['retro-hoops','retro-football-2','stick-cricket'].includes(game) ? Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(account || 'guest')))).map(value => value.toString(16).padStart(2, '0')).join('').slice(0, 24) : undefined;
       if (active) setError('');
       if (invalidSave) { if (active) setError('Saved progress needs a compatible game version. It has been preserved.'); return; }
-      if (active && element) element.srcdoc = html.replace('/*__STATOZ_BOOT__*/', 'window.__STATOZ_BOOT__=' + JSON.stringify({...save, presentation, sessionId, origin: location.origin}).replaceAll('<', '\\u003c') + ';');
+      if (active && element) element.srcdoc = html.replace('/*__STATOZ_BOOT__*/', 'window.__STATOZ_BOOT__=' + JSON.stringify({...save, presentation, sessionId, origin: location.origin, assetRoot: publicAsset("/games/" + game + "/"), storageScope}).replaceAll('<', '\\u003c') + ';');
     }).catch(e => { if (active && e.name !== 'AbortError') setError('The demo bundle could not load. Return to Games and retry.'); });
     const background = () => { if (document.hidden) element?.contentWindow?.postMessage({protocolVersion: 1, gameId: game, sessionId, type: 'pause'}, location.origin); };
     document.addEventListener('visibilitychange', background);

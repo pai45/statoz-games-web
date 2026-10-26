@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "emulator": "EmulatorJS 4.2.3",
+  "runtimeSource": "https://cdn.emulatorjs.org/stable/data/",
+  "core": "FBNeo; official core build 2025-06-14",
+  "gameSource": "https://filesus3.retrogames.cc/rom/19/new/strhoop.zip",
+  "biosSource": "https://www.retrogames.cc/bios/arcade.7z",
+  "scope": "User-requested local integration. ROM and BIOS are not represented as original or openly licensed assets.",
+  "files": [
+    {
+      "path": "data/compression/extract7z.js",
+      "bytes": 280155,
+      "sha256": "4ac9933b995a516cb6b3ca4027db860278372a20c21c405d93ceb1998498853a"
+    },
+    {
+      "path": "data/compression/extractzip.js",
+      "bytes": 196199,
+      "sha256": "3cc825428724213acd43d30552a78008e0869b2326de17dee240dbff9ee2f629"
+    },
+    {
+      "path": "data/compression/libunrar.js",
+      "bytes": 66684,
+      "sha256": "bc35b98ec95020ec047f4762de3e66629741eee3826022195498d2a1e0fc102c"
+    },
+    {
+      "path": "data/cores/fbneo-legacy-wasm.data",
+      "bytes": 8272960,
+      "sha256": "9dbb6242c028f4179549f324688b654353881beb552292f939bc6171a0828b5f"
+    },
+    {
+      "path": "data/cores/fbneo-wasm.data",
+      "bytes": 8273551,
+      "sha256": "315a25e0bcd61d58ee0d9e8b1dbf3740b9e0ca4b7d0726f848ce1068de73437c"
+    },
+    {
+      "path": "data/cores/reports/fbneo.json",
+      "bytes": 119,
+      "sha256": "d2c5e07c2afc2b53937f14b721d7d025ad599d111e9627fc77e9b3fd17450e70"
+    },
+    {
+      "path": "data/cores/reports.json",
+      "bytes": 119,
+      "sha256": "d2c5e07c2afc2b53937f14b721d7d025ad599d111e9627fc77e9b3fd17450e70"
+    },
+    {
+      "path": "data/emulator.min.css",
+      "bytes": 25630,
+      "sha256": "16406c60b2dc3b04ae9b115e308613e6f567a0cc7068e21d9d0c1e5030fb395e"
+    },
+    {
+      "path": "data/emulator.min.js",
+      "bytes": 426343,
+      "sha256": "6aec3fd7bb2721255801b0a6af02e47e78b05e28a1822b1f213aacbd348abaee"
+    },
+    {
+      "path": "data/FBNEO-LICENSE.txt",
+      "bytes": 11249,
+      "sha256": "bb2369f1b75f42242968a78191b47ee90f85682224d3ad1ef63044e244b3e202"
+    },
+    {
+      "path": "data/LICENSE",
+      "bytes": 35111,
+      "sha256": "a617fab6d251b3302b1cb2c1c94f52d1c584f6fcb2fc218ec1a475bc08053a61"
+    },
+    {
+      "path": "data/loader.js",
+      "bytes": 7594,
+      "sha256": "69e0903bf1e2f62ced78895e7e511fa26e11316f7eb734925c35e919ba1287b2"
+    },
+    {
+      "path": "data/localization/en-US.json",
+      "bytes": 9825,
+      "sha256": "b0c9a9bb92ecd2d03614ee2b0eeda160e883ee79ea94d9e8131addb92c5803f9"
+    },
+    {
+      "path": "roms/arcade.7z",
+      "bytes": 3634874,
+      "sha256": "1f849c7efd3812810d6ab59fde1fd29417e4d2d8fbb43a574817b13bec2a3ca8"
+    },
+    {
+      "path": "roms/strhoop.zip",
+      "bytes": 4677642,
+      "sha256": "a64f3adafae4c2b6ece2ff87a8d886cd0f555f8e2374a5283e6f193218831bc6"
+    }
+  ]
+}

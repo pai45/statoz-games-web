@@ -31,7 +31,7 @@ export function DiscoveryGameTile({ game, entry, index, live = false }: Discover
   const body: ReactNode = <>
     <span className={styles.edge} aria-hidden="true" />
     <span className={styles.fill}>
-      <Image src={publicAsset(`/assets/games/covers/${game}.webp`)} alt="" fill sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw" unoptimized className={styles.cover} />
+      <Image src={publicAsset(["retro-football-2","stick-cricket"].includes(game) ? `/games/${game}/cover.png` : `/assets/games/covers/${game}.webp`)} alt="" fill sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw" unoptimized className={styles.cover} />
       <span className={styles.tint} aria-hidden="true" />
       <span className={styles.vignette} aria-hidden="true" />
       <span className={styles.dots} aria-hidden="true" />

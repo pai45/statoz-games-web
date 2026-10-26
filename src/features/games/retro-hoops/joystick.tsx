@@ -5,7 +5,7 @@ import {joystickVector} from "./joystick-math";
 import styles from "./screen.module.css";
 
 /** One pointer owns the stick; action buttons retain their own pointers. */
-export function HoopsJoystick({input,disabled}:{input:()=>HoopsInput|null;disabled:boolean}){
+export function HoopsJoystick({input,disabled}:{input:()=>Pick<HoopsInput,"stick"|"up">|null;disabled:boolean}){
   const root=useRef<HTMLDivElement>(null),pointer=useRef<number|null>(null);
   const reset=useCallback(()=>{
     const id=pointer.current;pointer.current=null;
