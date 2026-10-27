@@ -11,8 +11,10 @@ import type { GameId } from "@/features/games/types";
  * keeping two lists, so a game can be promoted by editing one field.
  */
 const sourceDecks: Record<GameSport, GameId[]> = {
+  archery: ["archery-test"],
   golf: ["open-golf"],
   football: [
+    "football-shooting",
     "pitch-rush",
     "final-third",
     "retro-football",
@@ -65,6 +67,6 @@ const sportByGame: Record<GameId, GameSport> = {"final-over":"cricket", ...Objec
 
 export function sportForGame(game: GameId): Sport {
   const sport = sportByGame[game];
-  if (sport === "golf") throw new Error("Golf does not use a card-sport deck.");
+  if (sport === "golf" || sport === "archery") throw new Error("This game category does not use a card-sport deck.");
   return sport;
 }

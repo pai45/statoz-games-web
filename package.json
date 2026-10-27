@@ -67,7 +67,13 @@
     "test:retro-football-2:browser": "node tests/retro-football-2.browser.mjs",
     "build:stick-cricket": "node scripts/build-game-bundles.mjs --game=stick-cricket",
     "test:stick-cricket": "tsx --test tests/stick-cricket.test.ts",
-    "test:stick-cricket:browser": "node tests/stick-cricket.browser.mjs"
+    "test:stick-cricket:browser": "node tests/stick-cricket.browser.mjs",
+    "build:archery-test": "node scripts/build-game-bundles.mjs --game=archery-test",
+    "test:archery-test": "tsx --test tests/archery-test.test.ts",
+    "test:archery-test:browser": "node tests/archery-test.browser.mjs",
+    "build:football-shooting": "node scripts/build-game-bundles.mjs --game=football-shooting",
+    "test:football-shooting": "tsx --test tests/football-shooting.test.ts",
+    "test:football-shooting:browser": "node tests/football-shooting.browser.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

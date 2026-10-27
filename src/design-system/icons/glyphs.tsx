@@ -1083,3 +1083,6 @@ export function PersonOffIcon(props: IconProps) {
     </Icon>
   );
 }
+
+/** Archery target and incoming arrow in the shared sport glyph family. */
+export function ArcheryIcon(props: IconProps) {return <Icon viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit={2} {...props}><circle cx="13" cy="18" r="10"/><circle cx="13" cy="18" r="6"/><circle cx="13" cy="18" r="2"/><path d="M13 18L28 3M22 3H28V9M7 27L5 31M19 27L21 31"/></Icon>}

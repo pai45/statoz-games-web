@@ -74,7 +74,7 @@ const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
 };
 
 function GameSurface({ game, entry }: GameLauncherProps) {
-  const Game = ["stick-cricket","pitch-rush","retro-football-2","retro-hoops"].includes(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
+  const Game = ["football-shooting","archery-test","stick-cricket","pitch-rush","retro-football-2","retro-hoops"].includes(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
   return <Game game={game} entry={entry} />;
 }
 
@@ -110,6 +110,7 @@ function GameLauncherContent({ game, entry }: GameLauncherProps) {
 
 function GuestReadyGameLauncher(props: GameLauncherProps) {
   if (props.game === 'open-golf') return <OpenGolf {...props} />;
+  if (props.game === 'archery-test') return <GameSurface {...props} />;
   return <DeckGameLauncher {...props} />;
 }
 function DeckGameLauncher({ game, entry }: GameLauncherProps) {

@@ -1,0 +1,11 @@
+{
+  "game": "Football Shooting",
+  "kind": "original-browser-game",
+  "created": "2026-10-27",
+  "source": "src/features/games/football-shooting",
+  "assets": "Procedurally authored stadium, player rigs, ball, goal net, UI and synthesized tones",
+  "cover": "Capture of this implementation",
+  "researchReference": "Football Strike Android static metadata; no native code or assets reused",
+  "network": "No external runtime requests",
+  "licenseNotes": "Three.js and React retain repository dependency licenses"
+}

@@ -1,0 +1,562 @@
+{
+  "schemaVersion": 1,
+  "originalTitle": "Archery Master",
+  "localTitle": "Archery Test",
+  "source": "https://www.crazygames.com/game/archery-master",
+  "buildBase": "https://archery-master.game-files.crazygames.com/archery-master/9/",
+  "localOnly": true,
+  "qualityFallbacks": [
+    {
+      "path": "native/assets/models/1024/terrains/EnvironmentA.glb",
+      "sourceVariant": "native/assets/models/512/terrains/EnvironmentA.glb",
+      "reason": "Original 1024 resource returned source HTTP 404; retained exact available 512 resource bytes."
+    }
+  ],
+  "files": [
+    {
+      "path": "native/assets/fonts/helve-bold.png",
+      "bytes": 65972,
+      "sha256": "ae17306ea10ba1b65c26687cb3e1457f69cc0be8a363b72d2985bc24206b3d2e"
+    },
+    {
+      "path": "native/assets/fonts/helve-bold.xml",
+      "bytes": 21055,
+      "sha256": "b4f13353a6ab976076dbee1ad5ff1a6038508786a786ac28424fd404472c5d86"
+    },
+    {
+      "path": "native/assets/fonts/helve.png",
+      "bytes": 70300,
+      "sha256": "478828663edaa72a4260bd6cd15740d86fda2450f826aa855b43647b9a93082a"
+    },
+    {
+      "path": "native/assets/fonts/helve.woff",
+      "bytes": 17924,
+      "sha256": "df58b12792430c5ed36edeac50dbb188c2e856514f180fbba7afa664ad491a97"
+    },
+    {
+      "path": "native/assets/fonts/helve.xml",
+      "bytes": 21030,
+      "sha256": "d3e7616c5d1cda7a88cd05c25c1771edf20a8e6cb37cf526be6f77317eba1333"
+    },
+    {
+      "path": "native/assets/fonts/number-gold.png",
+      "bytes": 11243,
+      "sha256": "e89703081c951e41e4812b6611864a98cad371a4c67bd7b866519563b494f4d7"
+    },
+    {
+      "path": "native/assets/fonts/number-gold.xml",
+      "bytes": 1871,
+      "sha256": "600391d05c89b1e441d55633375539221b9ff96654851281c2aa2ad8dfb59680"
+    },
+    {
+      "path": "native/assets/images/1x/bg-desktop.jpg",
+      "bytes": 83433,
+      "sha256": "a8b2e98d13f0a452d09cb65f297488fa24ecc71129cc21a5b4f1c11a49c2e0c8"
+    },
+    {
+      "path": "native/assets/images/1x/bg-shop.jpg",
+      "bytes": 2265,
+      "sha256": "74a09675166a5e00d1d6902c10c03a426ba81d9e3c5d11aa4fe0399e3ab6cd22"
+    },
+    {
+      "path": "native/assets/images/1x/bg.jpg",
+      "bytes": 24123,
+      "sha256": "e807443ee7ddfd37fab00c87226573d8a862c88ecef1bf1c865900cef17ebb59"
+    },
+    {
+      "path": "native/assets/images/2x/bg-desktop.jpg",
+      "bytes": 83433,
+      "sha256": "a8b2e98d13f0a452d09cb65f297488fa24ecc71129cc21a5b4f1c11a49c2e0c8"
+    },
+    {
+      "path": "native/assets/images/2x/bg-shop.jpg",
+      "bytes": 6920,
+      "sha256": "c4ce5e9930ae4bbe787b350b28561ef441c6a534ebab7f7804c61d468ebc2799"
+    },
+    {
+      "path": "native/assets/images/2x/bg.jpg",
+      "bytes": 61359,
+      "sha256": "e64dd5decec45a70a9b69e8992d878092fc45eea536e95d9a4420f59d6d10236"
+    },
+    {
+      "path": "native/assets/images/arrow-shadow.png",
+      "bytes": 1331,
+      "sha256": "6605c66c07deba1a10683e2195e7879aedef68d96bf835536393fdaea9b51b0c"
+    },
+    {
+      "path": "native/assets/images/others/avatar.png",
+      "bytes": 736,
+      "sha256": "80d2a4f7f21f70902bdc86eee6fe45b0ee95707dda21f8ea3fae496f4f262257"
+    },
+    {
+      "path": "native/assets/images/others/icon-earth.png",
+      "bytes": 1201,
+      "sha256": "0453739deef7440ffa435978cb2484cadc3fd8252e71226c19691315f281436d"
+    },
+    {
+      "path": "native/assets/models/1024/arrows/frost.glb",
+      "bytes": 39632,
+      "sha256": "f89152143662c4febecb80cadd67c9c0a2651a9aec005e56e905ecf16d02b444"
+    },
+    {
+      "path": "native/assets/models/1024/arrows/ice.glb",
+      "bytes": 69772,
+      "sha256": "09c6c9c71fe22b6484c5f5483e18652fec679e0b466acf4d54e2be556e048de2"
+    },
+    {
+      "path": "native/assets/models/1024/arrows/rain.glb",
+      "bytes": 36248,
+      "sha256": "13c0675098b601422167e365b77ee3c8e60ea0ea210b29b6d1e06b3d1ed99a72"
+    },
+    {
+      "path": "native/assets/models/1024/arrows/solar.glb",
+      "bytes": 47860,
+      "sha256": "6537f0fc2e5b65c4b0aceeac4dcff5232e3eb3e4d1c0dd8dcbfc2d0a4087c94f"
+    },
+    {
+      "path": "native/assets/models/1024/arrows/warrior.glb",
+      "bytes": 52516,
+      "sha256": "bef7282ae2e2d977a1aa17a92d6088346945cb0846675fe800f9cce3b3494434"
+    },
+    {
+      "path": "native/assets/models/1024/bows/ice.glb",
+      "bytes": 1496224,
+      "sha256": "5ae74c550be8865af566707a74c8c6a60ebdad650c849977bf1bc6f4c1f38fed"
+    },
+    {
+      "path": "native/assets/models/1024/bows/rain.glb",
+      "bytes": 920708,
+      "sha256": "cfbeffdd104d2dcdf7d608483204f4cb65228bd1e0e642e65e08f4952f097442"
+    },
+    {
+      "path": "native/assets/models/1024/bows/solar.glb",
+      "bytes": 1481248,
+      "sha256": "f36af4abb4308c23da2caefc55a838379971ba09603e19fd5fcedb26e31ab096"
+    },
+    {
+      "path": "native/assets/models/1024/bows/warrior.glb",
+      "bytes": 1780156,
+      "sha256": "3853a9fd15be12540f70276e90684336c89570f3d98ec72fa93cbb7179658f61"
+    },
+    {
+      "path": "native/assets/models/1024/targets/circleLeg.glb",
+      "bytes": 229860,
+      "sha256": "d9a306bb7df80ee709f88b9efb84b965a46d6e6a8a2b0257a54a4ad2ec299da9"
+    },
+    {
+      "path": "native/assets/models/1024/targets/horizontalLeg.glb",
+      "bytes": 152660,
+      "sha256": "93ede47354d1422015c51d3fd14665c3447b86a8fea51507bf2b7de2045d6074"
+    },
+    {
+      "path": "native/assets/models/1024/targets/pendulumHand.glb",
+      "bytes": 152616,
+      "sha256": "822881d3c52b069a8ced752b53116726ad9e6bd0193915ca9db90c8ae2f07b5d"
+    },
+    {
+      "path": "native/assets/models/1024/targets/pendulumLeg.glb",
+      "bytes": 155200,
+      "sha256": "d99e6d2f593025b622622bf517517f0f9cc690142e6073c1708ac76af3b58fb0"
+    },
+    {
+      "path": "native/assets/models/1024/targets/starLeg.glb",
+      "bytes": 238892,
+      "sha256": "61f5ba8ecc4f6f4abdec106c0cec323b5bfe87cdb93d6786b07d8da81ff237ea"
+    },
+    {
+      "path": "native/assets/models/1024/targets/static3Leg.glb",
+      "bytes": 230740,
+      "sha256": "57b923ab1822cf5675f89672894c9c3cade409fec3182e8eef019ca58eae3f5c"
+    },
+    {
+      "path": "native/assets/models/1024/targets/static4Leg.glb",
+      "bytes": 210212,
+      "sha256": "bbb5b60612379ef9c127318c6dc1dbd734c922241597c412cfd434973d19ced3"
+    },
+    {
+      "path": "native/assets/models/1024/targets/sTextLeg.glb",
+      "bytes": 151060,
+      "sha256": "862cc6b5662f11e9c6eab654eb2e667868fcbe119bb63b24143c8551f4867f32"
+    },
+    {
+      "path": "native/assets/models/1024/targets/target.glb",
+      "bytes": 139468,
+      "sha256": "4e2feb62f851f36503d1a713edc07eb7487d7001683bef354113e5cb236857fd"
+    },
+    {
+      "path": "native/assets/models/1024/targets/triangleLeg.glb",
+      "bytes": 238124,
+      "sha256": "d82e7da484723df19da533d2936ea9631bad7f452324f1f286ef7ca50dd6fb5f"
+    },
+    {
+      "path": "native/assets/models/1024/targets/verticalLeg.glb",
+      "bytes": 227968,
+      "sha256": "2871b6913a18d0af05f7f6197d5b98178907284174ec241923fda0745ef0f78a"
+    },
+    {
+      "path": "native/assets/models/1024/terrains/EnvironmentA.glb",
+      "bytes": 499952,
+      "sha256": "c5199273e12a9ada87f33285cea505136c8370a8c9bf665cc48caa44c8f53ed3"
+    },
+    {
+      "path": "native/assets/models/1024/terrains/EnvironmentC.glb",
+      "bytes": 487184,
+      "sha256": "92d013d419f4da37d225a6171afee57d09102daed33b51d67b194dbf2f54dcf2"
+    },
+    {
+      "path": "native/assets/models/1024/terrains/EnvironmentD.glb",
+      "bytes": 749748,
+      "sha256": "776e33ddc9a22887e9c0b9bb3325ec7b0ca0204f6554fcc29b13cc9f1c269265"
+    },
+    {
+      "path": "native/assets/models/1024/terrains/EnvironmentE.glb",
+      "bytes": 1276568,
+      "sha256": "8457c2386e38477d154b2beb7ffc7b45ee7c9d666ff28da7b1d26f478117153e"
+    },
+    {
+      "path": "native/assets/models/256/arrows/frost.glb",
+      "bytes": 39632,
+      "sha256": "f89152143662c4febecb80cadd67c9c0a2651a9aec005e56e905ecf16d02b444"
+    },
+    {
+      "path": "native/assets/models/256/arrows/ice.glb",
+      "bytes": 69772,
+      "sha256": "09c6c9c71fe22b6484c5f5483e18652fec679e0b466acf4d54e2be556e048de2"
+    },
+    {
+      "path": "native/assets/models/256/arrows/rain.glb",
+      "bytes": 36248,
+      "sha256": "13c0675098b601422167e365b77ee3c8e60ea0ea210b29b6d1e06b3d1ed99a72"
+    },
+    {
+      "path": "native/assets/models/256/arrows/solar.glb",
+      "bytes": 47860,
+      "sha256": "6537f0fc2e5b65c4b0aceeac4dcff5232e3eb3e4d1c0dd8dcbfc2d0a4087c94f"
+    },
+    {
+      "path": "native/assets/models/256/arrows/warrior.glb",
+      "bytes": 52516,
+      "sha256": "bef7282ae2e2d977a1aa17a92d6088346945cb0846675fe800f9cce3b3494434"
+    },
+    {
+      "path": "native/assets/models/256/bows/ice.glb",
+      "bytes": 1496224,
+      "sha256": "5ae74c550be8865af566707a74c8c6a60ebdad650c849977bf1bc6f4c1f38fed"
+    },
+    {
+      "path": "native/assets/models/256/bows/rain.glb",
+      "bytes": 546492,
+      "sha256": "2da5303685001afa06f1c17f6a9ee5f7f6d487636c251ed4cc00c92eb4f8a56a"
+    },
+    {
+      "path": "native/assets/models/256/bows/solar.glb",
+      "bytes": 1481248,
+      "sha256": "f36af4abb4308c23da2caefc55a838379971ba09603e19fd5fcedb26e31ab096"
+    },
+    {
+      "path": "native/assets/models/256/bows/warrior.glb",
+      "bytes": 1780156,
+      "sha256": "3853a9fd15be12540f70276e90684336c89570f3d98ec72fa93cbb7179658f61"
+    },
+    {
+      "path": "native/assets/models/256/targets/circleLeg.glb",
+      "bytes": 229860,
+      "sha256": "d9a306bb7df80ee709f88b9efb84b965a46d6e6a8a2b0257a54a4ad2ec299da9"
+    },
+    {
+      "path": "native/assets/models/256/targets/horizontalLeg.glb",
+      "bytes": 152660,
+      "sha256": "93ede47354d1422015c51d3fd14665c3447b86a8fea51507bf2b7de2045d6074"
+    },
+    {
+      "path": "native/assets/models/256/targets/pendulumHand.glb",
+      "bytes": 152616,
+      "sha256": "822881d3c52b069a8ced752b53116726ad9e6bd0193915ca9db90c8ae2f07b5d"
+    },
+    {
+      "path": "native/assets/models/256/targets/pendulumLeg.glb",
+      "bytes": 155200,
+      "sha256": "d99e6d2f593025b622622bf517517f0f9cc690142e6073c1708ac76af3b58fb0"
+    },
+    {
+      "path": "native/assets/models/256/targets/starLeg.glb",
+      "bytes": 238892,
+      "sha256": "61f5ba8ecc4f6f4abdec106c0cec323b5bfe87cdb93d6786b07d8da81ff237ea"
+    },
+    {
+      "path": "native/assets/models/256/targets/static3Leg.glb",
+      "bytes": 230740,
+      "sha256": "57b923ab1822cf5675f89672894c9c3cade409fec3182e8eef019ca58eae3f5c"
+    },
+    {
+      "path": "native/assets/models/256/targets/static4Leg.glb",
+      "bytes": 210212,
+      "sha256": "bbb5b60612379ef9c127318c6dc1dbd734c922241597c412cfd434973d19ced3"
+    },
+    {
+      "path": "native/assets/models/256/targets/sTextLeg.glb",
+      "bytes": 151060,
+      "sha256": "862cc6b5662f11e9c6eab654eb2e667868fcbe119bb63b24143c8551f4867f32"
+    },
+    {
+      "path": "native/assets/models/256/targets/target.glb",
+      "bytes": 58692,
+      "sha256": "c8206c87f385f31f148be32e5d43a37a78252a921060fc93024afa77dbd40ff2"
+    },
+    {
+      "path": "native/assets/models/256/targets/triangleLeg.glb",
+      "bytes": 238124,
+      "sha256": "d82e7da484723df19da533d2936ea9631bad7f452324f1f286ef7ca50dd6fb5f"
+    },
+    {
+      "path": "native/assets/models/256/targets/verticalLeg.glb",
+      "bytes": 227968,
+      "sha256": "2871b6913a18d0af05f7f6197d5b98178907284174ec241923fda0745ef0f78a"
+    },
+    {
+      "path": "native/assets/models/256/terrains/EnvironmentA.glb",
+      "bytes": 527548,
+      "sha256": "c20ef6a773ba449c4631dc653a86bf322681cf16ffdfee95aeb2a06d1e579960"
+    },
+    {
+      "path": "native/assets/models/256/terrains/EnvironmentC.glb",
+      "bytes": 231892,
+      "sha256": "04a521b52608e7f6909c1b1492cfb173b66df0ed0f630b16c83075f43d8cf968"
+    },
+    {
+      "path": "native/assets/models/256/terrains/EnvironmentD.glb",
+      "bytes": 228244,
+      "sha256": "bdf7ea41a53bbcff845b88ac71f89fc381041dc11c7c5123f94af64ca6ffb178"
+    },
+    {
+      "path": "native/assets/models/256/terrains/EnvironmentE.glb",
+      "bytes": 208416,
+      "sha256": "b461003469a1936cd0ee2eae6cb4eda1042ecde73fb350ba2bab9dbc7d73835e"
+    },
+    {
+      "path": "native/assets/models/512/arrows/frost.glb",
+      "bytes": 39632,
+      "sha256": "f89152143662c4febecb80cadd67c9c0a2651a9aec005e56e905ecf16d02b444"
+    },
+    {
+      "path": "native/assets/models/512/arrows/ice.glb",
+      "bytes": 69772,
+      "sha256": "09c6c9c71fe22b6484c5f5483e18652fec679e0b466acf4d54e2be556e048de2"
+    },
+    {
+      "path": "native/assets/models/512/arrows/rain.glb",
+      "bytes": 36248,
+      "sha256": "13c0675098b601422167e365b77ee3c8e60ea0ea210b29b6d1e06b3d1ed99a72"
+    },
+    {
+      "path": "native/assets/models/512/arrows/solar.glb",
+      "bytes": 47860,
+      "sha256": "6537f0fc2e5b65c4b0aceeac4dcff5232e3eb3e4d1c0dd8dcbfc2d0a4087c94f"
+    },
+    {
+      "path": "native/assets/models/512/arrows/warrior.glb",
+      "bytes": 52516,
+      "sha256": "bef7282ae2e2d977a1aa17a92d6088346945cb0846675fe800f9cce3b3494434"
+    },
+    {
+      "path": "native/assets/models/512/bows/ice.glb",
+      "bytes": 1496224,
+      "sha256": "5ae74c550be8865af566707a74c8c6a60ebdad650c849977bf1bc6f4c1f38fed"
+    },
+    {
+      "path": "native/assets/models/512/bows/rain.glb",
+      "bytes": 784264,
+      "sha256": "bae167c6177864289452d7c4a8a6c67565c38cf858d7ad9915633b58b3450427"
+    },
+    {
+      "path": "native/assets/models/512/bows/solar.glb",
+      "bytes": 1481248,
+      "sha256": "f36af4abb4308c23da2caefc55a838379971ba09603e19fd5fcedb26e31ab096"
+    },
+    {
+      "path": "native/assets/models/512/bows/warrior.glb",
+      "bytes": 1780156,
+      "sha256": "3853a9fd15be12540f70276e90684336c89570f3d98ec72fa93cbb7179658f61"
+    },
+    {
+      "path": "native/assets/models/512/targets/circleLeg.glb",
+      "bytes": 229860,
+      "sha256": "d9a306bb7df80ee709f88b9efb84b965a46d6e6a8a2b0257a54a4ad2ec299da9"
+    },
+    {
+      "path": "native/assets/models/512/targets/horizontalLeg.glb",
+      "bytes": 152660,
+      "sha256": "93ede47354d1422015c51d3fd14665c3447b86a8fea51507bf2b7de2045d6074"
+    },
+    {
+      "path": "native/assets/models/512/targets/pendulumHand.glb",
+      "bytes": 152616,
+      "sha256": "822881d3c52b069a8ced752b53116726ad9e6bd0193915ca9db90c8ae2f07b5d"
+    },
+    {
+      "path": "native/assets/models/512/targets/pendulumLeg.glb",
+      "bytes": 155336,
+      "sha256": "26942a15cd3ac56ddbd56caaf50b079921133d2fcbf5622376ef247954a00b00"
+    },
+    {
+      "path": "native/assets/models/512/targets/starLeg.glb",
+      "bytes": 238892,
+      "sha256": "61f5ba8ecc4f6f4abdec106c0cec323b5bfe87cdb93d6786b07d8da81ff237ea"
+    },
+    {
+      "path": "native/assets/models/512/targets/static3Leg.glb",
+      "bytes": 230740,
+      "sha256": "e816cd7cb2d2156aa59aa3424cd3f70f70f4544541466113bc7d23e7eb4c75a6"
+    },
+    {
+      "path": "native/assets/models/512/targets/static4Leg.glb",
+      "bytes": 210212,
+      "sha256": "bbb5b60612379ef9c127318c6dc1dbd734c922241597c412cfd434973d19ced3"
+    },
+    {
+      "path": "native/assets/models/512/targets/sTextLeg.glb",
+      "bytes": 151060,
+      "sha256": "862cc6b5662f11e9c6eab654eb2e667868fcbe119bb63b24143c8551f4867f32"
+    },
+    {
+      "path": "native/assets/models/512/targets/target.glb",
+      "bytes": 126832,
+      "sha256": "46bdf45f62f49b0df479b0fde1f1e22739382f9cc2be5a7ce5b714817338fc68"
+    },
+    {
+      "path": "native/assets/models/512/targets/triangleLeg.glb",
+      "bytes": 238124,
+      "sha256": "d82e7da484723df19da533d2936ea9631bad7f452324f1f286ef7ca50dd6fb5f"
+    },
+    {
+      "path": "native/assets/models/512/targets/verticalLeg.glb",
+      "bytes": 227968,
+      "sha256": "2871b6913a18d0af05f7f6197d5b98178907284174ec241923fda0745ef0f78a"
+    },
+    {
+      "path": "native/assets/models/512/terrains/EnvironmentA.glb",
+      "bytes": 499952,
+      "sha256": "c5199273e12a9ada87f33285cea505136c8370a8c9bf665cc48caa44c8f53ed3"
+    },
+    {
+      "path": "native/assets/models/512/terrains/EnvironmentC.glb",
+      "bytes": 398720,
+      "sha256": "a938a57f4a1b853ae4ab6ca593f105434367bd5b1c52fb1313fb820e142cb056"
+    },
+    {
+      "path": "native/assets/models/512/terrains/EnvironmentD.glb",
+      "bytes": 489224,
+      "sha256": "524bd214a8ceadd775ae2d0f7b35eb9d62d48cd7f9013ad301b9b8a18f307826"
+    },
+    {
+      "path": "native/assets/models/512/terrains/EnvironmentE.glb",
+      "bytes": 502536,
+      "sha256": "8e123d780b3747468e5a39fd6cec9d02e5e9b9ecab97ea2cef16af486de91864"
+    },
+    {
+      "path": "native/assets/music/bg_music.mp3",
+      "bytes": 104926,
+      "sha256": "adb9faf249c0d2fc474a79da0ed020225b8775286d2b0935e9793193ce4a3ae4"
+    },
+    {
+      "path": "native/assets/sounds/effects.json",
+      "bytes": 928,
+      "sha256": "1632e915e97446b271a3b37d90ea82dde98445af0f41152ccf7214783a56cda9"
+    },
+    {
+      "path": "native/assets/sounds/effects.mp3",
+      "bytes": 272185,
+      "sha256": "6cd8d16ba22213d286a287ded067ad59afd8b11c7b0c6f7c6c7a6f66bf76edc2"
+    },
+    {
+      "path": "native/assets/textures/1x/default-resources.json",
+      "bytes": 24616,
+      "sha256": "f6526535c71839d0f79206217e45bffbdfcfb1af878991e1a8007a24bfb3f61e"
+    },
+    {
+      "path": "native/assets/textures/1x/default-resources.png",
+      "bytes": 112190,
+      "sha256": "6c84907eeb40cae9a9ddfb08090f04146f4b5ba05b8dd255d6239100da935611"
+    },
+    {
+      "path": "native/assets/textures/1x/gameplay-resources.json",
+      "bytes": 8042,
+      "sha256": "5aa1a915c979ed246ea8c0837d3dfaa8bc2e3d53d743e50bb182f61b64cf4318"
+    },
+    {
+      "path": "native/assets/textures/1x/gameplay-resources.png",
+      "bytes": 51695,
+      "sha256": "e4012799de71b65caadce16788737ca0e0fef355bb6885232a244f5b9b290e5d"
+    },
+    {
+      "path": "native/assets/textures/2x/default-resources.json",
+      "bytes": 24922,
+      "sha256": "8ff6cce0aef5fabe54e254074bd15bee16374b98f1582f8ad7e998f87567e822"
+    },
+    {
+      "path": "native/assets/textures/2x/default-resources.png",
+      "bytes": 360210,
+      "sha256": "f3f77d3e6154ded50772c1c4ec00774a825418f515300995973e3cd9f03df526"
+    },
+    {
+      "path": "native/assets/textures/2x/gameplay-resources.json",
+      "bytes": 8149,
+      "sha256": "e4b0d0db36c58e002bc82114cc8f5870be863a6701048f4df68f8d40020e0751"
+    },
+    {
+      "path": "native/assets/textures/2x/gameplay-resources.png",
+      "bytes": 153542,
+      "sha256": "9036cf34e7ffe60fb20e51f4e52e51d4eaab03735e71ade66f9fa02de9d71c2f"
+    },
+    {
+      "path": "native/assets/wideframes/crown.png",
+      "bytes": 8327,
+      "sha256": "16a5ef7d4c2463fdd4b019e0c0b915a25ebe21d134594c6f0064c390f27d809a"
+    },
+    {
+      "path": "native/assets/wideframes/wide-frame-game-result.png",
+      "bytes": 154698,
+      "sha256": "a4e34d093ea003303f144dd0a9d8a8d2fdc63167a32cbdf6f43b1855d6fa1961"
+    },
+    {
+      "path": "native/assets/wideframes/wide-frame-message-win.png",
+      "bytes": 182779,
+      "sha256": "d0b9b267c343d554178817059fe872b7247aa0f5ba9a854afd71b035dbc1d107"
+    },
+    {
+      "path": "native/assets/wideframes/wide-frame-share.png",
+      "bytes": 200178,
+      "sha256": "823d94fb4bcf6a63c7b77c8aaa4ce7623a3bffa6d2020232d4a4a2a2a14a05b9"
+    },
+    {
+      "path": "native/engine.bundle.js",
+      "bytes": 853980,
+      "sha256": "f16336edce9783fecdc9ed18da81a5cf748859fe5532368b963f1ec4fc7a3288"
+    },
+    {
+      "path": "native/game.bundle.js",
+      "bytes": 738234,
+      "sha256": "73e5a32cf0661d339fbb9e5053f745c5801b515c29564d78abb08e0c4bb6d342"
+    },
+    {
+      "path": "native/index.html",
+      "bytes": 925,
+      "sha256": "7acdb6a5ae93ef0cc3fae1be0577a9ecac8927f5807aa0c831b1e902fb7742d8"
+    },
+    {
+      "path": "native/local-platform.js",
+      "bytes": 7762,
+      "sha256": "178b016e9436c9d5fdbf1f185ae007d08b42b3de1eecc27c062ab05b8d085c30"
+    },
+    {
+      "path": "native/vendors.bundle.js",
+      "bytes": 904953,
+      "sha256": "f13e0b03c2d7daa29149e9199aea69ccba2a5f0543539172c16a478dd3ca748f"
+    }
+  ],
+  "cover": {
+    "path": "cover.png",
+    "source": "Own capture of the local native gameplay canvas during a held draw",
+    "sha256": "18ef2b19965ab1aa2003d9a82c7a9d563e9cc95878a2f4138cf24777b126a936"
+  }
+}

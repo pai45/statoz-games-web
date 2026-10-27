@@ -8,4 +8,3 @@ export {
   useFullScreenMomentActive,
 } from "./use-full-screen-moment";
 export { useKeyboardOpen } from "./use-keyboard-open";
-export { useMediaQuery } from "./use-media-query";

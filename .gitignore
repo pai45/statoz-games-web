@@ -80,3 +80,4 @@ next-env.d.ts
 # Native Stick Cricket files are local reference artifacts, not licensed source.
 /public/games/stick-cricket/unity/Build/
 /public/games/stick-cricket/unity/StreamingAssets/
+

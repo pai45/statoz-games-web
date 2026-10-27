@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { publicAsset } from "@/shared/config";
 import { accentVar } from "@/design-system";
 import type { GameEntry } from "@/mocks/games";
+import { gameCoverPath } from "../home-catalog";
 import type { GameId } from "../types";
 import { useCardTilt } from "./use-card-tilt";
 import { useGameLaunch } from "./use-game-launch";
@@ -31,7 +32,7 @@ export function DiscoveryGameTile({ game, entry, index, live = false }: Discover
   const body: ReactNode = <>
     <span className={styles.edge} aria-hidden="true" />
     <span className={styles.fill}>
-      <Image src={publicAsset(["retro-football-2","stick-cricket"].includes(game) ? `/games/${game}/cover.png` : `/assets/games/covers/${game}.webp`)} alt="" fill sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw" unoptimized className={styles.cover} />
+      <Image src={publicAsset(gameCoverPath(game))} alt="" fill sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw" unoptimized className={styles.cover} />
       <span className={styles.tint} aria-hidden="true" />
       <span className={styles.vignette} aria-hidden="true" />
       <span className={styles.dots} aria-hidden="true" />

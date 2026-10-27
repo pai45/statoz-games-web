@@ -1,4 +1,5 @@
 import {
+  ArcheryIcon,
   BasketballIcon,
   CricketIcon,
   FootballIcon,
@@ -10,6 +11,7 @@ import {
 import type { GameSport } from "@/domain/game-sports";
 
 const glyphs = {
+  archery: ArcheryIcon,
   football: FootballIcon,
   golf: GolfIcon,
   cricket: CricketIcon,

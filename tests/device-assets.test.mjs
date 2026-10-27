@@ -155,7 +155,7 @@ test('manifest includes built game dependencies and static code, encodes names a
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'game-assets-'));
   const put = async (file, text = 'bytes') => { await fs.mkdir(path.dirname(path.join(root, file)), { recursive: true }); await fs.writeFile(path.join(root, file), text); };
   try {
-    for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
+    for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'archery-test', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
     await put('src/domain/removed-games.json', await fs.readFile(path.join(process.cwd(), 'src/domain/removed-games.json'), 'utf8'));
     await put('src/catalog.ts', '"/assets/shop/portraits/LEO 10.webp" "/assets/shop/banners/BLUE 10.webp"');
     await put('public/assets/shop/banners/BLUE 10.webp');
@@ -163,6 +163,7 @@ test('manifest includes built game dependencies and static code, encodes names a
     for (const asset of ['data/cores/fbneo-wasm.data', 'roms/strhoop.zip', 'roms/arcade.7z', 'bridge.js', 'index.html']) await put('public/games/retro-hoops/street-hoop/' + asset);
     for (const asset of ['arcade/data/cores/fbneo-wasm.data', 'arcade/roms/ssideki2.zip', 'arcade/roms/arcade.7z', 'arcade/bridge.js', 'arcade/index.html', 'cover.png']) await put('public/games/retro-football-2/' + asset);
     for (const asset of ['unity/Build/game.wasm','unity/Build/game.data','unity/StreamingAssets/aa/catalog.bin','unity/StreamingAssets/aa/WebGL/scene.bundle','unity/bridge.js','cover.png']) await put('public/games/stick-cricket/' + asset);
+    for(const asset of ['native/index.html','native/local-platform.js','native/engine.bundle.js','native/assets/models/512/terrains/EnvironmentA.glb','native/assets/fonts/helve.xml','native/assets/sounds/effects.mp3'])await put('public/games/archery-test/'+asset);
     const first = await generateAssetManifest({ root, buildId: 'one', basePath: '/demo', exportDir: path.join(root, 'out') });
     for (const asset of ['data/cores/fbneo-wasm.data', 'roms/strhoop.zip', 'roms/arcade.7z', 'bridge.js', 'index.html']) {
       const entry = first.files.find(file => file.url === '/demo/games/retro-hoops/street-hoop/' + asset);
@@ -174,6 +175,7 @@ test('manifest includes built game dependencies and static code, encodes names a
     }
     for (const asset of ['unity/Build/game.data','unity/StreamingAssets/aa/catalog.bin','unity/StreamingAssets/aa/WebGL/scene.bundle']) {const entry=first.files.find(file=>file.url==='/demo/games/stick-cricket/'+asset);assert.ok(entry,'Missing Unity dependency: '+asset);assert.equal(entry.hash,digest('bytes'));}
     for (const id of ['retro-innings', 'final-third', 'retro-football', 'retro-circuit']) assert.ok(!first.files.some(file => file.url.includes('/embedded-games/' + id + '/')));
+    for(const asset of ['native/assets/models/512/terrains/EnvironmentA.glb','native/assets/fonts/helve.xml','native/assets/sounds/effects.mp3'])assert.ok(first.files.some(file=>file.url==='/demo/games/archery-test/'+asset),'Missing native dependency '+asset);
     assert.ok(!first.files.some(file => file.url.includes('/assets/shop/portraits/')));
     assert.ok(first.files.some(file => file.url === '/demo/assets/shop/banners/BLUE%2010.webp'));
     assert.equal(await fs.readFile(path.join(root, 'public/assets/shop/portraits/LEO 10.webp'), 'utf8'), 'bytes');

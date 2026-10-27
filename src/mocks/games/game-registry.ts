@@ -42,6 +42,8 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
+  "football-shooting": {kind:"hero",title:"FOOTBALL SHOOTING",titleLines:["FOOTBALL","SHOOTING"],subtitle:"FIND THE CORNER. BEND THE BALL. MAKE THE SAVE.",badgeLabel:"3D FOOTBALL // SHOOTOUT + PRACTICE",ctaLabel:"TAKE THE SHOT",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/football-shooting"},
+  "archery-test": {kind:"hero",title:"ARCHERY TEST",titleLines:["ARCHERY","TEST"],subtitle:"DRAW. AIM. RELEASE. REACH THE TARGET.",badgeLabel:"3D ARCHERY // ORIGINAL LEVELS",ctaLabel:"TAKE AIM",accent:"gold",scene:"tennis-rally",href:"/play/archery-test"},
   "stick-cricket": {kind:"hero",title:"STICK CRICKET",titleLines:["STICK","CRICKET"],subtitle:"STICK CRICKET CHASE. TIME YOUR SHOT.",badgeLabel:"3D CRICKET // BATTING CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/stick-cricket"},
   "open-golf": {kind:"hero",title:"OPEN GOLF",titleLines:["OPEN","GOLF"],subtitle:"ORIGINAL COURSES. ONE PERFECT PUTT.",badgeLabel:"3D MINI GOLF",ctaLabel:"TEE OFF",accent:"lime",scene:"tennis-rally",href:"/play/open-golf"},
   "final-third": {kind:"hero",title:"FINAL THIRD",titleLines:["FINAL","THIRD"],subtitle:"SIX CHANCES. SWIPE IT, BEND IT, FINISH IT.",badgeLabel:"3D FOOTBALL // ATTACK AND DEFEND",ctaLabel:"KICK OFF",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/final-third"},

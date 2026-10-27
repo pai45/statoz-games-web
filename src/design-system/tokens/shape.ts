@@ -53,10 +53,9 @@ export const shape = {
   cardCutMax: 30,
   /**
    * The arcade bevel the statoz.in game cards wear: one cut on the top-right
-   * and one on the bottom-left, the other two corners square. Banner, card,
-   * compact (phone) card and the small plates inside them.
+   * and one on the bottom-left, the other two corners square. Card, compact
+   * (phone) card and the small plates inside them.
    */
-  bevelBannerCut: 22,
   bevelCut: 16,
   bevelCompactCut: 11,
   bevelPlateCut: 9,

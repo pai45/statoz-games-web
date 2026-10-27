@@ -2,18 +2,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 export async function buildOpenGolf({prelude}) {
  const root=path.join(process.cwd(),'vendor/open-golf');
- const runtime=await fs.readFile(path.join(root,'golf.js'),'utf8');
- const worker=await fs.readFile(path.join(root,'golf.worker.js'),'utf8');
- const wasm=(await fs.readFile(path.join(root,'golf.wasm'))).toString('base64');
+ const runtime=await fs.readFile(path.join(root,'golf-mobile.js'),'utf8');
+ const wasm=(await fs.readFile(path.join(root,'golf-mobile.wasm'))).toString('base64');
  const notices=await fs.readFile(path.join(root,'THIRD-PARTY-NOTICES.txt'),'utf8');
  const configuration=`
-const runtimeSource=${JSON.stringify(runtime)};
-const runtimeBlob=new Blob([runtimeSource],{type:'application/javascript'});
-const workerURL=URL.createObjectURL(new Blob([${JSON.stringify(worker)}],{type:'application/javascript'}));
 let paused=false,disposed=false;const waiting=new Map(),raf=requestAnimationFrame.bind(window),caf=cancelAnimationFrame.bind(window);
 window.requestAnimationFrame=callback=>{let id;id=raf(time=>{if(disposed)return;if(paused)waiting.set(id,callback);else callback(time);});return id;};
 window.cancelAnimationFrame=id=>{waiting.delete(id);caf(id);};
-var Module={canvas:document.getElementById('canvas'),wasmBinary:Uint8Array.from(atob('${wasm}'),c=>c.charCodeAt(0)),mainScriptUrlOrBlob:runtimeBlob,locateFile:name=>{if(name.endsWith('.worker.js'))return workerURL;if(name.endsWith('.wasm'))return name;throw Error('Unexpected Open Golf resource: '+name);},preRun:[()=>{
+var Module={canvas:document.getElementById('canvas'),wasmBinary:Uint8Array.from(atob('${wasm}'),c=>c.charCodeAt(0)),preRun:[()=>{
   const mount=FS.mount.bind(FS);
   FS.mount=(type,options,target)=>mount(target==='/opengolf_persistent_data'?MEMFS:type,options,target);
   FS.syncfs=(populate,callback)=>{if(typeof populate==='function'){callback=populate;populate=false;}try{
@@ -23,7 +19,7 @@ var Module={canvas:document.getElementById('canvas'),wasmBinary:Uint8Array.from(
     callback(null);
   }catch(error){callback(error);}};
 }],onRuntimeInitialized:()=>{window.__STATOZ_HOST__.emit('ready');document.getElementById('loading').remove();},onAbort:()=>window.__STATOZ_HOST__.emit('error',{message:'Open Golf could not start.'})};
-window.__STATOZ_HOST__.command=command=>{if(command==='pause'){paused=true;Module._saudio_context?.suspend();document.getElementById('resume').hidden=false;}else if(command==='resume'){paused=false;for(const callback of waiting.values())raf(callback);waiting.clear();Module._saudio_context?.resume();document.getElementById('resume').hidden=true;}else if(command==='dispose'){disposed=true;waiting.clear();PThread.terminateAllThreads();Module._saudio_context?.close();URL.revokeObjectURL(workerURL);}};
+window.__STATOZ_HOST__.command=command=>{if(command==='pause'){paused=true;Module._saudio_context?.suspend();document.getElementById('resume').hidden=false;}else if(command==='resume'){paused=false;for(const callback of waiting.values())raf(callback);waiting.clear();Module._saudio_context?.resume();document.getElementById('resume').hidden=true;}else if(command==='dispose'){disposed=true;waiting.clear();Module._saudio_context?.close();}};
 document.getElementById('resume').onclick=()=>window.__STATOZ_HOST__.command('resume');
 `;
  const escape=s=>s.replaceAll('</script','<\\/script');

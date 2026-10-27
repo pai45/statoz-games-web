@@ -1,5 +1,5 @@
 import { gameRegistry } from "@/mocks/games";
-import { libraryCardLayout } from "../home-catalog";
+import { libraryCardLayout, liveCardCount } from "../home-catalog";
 import type { GameId } from "../types";
 import { QuickGameTile } from "./quick-game-tile";
 import styles from "./game-library.module.css";
@@ -23,9 +23,8 @@ export function GameLibrary({ games, label, collection }: GameLibraryProps) {
     <ul className={styles.grid}>
       {games.map((id, index) => {
         const layout = libraryCardLayout(count, index);
-        const className = [styles.item, layout.feature && styles.feature, layout.wide && styles.wide, layout.phoneWide && styles.phoneWide].filter(Boolean).join(" ");
-        // The first phone row is the first card alone (it always spans the row).
-        return <li key={id} className={className}><QuickGameTile game={id} entry={gameRegistry[id]} index={index} live={index === 0} /></li>;
+        const className = [styles.item, layout.feature && styles.feature, layout.wide && styles.wide].filter(Boolean).join(" ");
+        return <li key={id} className={className}><QuickGameTile game={id} entry={gameRegistry[id]} index={index} live={index < liveCardCount} /></li>;
       })}
     </ul>
   </section>;

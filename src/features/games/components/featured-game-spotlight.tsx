@@ -6,46 +6,38 @@ import { accentVar } from "@/design-system";
 import type { GameSport } from "@/domain/game-sports";
 import { gameRegistry, type GameEntry } from "@/mocks/games";
 import { publicAsset } from "@/shared/config";
-import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { usePrefersReducedMotion } from "@/shared/hooks/use-prefers-reduced-motion";
-import { allGamesInFeedOrder, spotlightGames, spotlightLimit } from "../home-catalog";
+import { gameCoverPath, spotlightGames } from "../home-catalog";
 import { useCardTilt } from "./use-card-tilt";
 import { useGameLaunch } from "./use-game-launch";
 import styles from "./featured-game-spotlight.module.css";
 
 const fanPosition = [styles.pos0, styles.pos1, styles.pos2, styles.pos3];
-const tickerNames = allGamesInFeedOrder().map((id) => gameRegistry[id].title);
-/** Phones show the banner as a frameless strip of covers; matches the CSS breakpoint. */
-const compactQuery = "(max-width: 639px)";
 /** Horizontal travel, in px, that counts as a swipe on the cover strip. */
 const swipeDistance = 40;
 
-/** A title split into a white first line and a gradient second line. */
-function titleLines(entry: GameEntry): [string, string] {
-  if (entry.titleLines?.length) return [entry.titleLines[0], entry.titleLines.slice(1).join(" ")];
+/** The first line of a game's title, written large behind the strip. */
+function ghostWord(entry: GameEntry): string {
+  if (entry.titleLines?.length) return entry.titleLines[0];
   const at = entry.title.lastIndexOf(" ");
-  return at > 0 ? [entry.title.slice(0, at), entry.title.slice(at + 1)] : [entry.title, ""];
+  return at > 0 ? entry.title.slice(0, at) : entry.title;
 }
 
-const pad = (value: number) => String(value).padStart(2, "0");
 const accentStyle = (entry: GameEntry, name: string) => ({ [name]: accentVar(entry.accent) }) as CSSProperties;
 
 /**
- * The home page's featured banner, after the statoz.in hero: a fanned deck of
- * cover cards that reshuffles as the featured game rotates, glow orbs, a ghost
- * title, floating HUD chips and a ticker of every game.
- *
- * On phones it drops its frame and copy: a strip of three covers over a
- * full-bleed animated backdrop, with the featured game's name, swipeable and
- * tappable.
+ * The home page's featured carousel, the same at every screen size: no frame
+ * and no copy — a fanned strip of three cover cards over a full-bleed animated
+ * backdrop (glow orbs, drifting dots, a running grid floor, a sweeping beam and
+ * a ghost title), with the featured game's name beneath. The front cover and
+ * name open the game; swipe or the pager changes it.
  *
  * Rotation is driven by the active pager segment's fill animation, so pausing
  * that animation (hover, focus, hidden tab) pauses the carousel exactly where
  * it stands. Reduced-motion viewers get no auto-advance.
  */
 export function FeaturedGameSpotlight({ sport }: { sport: GameSport | null }) {
-  const compact = useMediaQuery(compactQuery);
-  const games = spotlightGames(sport).slice(0, compact ? spotlightLimit.sport : undefined);
+  const games = spotlightGames(sport);
   const count = games.length;
   const [index, setIndex] = useState(0);
   const [run, setRun] = useState(0);
@@ -97,46 +89,33 @@ export function FeaturedGameSpotlight({ sport }: { sport: GameSport | null }) {
     className={`${styles.spot} ${paused ? styles.paused : ""}`} style={accentStyle(entry, "--spot-accent")}
     onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)}
     onFocus={() => setFocused(true)} onBlur={onBlur}>
-    <div className={styles.edge} aria-hidden="true" />
-    <div className={styles.fill}>
-      <div className={styles.backdrop} aria-hidden="true">
-        <div className={`${styles.orb} ${styles.orbAccent}`} />
-        <div className={`${styles.orb} ${styles.orbViolet}`} />
-        <div className={styles.dots} />
-        <div className={styles.floor} />
-        <div className={styles.beam} />
-        {games.map((id, i) => <div key={id} className={`${styles.ghost} ${i === active ? styles.ghostActive : ""}`}>{titleLines(gameRegistry[id])[0]}</div>)}
-      </div>
+    <div className={styles.backdrop} aria-hidden="true">
+      <div className={`${styles.orb} ${styles.orbAccent}`} />
+      <div className={`${styles.orb} ${styles.orbViolet}`} />
+      <div className={styles.dots} />
+      <div className={styles.floor} />
+      <div className={styles.beam} />
+      {games.map((id, i) => <div key={id} className={`${styles.ghost} ${i === active ? styles.ghostActive : ""}`}>{ghostWord(gameRegistry[id])}</div>)}
+    </div>
 
-      <div className={styles.stage} {...stage}>
-        <div className={styles.fan} aria-hidden="true">
-          {games.map((id, i) => {
-            const position = Math.min((i - active + count) % count, 3);
-            return <div key={id} className={`${styles.fanCard} ${fanPosition[position]}`} style={accentStyle(gameRegistry[id], "--fan-accent")}>
-              <div className={styles.fanEdge} />
-              <div className={styles.fanFill}>
-                <Image src={publicAsset(["retro-football-2","stick-cricket"].includes(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`)} alt="" fill sizes="(min-width: 1024px) 36vw, 80vw" unoptimized priority={i === 0} loading={i === 0 ? undefined : "eager"} className={styles.fanCover} />
-                <div className={styles.fanVignette} />
-                <div className={styles.holo} />
-                <div className={styles.sheen} />
-                <span className={`${styles.bracket} ${styles.bracketStart}`} />
-                <span className={`${styles.bracket} ${styles.bracketEnd}`} />
-              </div>
-            </div>;
-          })}
-        </div>
-        {entry.badgeLabel ? <div className={`${styles.float} ${styles.floatTop}`} aria-hidden="true">{entry.badgeLabel}</div> : null}
-        <div className={`${styles.float} ${styles.floatBottom}`} aria-hidden="true">▶ <b>{pad(active + 1)}</b> / {pad(count)} FEATURED</div>
-        {compact ? <StripLaunch key={entry.href} entry={entry} /> : null}
+    <div className={styles.stage} {...stage}>
+      <div className={styles.fan} aria-hidden="true">
+        {games.map((id, i) => {
+          const position = Math.min((i - active + count) % count, 3);
+          return <div key={id} className={`${styles.fanCard} ${fanPosition[position]}`} style={accentStyle(gameRegistry[id], "--fan-accent")}>
+            <div className={styles.fanEdge} />
+            <div className={styles.fanFill}>
+              <Image src={publicAsset(gameCoverPath(id))} alt="" fill sizes="(min-width: 1024px) 480px, 70vw" unoptimized priority={i === 0} loading={i === 0 ? undefined : "eager"} className={styles.fanCover} />
+              <div className={styles.fanVignette} />
+              <div className={styles.holo} />
+              <div className={styles.sheen} />
+              <span className={`${styles.bracket} ${styles.bracketStart}`} />
+              <span className={`${styles.bracket} ${styles.bracketEnd}`} />
+            </div>
+          </div>;
+        })}
       </div>
-
-      {games.map((id, i) => <SpotlightSlide key={id} entry={gameRegistry[id]} active={i === active && !compact} position={`${i + 1} of ${count}`} />)}
-
-      <div className={styles.ticker} aria-hidden="true">
-        <div className={styles.tickerTrack}>
-          {[...tickerNames, ...tickerNames].map((name, i) => <span key={i}>{name}<i>◆</i></span>)}
-        </div>
-      </div>
+      <StripLaunch key={entry.href} entry={entry} />
     </div>
 
     {count > 1 ? <div className={styles.pager}>
@@ -157,7 +136,7 @@ export function FeaturedGameSpotlight({ sport }: { sport: GameSport | null }) {
   </section>;
 }
 
-/** Phone strip: the front cover and the game's name are one tap target. */
+/** The front cover and the game's name are one tap target. */
 function StripLaunch({ entry }: { entry: GameEntry }) {
   const launch = useGameLaunch(entry);
   const label = `Play ${entry.title}`;
@@ -165,28 +144,4 @@ function StripLaunch({ entry }: { entry: GameEntry }) {
   return launch.href
     ? <Link href={launch.href} aria-label={label} className={styles.stripHit}>{name}</Link>
     : <button type="button" aria-label={label} className={styles.stripHit} onClick={launch.onClick}>{name}</button>;
-}
-
-function SpotlightSlide({ entry, active, position }: { entry: GameEntry; active: boolean; position: string }) {
-  const launch = useGameLaunch(entry);
-  const [first, second] = titleLines(entry);
-  const cta = <>
-    <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor" /></svg>
-    <span>{entry.ctaLabel ?? "PLAY NOW"}</span>
-  </>;
-  return <div role="group" aria-roledescription="slide" aria-label={`${position}: ${entry.title}`} inert={!active}
-    className={`${styles.slide} ${active ? styles.slideActive : ""}`} style={accentStyle(entry, "--spot-accent")}>
-    <span className={styles.kicker}>
-      <i className={styles.live} aria-hidden="true" />FEATURED
-      {entry.badgeLabel ? <span>{` // ${entry.badgeLabel}`}</span> : null}
-    </span>
-    <h2 className={styles.title}><span>{first}</span>{second ? <span className={styles.grad}>{second}</span> : null}</h2>
-    <i className={styles.rule} aria-hidden="true" />
-    <p className={styles.subtitle}>{entry.subtitle}</p>
-    <span className={styles.ctaWrap}>
-      {launch.href
-        ? <Link href={launch.href} className={styles.cta}>{cta}</Link>
-        : <button type="button" className={styles.cta} onClick={launch.onClick}>{cta}</button>}
-    </span>
-  </div>;
 }

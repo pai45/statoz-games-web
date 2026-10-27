@@ -16,8 +16,16 @@ export function sportGamesInDeckOrder(sport: GameSport): GameId[] {
   return [...heroes, ...quick];
 }
 
+/** Games whose cover ships with the game bundle rather than the shared covers folder. */
+const bundledCoverGames: readonly string[] = ["football-shooting", "retro-football-2", "stick-cricket", "archery-test"];
+
+/** Public path of a game's cover art (pass through `publicAsset`). */
+export function gameCoverPath(id: GameId): string {
+  return bundledCoverGames.includes(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`;
+}
+
 /** How many games the home banner rotates through. */
-export const spotlightLimit = { all: 4, sport: 3 } as const;
+export const spotlightLimit = { all: 3, sport: 3 } as const;
 
 /** The games the featured banner rotates through for the selected view. */
 export function spotlightGames(sport: GameSport | null): GameId[] {
@@ -32,10 +40,9 @@ export function spotlightGames(sport: GameSport | null): GameId[] {
  * Wide screens use six columns: `feature` cards take half a row, ordinary cards
  * a third. The first two lead as features; the tail is evened out so no row is
  * left short: one leftover card goes `wide` (a full row), two leftovers become
- * a pair of features. Phones use two columns, where `phoneWide` cards take the
- * full row: the first card, and the last one when it would otherwise sit alone.
+ * a pair of features. Phones and tablets ignore this: a plain two-column grid.
  */
-export type LibraryCardLayout = { feature: boolean; wide: boolean; phoneWide: boolean };
+export type LibraryCardLayout = { feature: boolean; wide: boolean };
 
 export function libraryCardLayout(count: number, index: number): LibraryCardLayout {
   const leading = count >= 4 || count === 2 ? 2 : 0;
@@ -43,6 +50,8 @@ export function libraryCardLayout(count: number, index: number): LibraryCardLayo
   const last = index === count - 1;
   const feature = index < leading || (leftover === 2 && index >= count - 2);
   const wide = count === 1 || (last && leftover === 1);
-  const phoneWide = index === 0 || (last && (count - 1) % 2 === 1);
-  return { feature, wide, phoneWide };
+  return { feature, wide };
 }
+
+/** Cards in the first row of the two-column touch grid play their hover treatment unprompted. */
+export const liveCardCount = 2;

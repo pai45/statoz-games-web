@@ -161,7 +161,6 @@
   --ds-card-cut-big: 14px;
   --ds-card-cut-small: 7px;
   /* Arcade bevel (top-right + bottom-left), see bevelClipPath() in shape.ts. */
-  --ds-shape-bevel-banner-cut: 22px;
   --ds-shape-bevel-cut: 16px;
   --ds-shape-bevel-compact-cut: 11px;
   --ds-shape-bevel-plate-cut: 9px;
