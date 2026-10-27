@@ -73,7 +73,10 @@
     "test:archery-test:browser": "node tests/archery-test.browser.mjs",
     "build:football-shooting": "node scripts/build-game-bundles.mjs --game=football-shooting",
     "test:football-shooting": "tsx --test tests/football-shooting.test.ts",
-    "test:football-shooting:browser": "node tests/football-shooting.browser.mjs"
+    "test:football-shooting:browser": "node tests/football-shooting.browser.mjs",
+    "build:f1-racing": "node scripts/build-game-bundles.mjs --game=f1-racing",
+    "test:f1-racing": "tsx --test tests/f1-racing.test.ts",
+    "test:f1-racing:browser": "node tests/f1-racing.browser.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

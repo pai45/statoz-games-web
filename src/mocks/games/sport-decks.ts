@@ -29,7 +29,7 @@ const sourceDecks: Record<GameSport, GameId[]> = {
   cricket: ["stick-cricket", "retro-innings", "stadium-cricket", "cricket-quiz", "cricket-guess-player"],
   basketball: ["retro-hoops", "vibe-basketball", "hoop-duel", "basketball-quiz", "basketball-guess-player"],
   tennis: ["tennis-rally", "tennis-quiz", "tennis-guess-winner"],
-  motorsport: ["retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
+  motorsport: ["f1-racing", "retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
 };
 
 export const sportGameDecks = Object.fromEntries(Object.entries(sourceDecks).map(([sport, games]) => [sport, games.filter(isGameEnabled)])) as Record<GameSport, GameId[]>;

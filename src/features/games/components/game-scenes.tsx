@@ -34,7 +34,7 @@ export type GameSceneProps = {
 };
 
 export function GameScene(props: GameSceneProps) {
-  if (["football-shooting","retro-football-2","stick-cricket","archery-test"].includes(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(`/games/${props.game}/cover.png`)} alt="" fill sizes="(min-width:1024px) 270px,70vw" unoptimized style={{objectFit:'cover'}}/></div>;
+  if (["f1-racing","football-shooting","retro-football-2","stick-cricket","archery-test"].includes(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(`/games/${props.game}/cover.png`)} alt="" fill sizes="(min-width:1024px) 270px,70vw" unoptimized style={{objectFit:'cover'}}/></div>;
   if (props.game === "open-golf") return <div className={styles.scene} aria-hidden="true"><Image src={publicAsset('/assets/games/covers/open-golf.webp')} alt="" fill unoptimized style={{objectFit:'cover'}} /></div>;
   if (props.game === "final-third") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/final-third/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "pitch-rush") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/pitch-rush/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
@@ -46,7 +46,7 @@ export function GameScene(props: GameSceneProps) {
 }
 function CatalogGameScene({ game, opacity = 1, animate = true, locked = false, phase }: GameSceneProps) {
   const root = useRef<HTMLDivElement>(null);
-  const scene = discoveryFamily.games[game === "football-shooting" ? "penalty-shootout" : game === "retro-football-2" ? "pitch-duel" : ["open-golf","archery-test"].includes(game) ? "tennis-rally" : ["stick-cricket","retro-innings"].includes(game) ? "final-over" : game === "retro-hoops" ? "hoop-duel" : game];
+  const scene = discoveryFamily.games[game === "f1-racing" ? "grand-prix-dash" : game === "football-shooting" ? "penalty-shootout" : game === "retro-football-2" ? "pitch-duel" : ["open-golf","archery-test"].includes(game) ? "tennis-rally" : ["stick-cricket","retro-innings"].includes(game) ? "final-over" : game === "retro-hoops" ? "hoop-duel" : game];
 
   useEffect(() => {
     const element = root.current;

@@ -155,7 +155,7 @@ test('manifest includes built game dependencies and static code, encodes names a
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'game-assets-'));
   const put = async (file, text = 'bytes') => { await fs.mkdir(path.dirname(path.join(root, file)), { recursive: true }); await fs.writeFile(path.join(root, file), text); };
   try {
-    for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'archery-test', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
+    for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'f1-racing', 'archery-test', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
     await put('src/domain/removed-games.json', await fs.readFile(path.join(process.cwd(), 'src/domain/removed-games.json'), 'utf8'));
     await put('src/catalog.ts', '"/assets/shop/portraits/LEO 10.webp" "/assets/shop/banners/BLUE 10.webp"');
     await put('public/assets/shop/banners/BLUE 10.webp');

@@ -13,6 +13,7 @@ parser.add_argument('--source', type=Path, default=BASE / 'upstream')
 parser.add_argument('--output', type=Path, default=BASE / 'mobile-build')
 parser.add_argument('--sdk', type=Path, default=BASE / 'emsdk')
 parser.add_argument('--link-only', action='store_true')
+parser.add_argument('--inputs-only', action='store_true', help='Reuse existing objects except common/inputs.c')
 args = parser.parse_args()
 SOURCE, BUILD, SDK = args.source.resolve(), args.output.resolve(), args.sdk.resolve()
 BUILD.mkdir(parents=True, exist_ok=True)
@@ -31,6 +32,25 @@ end = data.index('\n}', start)
 data = data[:start] + '''    GOLF_UNUSED(load_async);
     _golf_data_thread_load_file(golf_file(path));''' + data[end:]
 data_file.write_text(data)
+
+# The upstream web build defaults to mouse mode even when Sokol delivers touch
+# events. Select the input mode from actual events, preserving hybrid devices.
+inputs_file = BUILD / 'src/common/inputs.c'
+inputs = inputs_file.read_text()
+inputs = inputs.replace('''    if (event->type == SAPP_EVENTTYPE_TOUCHES_BEGAN) {
+''', '''    if (event->type == SAPP_EVENTTYPE_TOUCHES_BEGAN) {
+        inputs.is_touch = true;
+        memset(inputs.mouse_down, 0, sizeof(inputs.mouse_down));
+        memset(inputs.mouse_clicked, 0, sizeof(inputs.mouse_clicked));
+''')
+inputs = inputs.replace('''    if (event->type == SAPP_EVENTTYPE_MOUSE_DOWN) {
+''', '''    if (event->type == SAPP_EVENTTYPE_MOUSE_DOWN) {
+        inputs.is_touch = false;
+        inputs.touch_down = false;
+        inputs.touch_began = false;
+        inputs.touch_ended = false;
+''')
+inputs_file.write_text(inputs)
 
 archive = io.BytesIO()
 with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as output:
@@ -61,7 +81,7 @@ flags = ['-O2', '-DNDEBUG', '-DSOKOL_GLES3', '-DGOLF_PLATFORM_EMSCRIPTEN',
 
 def compile_one(source):
     obj = BUILD / ('obj-' + source.relative_to(BUILD / 'src').as_posix().replace('/', '-') + '.o')
-    if not args.link_only:
+    if not args.link_only and (not args.inputs_only or source == BUILD / 'src/common/inputs.c'):
         subprocess.run([str(compiler), *flags, '-c', str(source), '-o', str(obj)], check=True)
     print('Compiled', source.name, flush=True)
     return obj

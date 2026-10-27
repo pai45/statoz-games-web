@@ -13,3 +13,7 @@ To rebuild, extract vendor/open-golf/upstream-source.zip to a scratch source dir
 Local verification covers startup in a non-isolated srcdoc frame with SharedArrayBuffer unavailable, course rendering, storage and pause/resume/dispose. Physical-device validation remains required. No publication is performed.
 
 Third-party notices and the source archive preserve upstream attribution.
+
+Touch fix: the upstream Emscripten input initialization selected mouse mode permanently. The rebuild script now selects touch mode when actual touch events arrive and restores mouse mode on a mouse press, clearing stale state on each change. This enables Play, course selection, aiming and shot release in mobile browsers and WebViews.
+
+Regression commands: `node tests/open-golf-touch.browser.mjs` (touch events only, including Play transition assertion and gameplay captures) and `node tests/open-golf.browser.mjs` (mouse, saves and lifecycle). Physical-device verification remains outstanding.

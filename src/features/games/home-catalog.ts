@@ -21,6 +21,7 @@ const bundledCoverGames: readonly string[] = ["football-shooting", "retro-footba
 
 /** Public path of a game's cover art (pass through `publicAsset`). */
 export function gameCoverPath(id: GameId): string {
+  if (id === "f1-racing") return "/assets/games/covers/grand-prix-dash.webp";
   return bundledCoverGames.includes(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`;
 }
 

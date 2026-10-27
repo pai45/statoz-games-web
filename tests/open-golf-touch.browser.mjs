@@ -1,0 +1,50 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import http from 'node:http';
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
+const root=process.cwd(),output=path.resolve('test-results/open-golf-touch'+(process.argv.includes('--portrait')?'-portrait':''));
+await fs.mkdir(output,{recursive:true});
+const require=createRequire(path.join(root,'package.json')),{chromium}=require('@playwright/test'),sharp=require('sharp');
+const {buildOpenGolf}=await import(pathToFileURL(path.join(root,'scripts/build-open-golf.mjs')));
+process.chdir(root);
+const html=await buildOpenGolf({prelude:`<script>window.__STATOZ_HOST__={emit:()=>{},command:null};</script>`});
+const portrait=process.argv.includes('--portrait');
+const point=(x,y)=>portrait?{x:720-y,y:x}:{x,y};
+const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end('<meta name="viewport" content="width=device-width,initial-scale=1">'+(portrait?'<iframe style="position:fixed;top:0;left:0;width:1280px;height:720px;transform-origin:top left;transform:translateX(720px) rotate(90deg);border:0"></iframe>':'<iframe style="position:fixed;inset:0;width:100%;height:100%;border:0"></iframe>'));});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--enable-unsafe-swiftshader']});
+async function blueFraction(page){
+ const png=await page.screenshot();
+ const normalized=await sharp(png).rotate(portrait?270:0).resize(1280,720).toBuffer();
+ const {data,info}=await sharp(normalized).extract({left:540,top:490,width:200,height:100}).removeAlpha().raw().toBuffer({resolveWithObject:true});
+ let blue=0;for(let i=0;i<data.length;i+=info.channels)if(data[i]<80&&data[i+1]>100&&data[i+2]>150)blue++;
+ return blue/(info.width*info.height);
+}
+try{
+ const page=await browser.newPage({viewport:portrait?{width:720,height:1280}:{width:1280,height:720},hasTouch:true,isMobile:true,deviceScaleFactor:portrait?2:1}),errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ await page.addInitScript(()=>{Object.defineProperty(window,'SharedArrayBuffer',{value:undefined});localStorage.setItem('open-golf.storage',JSON.stringify({seen_tutorial_0:1,seen_tutorial_1:1}));});
+ await page.goto('http://127.0.0.1:'+server.address().port);
+ await page.locator('iframe').evaluate((element,html)=>{element.srcdoc=html;},html);
+ const frame=page.frames()[1];
+ await frame.waitForFunction(()=>typeof Module!=='undefined'&&Module.syncdone===1,null,{timeout:90000});
+ await page.waitForTimeout(2200);
+ const before=await blueFraction(page);assert.ok(before>.5,'Play button visible before touch');
+ const play=point(640,540);await page.touchscreen.tap(play.x,play.y);await page.waitForTimeout(1200);
+ const after=await blueFraction(page);
+ await page.screenshot({path:path.join(output,'touch-selection.png')});
+ console.log({before,after,errors});
+ assert.ok(after<.1,'Touching Play must leave the main menu');
+ const course=point(420,235);await page.touchscreen.tap(course.x,course.y);await page.waitForTimeout(6500);
+ await page.screenshot({path:path.join(output,'touch-course.png')});
+ const cdp=await page.context().newCDPSession(page);
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point(640,410)]});await page.waitForTimeout(120);
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[point(640,580)]});await page.waitForTimeout(250);
+ await page.screenshot({path:path.join(output,'touch-aim.png')});
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForTimeout(700);
+ await page.screenshot({path:path.join(output,'touch-shot.png')});
+ assert.deepEqual(errors,[]);console.log('PASS touch-only Play, course selection and drag/release without runtime errors');
+}finally{await browser.close();server.closeAllConnections();server.close();}
+process.exit(0);

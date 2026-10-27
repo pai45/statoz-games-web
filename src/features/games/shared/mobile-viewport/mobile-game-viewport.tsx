@@ -22,14 +22,14 @@ function subscribe(listener: () => void) {
 
 /** A real iframe viewport keeps canvas sizing, media queries and touch coordinates
  * in landscape too. Rotating a React div alone leaves window.innerWidth portrait. */
-export function MobileGameViewport({ title, children }: { title: string; children: ReactNode }) {
+export function MobileGameViewport({ title, children, allowExternalGame = false }: { title: string; children: ReactNode; allowExternalGame?: boolean }) {
   const mode = useSyncExternalStore(subscribe, surface, () => 'pending');
   if (mode === 'pending') return <div role="status" className="grid min-h-dvh place-content-center">Opening {title}…</div>;
   if (mode !== 'mobile') return children;
-  return <LandscapeFrame title={title} />;
+  return <LandscapeFrame title={title} allowExternalGame={allowExternalGame} />;
 }
 
-function LandscapeFrame({ title }: { title: string }) {
+function LandscapeFrame({ title, allowExternalGame }: { title: string; allowExternalGame: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -90,7 +90,7 @@ function LandscapeFrame({ title }: { title: string }) {
   return <div ref={host} className={styles.host} data-mobile-game-viewport="landscape">
     <div ref={viewport} className={styles.viewport}>
       <iframe ref={frame} data-mobile-game-frame title={`${title} — landscape`} src={source} className={styles.frame}
-        allow="autoplay; gamepad; fullscreen 'none'"
+        allow={allowExternalGame ? "autoplay *; gamepad *; fullscreen 'none'" : "autoplay; gamepad; fullscreen 'none'"}
         onLoad={() => { try { if (frame.current?.contentWindow) navigate(frame.current.contentWindow.location.href); } catch { /* Only same-origin app routes participate. */ } }} />
     </div>
   </div>;

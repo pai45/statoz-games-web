@@ -1,0 +1,14 @@
+{
+  "game": "F1 Racing",
+  "originalGame": "Crazy Grand Prix",
+  "mode": "official-online-embed",
+  "embedUrl": "https://www.crazygames.com/embed/crazy-grand-prix",
+  "source": "https://www.crazygames.com/game/crazy-grand-prix",
+  "buildObserved": "6c65ae46-cd7f-4feb-be39-441821588cdf",
+  "date": "2026-10-27",
+  "nativeLocalExecution": "Refused by native site lock; no bypass attempted",
+  "nativeRedistribution": false,
+  "controls": "Original keyboard controls; touch menus only",
+  "network": "Official third-party game and its provider services",
+  "progress": "Provider-owned, not isolated by StatOz account"
+}

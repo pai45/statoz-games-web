@@ -7,13 +7,14 @@
     "golf.worker.js": "9b00bd97fa608ca1aa1196817413a2824e42f3cd7513a0eaffde7e9f4d18e633",
     "golf.wasm": "130d95a9aa9fba4010e702050c8b0c1891ef09b1b67e76cfbc2c3c82f1daec27",
     "golf-mobile.js": "3c7f640617275277a2cd37b83baae25d8c8b73b894364262ff9e6e6288b3ecf8",
-    "golf-mobile.wasm": "8fcc17c1c6319666281a06d9b146ff50cae926e4ef6bcc42169e2608fc1eb6d6"
+    "golf-mobile.wasm": "a510023669ec4f466d2cd196400fea6fef390983341132d37caf79f0d8bcf0d8"
   },
   "mobileBuild": {
     "sourceRevision": "b9029f1e80c3110ae3d4fc9300854bdaeef96508",
     "compiler": "Emscripten 3.1.64",
     "threading": "single; synchronous asset loading and finalization",
     "stackBytes": 5242880,
-    "script": "scripts/rebuild-open-golf-mobile.py"
+    "script": "scripts/rebuild-open-golf-mobile.py",
+    "input": "Select touch mode on TOUCHES_BEGAN and mouse mode on MOUSE_DOWN; clear stale input state on mode change."
   }
 }
