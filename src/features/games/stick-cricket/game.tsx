@@ -105,7 +105,7 @@ export function StickCricketGame({onExit, onEvent, hostCommand}: CricketGameProp
         {source && <iframe ref={frame} src={source} title="Stick Cricket native game engine" allow="autoplay; gamepad" tabIndex={-1} className={styles.engine} style={{width:size.width,height:size.height}} onError={() => setError("The local game files could not load.")}/>}
         {(!started || !ready || error || paused) && <div className={styles.overlay} role={error ? "alert" : "status"}>
           <span className={styles.kicker}>STICK CRICKET CHASE / LOCAL GAME</span><h2>{error ? "GAME UNAVAILABLE" : !started ? "STICK CRICKET" : paused ? "PAUSED" : "LOADING STICK CRICKET"}</h2>
-          {error ? <><p>{error}</p><button onClick={start}>Retry loading</button></> : !started ? <><p>Tap the left or right arrow as the ball arrives. Follow the hitting lesson, then pick a chase. Use the game&apos;s on-screen arrows or choose handheld side buttons in Settings.</p><button onClick={start}>Play Stick Cricket</button><small>Original Stick Cricket Chase gameplay and characters.</small></> : paused ? <button onClick={resume}>Resume game</button> : <p>Loading the local game and stadium...</p>}
+          {error ? <><p>{error}</p><button onClick={start}>Retry loading</button></> : !started ? <><p>Tap the left or right arrow as the ball arrives. Follow the hitting lesson, then pick a chase. Use the game&apos;s on-screen arrows or choose handheld side buttons in Settings.</p><button onClick={start}>Play Stick Cricket Chase</button><small>Original Stick Cricket Chase gameplay and characters.</small></> : paused ? <button onClick={resume}>Resume game</button> : <p>Loading the local game and stadium...</p>}
         </div>}
 
       </main>

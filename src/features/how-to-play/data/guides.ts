@@ -1,4 +1,5 @@
 import type { ModeGuide } from "../types";
+import { localGameGuides } from './local-game-guides';
 
 /**
  * The seven guides, in hub order: the two platform surfaces first, then the
@@ -128,20 +129,20 @@ const allGuides: ModeGuide[] = [
     title: "PITCH DUEL",
     tagline: "Card football mind games",
     subtitle: "// READ THE PLAY · WIN THE DUEL",
-    purpose: "Field a five-a-side club and play a full 90 minutes in about thirty decisions. Every duel is your move against a counter the CPU has already locked in.",
+    purpose: "Field an eleven-a-side club and play a full 90 minutes in about thirty decisions. Every duel is your move against a counter the CPU has already locked in.",
     icon: "sports_soccer",
     accent: "lime",
     stats: [
-      { icon: "groups", label: "FIVE-A-SIDE", sub: "Keeper + four outfield · four formations", accent: "lime" },
+      { icon: "groups", label: "ELEVEN A SIDE", sub: "Keeper + ten outfield · five formations", accent: "lime" },
       { icon: "psychology", label: "SECRET COUNTERS", sub: "They lock in before you tap", accent: "orange" },
       { icon: "timer", label: "90 MINUTES", sub: "About thirty decisions", accent: "cyan" },
     ],
     steps: [
-      { title: "Pick your five", body: "Choose a keeper, four outfield players, a formation and up to three tactic cards. Your existing collection carries over." },
+      { title: "Pick your eleven", body: "Choose a formation, then drag cards onto the pitch or tap two places to swap them. Academy players fill any gap, and up to three tactic cards come with you." },
       { title: "Move the ball up the pitch", body: "The ball travels across eight zones and three lanes. With it, choose a pass, carry, through ball, cross or shot from the buttons for that spot." },
       { title: "Defend by reading them", body: "Without the ball, pick intercept, tackle, hold the line, aerial duel or block. Each one stops one kind of move." },
       { title: "Win the mind game", body: "The other side commits first. A full counter swings the duel hard; a wrong read swings it your way. The CPU learns your habits, so mix it up." },
-      { title: "Take your set pieces", body: "Penalties, free kicks, corners and one-on-ones are pick-one moments against their pick." },
+      { title: "Take your set pieces", body: "Penalties, free kicks, corners and one-on-ones open a picture you tap: a goal zone, over or around the wall, near or far post." },
       { title: "Climb the league", body: "Wins earn three points and draws earn one. Every nine points opens the next division and an original fictional club card." },
     ],
     facts: [
@@ -376,7 +377,7 @@ const allGuides: ModeGuide[] = [
 ];
 
 /** The guide for a mode, or `undefined` when the slug names no mode. */
-export const guides: ModeGuide[] = allGuides.filter(guide => guide.id !== "hoop-duel");
+export const guides: ModeGuide[] = [...allGuides.filter(guide => guide.id !== "hoop-duel"), ...localGameGuides];
 
 export function guideFor(mode: string): ModeGuide | undefined {
   return guides.find((guide) => guide.id === mode);

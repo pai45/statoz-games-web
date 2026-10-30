@@ -1,6 +1,8 @@
 # Pitch Duel (Future Web Games)
 
-Pitch Duel is a landscape-first solo football card game at `/play/pitch-duel`. Its gameplay and layout follow the card-football structure of [Ballers](https://github.com/kiellzz/ballers-game): a zone ladder, one duel per decision, set-piece pick-ems, and a match screen with the pitch on one side and the duel on the other. It adds one thing Ballers lacks: the CPU commits a hidden counter every turn. It is skinned entirely in the StatOz design system: Orbitron and Space Grotesk, token colours, chamfered plates and the shared `PlayerCard`. No Ballers art, fonts or palette are used.
+Pitch Duel is a portrait-first, eleven-a-side football card game at `/play/pitch-duel`. Its gameplay follows the card-football structure of [Ballers](https://github.com/kiellzz/ballers-game): a zone ladder, one duel per decision, tap-to-pick set pieces, and a match screen built around two cards facing off. It adds one thing Ballers lacks: the CPU commits a hidden counter every turn.
+
+The game has its own look, separate from the StatOz design system: dark violet night-stadium panels, pink and cyan accents, glossy tiered shield cards, condensed type. The host app around it keeps StatOz styling.
 
 All code is in `src/features/games/pitch-duel`:
 
@@ -8,11 +10,45 @@ All code is in `src/features/games/pitch-duel`:
 |---|---|
 | `engine/` | The pure rules. No React or window access, so it can be tested in Node. |
 | `state/` | The save store and the match hook. |
-| `components/` | The screens. |
+| `components/` | The screens, their CSS modules and the game's own fonts loader. |
+| `fonts/` | Bebas Neue, Barlow Condensed and Inter (all SIL OFL 1.1, licences alongside). |
+
+## Provenance
+
+Mechanics and art direction are inspired by Ballers (kiellzz/ballers-game). **That repository has no licence and ships real player photos, sponsor imagery and music, so none of its code, CSS, images or audio is copied.**
+
+The look was studied from the public demo. REA browser captures (Welcome, mode select, Freestyle home) and Playwright measurements (lineup, opponent select, match, goal modal) were taken at 390×844, along with the repository's own README screenshots. Everything in this folder is redrawn from scratch:
+- the shield cards, pitch, goal, net, wall and stadium are CSS gradients and inline SVG;
+- the wordmark is our own;
+- portraits come from the existing StatOz card catalogue.
+
+## Design reference (measured, then redrawn)
+
+| Element | Measured on the reference | Pitch Duel |
+|---|---|---|
+| Numbers | Bebas Neue (card overall 35px/-1px) | Bebas Neue, `--pd-font-numbers` |
+| Labels | Barlow Condensed 600, uppercase, ~0.08em tracking | Barlow Condensed 500–800, `--pd-font-labels` |
+| Display | Inter 800–950; "VS" italic 950, −0.08em | Inter variable + italic, `--pd-font-display` |
+| Panels | `rgba(4,3,9,.66)`, 1px `rgba(180,100,255,.16)`, 14px radius | `.panel`, `.benchPanel` |
+| Small buttons | `rgba(10,8,18,.72)`, 1px `rgba(168,85,247,.25)`, 12–14px radius | `.roundButton`, `.scoreIcon` |
+| Feature buttons | 14px radius, gradient fill, 38px dark icon circle, 35px glow | `Pill` (`ui.tsx`) in violet/green/red/blue/grey/light |
+| Opponent rows | `linear-gradient(135deg, rgba(91,33,182,.85), rgba(76,29,149,.75))`, 2px violet border, 12px radius | `.rival`, `.pill[data-tone="light"]` |
+| Scoreboard | dark `rgba(3,3,5,.96)→rgba(30,30,36,.9)`, trapezoid, 2px violet→pink→cyan shimmer | `Scoreboard`, `.scoreTrap`, `.shimmer` (3.2s) |
+| Lineup tabs | 999px pills, green→blue tint, 1px violet border | `.tab` |
+| Situation box | black 82%, 4px left border coloured by situation, 8px radius | `.situation` (neutral `#bfff00`, attack `#4ade80`, defend `#f87171`, chance `#fbbf24`) |
+| Match map | 78×102, 2px `#22c55e` border, 5px radius, ball 16px | `MatchMap` (red when they are near your goal) |
+| VS | gradient `#fff → #ff6aaa → #ff0055 → #cc0044 → #6b001f`, pink glow | `.vs` |
+| Possession | 16px triangle, blue for you, red for them | `.possession` |
+| Move buttons | violet pills in two columns; the picked one turns white | `.move` |
+| Events bar | `rgba(31,19,47,.65)→rgba(8,8,16,.82)`, "Show" toggle | `EventsBar`, events sheet |
+| Goal modal | `#0a0015→#1a0033`, 20px radius, blue edge, scorer card, CONTINUE | `Modal` + `.goalModal` |
+| Card tiers | gold yellow stripes, legend lilac stripes | `ShieldCard` (bronze, silver, gold, legend for platinum) |
 
 ## Match loop
 
 **The pitch** is a ladder of 8 zones × 3 lanes. Progress is counted from the attacking side: 1 is its own box, 8 is the opponent's box. Both boxes use the centre lane only.
+
+**Who duels:** the zone picks a line (back, mid or front) and the lane picks the places that cover it. The best-suited available player there contests the duel (`participantFor` in `engine/lineup.ts`). With eleven a side, the left back meets the right winger, and the centre backs meet the strikers.
 
 **When you have the ball**, the buttons are fixed for each zone and lane (3–4 of them, from `attackMenu`). They come from five families:
 
@@ -23,8 +59,6 @@ All code is in `src/features/games/pitch-duel`:
 | THROUGH | Through ball, Long ball |
 | WIDE | Switch play, Cross |
 | SHOT | Shoot, Long shot |
-
-There is always a carry option. Shoot is always offered in the box, and Long shot from the final third.
 
 **When the CPU has the ball**, you pick a defence. Each one fully counters one family and partly counters another:
 
@@ -38,94 +72,104 @@ There is always a carry option. Shoot is always offered in the box, and Long sho
 | Slide tackle | — | CARRY + THROUGH | Bigger swings, about 3× foul risk |
 | Clearance | — | Everything | Box only |
 
-**The mind game.** At the start of each turn the CPU commits its pick from the match state. That pick is `cpuIntent`, and it is set before the human chooses.
+**The mind game.** At the start of each turn the CPU commits its pick (`cpuIntent`) before the human chooses.
 - A full counter shifts the duel by −13, a partial by −4, a wrong read by +4.
 - The Mind Game tactic shows the committed pick early. It never changes it.
 
 **Duel resolution:**
 - `k = action base + 0.5 × (weighted attacker stats − weighted defender stats) + lane fit + counter + formation + division edge + man advantage + bonus + tactic`.
 - Add a triangular random swing of ±24 × volatility.
-- Four outcomes: big fail, fail, success, big success. `outcomeProbabilities` gives the exact odds.
+- Four outcomes: big fail, fail, success, big success.
 
-**Card stats.** Cards only carry rating, position and trait. `deriveStats` turns them into deterministic PAC/SHO/PAS/DRI/DEF/PHY plus keeper DIV/REF/HAN/POS.
+**Set pieces** (penalty, free kick, corner, one-on-one) open a picture you tap (`components/set-piece-scenes.tsx`):
+- penalty: five goal zones, or three dives when you are in goal;
+- free kick: over, around or under the wall, or lay it off;
+- corner: near post, far post or short;
+- one on one: round, chip or low.
 
-**Shots** go to a keeper stage. Goal odds depend on where the shot comes from (box, header, long shot) and on the shooter's SHO against the keeper.
+Each zone sends the same option id as before. The odds are in `engine/set-pieces.ts`.
 
-**Fouls** can happen when the attacker loses a duel. They bring yellow cards, second yellows and reds. A foul in the box gives a penalty; a central foul near goal gives a free kick.
+**The clock** runs to 90' in about 31 decisions, with stoppage time. **Draws stay draws.**
 
-**Set pieces** (penalty, free kick, corner, one-on-one) are pick-one choices for both sides. The tables are in `engine/set-pieces.ts`.
+## Formations
 
-**The clock** runs to 90'. Each decision costs 1–4 minutes, with a pacing governor aiming at 3.2 minutes per decision. That gives about 31 decisions per match. Half-time is at 45 plus stoppage time.
+| Formation | Name | Edge |
+|---|---|---|
+| 4-4-2 | Classic | Balanced, no modifier |
+| 4-3-3 | Wing Play | +2 attacking on the wings, −1 defending there |
+| 3-5-2 | Midfield Lock | +2 in the centre lane, −2 on the wings |
+| 4-2-3-1 | Control | +2 defending in midfield, +1 attacking centrally near goal |
+| 5-3-2 | Park the Bus | +3 defending near goal, −3 attacking near goal |
 
-**Draws stay draws.**
+Each formation has ten places. Each place has a line, the lanes it covers, a shirt position, and an `at` spot (across, depth) that the lineup editor and match map use.
 
 ## CPU
 
-- **Learning:** it keeps a recency-weighted memory of your last 10 picks per zone band. Its belief is spread over move families, not buttons.
-- **Division tables** (`difficulty` in `engine/situation.ts`) set how much it trusts what it has learned, how greedy it is, the softmax temperature, its edge, and its once-per-match boosts.
-- **Fairness:** players who mix move families stay hard to read. Predictable players get countered much more in the top division. `tests/pitch-duel-cpu.test.ts` holds this to fixed limits.
-- **Attacking picks** are chosen by expected value against its belief about your defending, with a late-game lead/trail bias and a penalty for repeating itself.
-- **Squads** come from the shared `generateShootoutOpponent()`, with ratings of about 76–88 by division.
+- **Learning:** a recency-weighted memory of your last 10 picks per zone band, spread over move families.
+- **Division tables** (`difficulty` in `engine/situation.ts`) set trust, greed, softmax temperature, edge and once-per-match boosts.
+- **Squads:** `draftOpponent` picks a formation, a keeper and ten outfield cards near the division's target overall (77 → 89). Each card is chosen for the place it plays (`fillFormation`).
 
-## Club, league and saves
+## Club, lineup and saves
 
-**Club:** a keeper, four outfield players, a formation and up to 3 owned tactic cards. Each tactic card works once per match.
+**Club:** a keeper, ten outfield players in one of five formations, and up to 3 owned tactic cards.
 
-| Formation | Name |
-|---|---|
-| 2-2 | Balanced |
-| 1-2-1 | Diamond |
-| 3-1 | Lockdown |
-| 1-3 | All-Out |
+**Academy:** sixteen fictional academy players (`src/mocks/packs/pitch-duel-academy.ts`, ids `pd-academy-*`, rated 58–66) cover every position, so a starter collection can field eleven.
+- They are always available inside Pitch Duel.
+- They are never sold in packs and never count as owned cards.
 
-The first club is drafted from the football loadout and owned cards.
+**Lineup editor** (`components/lineup-editor.tsx`):
+- **Drag:** drag a card onto another place to swap, or drag one up from the squad tray. This works with touch and with the mouse.
+- **Tap:** tap a place, then another place or a squad card.
+- **Keyboard:** Enter picks a place, the arrow keys move between places, Enter places the card.
+- Changing formation re-seats the eleven where they fit best.
+- Auto Pick fields the best eleven for the shape.
+- Each position badge shows how well the player fits: green for natural, amber for near, red for out of position.
 
-**League:** 3 points for a win, 1 for a draw, with promotion every 9 points up to division 5. Promotion grants an original fictional `pd2-*` card, marked FICTIONAL in the lineup screen. The grant ids are the same as v2, so nobody is rewarded twice. Coins are 120, 75 or 45 per match.
+**League:** 3 points for a win, 1 for a draw, promotion every 9 points up to division 5. Each promotion grants an original fictional `pd2-*` card. Coins are 120, 75 or 45.
 
 **Saves:**
-- The save key is `statoz.games.web.pitch-duel.v3`, and it is included in local account switching.
-- A v2 save (`statoz.games.web.pitch-duel.reboot.v2`) is migrated automatically. Points, XP, results, streaks and history (which the streak calendar reads) carry over. The v2 deck becomes the club, and the rules guide shows once more.
-- The v2 key is never deleted.
+- The key is `statoz.games.web.pitch-duel.v4`. It is included in local account switching.
+- A v3 save (`…pitch-duel.v3`, five a side) or a v2 save (`…pitch-duel.reboot.v2`) is migrated automatically and keeps all progress.
+- The old club is re-seated in a 4-4-2 by position, academy players fill the rest, and the rules guide shows once more.
+- Older keys are never deleted.
 
-The fictional cards are playable only in Pitch Duel. Real-athlete cards still come from the existing catalog, and their presence does not imply endorsement.
+Real-athlete cards come from the existing catalogue; their presence does not imply endorsement.
 
-## Home screen
+## Mobile (portrait first)
 
-The landing screen (`components/home-screen.tsx`) is a matchday hub:
-- **Header:** coin and win-streak counters.
-- **Left:** your five shown on a mini pitch in formation, with portraits, ratings and the club OVR. Tap it to edit the lineup.
-- **Right:**
-  - the division emblem and matchday number;
-  - a 9-pip promotion track, ending in the fictional card that promotion unlocks;
-  - the last five results;
-  - KICK OFF, the one glowing action, with what a win pays;
-  - League and How to play links. How to play shows "NEW · START HERE" until the rules have been read.
+Pitch Duel opts out of the landscape `MobileGameViewport` (`shared/mobile-viewport/policy.ts`). It is a single column, at most 30rem wide and 100dvh tall, centred on desktop.
 
-Gold is used only for rewards. Entrance and pip-fill animations are switched off with reduced motion.
+**Match screen**, top to bottom:
+1. The trapezoid scoreboard, with back and events buttons.
+2. YOUR LINEUP and OPP. LINEUP tabs, which open bottom sheets.
+3. The stage:
+   - the situation box and the match map, which opens a big map sheet;
+   - the two shield cards around the VS;
+   - the pick tags ("LOCKED IN" until the reveal);
+   - the tip or the verdict.
+4. The moves as violet pills in the thumb zone, with a scrolling tactic row.
+5. The match-events bar.
 
-## Mobile
+**Overlays:**
+- Goals open the GOAL!!! modal.
+- Set pieces replace the cards with the tap scene.
+- Leaving asks for confirmation.
 
-- On phones the shared `MobileGameViewport` gives the game a landscape viewport.
-- **Match screen layout:**
-  - a slim scoreboard with a match-time bar;
-  - the pitch on the left, showing all ten players, the ball and the live zone;
-  - the duel on the right: both cards, each with a pick tag ("LOCKED IN" until the reveal);
-  - one row of moves along the bottom, plus a single TACTICS button that opens the tactic tray.
-- **Squads, stats and the log** open in the Match Centre drawer: tap the pitch or the ≡ button. Tap a card or a squad row for player stats.
-- **Player positions** come from `components/pitch-layout.ts`, a pure helper. Each side holds its formation shape and shifts with the ball. The two duellists stand at the ball, keepers stay home, and sent-off players leave the pitch.
-- **Motion follows the play:**
-  - new cards deal in and move buttons scale in;
-  - on a reveal the cards clash, the winner lifts and the loser dims, then the headline stamps in;
-  - after the clash the players and ball glide to the new spot;
-  - a goal sends the ball into the net, shakes it, bumps the score and flashes GOAL!;
-  - a booking shows a yellow or red card;
-  - the NEXT bar fills while a reveal auto-advances.
-- The screen fits about 640×360 to 932×430 without scrolling. Cards scale to the room left, and every touch target is at least 44px. On narrow phones move labels can wrap to two lines.
-- A narrow portrait desktop window stacks the pitch, the duel and the moves, and is never blank.
-- With reduced motion turned on, every animation and glide is removed, and every result is still shown as text.
+**Motion:**
+- Cards deal in, then clash; the winner lifts and the loser dims.
+- The map dots glide.
+- The score pops on a goal.
+- The CONTINUE pill fills while a reveal auto-advances.
+- Reduced motion cuts every animation to an instant change.
+
+**Fit and touch:** every tappable option is at least 44px and on screen from 360×740 up. Short phones (≤780px tall) tighten the scoreboard, map and pills.
 
 ## Verification
 
-- `npm run test:pitch-duel`: engine, CPU and career tests. These include calibration bands for match length, goals and draws.
+- `npm run test:pitch-duel`: engine, CPU and career tests. These cover formations, academy fill, v3 → v4 migration, and calibration bands for match length, goals and draws.
+- `npm run test:pitch-duel:browser` (or `node tests/pitch-duel.browser.mjs --url=http://127.0.0.1:PORT` against a running dev server):
+  - 390×844: a lineup drag swap and a squad swap, then a full match;
+  - 360×740: a full match;
+  - 430×932 and 1280×800: the match screen lays out without scrolling;
+  - a v3 save loads as an eleven.
 - `npm run typecheck`, `npm run lint` and `npm run build`.
-- `npm run test:mobile-viewport:browser` for the landscape frame.

@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     // Generated standalone game bundle, including vendored React/Three.js.
     // Its authored TypeScript is validated in the game workspace.
     "public/games/**",
+    // Immutable third-party REA exports are inspected data, not authored source.
+    ".local-game-assets/**",
     "vendor/cricketv2/**",
     "vendor/vibebasketball/**",
     "vendor/websoccer/**",
@@ -23,6 +25,7 @@ const eslintConfig = defineConfig([
     ".cache/vibe-*.mjs",
     ".cache/removed-exports/**",
     ".cache/removed-games/**",
+    ".cache/device-cache-e2e/**",
     "test-results/vibe-basketball/**",
     "test-results/stadium-cricket/**",
     "public/embedded-games/**",

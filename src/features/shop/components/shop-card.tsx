@@ -88,36 +88,6 @@ export function ShopCardFrame({
   );
 }
 
-/**
- * The thin top strip: a rarity word on the left, one chip on the right. Where
- * the per-category clutter — coin ribbons, guarantee boxes, tier badges —
- * collapses into a single calm row.
- */
-export function ShopHeaderStrip({
-  rarity,
-  rarityColor,
-  tag,
-}: {
-  rarity?: string;
-  rarityColor?: string;
-  tag?: ReactNode;
-}) {
-  return (
-    <div className={styles.headerStrip}>
-      {rarity ? (
-        <span
-          className={styles.rarity}
-          style={{ color: rarityColor ?? "var(--ds-color-text-muted)" }}
-        >
-          {rarity.toUpperCase()}
-        </span>
-      ) : null}
-      <span className={styles.headerSpacer} />
-      {tag}
-    </div>
-  );
-}
-
 /** One small accent chip — POPULAR / BEST VALUE / +BONUS% / a sport code. */
 export function ShopTag({
   label,
@@ -143,16 +113,26 @@ export function ShopTag({
 export function ShopPricePill({
   coins,
   inr,
+  was,
   accent = cyan,
   size = 14,
 }: {
   coins?: number;
   inr?: number;
+  /** The pre-discount price, struck through before the live one. */
+  was?: number;
   accent?: string;
   size?: number;
 }) {
   return (
     <span className={styles.price} style={{ fontSize: `${size}px` }}>
+      {was !== undefined ? (
+        <span className={styles.priceWas}>
+          <span className="sr-only">was </span>
+          {inr !== undefined && coins === undefined ? "₹" : ""}
+          {formatInt(was)}
+        </span>
+      ) : null}
       {coins !== undefined ? (
         <>
           <BrandIcon name="ozCoins" size={size + 1} alt="" />
@@ -168,35 +148,6 @@ export function ShopPricePill({
         </span>
       ) : null}
     </span>
-  );
-}
-
-/** The one shop button: filled for a buy, outline for the second action. */
-export function ShopActionButton({
-  label,
-  filled,
-  onSelect,
-  icon,
-  accent = cyan,
-  height = 38,
-}: {
-  label: string;
-  filled: boolean;
-  onSelect: () => void;
-  icon?: ReactNode;
-  accent?: string;
-  height?: number;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`${styles.action} ${filled ? styles.actionFilled : ""}`}
-      style={{ "--shop-accent": accent, height: `${height}px` } as CSSProperties}
-    >
-      {icon}
-      {label}
-    </button>
   );
 }
 

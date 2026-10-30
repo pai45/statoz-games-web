@@ -57,9 +57,17 @@ export type DerivedStats = Record<StatKey, number> & {
 
 export type Line = "back" | "mid" | "front";
 
-export type FormationId = "2-2" | "1-2-1" | "3-1" | "1-3";
+export type FormationId = "4-4-2" | "4-3-3" | "3-5-2" | "4-2-3-1" | "5-3-2";
 
-export type FormationSlot = { line: Line; lanes: Lane[] };
+/** A shirt position printed on the lineup editor and used to judge fit. */
+export type SlotPosition = "LB" | "CB" | "RB" | "LWB" | "RWB" | "CDM" | "CM" | "CAM" | "LM" | "RM" | "LW" | "RW" | "ST";
+
+/**
+ * One outfield place in an eleven-a-side shape. `line` and `lanes` decide who
+ * contests a duel; `pos` and `at` are where the place sits on the pitch:
+ * `across` 0 (left touchline) to 1 (right), `depth` 0 (own goal line) to 1.
+ */
+export type FormationSlot = { line: Line; lanes: Lane[]; pos: SlotPosition; at: { across: number; depth: number } };
 
 export type TacticSlot = { id: string; power: number; used: boolean };
 
@@ -68,7 +76,7 @@ export type TeamSheet = {
   name: string;
   formation: FormationId;
   keeperId: string;
-  /** Outfield card ids in formation slot order. */
+  /** The ten outfield card ids, in formation slot order. */
   outfield: string[];
   cards: Record<string, PlayerCard>;
   stats: Record<string, DerivedStats>;

@@ -1,0 +1,117 @@
+{
+  "game": "Crazy Grand Prix",
+  "buildId": "6c65ae46-cd7f-4feb-be39-441821588cdf",
+  "runtime": "original Unity2022.3.11f1 native client with explicit local-platform adaptation",
+  "source": "https://www.crazygames.com/game/crazy-grand-prix",
+  "originals": [
+    {
+      "file": "game.wasm",
+      "sha256": "8380d1bc31a4b614ccce006d705653a9485b15160e57ce7373c6fc1c563f0bba",
+      "bytes": 38983043
+    },
+    {
+      "file": "game.data",
+      "sha256": "224b7cafb5f19bee9ac8b7235c9d6f411920d9c86c9ef43cb0e8800e043c0896",
+      "bytes": 245613424
+    },
+    {
+      "file": "game.framework.js",
+      "sha256": "20bcb62eeb419d740f4c4eaf3416250bedae9a4f989306526538da94d634c9ba",
+      "bytes": 439458
+    },
+    {
+      "file": "game.loader.js",
+      "sha256": "75083a3271c601c2933e0b94cb8b59c17f7ff8fed2c923868dfd978e82bde964",
+      "bytes": 20672
+    }
+  ],
+  "changes": [
+    {
+      "functionIndex": 34010,
+      "oldBodySha256": "b3b496f52f263f74fda3afb4a13954a3664e33325e02fa202e885649ec7b1940",
+      "oldBodyBytes": 283,
+      "newBodyHex": "0041010b",
+      "reason": "Explicit offline local-host platform policy; no host or URL spoofing"
+    },
+    {
+      "file": "game.framework.js",
+      "function": "_InitSDK",
+      "reason": "Authored offline SDK init; never loads remote SDK or fabricates ad/purchase/user rewards"
+    }
+  ],
+  "localizedWasmSha256": "ea1f49ff916985fdab9338496f7ca25c2f0e1f227d4990ef1b80cda79a8d747f",
+  "files": [
+    {
+      "file": "game.wasm.gz",
+      "sha256": "db327bdc8ea63cc5b0a7334df6ed8f2380801f4bd984926a5cf29e87096d8f0b",
+      "bytes": 10954481
+    },
+    {
+      "file": "game.framework.js",
+      "sha256": "dbe49be3fdfbab8fafa9d9e99997a07166a2d6060c4e210e60a5b2cb0ffe25e6",
+      "bytes": 437535
+    },
+    {
+      "file": "game.loader.js",
+      "sha256": "75083a3271c601c2933e0b94cb8b59c17f7ff8fed2c923868dfd978e82bde964",
+      "bytes": 20672
+    },
+    {
+      "file": "game.data.part-001.gz",
+      "sha256": "d0f89257b4c90ec9f6d06ca23e35d10df8c91841e8d0997e98049a671fbbf520",
+      "bytes": 67108864
+    },
+    {
+      "file": "game.data.part-002.gz",
+      "sha256": "5b9a92a478d9f119c12cb1c24228b910bca02ebf1a844372b9ba98ade305bd4f",
+      "bytes": 67108864
+    },
+    {
+      "file": "game.data.part-003.gz",
+      "sha256": "2434e503edbb5e6e800d682fc3af063a76e42db317d916a0a2513032df55e464",
+      "bytes": 67108864
+    },
+    {
+      "file": "game.data.part-004.gz",
+      "sha256": "b290eb2f19bb039d6074312028ba0827f603ee870b131696689e61fce1510d65",
+      "bytes": 6209173
+    },
+    {
+      "file": "data-parts.json",
+      "sha256": "74c5f2b643a66222c1bf4bf26f8f5d7f16d7edaaea9646e1c5db0b2f8b9bd991",
+      "bytes": 812
+    }
+  ],
+  "dataParts": {
+    "content": "game.data.gz",
+    "sha256": "e25de58ea99776ae4baf38035cf5a8535050f50ecc8afbd5b2fdf075ae86c325",
+    "bytes": 207535765,
+    "parts": [
+      {
+        "file": "game.data.part-001.gz",
+        "sha256": "d0f89257b4c90ec9f6d06ca23e35d10df8c91841e8d0997e98049a671fbbf520",
+        "bytes": 67108864
+      },
+      {
+        "file": "game.data.part-002.gz",
+        "sha256": "5b9a92a478d9f119c12cb1c24228b910bca02ebf1a844372b9ba98ade305bd4f",
+        "bytes": 67108864
+      },
+      {
+        "file": "game.data.part-003.gz",
+        "sha256": "2434e503edbb5e6e800d682fc3af063a76e42db317d916a0a2513032df55e464",
+        "bytes": 67108864
+      },
+      {
+        "file": "game.data.part-004.gz",
+        "sha256": "b290eb2f19bb039d6074312028ba0827f603ee870b131696689e61fce1510d65",
+        "bytes": 6209173
+      }
+    ]
+  },
+  "validation": {
+    "webAssemblyValidate": true,
+    "originalDataUnchanged": true,
+    "originalLoaderUnchanged": true
+  }
+}

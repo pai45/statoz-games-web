@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "content": "game.data.gz",
+  "sha256": "e25de58ea99776ae4baf38035cf5a8535050f50ecc8afbd5b2fdf075ae86c325",
+  "bytes": 207535765,
+  "parts": [
+    {
+      "file": "game.data.part-001.gz",
+      "sha256": "d0f89257b4c90ec9f6d06ca23e35d10df8c91841e8d0997e98049a671fbbf520",
+      "bytes": 67108864
+    },
+    {
+      "file": "game.data.part-002.gz",
+      "sha256": "5b9a92a478d9f119c12cb1c24228b910bca02ebf1a844372b9ba98ade305bd4f",
+      "bytes": 67108864
+    },
+    {
+      "file": "game.data.part-003.gz",
+      "sha256": "2434e503edbb5e6e800d682fc3af063a76e42db317d916a0a2513032df55e464",
+      "bytes": 67108864
+    },
+    {
+      "file": "game.data.part-004.gz",
+      "sha256": "b290eb2f19bb039d6074312028ba0827f603ee870b131696689e61fce1510d65",
+      "bytes": 6209173
+    }
+  ]
+}

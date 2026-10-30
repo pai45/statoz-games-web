@@ -114,6 +114,19 @@
   line-height: 1;
 }
 
+.badge {
+  width: fit-content;
+  margin: 12px auto 0;
+  padding: 3px 10px;
+  border: 1px solid var(--acquire-accent);
+  background: color-mix(in srgb, var(--acquire-accent) 16%, transparent);
+  color: var(--acquire-accent);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p12);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 1.4px;
+}
+
 .continueLabel {
   position: absolute;
   bottom: 48px;

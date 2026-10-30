@@ -128,6 +128,15 @@ self.addEventListener('message', event => {
 });
 
 function canonical(url) {
+  // The preserved Soccer client versions immutable uniform textures with v=1.
+  if(url.pathname.startsWith(scope.pathname+'games/soccer-real/native/images/')&&/\.(?:jpg|png|webp)$/.test(url.pathname)&&url.searchParams.get('v')==='1')url.searchParams.delete('v');
+  if(url.pathname.startsWith(scope.pathname+'embedded-games/')&&url.pathname.endsWith('/index.html')){
+    url.searchParams.delete('session');url.searchParams.delete('assetBuild');
+  }
+  // Session/account parameters change the bridge, never the static HTML bytes.
+  if(url.pathname.startsWith(scope.pathname+'games/')&&url.pathname.endsWith('.html')){
+    for(const key of ['session','scope','nonce','assetBuild'])url.searchParams.delete(key);
+  }
   if (url.pathname === scope.pathname + 'embedded-games/vibe-basketball/index.html') {
     url.searchParams.delete('session');
     url.searchParams.delete('assetBuild');
@@ -177,7 +186,8 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
   // iframe navigation is an asset; application navigation and RSC stay network-only.
-  if (event.request.mode === 'navigate' && !url.pathname.startsWith(scope.pathname + 'embedded-games/')) {
+  const assetNavigation=url.pathname.startsWith(scope.pathname+'embedded-games/')||(url.pathname.startsWith(scope.pathname+'games/')&&url.pathname.endsWith('.html'));
+  if (event.request.mode === 'navigate' && !assetNavigation) {
     event.respondWith((async () => {
       const response = await fetch(event.request);
       // Pin the new document before its scripts load, including after updates.

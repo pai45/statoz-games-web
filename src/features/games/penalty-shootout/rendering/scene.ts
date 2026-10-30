@@ -108,10 +108,11 @@ export class ShootoutScene {
     const view = broadcastCamera(frame, snapshot, this.size.width / this.size.height, reducedMotion), desired = vec(view.position);
     if (changed || reducedMotion || !this.frameCount) this.camera.position.copy(desired); else this.camera.position.lerp(desired, 0.1);
     this.camera.fov = view.fov; this.camera.updateProjectionMatrix(); this.camera.lookAt(vec(view.look));
-    this.athletes.update(frame, samplePrevious, alpha, this.camera);
+    this.athletes.update(frame, samplePrevious, alpha, this.camera, point, reducedMotion);
     this.ui.dataset.strikerFrame = String(this.athletes.strikerFrame);
     this.ui.dataset.keeperAnimation = this.athletes.keeperAnimation;
     this.ui.dataset.keeperFrame = String(this.athletes.keeperFrame);
+    this.ui.dataset.keeperMotion = this.athletes.keeperMotion;
     this.scene.getObjectByName("nearAdvertising")!.visible = true;
     (this.net.material as THREE.LineBasicMaterial).opacity = 0.27; this.currentRole = snapshot.role; this.replaying = replaying;
     this.crowdMotion(frame.tick / 120, reducedMotion);

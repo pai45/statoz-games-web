@@ -25,7 +25,7 @@ function setupFor(seed: number, division = 2, tactics: { id: string; power: numb
   const r = seededSource(seed * 31 + 7);
   const me = draftOpponent(division, pools, r);
   const op = draftOpponent(division, pools, r);
-  return { seed, division, opponentName: op.name, home: { ...me.team, name: "YOU", formation: "2-2", tactics }, away: op.team };
+  return { seed, division, opponentName: op.name, home: { ...me.team, name: "YOU", tactics }, away: op.team };
 }
 
 test("derived stats are deterministic, bounded and shaped by position", () => {
@@ -198,7 +198,7 @@ test("the pitch view places every player on the pitch, with the duel at the ball
         const { attackerId, defenderId } = duelists(turn);
         const other = side === "home" ? "away" : "home";
         const scene = pitchScene(turn, { x: absoluteX(side, progress), lane: "center", possession: side, duel: { [side]: attackerId, [other]: defenderId } as Record<"home" | "away", string> });
-        assert.equal(scene.tokens.length, 10);
+        assert.equal(scene.tokens.length, 22);
         for (const t of scene.tokens) assert.ok(t.x >= 0 && t.x <= 1 && t.y >= 0 && t.y <= 1, `${t.id} at ${t.x},${t.y}`);
         const carrier = scene.tokens.find((t) => t.carrier)!;
         assert.equal(carrier.id, attackerId);
@@ -209,7 +209,7 @@ test("the pitch view places every player on the pitch, with the duel at the ball
     }
     turn.players[`home:${turn.teams.home.outfield[0]}`].red = true;
     const fewer = pitchScene(turn, { x: 4, lane: "left", possession: "home", duel: duelistsFor(turn) });
-    assert.equal(fewer.tokens.length, 9, "a sent-off player leaves the pitch");
+    assert.equal(fewer.tokens.length, 21, "a sent-off player leaves the pitch");
   }
 });
 

@@ -63,6 +63,7 @@ export function HowToPlayGuide({ guide }: { guide: ModeGuide }) {
               <div className="min-w-0 flex-1">
                 <h2 className={styles.headerTitle}>{guide.title}</h2>
                 <p className={styles.headerPurpose}>{guide.purpose}</p>
+                {guide.playHref && <Link href={guide.playHref} className="mt-4 inline-flex min-h-11 items-center border border-line bg-surface-elevated px-4 font-display text-xs font-bold" style={{color:accent}}>Play {guide.title}</Link>}
               </div>
             </div>
           </AccentPanel>

@@ -4,6 +4,7 @@ const isGitHubPages = process.env.GITHUB_PAGES === "true";
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const nextConfig: NextConfig = {
+  outputFileTracingExcludes: {'/*':['./.local-game-assets/**/*','./.cache/**/*']},
   // Device caching serves the original image URL in every deployment mode.
   images: { unoptimized: true },
   ...(isGitHubPages

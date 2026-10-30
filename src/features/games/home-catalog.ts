@@ -17,12 +17,14 @@ export function sportGamesInDeckOrder(sport: GameSport): GameId[] {
 }
 
 /** Games whose cover ships with the game bundle rather than the shared covers folder. */
-const bundledCoverGames: readonly string[] = ["football-shooting", "retro-football-2", "stick-cricket", "archery-test"];
+const bundledCoverGames: readonly string[] = ["football-shooting", "retro-football-2", "stick-cricket", "archery-test", "penalty-shooters-2", "soccer-real", "tennis-bits"];
+
+export const hasBundledCover = (id: GameId) => bundledCoverGames.includes(id);
 
 /** Public path of a game's cover art (pass through `publicAsset`). */
 export function gameCoverPath(id: GameId): string {
   if (id === "f1-racing") return "/assets/games/covers/grand-prix-dash.webp";
-  return bundledCoverGames.includes(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`;
+  return hasBundledCover(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`;
 }
 
 /** How many games the home banner rotates through. */

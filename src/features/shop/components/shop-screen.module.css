@@ -14,16 +14,221 @@
   animation: shop-radar 18s linear infinite;
 }
 
-.enter {
-  animation: shop-enter 420ms both cubic-bezier(.2,.8,.2,1);
-  animation-delay: calc(var(--item-index, 0) * 22ms);
+@keyframes shop-radar {
+  to { transform: rotate(1turn); }
 }
 
-.chamfer {
-  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+/* ---- Shared headings ------------------------------------------------------- */
+
+.kicker {
+  margin: 0;
+  color: var(--ds-color-text-muted);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p10);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 2px;
 }
 
-.dialogBackdrop {
-  background: color-mix(in srgb, var(--ds-color-background-primary) 86%, transparent);
-  backdrop-filter: blur(8px);
+.meta {
+  color: var(--ds-color-text-muted);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p10);
+  font-weight: var(--ds-weight-black);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1.2px;
+  white-space: nowrap;
+}
+
+/* ---- Shelves --------------------------------------------------------------- */
+
+/* Sections land below the sticky sport chips when a deep link scrolls to them. */
+.shelf,
+.market { scroll-margin-top: 72px; }
+
+.shelfHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.shelfTitle {
+  margin: 4px 0 0;
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p18);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 1.6px;
+}
+
+.shelfAside {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.seeAll {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--shop-accent);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p11);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 1.4px;
+  cursor: pointer;
+}
+.seeAll:hover { filter: brightness(1.2); }
+.seeAll:focus-visible { outline: 2px solid var(--shop-accent); outline-offset: 2px; }
+
+/* ---- Today's market -------------------------------------------------------- */
+
+.market {
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--shop-accent) 35%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--shop-accent) 12%, transparent), transparent 55%),
+    color-mix(in srgb, var(--ds-color-background-elevated) 70%, transparent);
+}
+
+.marketHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 14px;
+}
+
+.marketTitle {
+  margin: 4px 0 0;
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p28);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.resetClock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--ds-color-accent-gold) 45%, transparent);
+  background: color-mix(in srgb, var(--ds-color-accent-gold) 10%, transparent);
+  color: var(--ds-color-accent-gold);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p10);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 1.2px;
+}
+.resetClock b {
+  color: var(--ds-color-text-default);
+  font-size: var(--ds-size-p12);
+  font-variant-numeric: tabular-nums;
+}
+
+.marketGrid {
+  display: grid;
+  gap: 16px;
+}
+@media (width >= 64rem) {
+  .marketGrid {
+    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.dropSlot { min-width: 0; }
+
+.dealsPanel { min-width: 0; }
+
+.dealsHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.dealsTitle {
+  margin: 0;
+  color: var(--ds-color-accent-gold);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p14);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 1.6px;
+}
+
+.allClaimed {
+  margin: 0 0 10px;
+  color: var(--ds-color-accent-lime);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p10);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 1.2px;
+}
+
+/* Holds the row's height until the client clock picks today's deals. */
+.dealsLoading {
+  height: 19rem;
+  border: 1px dashed var(--ds-color-border-muted);
+}
+
+/* ---- Deal tile ------------------------------------------------------------- */
+
+.dealTile { aspect-ratio: 0.58; }
+
+.dealTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 8px 0;
+}
+
+.dealKind {
+  overflow: hidden;
+  color: var(--ds-color-text-muted);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p8);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: 1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dealArt {
+  display: grid;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  place-items: center;
+}
+.dealArt > * { scale: 0.82; }
+
+.dealName {
+  margin: 0;
+  overflow: hidden;
+  padding: 0 10px 8px;
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-display);
+  font-size: var(--ds-size-p11);
+  font-weight: var(--ds-weight-extrabold);
+  letter-spacing: 0.6px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell::before { animation: none; }
 }

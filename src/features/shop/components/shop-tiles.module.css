@@ -476,3 +476,49 @@
   font-weight:var(--ds-weight-black);
   letter-spacing: var(--ds-tracking-ultra);
 }
+
+/* ---- Storefront rails ------------------------------------------------------ */
+
+/* One shelf row: scrolls sideways and snaps to a tile. */
+.rail {
+  --rail-item: 8.25rem;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 4px 2px 12px;
+  scroll-padding-inline: 2px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.rail[data-size="pack"] { --rail-item: 10.5rem; }
+/* Matches a card tile in the two-up phone grid, so names clear the price rail. */
+.rail[data-size="card"] { --rail-item: 11.25rem; }
+.rail[data-size="deal"] { --rail-item: 11.5rem; }
+.rail[data-size="strip"] { --rail-item: min(21rem, 80vw); }
+
+.rail > *,
+.rail > .focusTarget > * {
+  min-width: 0;
+  flex: 0 0 var(--rail-item);
+  scroll-snap-align: start;
+}
+
+/* ---- Deep-link focus ------------------------------------------------------- */
+
+/* Adds no box, so the tile lays out as if unwrapped. */
+.focusTarget { display: contents; }
+
+.focusTarget[data-focused] > * {
+  animation: shop-focus-pulse 1.4s ease-out 2;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--ds-color-accent-cyan) 55%, transparent));
+}
+
+@keyframes shop-focus-pulse {
+  0%, 100% { filter: drop-shadow(0 0 16px color-mix(in srgb, var(--ds-color-accent-cyan) 55%, transparent)); }
+  50% { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ds-color-accent-cyan) 20%, transparent)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focusTarget[data-focused] > * { animation: none; }
+}

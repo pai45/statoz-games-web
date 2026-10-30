@@ -11,7 +11,14 @@ import type { PackRevealItem } from "../types";
 import { PackRevealSequence } from "./pack-reveal-sequence";
 import styles from "./daily-drop.module.css";
 
-export function DailyDrop({ sport }: { sport: Sport }) {
+export function DailyDrop({
+  sport,
+  actionLabel = "BACK TO GAME",
+}: {
+  sport: Sport;
+  /** The reveal's exit button, naming where the player returns to. */
+  actionLabel?: string;
+}) {
   const { dailyDropLastClaimedAt } = useEconomy();
   const hydrated = useIsEconomyHydrated();
   const [now, setNow] = useState(0);
@@ -59,7 +66,7 @@ export function DailyDrop({ sport }: { sport: Sport }) {
         </span>
       </button>
       {error ? <p role="alert">{error}</p> : null}
-      {item ? createPortal(<DailyDropReveal item={item} onComplete={() => {
+      {item ? createPortal(<DailyDropReveal item={item} actionLabel={actionLabel} onComplete={() => {
         setItem(null);
         root.current?.focus();
       }} />, document.body) : null}
@@ -67,7 +74,7 @@ export function DailyDrop({ sport }: { sport: Sport }) {
   );
 }
 
-function DailyDropReveal({ item, onComplete }: { item: PackRevealItem; onComplete: () => void }) {
+function DailyDropReveal({ item, actionLabel, onComplete }: { item: PackRevealItem; actionLabel: string; onComplete: () => void }) {
   useFullScreenMoment();
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -78,6 +85,6 @@ function DailyDropReveal({ item, onComplete }: { item: PackRevealItem; onComplet
     return () => { node?.close(); document.body.style.overflow = overflow; };
   }, []);
   return <dialog ref={dialog} className={styles.dialog} aria-label="Daily drop reward" onCancel={onComplete}>
-    <PackRevealSequence items={[item]} completeLabel="DAILY DROP CLAIMED" actionLabel="BACK TO GAME" onComplete={onComplete} />
+    <PackRevealSequence items={[item]} completeLabel="DAILY DROP CLAIMED" actionLabel={actionLabel} onComplete={onComplete} />
   </dialog>;
 }

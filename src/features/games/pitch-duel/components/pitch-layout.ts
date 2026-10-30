@@ -2,9 +2,10 @@ import { formations } from "../engine/lineup";
 import type { Lane, MatchState, Side } from "../engine/types";
 
 /**
- * Where every player stands on the pitch view. Pure, so it can be tested.
+ * Where all twenty-two players stand. Pure, so it can be tested.
  * Coordinates are 0–1: x runs from the home goal (0) to the away goal (1),
  * y from the left touchline (0) to the right (1). Home attacks to the right.
+ * `toPortrait` turns a point into the phone layout, where home attacks up.
  */
 export type Token = {
   side: Side;
@@ -34,7 +35,6 @@ export type SceneInput = {
 };
 
 export const laneY: Record<Lane, number> = { left: 0.2, center: 0.5, right: 0.8 };
-const lineDepth = { back: 0.2, mid: 0.36, front: 0.52 } as const;
 
 /** Centre of a ladder column 1–8 on the 0–1 pitch. */
 export const columnX = (column: number) => (column - 0.5) / 8;
@@ -75,9 +75,9 @@ export function pitchScene(state: Pick<MatchState, "teams" | "players">, view: S
       }
       const shift = (ballDepth - 0.5) * 0.55 + (attacking ? 0.1 : -0.04);
       // Never behind their own keeper, never past the other one.
-      const depth = clamp(lineDepth[slot.line] + shift, 0.13, 0.88);
-      const home = slot.lanes.reduce((sum, lane) => sum + laneY[lane], 0) / slot.lanes.length;
-      const y = home + (by - home) * (attacking ? 0.25 : 0.35);
+      const depth = clamp(slot.at.depth + shift, 0.1, 0.9);
+      const home = slot.at.across;
+      const y = home + (by - home) * (attacking ? 0.2 : 0.28);
       tokens.push({ side, id, x: abs(depth), y, keeper: false, carrier: false, duel: false });
     });
 
@@ -101,7 +101,7 @@ export function pitchScene(state: Pick<MatchState, "teams" | "players">, view: S
 /** Nudges players apart so no two discs sit on top of each other. Duellists stay put. */
 function spread(tokens: Token[]) {
   const aspect = 1.55;
-  const min = 0.095;
+  const min = 0.06;
   for (let pass = 0; pass < 3; pass += 1) {
     for (let i = 0; i < tokens.length; i += 1) {
       for (let j = i + 1; j < tokens.length; j += 1) {
@@ -128,4 +128,9 @@ function spread(tokens: Token[]) {
       }
     }
   }
+}
+
+/** A landscape scene point in the portrait phone layout: x across, y down, home goal at the bottom. */
+export function toPortrait(point: { x: number; y: number }): { x: number; y: number } {
+  return { x: point.y, y: 1 - point.x };
 }

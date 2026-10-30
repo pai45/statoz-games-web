@@ -14,6 +14,8 @@ export type ShopAcquisition = {
   accent: string;
   coinsSpent: number;
   preview: ReactNode;
+  /** A short flag under the price, such as "DEAL −30%". */
+  badge?: string;
 };
 
 type OverlayStyle = CSSProperties & { "--acquire-accent": string; "--acquire-shake": string };
@@ -149,6 +151,7 @@ export function ShopAcquireOverlay({ acquisition, onDismissed }: { acquisition: 
                 <span>−{formatInt(acquisition.coinsSpent)}</span>
               </div>
             ) : null}
+            {acquisition.badge ? <p className={styles.badge}>{acquisition.badge}</p> : null}
           </div>
         </div>
       </div>

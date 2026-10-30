@@ -81,3 +81,14 @@ next-env.d.ts
 /public/games/stick-cricket/unity/Build/
 /public/games/stick-cricket/unity/StreamingAssets/
 
+# Editable, local-only REA asset libraries and preserved native acquisition bytes.
+/.local-game-assets/
+/public/games/*/dissection/
+/public/games/tennis-bits/originals/
+/public/games/soccer-real/originals/
+/public/games/penalty-shooters-2/originals/
+/public/games/football-shooting/recovered/
+/test-results/local-games/
+/.cache/tennis-local-policy/
+/.cache/device-cache-e2e/
+

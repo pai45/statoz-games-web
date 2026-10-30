@@ -6,6 +6,7 @@ import { usesMobileLandscape } from "../shared/mobile-viewport/policy";
 import { isGameEnabled } from "@/domain/demo-product";
 import { OpenGolf } from '../open-golf/screen';
 import { BundledGame } from '../shared/components/bundled-game';
+import { isBundledGame } from '../shared/bundled-game-config';
 import type { ComponentType } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -74,7 +75,7 @@ const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
 };
 
 function GameSurface({ game, entry }: GameLauncherProps) {
-  const Game = ["f1-racing","football-shooting","archery-test","stick-cricket","pitch-rush","retro-football-2","retro-hoops"].includes(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
+  const Game = isBundledGame(game) ? BundledGame : renderers[game] ?? GamePlaceholder;
   return <Game game={game} entry={entry} />;
 }
 
@@ -88,7 +89,7 @@ function GameSurface({ game, entry }: GameLauncherProps) {
  * than a bloc.
  */
 export function GameLauncher(props: GameLauncherProps) {
-  if (isGameEnabled(props.game) && usesMobileLandscape(props.game)) return <MobileGameViewport key={props.game} title={props.entry.title} allowExternalGame={props.game === "f1-racing"}><GameLauncherContent {...props} /></MobileGameViewport>;
+  if (isGameEnabled(props.game) && usesMobileLandscape(props.game)) return <MobileGameViewport key={props.game} title={props.entry.title}><GameLauncherContent {...props} /></MobileGameViewport>;
   return <GameLauncherContent {...props} />;
 }
 

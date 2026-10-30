@@ -19,7 +19,7 @@ function setupFor(seed: number, division: number): MatchSetup {
   const r = seededSource(seed * 17 + 3);
   const me = draftOpponent(division, pools, r);
   const op = draftOpponent(division, pools, r);
-  return { seed, division, opponentName: op.name, home: { ...me.team, name: "YOU", formation: "2-2" }, away: op.team };
+  return { seed, division, opponentName: op.name, home: { ...me.team, name: "YOU" }, away: op.team };
 }
 
 /** Share of the human's attacking duels that met a full counter. */

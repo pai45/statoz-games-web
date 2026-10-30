@@ -1,0 +1,485 @@
+{
+  "game": "soccer-real",
+  "schemaVersion": 1,
+  "originals": [
+    {
+      "path": "game.js",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\game.js",
+      "url": null,
+      "bytes": 214114,
+      "sha256": "ae7e52a38fc0c4176aa9c605e0719ea3485025beb7bdd1bfb36179922ccbba37"
+    },
+    {
+      "path": "index.html",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\index.html",
+      "url": null,
+      "bytes": 1099,
+      "sha256": "f52e57e0419aafb7c180dc6d486858adab570a163c5b8bce7b38874f53c5f765"
+    },
+    {
+      "path": "legacy.js",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\legacy.js",
+      "url": null,
+      "bytes": 25351,
+      "sha256": "3a4e21e57cc94bfe8d3f5d65be934c0ea8ac7abe27b635917edb1c3699fd850c"
+    },
+    {
+      "path": "images/argentina.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\argentina.jpg",
+      "url": null,
+      "bytes": 26696,
+      "sha256": "2ef96ea192e25a3da8d831e9f96109274133ba99788dd1b16bb375f2d3d20687"
+    },
+    {
+      "path": "images/away_1.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\away_1.jpg",
+      "url": null,
+      "bytes": 21056,
+      "sha256": "dbfa79c18314cbd039d85b29c3a0bab36ee550bfc46a41b281f771167a8bb82f"
+    },
+    {
+      "path": "images/away_2.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\away_2.jpg",
+      "url": null,
+      "bytes": 20703,
+      "sha256": "bcb2d05e838469457f5f658219211edf78bdd60b54be9ecf67f948d2fe263609"
+    },
+    {
+      "path": "images/away_3.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\away_3.jpg",
+      "url": null,
+      "bytes": 21006,
+      "sha256": "067c1e5a9a28d329b860d4e56e2d37c09a683983aca8eb58dda857198803f85b"
+    },
+    {
+      "path": "images/away_4.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\away_4.jpg",
+      "url": null,
+      "bytes": 21876,
+      "sha256": "4c8435caacd015ac1f28bff5cae2a1966a2b6b30677a6347dea0401746fb2706"
+    },
+    {
+      "path": "images/away_5.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\away_5.jpg",
+      "url": null,
+      "bytes": 22886,
+      "sha256": "358d74f540d576a7af861ea8789b7a5cfd8484b0cbdf51d95ee0b47b74ea0e78"
+    },
+    {
+      "path": "images/away_6.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\away_6.jpg",
+      "url": null,
+      "bytes": 23323,
+      "sha256": "b9b18d3ad1d18e15fea2802375b56a53834c92166916c55fc5663d9787b3c8b4"
+    },
+    {
+      "path": "images/belgium.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\belgium.jpg",
+      "url": null,
+      "bytes": 23870,
+      "sha256": "659500b414353215d62265b82e923ec7a6ebb68000d4276079b7aed007fa931e"
+    },
+    {
+      "path": "images/brazil.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\brazil.jpg",
+      "url": null,
+      "bytes": 25209,
+      "sha256": "708b05000efd7df27c95d3dc3174bdfc56ae11504b4eecfd0647242582ffd6b5"
+    },
+    {
+      "path": "images/canada.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\canada.jpg",
+      "url": null,
+      "bytes": 22559,
+      "sha256": "63f9e1e53048885566af4339cdbe4ab8e2847d0d217629bfc5b51e2809aab6ed"
+    },
+    {
+      "path": "images/capeverde.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\capeverde.jpg",
+      "url": null,
+      "bytes": 21531,
+      "sha256": "b5944e75de08be3224c5fc36c1a32219426a3f042d8c49c995ea95110c222045"
+    },
+    {
+      "path": "images/cs1_261005.png",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\cs1_261005.png",
+      "url": null,
+      "bytes": 318225,
+      "sha256": "4d6381417420ab82b225246b216f7a30a9ec00e599789f7e456632bf6435254a"
+    },
+    {
+      "path": "images/egypt.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\egypt.jpg",
+      "url": null,
+      "bytes": 22463,
+      "sha256": "0fc071cd506607671f594bcf1bfbd8346f9828580216d8f0e0039bb943577dbd"
+    },
+    {
+      "path": "images/england.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\england.jpg",
+      "url": null,
+      "bytes": 22583,
+      "sha256": "75674216b6d7531c1c0c1f796e0c4a2e637badb740dbfb212b8977e3680b9a68"
+    },
+    {
+      "path": "images/france.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\france.jpg",
+      "url": null,
+      "bytes": 23077,
+      "sha256": "08f26d73690f337ece9a9847df593fc8036dbda02da706180610578e5164d2ee"
+    },
+    {
+      "path": "images/germany.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\germany.jpg",
+      "url": null,
+      "bytes": 24343,
+      "sha256": "a1b209bb5b822c9ed4e60d263c78c15e58b91942a4d7160b7efaf751a1795005"
+    },
+    {
+      "path": "images/GLTFLoader.js",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\GLTFLoader.js",
+      "url": null,
+      "bytes": 84697,
+      "sha256": "1934fbb6b49c85c19f8ddc6b9212428366c7666ffb2e3cfcb66e0778f2e0023b"
+    },
+    {
+      "path": "images/japan.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\japan.jpg",
+      "url": null,
+      "bytes": 22708,
+      "sha256": "397d90ad968d02afb99999078603ba9be52433ccc80294ac250492068289d92d"
+    },
+    {
+      "path": "images/keeper_green.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\keeper_green.jpg",
+      "url": null,
+      "bytes": 24887,
+      "sha256": "32dc30ec7083f0201cf2efbf758f12dc13f5601ec13ca21e434c79abf91f0364"
+    },
+    {
+      "path": "images/korea.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\korea.jpg",
+      "url": null,
+      "bytes": 23038,
+      "sha256": "89be83a0cc57cb0e83cf97f7af3965752119ecb6141a2eb7de9ae3d4f4eece50"
+    },
+    {
+      "path": "images/mexico.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\mexico.jpg",
+      "url": null,
+      "bytes": 24853,
+      "sha256": "6ccc0b1390218933ab681ee0db6adefa7269e303c25f0bc93b1810d360ff71de"
+    },
+    {
+      "path": "images/mid_player17.glb",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\mid_player17.glb",
+      "url": null,
+      "bytes": 870484,
+      "sha256": "30a18fb1c111d1f5e6eecb96315698da55681277db699e6f7dbc17a47a347b85"
+    },
+    {
+      "path": "images/mid_player_keeper.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\mid_player_keeper.jpg",
+      "url": null,
+      "bytes": 26372,
+      "sha256": "746650906121723f478f582b955d854806f2b1f9a70abe01f75038c0117b46a7"
+    },
+    {
+      "path": "images/morocco.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\morocco.jpg",
+      "url": null,
+      "bytes": 24900,
+      "sha256": "78ca3a4007fb7d1638e1aac25640c754f2960a070fe6ab88679c8bcbcfd4d5c3"
+    },
+    {
+      "path": "images/netherlands.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\netherlands.jpg",
+      "url": null,
+      "bytes": 26235,
+      "sha256": "445d889521be0c75d5eff690eca4afd1e0551cacd2f364eb6694b63f3b150753"
+    },
+    {
+      "path": "images/norway.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\norway.jpg",
+      "url": null,
+      "bytes": 24074,
+      "sha256": "ee921b25ccf362a24695ca2975214b8f6c9ac4f934ea4bcbe5d61df4510c9162"
+    },
+    {
+      "path": "images/portugal.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\portugal.jpg",
+      "url": null,
+      "bytes": 23860,
+      "sha256": "67afa7151f574a1451f9b9f866f87e5e950bdc30102a48ec2dc90c4d5585b025"
+    },
+    {
+      "path": "images/senegal.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\senegal.jpg",
+      "url": null,
+      "bytes": 22864,
+      "sha256": "f8c7a1888f7a92a79ec6f372724e0e61bf12d062d15c20c3e42914613286bd9a"
+    },
+    {
+      "path": "images/SkeletonUtils.js",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\SkeletonUtils.js",
+      "url": null,
+      "bytes": 12553,
+      "sha256": "2e2c3b6bcfabc072cd79cb24a93d135080e2e70a5be4b6e0f031d3407957ed5a"
+    },
+    {
+      "path": "images/sound_soccer_261005.mp3",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\sound_soccer_261005.mp3",
+      "url": null,
+      "bytes": 401910,
+      "sha256": "7ca1abf5a21f6a297d7181f2a3b75efc3a6486cb552569462ff0d4dc13000190"
+    },
+    {
+      "path": "images/spain.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\spain.jpg",
+      "url": null,
+      "bytes": 24246,
+      "sha256": "c3db243e7bb3509af5ca36d324d5bed0c08ce85661788dc5f4dbafa92caeeef9"
+    },
+    {
+      "path": "images/Stadium11.glb",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\Stadium11.glb",
+      "url": null,
+      "bytes": 1072952,
+      "sha256": "305690529c29efcdc32a1f69f1a4bf7397d6a34b1b6fee4b4d18894032454d3a"
+    },
+    {
+      "path": "images/switzerland.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\switzerland.jpg",
+      "url": null,
+      "bytes": 22940,
+      "sha256": "f0dc840bf29c4529d333a4a3d91a8ba3e9a5ef5f6ab1dc67d35c2a500dc69815"
+    },
+    {
+      "path": "images/three.min.js",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\three.min.js",
+      "url": null,
+      "bytes": 593604,
+      "sha256": "a572c55128b19deaca81d6e42ecd52e3a8846a8027cb7235efd2924876e75c75"
+    },
+    {
+      "path": "images/usa.jpg",
+      "source": "C:\\Users\\priya\\OneDrive\\Desktop\\StatOz Designer\\output\\research\\full-game-rea-gap-pass-2026-10-29\\browser-games\\soccer-real\\native-snapshot\\images\\usa.jpg",
+      "url": null,
+      "bytes": 30316,
+      "sha256": "fa9c5397cee4cb981c639d26b82779c56402b41016e35930b333e8e7bf8d3dad"
+    }
+  ],
+  "transformed": [
+    {
+      "path": "native/bridge.js",
+      "bytes": 2677,
+      "sha256": "45f22bc6ac2b793492f202a911d4c9ffbeab95157b2c59fd11ab0bd2e6dbf6e1"
+    },
+    {
+      "path": "native/frame-gate.js",
+      "bytes": 1967,
+      "sha256": "f75d36ce599bcadd5e36e833d7a8cde181c10b7378a7c3ed08af5d23f62bd24e"
+    },
+    {
+      "path": "native/game.js",
+      "bytes": 212610,
+      "sha256": "0a07f54a5abd427877f4f1e69f50408582ad7f5db065e7dc63901b3a7fffce6c"
+    },
+    {
+      "path": "native/images/argentina.jpg",
+      "bytes": 26696,
+      "sha256": "2ef96ea192e25a3da8d831e9f96109274133ba99788dd1b16bb375f2d3d20687"
+    },
+    {
+      "path": "native/images/away_1.jpg",
+      "bytes": 21056,
+      "sha256": "dbfa79c18314cbd039d85b29c3a0bab36ee550bfc46a41b281f771167a8bb82f"
+    },
+    {
+      "path": "native/images/away_2.jpg",
+      "bytes": 20703,
+      "sha256": "bcb2d05e838469457f5f658219211edf78bdd60b54be9ecf67f948d2fe263609"
+    },
+    {
+      "path": "native/images/away_3.jpg",
+      "bytes": 21006,
+      "sha256": "067c1e5a9a28d329b860d4e56e2d37c09a683983aca8eb58dda857198803f85b"
+    },
+    {
+      "path": "native/images/away_4.jpg",
+      "bytes": 21876,
+      "sha256": "4c8435caacd015ac1f28bff5cae2a1966a2b6b30677a6347dea0401746fb2706"
+    },
+    {
+      "path": "native/images/away_5.jpg",
+      "bytes": 22886,
+      "sha256": "358d74f540d576a7af861ea8789b7a5cfd8484b0cbdf51d95ee0b47b74ea0e78"
+    },
+    {
+      "path": "native/images/away_6.jpg",
+      "bytes": 23323,
+      "sha256": "b9b18d3ad1d18e15fea2802375b56a53834c92166916c55fc5663d9787b3c8b4"
+    },
+    {
+      "path": "native/images/belgium.jpg",
+      "bytes": 23870,
+      "sha256": "659500b414353215d62265b82e923ec7a6ebb68000d4276079b7aed007fa931e"
+    },
+    {
+      "path": "native/images/brazil.jpg",
+      "bytes": 25209,
+      "sha256": "708b05000efd7df27c95d3dc3174bdfc56ae11504b4eecfd0647242582ffd6b5"
+    },
+    {
+      "path": "native/images/canada.jpg",
+      "bytes": 22559,
+      "sha256": "63f9e1e53048885566af4339cdbe4ab8e2847d0d217629bfc5b51e2809aab6ed"
+    },
+    {
+      "path": "native/images/capeverde.jpg",
+      "bytes": 21531,
+      "sha256": "b5944e75de08be3224c5fc36c1a32219426a3f042d8c49c995ea95110c222045"
+    },
+    {
+      "path": "native/images/cs1_261005.png",
+      "bytes": 318225,
+      "sha256": "4d6381417420ab82b225246b216f7a30a9ec00e599789f7e456632bf6435254a"
+    },
+    {
+      "path": "native/images/egypt.jpg",
+      "bytes": 22463,
+      "sha256": "0fc071cd506607671f594bcf1bfbd8346f9828580216d8f0e0039bb943577dbd"
+    },
+    {
+      "path": "native/images/england.jpg",
+      "bytes": 22583,
+      "sha256": "75674216b6d7531c1c0c1f796e0c4a2e637badb740dbfb212b8977e3680b9a68"
+    },
+    {
+      "path": "native/images/france.jpg",
+      "bytes": 23077,
+      "sha256": "08f26d73690f337ece9a9847df593fc8036dbda02da706180610578e5164d2ee"
+    },
+    {
+      "path": "native/images/germany.jpg",
+      "bytes": 24343,
+      "sha256": "a1b209bb5b822c9ed4e60d263c78c15e58b91942a4d7160b7efaf751a1795005"
+    },
+    {
+      "path": "native/images/GLTFLoader.js",
+      "bytes": 84697,
+      "sha256": "1934fbb6b49c85c19f8ddc6b9212428366c7666ffb2e3cfcb66e0778f2e0023b"
+    },
+    {
+      "path": "native/images/japan.jpg",
+      "bytes": 22708,
+      "sha256": "397d90ad968d02afb99999078603ba9be52433ccc80294ac250492068289d92d"
+    },
+    {
+      "path": "native/images/keeper_green.jpg",
+      "bytes": 24887,
+      "sha256": "32dc30ec7083f0201cf2efbf758f12dc13f5601ec13ca21e434c79abf91f0364"
+    },
+    {
+      "path": "native/images/korea.jpg",
+      "bytes": 23038,
+      "sha256": "89be83a0cc57cb0e83cf97f7af3965752119ecb6141a2eb7de9ae3d4f4eece50"
+    },
+    {
+      "path": "native/images/mexico.jpg",
+      "bytes": 24853,
+      "sha256": "6ccc0b1390218933ab681ee0db6adefa7269e303c25f0bc93b1810d360ff71de"
+    },
+    {
+      "path": "native/images/mid_player17.glb",
+      "bytes": 870484,
+      "sha256": "30a18fb1c111d1f5e6eecb96315698da55681277db699e6f7dbc17a47a347b85"
+    },
+    {
+      "path": "native/images/mid_player_keeper.jpg",
+      "bytes": 26372,
+      "sha256": "746650906121723f478f582b955d854806f2b1f9a70abe01f75038c0117b46a7"
+    },
+    {
+      "path": "native/images/morocco.jpg",
+      "bytes": 24900,
+      "sha256": "78ca3a4007fb7d1638e1aac25640c754f2960a070fe6ab88679c8bcbcfd4d5c3"
+    },
+    {
+      "path": "native/images/netherlands.jpg",
+      "bytes": 26235,
+      "sha256": "445d889521be0c75d5eff690eca4afd1e0551cacd2f364eb6694b63f3b150753"
+    },
+    {
+      "path": "native/images/norway.jpg",
+      "bytes": 24074,
+      "sha256": "ee921b25ccf362a24695ca2975214b8f6c9ac4f934ea4bcbe5d61df4510c9162"
+    },
+    {
+      "path": "native/images/portugal.jpg",
+      "bytes": 23860,
+      "sha256": "67afa7151f574a1451f9b9f866f87e5e950bdc30102a48ec2dc90c4d5585b025"
+    },
+    {
+      "path": "native/images/senegal.jpg",
+      "bytes": 22864,
+      "sha256": "f8c7a1888f7a92a79ec6f372724e0e61bf12d062d15c20c3e42914613286bd9a"
+    },
+    {
+      "path": "native/images/SkeletonUtils.js",
+      "bytes": 12553,
+      "sha256": "2e2c3b6bcfabc072cd79cb24a93d135080e2e70a5be4b6e0f031d3407957ed5a"
+    },
+    {
+      "path": "native/images/sound_soccer_261005.mp3",
+      "bytes": 401910,
+      "sha256": "7ca1abf5a21f6a297d7181f2a3b75efc3a6486cb552569462ff0d4dc13000190"
+    },
+    {
+      "path": "native/images/spain.jpg",
+      "bytes": 24246,
+      "sha256": "c3db243e7bb3509af5ca36d324d5bed0c08ce85661788dc5f4dbafa92caeeef9"
+    },
+    {
+      "path": "native/images/Stadium11.glb",
+      "bytes": 1072952,
+      "sha256": "305690529c29efcdc32a1f69f1a4bf7397d6a34b1b6fee4b4d18894032454d3a"
+    },
+    {
+      "path": "native/images/switzerland.jpg",
+      "bytes": 22940,
+      "sha256": "f0dc840bf29c4529d333a4a3d91a8ba3e9a5ef5f6ab1dc67d35c2a500dc69815"
+    },
+    {
+      "path": "native/images/three.min.js",
+      "bytes": 593604,
+      "sha256": "a572c55128b19deaca81d6e42ecd52e3a8846a8027cb7235efd2924876e75c75"
+    },
+    {
+      "path": "native/images/usa.jpg",
+      "bytes": 30316,
+      "sha256": "fa9c5397cee4cb981c639d26b82779c56402b41016e35930b333e8e7bf8d3dad"
+    },
+    {
+      "path": "native/index.html",
+      "bytes": 998,
+      "sha256": "e45f69ef55d6a3bef15045d6cb7e0e4cb56bd41992e9cd9b6e0ffbe78b700ebc"
+    },
+    {
+      "path": "native/legacy.js",
+      "bytes": 25351,
+      "sha256": "3a4e21e57cc94bfe8d3f5d65be934c0ea8ac7abe27b635917edb1c3699fd850c"
+    },
+    {
+      "path": "native/local-play.js",
+      "bytes": 680,
+      "sha256": "8a1537fe9aa623d4319de5044d6019f813a9a34267b6e2f6da90334505a5e5f1"
+    },
+    {
+      "path": "native/platform.js",
+      "bytes": 750,
+      "sha256": "aaf02d8bca269749034685c243dc2f0b600717c1859db706d28d2bbb070254d4"
+    }
+  ],
+  "notice": "Recovered shipped client and artwork retained for local research. Original authors retain rights. No source license inferred. See docs/local-games/soccer-real.md"
+}

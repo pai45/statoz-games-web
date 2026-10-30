@@ -2,25 +2,29 @@
 
 import { useState, type CSSProperties } from "react";
 
-import { AdaptiveDrawer, ConfirmDialog, accentVar, feedbackVar } from "@/design-system";
-
 import { currentDuel, lineKey, playerRating, stoppageFor } from "../engine/match";
 import { setPieceTitles } from "../engine/set-pieces";
+import { tacticPlayable } from "../engine/tactics";
 import { absoluteX, laneNames, mirror, zoneNames } from "../engine/zones";
-import type { MatchState, Side } from "../engine/types";
+import type { MatchInput, MatchState, SetPieceOption, Side } from "../engine/types";
 import { usePitchDuelMatch } from "../state/use-pitch-duel-match";
 
-import { ActionPad } from "./action-pad";
-import { DuelCard, StatBlock, sideAccent } from "./card-art";
-import { DuelStage } from "./duel-stage";
-import { EventLog, EventTicker, PitchView, Scoreboard, SquadLists, setPieceSpot } from "./match-parts";
+import { ActionPad, TacticTray, useNumberKeys } from "./action-pad";
+import { ShieldCard, StatBlock, primaryPosition, sideAccent } from "./card-art";
+import { DuelStage, type Faceoff } from "./duel-stage";
+import { PitchIcon } from "./icons";
+import { EventLog, EventsBar, MatchMap, PeriodStats, Scoreboard, SquadList, setPieceSpot } from "./match-parts";
 import { pitchScene, type SceneInput } from "./pitch-layout";
+import { SetPieceScene } from "./set-piece-scenes";
+import { Modal, Pill, Sheet } from "./ui";
 import styles from "./match.module.css";
 
+type Panel = { kind: "squad"; side: Side; inspect?: string } | { kind: "events" } | { kind: "map" } | null;
+
 /**
- * The match screen for a landscape phone: a slim scoreboard, the pitch with
- * all ten players on the left, the duel on the right, and the moves along the
- * bottom. Squads, stats and the log live in a drawer opened from the pitch.
+ * The portrait match screen, top to bottom: the trapezoid scoreboard, the
+ * lineup tabs, the stage (situation, match map, the two cards and VS), the
+ * moves in the thumb zone, and the match-events bar.
  */
 export function MatchScreen({
   initial,
@@ -36,9 +40,9 @@ export function MatchScreen({
   onQuit: () => void;
 }) {
   const { state, turn, revealing, send, dismiss, autoHold } = usePitchDuelMatch(initial, haptics);
-  const [logOpen, setLogOpen] = useState(false);
+  const [panel, setPanel] = useState<Panel>(null);
   const [quitOpen, setQuitOpen] = useState(false);
-  const [inspect, setInspect] = useState<{ side: Side; id: string } | null>(null);
+  const [armed, setArmed] = useState<string | null>(null);
 
   const res = revealing ? state.lastResolution : null;
   const duel = currentDuel(state);
@@ -46,9 +50,8 @@ export function MatchScreen({
     home: duel.attacker.side === "home" ? duel.attacker.id : duel.defender.id,
     away: duel.attacker.side === "away" ? duel.attacker.id : duel.defender.id,
   };
-
   // The cards show who just duelled during a reveal, otherwise the coming duel.
-  const faceoff = res
+  const faceoff: Faceoff = res
     ? {
         home: res.attackingSide === "home" ? res.attackerId : res.defenderId,
         away: res.attackingSide === "home" ? res.defenderId : res.attackerId,
@@ -56,14 +59,14 @@ export function MatchScreen({
       }
     : { ...nextDuel, ball: duel.attacker.side };
 
-  // The pitch shows where the play went. A goal leaves the players where the shot was taken and sends the ball into the net.
+  // The map shows where the play went; a goal sends the ball into the net.
   const sceneInput: SceneInput = res?.goal
     ? {
         x: res.from.x,
         lane: res.from.lane,
         possession: res.attackingSide,
         duel: { home: faceoff.home, away: faceoff.away },
-        ballAt: { x: res.goal === "home" ? 1.02 : -0.02, y: 0.5 },
+        ballAt: { x: res.goal === "home" ? 1 : 0, y: 0.5 },
       }
     : {
         x: absoluteX(state.possession.side, state.possession.progress),
@@ -73,174 +76,204 @@ export function MatchScreen({
         spot: setPieceSpot(state),
       };
   const scene = pitchScene(state, sceneInput);
-
   const danger = !res && state.phase === "choose" && state.possession.side === "away" && state.possession.progress >= 6;
   const situation = situationFor(state);
   const lastEvent = [...state.log].reverse().find((e) => e.kind !== "duel");
-  const continueLabel =
-    state.phase === "kickoff" ? "KICK OFF ▶" : state.phase === "halftime" ? "START SECOND HALF ▶" : state.phase === "fulltime" ? "FULL-TIME · SEE RESULT ▶" : "CONTINUE ▶";
+  const setPieceTurn = !res && turn.kind === "setPiece" ? turn : null;
 
-  const sendOrFinish = (input: Parameters<typeof send>[0]) => {
+  const sendOrFinish = (input: MatchInput) => {
     if (state.phase === "fulltime") {
       onFinish(state);
       return;
     }
     send(input);
   };
+  const advance = () => (res && state.phase === "choose" ? dismiss() : sendOrFinish({ type: "continue" }));
+  const continueLabel =
+    state.phase === "kickoff" ? "KICK OFF" : state.phase === "halftime" ? "START SECOND HALF" : state.phase === "fulltime" ? "SEE THE RESULT" : res && state.phase === "choose" ? "NEXT" : "CONTINUE";
+  const waiting = Boolean(res) || turn.kind === "continue" || turn.kind === "over";
+  useNumberKeys(0, () => {}, waiting && !res?.goal ? advance : undefined);
 
-  const inspectFromDrawer = (side: Side, id: string) => {
-    setLogOpen(false);
-    setInspect({ side, id });
+  const pickSetPiece = (option: SetPieceOption) => {
+    const slot = state.teams.home.tactics.find((t) => t.id === armed && !t.used);
+    send({ type: "setPiece", option, tacticId: slot && tacticPlayable(slot, "setPiece") ? slot.id : undefined });
+    setArmed(null);
   };
 
+  const scorer = res?.goal ? state.teams[res.goal].cards[res.attackerId] : undefined;
+
   return (
-    <main className={styles.screen} data-pitch-duel-screen="match" data-phase={state.phase} aria-label="Pitch Duel match">
-      <Scoreboard state={state} onQuit={() => setQuitOpen(true)} onLog={() => setLogOpen(true)} />
+    <div className={styles.screen} data-phase={state.phase} data-danger={danger || undefined} aria-label="Pitch Duel match">
+      <Scoreboard state={state} onQuit={() => setQuitOpen(true)} onLog={() => setPanel({ kind: "events" })} />
 
-      <PitchView
-        state={state}
-        scene={scene}
-        zone={res?.goal ? null : { x: sceneInput.x, lane: sceneInput.lane }}
-        possession={sceneInput.possession}
-        danger={danger}
-        moving={Boolean(res)}
-        goal={res?.goal ?? null}
-        onOpen={() => setLogOpen(true)}
-        header={
-          <span className={styles.situation} style={{ "--tone": situation.tone } as CSSProperties}>
-            <strong key={situation.title}>{situation.title}</strong>
-            <span>{situation.detail}</span>
-            <em aria-hidden>SQUADS ▸</em>
-          </span>
-        }
-        footer={<EventTicker event={lastEvent} />}
-      />
+      <nav className={styles.tabs} aria-label="Lineups">
+        <button type="button" className={styles.tab} data-side="home" onClick={() => setPanel({ kind: "squad", side: "home" })}>
+          <PitchIcon size={16} /> YOUR LINEUP
+        </button>
+        <button type="button" className={styles.tab} data-side="away" onClick={() => setPanel({ kind: "squad", side: "away" })}>
+          <PitchIcon size={16} /> OPP. LINEUP
+        </button>
+      </nav>
 
-      <DuelStage state={state} faceoff={faceoff} res={res} onSkip={dismiss} onInspect={(side, id) => setInspect({ side, id })} />
-
-      {res ? (
-        <div className={styles.bar}>
-          <button
-            type="button"
-            className={`${styles.plate} ${styles.continue}`}
-            onClick={() => (state.phase === "choose" ? dismiss() : sendOrFinish({ type: "continue" }))}
-          >
-            {autoHold ? <span key={state.decisions} className={styles.autoFill} style={{ "--hold": `${autoHold}ms` } as CSSProperties} aria-hidden /> : null}
-            {state.phase === "choose" ? "NEXT ▶" : continueLabel}
-          </button>
+      <main className={styles.stage}>
+        <div className={styles.stageTop}>
+          <p className={styles.situation} style={{ "--tone": situation.tone } as CSSProperties}>
+            <span>Current situation:</span> <b key={situation.title}>{situation.title}</b>
+            <small>{situation.detail}</small>
+          </p>
+          <MatchMap state={state} scene={scene} danger={danger} onOpen={() => setPanel({ kind: "map" })} />
         </div>
-      ) : (
-        <ActionPad
-          turn={turn}
-          turnKey={`${state.decisions}-${state.phase}-${state.pending.kind}`}
-          tactics={state.teams.home.tactics}
-          tacticTitles={tacticTitles}
-          continueLabel={continueLabel}
-          onSend={sendOrFinish}
-        />
-      )}
 
-      <p className={styles.rotateHint}>ROTATE YOUR PHONE FOR THE FULL PITCH</p>
+        {setPieceTurn ? (
+          <SetPieceScene state={state} turn={setPieceTurn} onPick={pickSetPiece} />
+        ) : (
+          <DuelStage state={state} faceoff={faceoff} res={res} onInspect={(side, id) => setPanel({ kind: "squad", side, inspect: id })} />
+        )}
+      </main>
 
-      {res?.goal ? (
-        <div key={`g${state.decisions}`} className={styles.goalFlash} style={{ "--tone": sideAccent[res.goal] } as CSSProperties} aria-hidden>
-          <strong>GOAL!</strong>
-          <span>{res.goal === "home" ? state.teams.home.name : state.opponentName}</span>
+      <footer className={styles.thumb}>
+        {waiting ? (
+          res?.goal ? null : (
+            <div className={styles.continueRow}>
+              <Pill tone={state.phase === "fulltime" ? "green" : "blue"} onClick={advance} wide pulse={!res}>
+                {continueLabel}
+              </Pill>
+              {autoHold ? <i key={state.decisions} className={styles.autoFill} style={{ "--hold": `${autoHold}ms` } as CSSProperties} aria-hidden /> : null}
+            </div>
+          )
+        ) : setPieceTurn ? (
+          state.teams.home.tactics.length ? (
+            <TacticTray
+              tactics={state.teams.home.tactics}
+              titles={tacticTitles}
+              role="setPiece"
+              armed={armed}
+              onArm={(id) => setArmed((a) => (a === id ? null : id))}
+              onMindGame={() => {}}
+            />
+          ) : null
+        ) : (
+          <ActionPad
+            turn={turn}
+            turnKey={`${state.decisions}-${state.phase}-${state.pending.kind}`}
+            tactics={state.teams.home.tactics}
+            tacticTitles={tacticTitles}
+            armed={armed}
+            onArm={setArmed}
+            onSend={sendOrFinish}
+          />
+        )}
+        <EventsBar event={lastEvent} onShow={() => setPanel({ kind: "events" })} />
+      </footer>
+
+      <Modal open={Boolean(res?.goal)} labelledBy="pd-goal-title" tone={res?.goal === "home" ? "blue" : "red"}>
+        {res?.goal ? (
+          <div className={styles.goalModal}>
+            <h2 id="pd-goal-title" className={styles.goalWord}>GOAL!!!</h2>
+            <p>
+              {scorer?.name ?? "A shot"} scores for {res.goal === "home" ? "your team" : state.opponentName}
+            </p>
+            {scorer ? (
+              <div className={styles.goalCard}>
+                <small>GOAL SCORER</small>
+                <ShieldCard card={scorer} size="md" stats={null} />
+                <span className={styles.goalChips}>
+                  <b>{scorer.rating}</b>
+                  <b>{primaryPosition(scorer)}</b>
+                  <b>{state.score.home}–{state.score.away}</b>
+                </span>
+              </div>
+            ) : null}
+            <Pill tone="blue" onClick={advance} wide>
+              CONTINUE
+            </Pill>
+          </div>
+        ) : null}
+      </Modal>
+
+      <Sheet open={panel?.kind === "squad"} title={panel?.kind === "squad" && panel.side === "away" ? "OPP. LINEUP" : "YOUR LINEUP"} onClose={() => setPanel(null)}>
+        {panel?.kind === "squad" ? (
+          panel.inspect ? (
+            <PlayerDetail state={state} side={panel.side} id={panel.inspect} onBack={() => setPanel({ kind: "squad", side: panel.side })} />
+          ) : (
+            <SquadList state={state} side={panel.side} onInspect={(id) => setPanel({ kind: "squad", side: panel.side, inspect: id })} />
+          )
+        ) : null}
+      </Sheet>
+
+      <Sheet open={panel?.kind === "events"} title="MATCH EVENTS" onClose={() => setPanel(null)}>
+        <PeriodStats state={state} />
+        <EventLog state={state} />
+      </Sheet>
+
+      <Sheet open={panel?.kind === "map"} title="MATCH MAP" onClose={() => setPanel(null)}>
+        <MatchMap state={state} scene={scene} danger={danger} big />
+        <p className={styles.mapKey}>
+          <i style={{ background: sideAccent.home }} /> You attack up <i style={{ background: sideAccent.away }} /> {state.opponentName}
+        </p>
+      </Sheet>
+
+      <Modal open={quitOpen} labelledBy="pd-quit-title" tone="red" onClose={() => setQuitOpen(false)}>
+        <div className={styles.confirm}>
+          <h2 id="pd-quit-title">LEAVE THE MATCH?</h2>
+          <p>This match will not count. Your club and league points stay as they are.</p>
+          <div className={styles.confirmRow}>
+            <Pill tone="grey" back onClick={() => setQuitOpen(false)}>KEEP PLAYING</Pill>
+            <Pill tone="red" onClick={onQuit}>LEAVE</Pill>
+          </div>
         </div>
-      ) : null}
-
-      <AdaptiveDrawer open={logOpen} onClose={() => setLogOpen(false)} title="MATCH CENTRE">
-        <div className={styles.sheet}>
-          <PeriodStats state={state} />
-          <SquadLists state={state} onInspect={inspectFromDrawer} />
-          <EventLog events={state.log} />
-        </div>
-      </AdaptiveDrawer>
-
-      <AdaptiveDrawer open={inspect !== null} onClose={() => setInspect(null)} title="PLAYER">
-        {inspect ? <PlayerSheet state={state} side={inspect.side} id={inspect.id} /> : null}
-      </AdaptiveDrawer>
-
-      <ConfirmDialog
-        open={quitOpen}
-        title="LEAVE THE MATCH?"
-        message="This match will not count. Your club and league points stay as they are."
-        confirmLabel="LEAVE"
-        cancelLabel="KEEP PLAYING"
-        destructive
-        onConfirm={onQuit}
-        onCancel={() => setQuitOpen(false)}
-      />
-    </main>
-  );
-}
-
-function situationFor(state: MatchState): { title: string; detail: string; tone: string } {
-  if (state.phase === "kickoff") return { title: "KICK-OFF", detail: "Five against five", tone: accentVar("cyan") };
-  if (state.phase === "halftime") return { title: "HALF-TIME", detail: `${state.score.home}–${state.score.away}`, tone: accentVar("cyan") };
-  if (state.phase === "fulltime") return { title: "FULL-TIME", detail: `${state.score.home}–${state.score.away}`, tone: accentVar("cyan") };
-  if (state.pending.kind === "setPiece") {
-    const sp = state.pending.setPiece;
-    const yours = sp.side === "home";
-    return {
-      title: `${setPieceTitles[sp.kind]}${sp.kind === "oneOnOne" ? " · BIG CHANCE" : ""}`,
-      detail: yours ? "Your chance" : "Their chance",
-      tone: yours ? accentVar("orange") : feedbackVar("danger"),
-    };
-  }
-  const { side, progress, lane } = state.possession;
-  const added = state.minute > (state.half === 1 ? 45 : 90) ? ` · +${stoppageFor(state)}` : "";
-  if (side === "home") return { title: "YOUR BALL", detail: `${zoneNames[progress]} · ${laneNames[lane]}${added}`, tone: accentVar("lime") };
-  const danger = progress >= 6;
-  return {
-    title: danger ? "DANGER" : "THEIR BALL",
-    detail: `${zoneNames[mirror(progress)]} · ${laneNames[lane]}${added}`,
-    tone: danger ? feedbackVar("danger") : accentVar("orange"),
-  };
-}
-
-function PeriodStats({ state }: { state: MatchState }) {
-  const h = state.stats.home;
-  const a = state.stats.away;
-  const rows: [string, number, number][] = [
-    ["SHOTS", h.shots, a.shots],
-    ["ON TARGET", h.onTarget, a.onTarget],
-    ["DUELS WON", h.duelsWon, a.duelsWon],
-    ["READS WON", h.readsWon, a.readsWon],
-    ["CORNERS", h.corners, a.corners],
-    ["FOULS", h.fouls, a.fouls],
-  ];
-  return (
-    <div className={styles.periodStats}>
-      {rows.map(([label, x, y]) => (
-        <div key={label} style={{ display: "contents" }}>
-          <b style={{ color: sideAccent.home }}>{x}</b>
-          <span>{label}</span>
-          <b style={{ color: sideAccent.away }}>{y}</b>
-        </div>
-      ))}
+      </Modal>
     </div>
   );
 }
 
-function PlayerSheet({ state, side, id }: { state: MatchState; side: Side; id: string }) {
+function situationFor(state: MatchState): { title: string; detail: string; tone: string } {
+  const neutral = "#bfff00";
+  const attack = "#4ade80";
+  const defend = "#f87171";
+  const chance = "#fbbf24";
+  if (state.phase === "kickoff") return { title: "Kick-off", detail: "Eleven a side", tone: neutral };
+  if (state.phase === "halftime") return { title: "Half-time", detail: `${state.score.home}–${state.score.away}`, tone: neutral };
+  if (state.phase === "fulltime") return { title: "Full-time", detail: `${state.score.home}–${state.score.away}`, tone: neutral };
+  if (state.pending.kind === "setPiece") {
+    const sp = state.pending.setPiece;
+    const yours = sp.side === "home";
+    return { title: `${setPieceTitles[sp.kind].toLowerCase().replace(/^./, (c) => c.toUpperCase())}${yours ? " for you" : " against you"}`, detail: yours ? "Big chance" : "Stop it", tone: yours ? chance : defend };
+  }
+  const duel = currentDuel(state);
+  const attacker = state.teams[duel.attacker.side].cards[duel.attacker.id]?.name ?? "";
+  const defender = state.teams[duel.defender.side].cards[duel.defender.id]?.name ?? "";
+  const { side, progress, lane } = state.possession;
+  const added = state.minute > (state.half === 1 ? 45 : 90) ? ` · +${stoppageFor(state)}` : "";
+  const where = `${side === "home" ? zoneNames[progress] : zoneNames[mirror(progress)]} · ${laneNames[lane]}${added}`;
+  const title = `${attacker} faces ${defender}.`;
+  if (side === "home") return { title, detail: where, tone: progress >= 7 ? chance : attack };
+  return { title, detail: where, tone: progress >= 6 ? defend : neutral };
+}
+
+function PlayerDetail({ state, side, id, onBack }: { state: MatchState; side: Side; id: string; onBack: () => void }) {
   const team = state.teams[side];
   const card = team.cards[id];
   const line = state.players[lineKey(side, id)];
   const keeper = id === team.keeperId;
   return (
-    <div className={styles.sheet}>
-      <div className={styles.sheetRow}>
-        <DuelCard card={card} size="sm" />
-        <div className={styles.sheet}>
-          <StatBlock stats={team.stats[id]} keeper={keeper} />
-          <p className={styles.sheetNote}>
-            Match rating <b>{playerRating(line, keeper).toFixed(1)}</b> · duels {line.duelsWon}–{line.duelsLost}
-            {line.goals ? ` · ${line.goals} goal${line.goals > 1 ? "s" : ""}` : ""}
-            {keeper ? ` · ${line.saves} saves` : ""}
-            {line.red ? " · sent off" : line.yellow ? " · booked" : ""}
-          </p>
-        </div>
+    <div className={styles.detail}>
+      <ShieldCard card={card} size="md" stats={team.stats[id]} />
+      <div className={styles.detailBody}>
+        <h3>{card.name}</h3>
+        <p className={styles.muted}>
+          {card.trait} · {card.country}
+        </p>
+        <StatBlock stats={team.stats[id]} keeper={keeper} />
+        <p className={styles.detailNote}>
+          Match rating <b>{playerRating(line, keeper).toFixed(1)}</b> · duels {line.duelsWon}–{line.duelsLost}
+          {line.goals ? ` · ${line.goals} goal${line.goals > 1 ? "s" : ""}` : ""}
+          {keeper ? ` · ${line.saves} saves` : ""}
+          {line.red ? " · sent off" : line.yellow ? " · booked" : ""}
+        </p>
+        <Pill tone="grey" back onClick={onBack}>
+          BACK TO LINEUP
+        </Pill>
       </div>
     </div>
   );

@@ -106,7 +106,6 @@ export function RetroFootball2Game({onExit, onEvent, hostCommand}: FootballGameP
           <span className={styles.kicker}>SUPER SIDEKICKS 2 / LOCAL ARCADE</span><h2>{error ? "ARCADE UNAVAILABLE" : !started ? "RETRO FOOTBALL 2" : paused ? "PAUSED" : "LOADING RETRO FOOTBALL 2"}</h2>
           {error ? <><p>{error}</p><button onClick={start}>Retry loading</button></> : !started ? <><p>Move with the stick. A: shoot / low pass or slide. B: high pass or tackle. C: short pass or switch player. A confirms selections; Start finishes team-name entry.</p><button onClick={start}>Play Retro Football 2</button><small>A credit and Start are sent after the arcade boots.</small></> : paused ? <button onClick={resume}>Resume game</button> : <p>Loading the local arcade engine and cartridgeâ€¦</p>}
         </div>}
-        {ready && !booted && !paused && !error && <div className={styles.boot} role="status">ARCADE BOOTINGâ€¦</div>}
       </main>
       <aside data-retro-grip="right" className={styles.rightGrip} aria-label="Action controls"><div className={styles.actions}>{button("short", "C", "Pass / switch")}{button("pass", "B", "Lob / tackle")}{button("shoot", "A", "Shot / slide")}</div><span data-retro-decoration className={styles.gripLabel}>HOLD / RELEASE TO PLAY</span></aside>
       <footer data-retro-decoration className={styles.footer}>RETRO FOOTBALL 2 Â· LOCAL ARCADE</footer>

@@ -48,6 +48,36 @@ export function CardGrid({ children }: { children: ReactNode }) {
   return <div className={styles.cardGrid}>{children}</div>;
 }
 
+export type ShopRailSize = "portrait" | "pack" | "card" | "strip" | "deal";
+
+/**
+ * One storefront shelf: a single row that scrolls sideways and snaps to each
+ * tile. `size` sets the width a tile takes in the row.
+ */
+export function ShopRail({ size, label, children }: { size: ShopRailSize; label: string; children: ReactNode }) {
+  return (
+    <div className={styles.rail} data-size={size} role="group" aria-label={label}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Wraps a tile a deep link can point at. It adds no box of its own, so grids
+ * and rails lay the tile out unchanged; `focused` lights it up once.
+ */
+export function ShopFocusTarget({ id, focused, children }: { id: string; focused: boolean; children: ReactNode }) {
+  return (
+    <div id={shopItemDomId(id)} className={styles.focusTarget} data-focused={focused || undefined}>
+      {children}
+    </div>
+  );
+}
+
+export function shopItemDomId(id: string) {
+  return `shop-item-${id}`;
+}
+
 /* ---- Avatars --------------------------------------------------------------- */
 
 export function AvatarTile({
@@ -55,7 +85,6 @@ export function AvatarTile({
   portraitSrc,
   price,
   owned,
-  guest,
   accent,
   index,
   onBuy,
@@ -64,7 +93,6 @@ export function AvatarTile({
   portraitSrc?: string;
   price: number;
   owned: boolean;
-  guest: boolean;
   accent: string;
   index: number;
   onBuy: () => void;
@@ -95,8 +123,7 @@ export function AvatarTile({
         </ShopFooter>
       ) : (
         <ShopFooter onSelect={onBuy} label={`Buy ${name}`}>
-          {guest ? <ShopFooterLabel accent={accent}>LOG IN</ShopFooterLabel> : null}
-          {guest ? null : <ShopPricePill coins={price} size={11} />}
+          <ShopPricePill coins={price} size={11} />
         </ShopFooter>
       )}
     </ShopCardFrame>
@@ -111,7 +138,6 @@ export function FrameTile({
   price,
   owned,
   equipped,
-  guest,
   index,
   onBuy,
   onEquip,
@@ -121,7 +147,6 @@ export function FrameTile({
   price: number;
   owned: boolean;
   equipped: boolean;
-  guest: boolean;
   index: number;
   onBuy: () => void;
   onEquip: () => void;
@@ -153,8 +178,7 @@ export function FrameTile({
         </ShopFooter>
       ) : (
         <ShopFooter onSelect={onBuy} label={`Buy ${label}`}>
-          {guest ? <ShopFooterLabel accent={color}>LOG IN</ShopFooterLabel> : null}
-          {guest ? null : <ShopPricePill coins={price} size={11} />}
+          <ShopPricePill coins={price} size={11} />
         </ShopFooter>
       )}
     </ShopCardFrame>
@@ -170,7 +194,6 @@ export function BannerTile({
   art,
   price,
   owned,
-  guest,
   index,
   onBuy,
 }: {
@@ -180,7 +203,6 @@ export function BannerTile({
   art: ReactNode;
   price: number;
   owned: boolean;
-  guest: boolean;
   index: number;
   onBuy: () => void;
 }) {
@@ -201,8 +223,7 @@ export function BannerTile({
         </ShopFooter>
       ) : (
         <ShopFooter onSelect={onBuy} label={`Buy ${label}`}>
-          {guest ? <ShopFooterLabel accent={accent}>LOG IN</ShopFooterLabel> : null}
-          {guest ? null : <ShopPricePill coins={price} size={11} />}
+          <ShopPricePill coins={price} size={11} />
         </ShopFooter>
       )}
     </ShopCardFrame>
@@ -227,7 +248,6 @@ export function KitTile({
   price,
   owned,
   equipped,
-  guest,
   index,
   onBuy,
   onEquip,
@@ -241,7 +261,6 @@ export function KitTile({
   price: number;
   owned: boolean;
   equipped: boolean;
-  guest: boolean;
   index: number;
   onBuy: () => void;
   onEquip: () => void;
@@ -275,8 +294,7 @@ export function KitTile({
         </ShopFooter>
       ) : (
         <ShopFooter onSelect={onBuy} label={`Buy ${label}`}>
-          {guest ? <ShopFooterLabel accent={accent}>LOG IN</ShopFooterLabel> : null}
-          {guest ? null : price === 0 ? (
+          {price === 0 ? (
             <ShopFooterLabel accent={accent}>FREE</ShopFooterLabel>
           ) : (
             <ShopPricePill coins={price} size={11} />
@@ -342,7 +360,6 @@ export function CoinTile({
   artSrc,
   bonus,
   tag,
-  guest,
   index,
   onBuy,
   label,
@@ -353,7 +370,6 @@ export function CoinTile({
   artSrc: string;
   bonus: number;
   tag?: string;
-  guest: boolean;
   index: number;
   onBuy: () => void;
   label: string;
@@ -373,8 +389,7 @@ export function CoinTile({
         <p className={styles.tileName}>{coins}</p>
       </div>
       <ShopFooter onSelect={onBuy} label={`Buy the ${label} coin bundle`}>
-        {guest ? <ShopFooterLabel accent={accent}>LOG IN</ShopFooterLabel> : null}
-        {guest ? null : <ShopPricePill inr={inr} accent={accent} size={11} />}
+        <ShopPricePill inr={inr} accent={accent} size={11} />
       </ShopFooter>
     </ShopCardFrame>
   );
@@ -392,7 +407,6 @@ export function PackTile({
   starter,
   claimed,
   elite,
-  guest,
   index,
   holo,
   onCoins,
@@ -409,7 +423,6 @@ export function PackTile({
   claimed: boolean;
   /** The rarest pack in the row — the only one allowed the focal glow. */
   elite: boolean;
-  guest: boolean;
   index: number;
   holo: HoloSpec;
   onCoins: () => void;
@@ -443,13 +456,12 @@ export function PackTile({
         </ShopFooter>
       ) : starter ? (
         <ShopFooter height={72} onSelect={onCoins} label={`Open the ${label}`}>
-          <ShopFooterLabel accent={accent}>{guest ? "LOG IN" : "FREE"}</ShopFooterLabel>
+          <ShopFooterLabel accent={accent}>FREE</ShopFooterLabel>
         </ShopFooter>
       ) : (
         <>
           <ShopFooter onSelect={onCoins} label={`Buy the ${label} with coins`}>
-            {guest ? <ShopFooterLabel accent={accent}>LOG IN</ShopFooterLabel> : null}
-            {guest ? null : <ShopPricePill coins={coinPrice} size={11} />}
+            <ShopPricePill coins={coinPrice} size={11} />
           </ShopFooter>
           <ShopFooter
             onSelect={onInr}
@@ -523,7 +535,6 @@ export function CardTile({
   coinPrice,
   inr,
   owned,
-  guest,
   index,
   onCoins,
   onInr,
@@ -534,7 +545,6 @@ export function CardTile({
   coinPrice: number;
   inr: number;
   owned: boolean;
-  guest: boolean;
   index: number;
   onCoins: () => void;
   onInr: () => void;
@@ -555,8 +565,7 @@ export function CardTile({
       ) : (
         <>
           <ShopFooter onSelect={onCoins} label={`Buy ${name} with coins`}>
-            {guest ? <ShopFooterLabel accent={accent}>LOG IN</ShopFooterLabel> : null}
-            {guest ? null : <ShopPricePill coins={coinPrice} size={12} />}
+            <ShopPricePill coins={coinPrice} size={12} />
           </ShopFooter>
           <ShopFooter
             onSelect={onInr}

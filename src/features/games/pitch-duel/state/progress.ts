@@ -17,7 +17,9 @@ import {
   emptyCareer,
   legacyCareerKey,
   migrateV2,
+  migrateV3,
   sanitizeCareer,
+  v3CareerKey,
   type Career,
   type MatchResult,
 } from "./career-schema";
@@ -25,9 +27,10 @@ import {
 export type { Career, MatchResult } from "./career-schema";
 
 /**
- * Browser-local store for the v3 career. A v2 save is migrated in memory on
- * read (nothing is written during render) and persisted by `ensureMigrated`
- * from an effect, or by the next write. The v2 key is never deleted.
+ * Browser-local store for the v4 career. A v3 or v2 save is migrated in
+ * memory on read (nothing is written during render) and persisted by
+ * `ensureMigrated` from an effect, or by the next write. Older keys are never
+ * deleted.
  */
 
 const listeners = new Set<() => void>();
@@ -36,7 +39,7 @@ let snapshot: Career = emptyCareer;
 
 function rawPair(): string | null {
   try {
-    return `${localStorage.getItem(careerKey) ?? ""}\u0000${localStorage.getItem(legacyCareerKey) ?? ""}`;
+    return [careerKey, v3CareerKey, legacyCareerKey].map((key) => localStorage.getItem(key) ?? "").join("\u0000");
   } catch {
     return null;
   }
@@ -48,9 +51,9 @@ function read(): Career {
   if (raw === null) return snapshot;
   if (raw === lastRaw) return snapshot;
   lastRaw = raw;
-  const [current, legacy] = raw.split("\u0000");
+  const [current, v3, legacy] = raw.split("\u0000");
   try {
-    snapshot = current ? sanitizeCareer(JSON.parse(current)) : migrateV2(legacy || null);
+    snapshot = current ? sanitizeCareer(JSON.parse(current)) : (migrateV3(v3 || null) ?? migrateV2(legacy || null));
   } catch {
     snapshot = emptyCareer;
   }
@@ -60,7 +63,7 @@ function read(): Career {
 function subscribe(fn: () => void) {
   listeners.add(fn);
   const onStorage = (e: StorageEvent) => {
-    if (e.key === careerKey || e.key === legacyCareerKey || e.key === null) {
+    if (e.key === careerKey || e.key === v3CareerKey || e.key === legacyCareerKey || e.key === null) {
       lastRaw = null;
       fn();
     }
@@ -91,10 +94,10 @@ export function readPitchDuelCareer(): Career {
   return read();
 }
 
-/** Persists a migrated v2 career the first time v3 opens. Safe to call repeatedly. */
+/** Persists a migrated v3 or v2 career the first time v4 opens. Safe to call repeatedly. */
 export function ensureMigrated(): void {
   try {
-    if (localStorage.getItem(careerKey) || !localStorage.getItem(legacyCareerKey)) return;
+    if (localStorage.getItem(careerKey) || (!localStorage.getItem(v3CareerKey) && !localStorage.getItem(legacyCareerKey))) return;
   } catch {
     return;
   }

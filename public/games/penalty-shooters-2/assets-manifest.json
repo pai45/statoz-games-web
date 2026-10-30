@@ -1,0 +1,617 @@
+{
+  "schemaVersion": 1,
+  "title": "Penalty Shooters 2",
+  "localOnly": true,
+  "source": "Normally captured original public game client; preserved research snapshot, 29 October 2026.",
+  "nativeEngine": "Original Construct client, original project/event sheets, atlases, teams and physics",
+  "files": [
+    {
+      "path": "native/appmanifest.json",
+      "bytes": 720,
+      "sha256": "757a3f7b5e8d096ee9c0b1ffe267631cd0c7b40d41799e6d4c3b62dcd2dd6a61",
+      "sourceSha256": "757a3f7b5e8d096ee9c0b1ffe267631cd0c7b40d41799e6d4c3b62dcd2dd6a61",
+      "transformation": null
+    },
+    {
+      "path": "native/box2d.wasm",
+      "bytes": 246906,
+      "sha256": "980c1932c6b690cc927a5df0cf2b483b58740979f2966922a2f1c9af7270a80e",
+      "sourceSha256": "980c1932c6b690cc927a5df0cf2b483b58740979f2966922a2f1c9af7270a80e",
+      "transformation": null
+    },
+    {
+      "path": "native/box2d.wasm.js",
+      "bytes": 282532,
+      "sha256": "fae7eb10b764b146a07295802d6427755292d4aac375da0e0c6e0ed444beec42",
+      "sourceSha256": "fae7eb10b764b146a07295802d6427755292d4aac375da0e0c6e0ed444beec42",
+      "transformation": null
+    },
+    {
+      "path": "native/css_pozadina/tamniji_soccer_flat_pattern3.png",
+      "bytes": 14024,
+      "sha256": "9c3b9d420a6251890658f6cfbd0e1be4a421dc043912c93e24a13f183f0afaf9",
+      "sourceSha256": "9c3b9d420a6251890658f6cfbd0e1be4a421dc043912c93e24a13f183f0afaf9",
+      "transformation": null
+    },
+    {
+      "path": "native/data.json",
+      "bytes": 709002,
+      "sha256": "18bb958817b82fd59b9cc6a0c2bcdddd1524ba164129f3a825fb65ffe95706ad",
+      "sourceSha256": "18bb958817b82fd59b9cc6a0c2bcdddd1524ba164129f3a825fb65ffe95706ad",
+      "transformation": null
+    },
+    {
+      "path": "native/gameText.json",
+      "bytes": 7087,
+      "sha256": "3526228abfb189b3dce501510c048dc3706aaaf6362c9c5e34cfb1f4dea12e41",
+      "sourceSha256": "3526228abfb189b3dce501510c048dc3706aaaf6362c9c5e34cfb1f4dea12e41",
+      "transformation": null
+    },
+    {
+      "path": "native/headlines.json",
+      "bytes": 1266,
+      "sha256": "9131a617b62c16e28e5a4a3d8f20e0a241888abb6a4929d758de5200ae0415ef",
+      "sourceSha256": "9131a617b62c16e28e5a4a3d8f20e0a241888abb6a4929d758de5200ae0415ef",
+      "transformation": null
+    },
+    {
+      "path": "native/icons/icon-114.png",
+      "bytes": 10392,
+      "sha256": "e7362fec5c06ed81d2ea3b81b17cc4fdff926290517954af4548f72b2f55068c",
+      "sourceSha256": "e7362fec5c06ed81d2ea3b81b17cc4fdff926290517954af4548f72b2f55068c",
+      "transformation": null
+    },
+    {
+      "path": "native/icons/icon-128.png",
+      "bytes": 11976,
+      "sha256": "75dfb880d23fab1b2256906b50a480b6f36f1678d5fb0de71aaccda79d7dcdd9",
+      "sourceSha256": "75dfb880d23fab1b2256906b50a480b6f36f1678d5fb0de71aaccda79d7dcdd9",
+      "transformation": null
+    },
+    {
+      "path": "native/icons/icon-16.png",
+      "bytes": 772,
+      "sha256": "6dedd978c34244b86277b65b54ed7121b3191d1259d3bff4c9d856cf0431d95f",
+      "sourceSha256": "6dedd978c34244b86277b65b54ed7121b3191d1259d3bff4c9d856cf0431d95f",
+      "transformation": null
+    },
+    {
+      "path": "native/icons/icon-256.png",
+      "bytes": 42127,
+      "sha256": "3fc679931176682877e5d4e7433e432734cf21b7d291353aee610431e98b3b24",
+      "sourceSha256": "3fc679931176682877e5d4e7433e432734cf21b7d291353aee610431e98b3b24",
+      "transformation": null
+    },
+    {
+      "path": "native/icons/icon-32.png",
+      "bytes": 1806,
+      "sha256": "614aec3df71d9cf691aab912a416c8500a2b2a49f270bd2dbadf1c29d5a25cdd",
+      "sourceSha256": "614aec3df71d9cf691aab912a416c8500a2b2a49f270bd2dbadf1c29d5a25cdd",
+      "transformation": null
+    },
+    {
+      "path": "native/icons/icon-512.png",
+      "bytes": 122409,
+      "sha256": "3ebe013ab298cc463127ef07cd9d541ff818c048af2a3f68c2e058dcf9fc2766",
+      "sourceSha256": "3ebe013ab298cc463127ef07cd9d541ff818c048af2a3f68c2e058dcf9fc2766",
+      "transformation": null
+    },
+    {
+      "path": "native/icons/loading-logo.png",
+      "bytes": 39287,
+      "sha256": "9e78b51687e43dcfb9281483e81ffa3148482c2eb68156f00941e7b4ddb01a46",
+      "sourceSha256": "9e78b51687e43dcfb9281483e81ffa3148482c2eb68156f00941e7b4ddb01a46",
+      "transformation": null
+    },
+    {
+      "path": "native/images/ball-sheet0.webp",
+      "bytes": 19140,
+      "sha256": "4fe653256083291d523c304802ce9f5df343f65f6e0f7a8ffc5a2180848bd1b0",
+      "sourceSha256": "4fe653256083291d523c304802ce9f5df343f65f6e0f7a8ffc5a2180848bd1b0",
+      "transformation": null
+    },
+    {
+      "path": "native/images/goalkeepernoshirt-sheet0.webp",
+      "bytes": 365528,
+      "sha256": "f503af664fcbe18c2408ddc3ddb334e6cbbeba9467d6d85591441ed52a79aaf9",
+      "sourceSha256": "f503af664fcbe18c2408ddc3ddb334e6cbbeba9467d6d85591441ed52a79aaf9",
+      "transformation": null
+    },
+    {
+      "path": "native/images/goalkeepernoshirt-sheet1.webp",
+      "bytes": 14720,
+      "sha256": "cd1520eba84e325841b2182450a65e1f691e339b6b6d6fad7bcd76985f257969",
+      "sourceSha256": "cd1520eba84e325841b2182450a65e1f691e339b6b6d6fad7bcd76985f257969",
+      "transformation": null
+    },
+    {
+      "path": "native/images/goalkeepershirtcyan-sheet0.webp",
+      "bytes": 56256,
+      "sha256": "cf994a956466198b9ef8a2c657eb748976742b4451656f5c9ca8eb2a0c97b3f6",
+      "sourceSha256": "cf994a956466198b9ef8a2c657eb748976742b4451656f5c9ca8eb2a0c97b3f6",
+      "transformation": null
+    },
+    {
+      "path": "native/images/goalkeepershirtorange-sheet0.webp",
+      "bytes": 3416,
+      "sha256": "61e7e01dc6ea3326124a721f878789e12474695db651ea03146e4d39154f86eb",
+      "sourceSha256": "61e7e01dc6ea3326124a721f878789e12474695db651ea03146e4d39154f86eb",
+      "transformation": null
+    },
+    {
+      "path": "native/images/goalkeepershirtorange-sheet1.webp",
+      "bytes": 53082,
+      "sha256": "f63b1681795337c4d7948b977cb56dbd13892ec088488e667a629a42541cfcc7",
+      "sourceSha256": "f63b1681795337c4d7948b977cb56dbd13892ec088488e667a629a42541cfcc7",
+      "transformation": null
+    },
+    {
+      "path": "native/images/ififa_o-sheet0.webp",
+      "bytes": 4632,
+      "sha256": "8b7e269b2bf89a1d3bc53afaaed45f91b5b645106cfef259dad1d5211fadefb2",
+      "sourceSha256": "8b7e269b2bf89a1d3bc53afaaed45f91b5b645106cfef259dad1d5211fadefb2",
+      "transformation": null
+    },
+    {
+      "path": "native/images/ififa_o-sheet1.webp",
+      "bytes": 7218,
+      "sha256": "0c3080a9bae9c991e229ed82eb79999eb0c3980f186f8da76c140b391d027017",
+      "sourceSha256": "0c3080a9bae9c991e229ed82eb79999eb0c3980f186f8da76c140b391d027017",
+      "transformation": null
+    },
+    {
+      "path": "native/images/menubutton-sheet0.webp",
+      "bytes": 38076,
+      "sha256": "87d989bf218bfb75a184590b6424a4f407c514207d0e06ae2b19a275fd4a1ea4",
+      "sourceSha256": "87d989bf218bfb75a184590b6424a4f407c514207d0e06ae2b19a275fd4a1ea4",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-0-sheet0.webp",
+      "bytes": 96424,
+      "sha256": "7510e0c6bca102b70a7dbc7560536f5a406c2e4474b91a9634ad9369ef98b1af",
+      "sourceSha256": "7510e0c6bca102b70a7dbc7560536f5a406c2e4474b91a9634ad9369ef98b1af",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-0-sheet1.webp",
+      "bytes": 173344,
+      "sha256": "63f2bccf62bcb2e1b39da52112be4f24b2ac5c9a7220531cac79edeb79902d51",
+      "sourceSha256": "63f2bccf62bcb2e1b39da52112be4f24b2ac5c9a7220531cac79edeb79902d51",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-0-sheet2.webp",
+      "bytes": 214650,
+      "sha256": "e0f017cfdbfa743284287bea471683eec12bef94364a101db58ac721a4daf389",
+      "sourceSha256": "e0f017cfdbfa743284287bea471683eec12bef94364a101db58ac721a4daf389",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-0-sheet3.webp",
+      "bytes": 124118,
+      "sha256": "d0648057bf285220178ffdfebd2a33de43dc7e017c9188bb50c39d132378254a",
+      "sourceSha256": "d0648057bf285220178ffdfebd2a33de43dc7e017c9188bb50c39d132378254a",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-0-sheet4.webp",
+      "bytes": 16700,
+      "sha256": "3715863f6d97a8eff2381a37902f2d133fd135c70057368b8da63cb75ae6a087",
+      "sourceSha256": "3715863f6d97a8eff2381a37902f2d133fd135c70057368b8da63cb75ae6a087",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-0-sheet5.webp",
+      "bytes": 2432,
+      "sha256": "264b030da16eede60c88346d0dcf9f35fd04c5f1b2f4fb544ee26f702ec22c9c",
+      "sourceSha256": "264b030da16eede60c88346d0dcf9f35fd04c5f1b2f4fb544ee26f702ec22c9c",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-0-sheet6.webp",
+      "bytes": 24852,
+      "sha256": "0066b6ea4ee66b65883a08ba3e6d470da4bea6b48945d193f2030aaaf4f28ce3",
+      "sourceSha256": "0066b6ea4ee66b65883a08ba3e6d470da4bea6b48945d193f2030aaaf4f28ce3",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-1-sheet0.webp",
+      "bytes": 42286,
+      "sha256": "5919165fb767d28d3a73cb9e2902eefb1339a97e0cd0d33c3be83f9e2483a7a2",
+      "sourceSha256": "5919165fb767d28d3a73cb9e2902eefb1339a97e0cd0d33c3be83f9e2483a7a2",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-1-sheet1.webp",
+      "bytes": 10750,
+      "sha256": "10b2a07a147651c60ccf726863098d7627fe485ba80339c17c88ab1a933a3c37",
+      "sourceSha256": "10b2a07a147651c60ccf726863098d7627fe485ba80339c17c88ab1a933a3c37",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-1-sheet2.webp",
+      "bytes": 4820,
+      "sha256": "1bfa701b3135531f6f32e81e54ed2c0fd66feaa29215ba43563c17ff03982b5b",
+      "sourceSha256": "1bfa701b3135531f6f32e81e54ed2c0fd66feaa29215ba43563c17ff03982b5b",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shared-1-sheet3.webp",
+      "bytes": 38,
+      "sha256": "8f2fa77b90d1520118121c4528752f82fe666254088f73a4025e33a6aaffe4d2",
+      "sourceSha256": "8f2fa77b90d1520118121c4528752f82fe666254088f73a4025e33a6aaffe4d2",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shirtalt-sheet0.webp",
+      "bytes": 5992,
+      "sha256": "0bd9503177e86fe36eb8e2fe2172f093b64278445f744ddb525e28b76dbf3b0a",
+      "sourceSha256": "0bd9503177e86fe36eb8e2fe2172f093b64278445f744ddb525e28b76dbf3b0a",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shooter-sheet0.webp",
+      "bytes": 159160,
+      "sha256": "f328650840bcdea364858ea7bdeece3877de980c8f9924cbee3ec1da272ae850",
+      "sourceSha256": "f328650840bcdea364858ea7bdeece3877de980c8f9924cbee3ec1da272ae850",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shootershirt-sheet0.webp",
+      "bytes": 41442,
+      "sha256": "47503de22480121e2573b2fe081191ccf868a40db2a20f798adcd7e443b2df93",
+      "sourceSha256": "47503de22480121e2573b2fe081191ccf868a40db2a20f798adcd7e443b2df93",
+      "transformation": null
+    },
+    {
+      "path": "native/images/shootershorts-sheet0.webp",
+      "bytes": 50734,
+      "sha256": "0f932f21972321b446c185c5073e9cb7c0e5560dbbc31f370509a42acbed75b8",
+      "sourceSha256": "0f932f21972321b446c185c5073e9cb7c0e5560dbbc31f370509a42acbed75b8",
+      "transformation": null
+    },
+    {
+      "path": "native/images/strikerownshadow-sheet0.webp",
+      "bytes": 112678,
+      "sha256": "ae87aefd2c4728c390bd39d4697eb1dd25adf28d369d9054ade97a97c09060bd",
+      "sourceSha256": "ae87aefd2c4728c390bd39d4697eb1dd25adf28d369d9054ade97a97c09060bd",
+      "transformation": null
+    },
+    {
+      "path": "native/images/stripes-sheet0.webp",
+      "bytes": 59508,
+      "sha256": "57989604680538e05820eae65d06e5e280137b289f746cc88c5c6f98afe9cb68",
+      "sourceSha256": "57989604680538e05820eae65d06e5e280137b289f746cc88c5c6f98afe9cb68",
+      "transformation": null
+    },
+    {
+      "path": "native/images/stripes-sheet1.webp",
+      "bytes": 7338,
+      "sha256": "bcbfcf96bc087e8009138c3bf4c6e3f9c2b264ad6ea61f47b3235d5612061748",
+      "sourceSha256": "bcbfcf96bc087e8009138c3bf4c6e3f9c2b264ad6ea61f47b3235d5612061748",
+      "transformation": null
+    },
+    {
+      "path": "native/images/stripes-sheet2.webp",
+      "bytes": 40,
+      "sha256": "d6bdaf4b36d175b0fa23efc2ce58cf184a28b8794a208a27be97d5c3307beba5",
+      "sourceSha256": "d6bdaf4b36d175b0fa23efc2ce58cf184a28b8794a208a27be97d5c3307beba5",
+      "transformation": null
+    },
+    {
+      "path": "native/images/team_shirt-sheet0.webp",
+      "bytes": 6332,
+      "sha256": "983addf46f6b39b26aeebc4356c8b4a361e74b3638c95292596812905fd86a93",
+      "sourceSha256": "983addf46f6b39b26aeebc4356c8b4a361e74b3638c95292596812905fd86a93",
+      "transformation": null
+    },
+    {
+      "path": "native/images/team_shirt_core-sheet0.webp",
+      "bytes": 160,
+      "sha256": "8c75c14eeb830472b5d4a73528f376cfcc3bb3fd9649444370923851263705d4",
+      "sourceSha256": "8c75c14eeb830472b5d4a73528f376cfcc3bb3fd9649444370923851263705d4",
+      "transformation": null
+    },
+    {
+      "path": "native/index.html",
+      "bytes": 1845,
+      "sha256": "9307ecf90588ad6e8521f73e37dbc96341b16809900e452e8a16fbf0ea0d5990",
+      "sourceSha256": "6cdf158494a2b0d11a4433eb7cdb3c86d22bda5d2b994cdec06cd1023404e2a1",
+      "transformation": "Remove captured site service-worker registration; install authored local platform and same-origin content policy."
+    },
+    {
+      "path": "native/media/Soundtrack_Portamentos_(No_Effects)_Loop.webm",
+      "bytes": 620551,
+      "sha256": "50d8c45ca1fc94ba8dd51b40b2e64398fa6b960ef620a01421e6f23a7b0167a1",
+      "sourceSha256": "50d8c45ca1fc94ba8dd51b40b2e64398fa6b960ef620a01421e6f23a7b0167a1",
+      "sourceUrl": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/Soundtrack_Portamentos_(No_Effects)_Loop.webm",
+      "transformation": null
+    },
+    {
+      "path": "native/phrases.json",
+      "bytes": 166,
+      "sha256": "8da3dd8a5e3ddcce4844886293eb6a1613fe02b7ee46156f94084af5a4239ec2",
+      "sourceSha256": "8da3dd8a5e3ddcce4844886293eb6a1613fe02b7ee46156f94084af5a4239ec2",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/c3main.js",
+      "bytes": 176,
+      "sha256": "27f16634a54cafc562802879a32d7c4eabd1e4fc9b06bad3e7fcae3ee23089e6",
+      "sourceSha256": "27f16634a54cafc562802879a32d7c4eabd1e4fc9b06bad3e7fcae3ee23089e6",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/c3runtime.js",
+      "bytes": 1725126,
+      "sha256": "7e9e316fc23f264937940879aa1808442249cd4477d4d2f54794ce2fdcfb7e64",
+      "sourceSha256": "7e9e316fc23f264937940879aa1808442249cd4477d4d2f54794ce2fdcfb7e64",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/dispatchworker.js",
+      "bytes": 3451,
+      "sha256": "dad4c4dbc5a124550a43d497d829b2b5f38619febd0deee28bf136017a216723",
+      "sourceSha256": "dad4c4dbc5a124550a43d497d829b2b5f38619febd0deee28bf136017a216723",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/jobworker.js",
+      "bytes": 2406,
+      "sha256": "5beca2dcd2915b2846192c20913133dfaa5ad6263194b6ad0f02cf7642a7dd51",
+      "sourceSha256": "5beca2dcd2915b2846192c20913133dfaa5ad6263194b6ad0f02cf7642a7dd51",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/main.js",
+      "bytes": 123419,
+      "sha256": "30e8e22c82ac34aaa23b8b5b218d6f2d7d92dac215b0edc48869473645eb8bcc",
+      "sourceSha256": "821e396893d6de04bcc72d7fe072723cba8f4f0a239994cbb3fa3a5529d368bc",
+      "transformation": "Replace remote DOM SDK adapter with local no-ads/no-accounts adapter; register native runtime observer before startup. Native Construct engine, project/event data and physics unchanged."
+    },
+    {
+      "path": "native/scripts/modernjscheck.js",
+      "bytes": 153,
+      "sha256": "914af3dc0bb16c71e2be8fec8b8353fde0b4f8c49bcfd7c978020d7cf297ee23",
+      "sourceSha256": "914af3dc0bb16c71e2be8fec8b8353fde0b4f8c49bcfd7c978020d7cf297ee23",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/objRefTable.js",
+      "bytes": 25812,
+      "sha256": "dbc08d214408b055ce67eba6ba26bac798d57fb1ac27527f2674bb8c61f73094",
+      "sourceSha256": "dbc08d214408b055ce67eba6ba26bac798d57fb1ac27527f2674bb8c61f73094",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/offlineclient.js",
+      "bytes": 564,
+      "sha256": "44528959a159dc4de5fb7d49a26b54abcb44206459a38456f971405a67307c7e",
+      "sourceSha256": "44528959a159dc4de5fb7d49a26b54abcb44206459a38456f971405a67307c7e",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/plugins/skymen_pokiSDK/c3runtime/main.js",
+      "bytes": 7151,
+      "sha256": "60245ed62a75a5008ee685c172b54039b4c566527890eeee6974e0a3eedb5cd1",
+      "sourceSha256": "60245ed62a75a5008ee685c172b54039b4c566527890eeee6974e0a3eedb5cd1",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/project/javaScriptInEvents.js",
+      "bytes": 491,
+      "sha256": "82c352c6c733b64c5b689892a570ac6e3222437e9ce6c2ca42b390bb94a9c23b",
+      "sourceSha256": "82c352c6c733b64c5b689892a570ac6e3222437e9ce6c2ca42b390bb94a9c23b",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/register-sw.js",
+      "bytes": 270,
+      "sha256": "07d5fbd78fa3d5979c08a240d3006f070e5892cddd2f61e2bd8d6ee70a5d51b8",
+      "sourceSha256": "07d5fbd78fa3d5979c08a240d3006f070e5892cddd2f61e2bd8d6ee70a5d51b8",
+      "transformation": null
+    },
+    {
+      "path": "native/scripts/supportcheck.js",
+      "bytes": 4799,
+      "sha256": "6173f57586040a4937f752c81f8f30586fbc50a8426180e5f65b52cf56115b9a",
+      "sourceSha256": "6173f57586040a4937f752c81f8f30586fbc50a8426180e5f65b52cf56115b9a",
+      "transformation": null
+    },
+    {
+      "path": "native/select.css",
+      "bytes": 466,
+      "sha256": "31ca80f69a4aad065cb4d4cc59bcd88bdc53e4d3472fa57ebbc27418bb670859",
+      "sourceSha256": "31ca80f69a4aad065cb4d4cc59bcd88bdc53e4d3472fa57ebbc27418bb670859",
+      "transformation": null
+    },
+    {
+      "path": "native/style.css",
+      "bytes": 2130,
+      "sha256": "0c7257c6d9099e659228ebbefb0f527627e88338fcb0f05464e86eec6e6340a3",
+      "sourceSha256": "0c7257c6d9099e659228ebbefb0f527627e88338fcb0f05464e86eec6e6340a3",
+      "transformation": null
+    },
+    {
+      "path": "native/teamColours.json",
+      "bytes": 466,
+      "sha256": "2a473ace0612ff0bb4111e5d73d93e740fb4a2880d9185968b86437a3b2908b1",
+      "sourceSha256": "2a473ace0612ff0bb4111e5d73d93e740fb4a2880d9185968b86437a3b2908b1",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams.json",
+      "bytes": 2283,
+      "sha256": "7c8a6748be3975cd76862f92d45e47df56ca8333704e0dd6571991d36292faf4",
+      "sourceSha256": "7c8a6748be3975cd76862f92d45e47df56ca8333704e0dd6571991d36292faf4",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_arg2.json",
+      "bytes": 9316,
+      "sha256": "4de0de24d5bdcea74de26c922dac0fbf8852dae24cba2aad2124fb056427b254",
+      "sourceSha256": "4de0de24d5bdcea74de26c922dac0fbf8852dae24cba2aad2124fb056427b254",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_br2.json",
+      "bytes": 9347,
+      "sha256": "32d88283bc000add4f132a6ca7f4e65a1f191fbde46a6c756f7d9fdc1cea5a0c",
+      "sourceSha256": "32d88283bc000add4f132a6ca7f4e65a1f191fbde46a6c756f7d9fdc1cea5a0c",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_de2.json",
+      "bytes": 9561,
+      "sha256": "4b5ccb3c0c4bd011c26a14cfa7527a3a8af1d42bc6be68b181b1c6e561c8ee6a",
+      "sourceSha256": "4b5ccb3c0c4bd011c26a14cfa7527a3a8af1d42bc6be68b181b1c6e561c8ee6a",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_eng2.json",
+      "bytes": 9410,
+      "sha256": "8ebe23ea19a02b850d0daa1ea8fddb3d5a516c260dc8051400f4dc10c8ad0d31",
+      "sourceSha256": "8ebe23ea19a02b850d0daa1ea8fddb3d5a516c260dc8051400f4dc10c8ad0d31",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_es2.json",
+      "bytes": 9501,
+      "sha256": "890f2e26e28128a104dbf053dec0cdfc566db0c63fa79d51b9fb7f28be0cced8",
+      "sourceSha256": "890f2e26e28128a104dbf053dec0cdfc566db0c63fa79d51b9fb7f28be0cced8",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_EURO_2016.json",
+      "bytes": 1337,
+      "sha256": "39f43377c407236e7846ae5f0d278e8cf2d1bf3ff659146e9f275f94e615de95",
+      "sourceSha256": "39f43377c407236e7846ae5f0d278e8cf2d1bf3ff659146e9f275f94e615de95",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_fr2.json",
+      "bytes": 9392,
+      "sha256": "d47a9f1aa339775223d81e9e853beb294c0cb086c321d5394737e89df595fd8a",
+      "sourceSha256": "d47a9f1aa339775223d81e9e853beb294c0cb086c321d5394737e89df595fd8a",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_it2.json",
+      "bytes": 9484,
+      "sha256": "3f845c85f5d935a344d882ed65d233b67fc0dcd8062d7f1830e790462a18a3d7",
+      "sourceSha256": "3f845c85f5d935a344d882ed65d233b67fc0dcd8062d7f1830e790462a18a3d7",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_mex2.json",
+      "bytes": 9353,
+      "sha256": "0e005544a52502deea6336e140b868e5871a5890deeac2b361490a9ff6f5c910",
+      "sourceSha256": "0e005544a52502deea6336e140b868e5871a5890deeac2b361490a9ff6f5c910",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_ned2.json",
+      "bytes": 9317,
+      "sha256": "4691b8482b74d7c285da78374636de8e27eaaac3fb8710b443f1c25db859783c",
+      "sourceSha256": "4691b8482b74d7c285da78374636de8e27eaaac3fb8710b443f1c25db859783c",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_rus2.json",
+      "bytes": 9327,
+      "sha256": "460a5f008c64b608a3698223a1d60e41de934abcbc899ad57c1c72b12a6b91c5",
+      "sourceSha256": "460a5f008c64b608a3698223a1d60e41de934abcbc899ad57c1c72b12a6b91c5",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_us2.json",
+      "bytes": 9508,
+      "sha256": "f373b774a985adf46daa6474470b88846477392d6d0951c95da70bc51a3f7e8c",
+      "sourceSha256": "f373b774a985adf46daa6474470b88846477392d6d0951c95da70bc51a3f7e8c",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_world.json",
+      "bytes": 10916,
+      "sha256": "700edde92c591fff61e735210b49687ffcc80d943b49b40814717db26d78b2d0",
+      "sourceSha256": "700edde92c591fff61e735210b49687ffcc80d943b49b40814717db26d78b2d0",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_world_2026.json",
+      "bytes": 18589,
+      "sha256": "4f466ba5b364e8861cca1ff830a60e26df6749fdee61348de9b05b5c584edcc4",
+      "sourceSha256": "4f466ba5b364e8861cca1ff830a60e26df6749fdee61348de9b05b5c584edcc4",
+      "transformation": null
+    },
+    {
+      "path": "native/timovi/teams_world_2026_po_snazi.json",
+      "bytes": 18503,
+      "sha256": "63b034eeed128c8047c4de5f60d2476ef433b02659ff899e171b673f9f16974d",
+      "sourceSha256": "63b034eeed128c8047c4de5f60d2476ef433b02659ff899e171b673f9f16974d",
+      "transformation": null
+    },
+    {
+      "path": "native/trophy_room.json",
+      "bytes": 243,
+      "sha256": "b1dc3c9a527f660ba8d3d70c2ac06cd84dcd7daccc638f8302ec8aff1a2a6456",
+      "sourceSha256": "b1dc3c9a527f660ba8d3d70c2ac06cd84dcd7daccc638f8302ec8aff1a2a6456",
+      "transformation": null
+    },
+    {
+      "path": "native/media/ball_kick.webm",
+      "bytes": 3600,
+      "sha256": "4b4e01f0a209a5ba58bd5c4f2e8604ae6be79b911d783a0abc29948184eaaf86",
+      "sourceSha256": "4b4e01f0a209a5ba58bd5c4f2e8604ae6be79b911d783a0abc29948184eaaf86",
+      "sourceUrl": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/ball_kick.webm",
+      "transformation": null
+    },
+    {
+      "path": "native/media/crowd_middle_goal.webm",
+      "bytes": 141332,
+      "sha256": "81b4e423b6a4c35659d6d2ad6427477cc9d365ccc20f09837a99c1608e9cc79b",
+      "sourceSha256": "81b4e423b6a4c35659d6d2ad6427477cc9d365ccc20f09837a99c1608e9cc79b",
+      "sourceUrl": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/crowd_middle_goal.webm",
+      "transformation": null
+    },
+    {
+      "path": "native/media/dirty_tackle.webm",
+      "bytes": 109815,
+      "sha256": "8cf8f9a34f8413b82be7814737f82653e9d6f9da07dc802680d111d333de9721",
+      "sourceSha256": "8cf8f9a34f8413b82be7814737f82653e9d6f9da07dc802680d111d333de9721",
+      "sourceUrl": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/dirty_tackle.webm",
+      "transformation": null
+    },
+    {
+      "path": "native/media/near_miss.webm",
+      "bytes": 49366,
+      "sha256": "c147ec88415268d24c88b99bad67e2f16293900210189a816435e432bd61166d",
+      "sourceSha256": "c147ec88415268d24c88b99bad67e2f16293900210189a816435e432bd61166d",
+      "sourceUrl": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/near_miss.webm",
+      "transformation": null
+    },
+    {
+      "path": "native/media/post.webm",
+      "bytes": 4703,
+      "sha256": "dbaab71e7d34da7fad1fb34660fd37d6d8ebe5087d6411aedf7e64c9526fc032",
+      "sourceSha256": "dbaab71e7d34da7fad1fb34660fd37d6d8ebe5087d6411aedf7e64c9526fc032",
+      "sourceUrl": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/post.webm",
+      "transformation": null
+    },
+    {
+      "path": "native/media/tier-3-atmosfera-aud-180823.webm",
+      "bytes": 78492,
+      "sha256": "fd5e880d85d2798095e05082914f9f8b6aa9d32568afd6f299734f6a97c0ca28",
+      "sourceSha256": "fd5e880d85d2798095e05082914f9f8b6aa9d32568afd6f299734f6a97c0ca28",
+      "sourceUrl": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/tier-3-atmosfera-aud-180823.webm",
+      "transformation": null
+    },
+    {
+      "path": "native/local-platform.js",
+      "bytes": 4609,
+      "sha256": "9400ae647b014ce41be8181c18d077067d34f61eeda41ccdf51ac394a30e7016",
+      "authored": true
+    }
+  ]
+}

@@ -1,12 +1,20 @@
-import { formations, maxTactics, type ClubSetup } from "../engine/lineup";
+import type { PlayerCard } from "@/domain/cards";
+import { footballPlayerCards } from "@/mocks/packs/football-cards";
+import { academyCards, academyIds } from "@/mocks/packs/pitch-duel-academy";
+import { fictionalCards } from "@/mocks/packs/pitch-duel-fictional";
+
+import { defaultFormation, fillFormation, isFormationId, maxTactics, outfieldSize, type ClubSetup } from "../engine/lineup";
 import { divisionFor } from "../engine/setup";
 
 /**
- * Pitch Duel's saved career, v3. Pure — no React, no window — so migration and
- * settlement are testable in Node. The store in `progress.ts` wraps it.
+ * Pitch Duel's saved career, v4 (eleven a side). Pure — no React, no window —
+ * so migration and settlement are testable in Node. The store in
+ * `progress.ts` wraps it. v3 saves load through the same sanitizer, which
+ * moves a five-a-side club onto a 4-4-2.
  */
 
-export const careerKey = "statoz.games.web.pitch-duel.v3";
+export const careerKey = "statoz.games.web.pitch-duel.v4";
+export const v3CareerKey = "statoz.games.web.pitch-duel.v3";
 export const legacyCareerKey = "statoz.games.web.pitch-duel.reboot.v2";
 export const historyLimit = 30;
 
@@ -29,7 +37,7 @@ export type MatchResult = {
 };
 
 export type Career = {
-  version: 3;
+  version: 4;
   club: ClubSetup | null;
   points: number;
   xp: number;
@@ -45,11 +53,11 @@ export type Career = {
   history: MatchResult[];
   rewardedDivisions: number[];
   settings: { haptics: boolean };
-  migratedFrom?: 2;
+  migratedFrom?: 2 | 3;
 };
 
 export const emptyCareer: Career = {
-  version: 3,
+  version: 4,
   club: null,
   points: 0,
   xp: 0,
@@ -70,13 +78,26 @@ export const emptyCareer: Career = {
 const count = (value: unknown) => Math.max(0, Math.floor(Number(value) || 0));
 const strings = (value: unknown) => (Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : []);
 
+const knownCards = new Map<string, PlayerCard>([...footballPlayerCards, ...fictionalCards, ...academyCards].map((c) => [c.id, c]));
+const knownCard = (id: string) => knownCards.get(id);
+
+/**
+ * A saved club, made safe. A five-a-side club (v3 shapes, or fewer than ten
+ * outfield ids) keeps its keeper and players, re-seated in a 4-4-2 by
+ * position, with academy players in the places left over.
+ */
 function sanitizeClub(value: unknown): ClubSetup | null {
   if (!value || typeof value !== "object") return null;
   const c = value as Partial<ClubSetup>;
-  const formation = typeof c.formation === "string" && c.formation in formations ? c.formation : "2-2";
   if (typeof c.keeperId !== "string") return null;
-  const outfield = strings(c.outfield).slice(0, 4);
-  return { formation, keeperId: c.keeperId, outfield, tactics: strings(c.tactics).slice(0, maxTactics) };
+  const tactics = strings(c.tactics).slice(0, maxTactics);
+  const outfield = strings(c.outfield);
+  if (isFormationId(c.formation) && outfield.length === outfieldSize) {
+    return { formation: c.formation, keeperId: c.keeperId, outfield, tactics };
+  }
+  const placed = fillFormation(defaultFormation, outfield.slice(0, outfieldSize), knownCard);
+  const filled = fillFormation(defaultFormation, academyIds, knownCard, placed);
+  return { formation: defaultFormation, keeperId: c.keeperId, outfield: filled.map((id) => id ?? ""), tactics };
 }
 
 function sanitizeResult(value: unknown): MatchResult | null {
@@ -115,7 +136,7 @@ export function sanitizeCareer(value: unknown): Career {
   const c = value as Partial<Career>;
   const history = (Array.isArray(c.history) ? c.history : []).map(sanitizeResult).filter((r): r is MatchResult => r !== null).slice(0, historyLimit);
   return {
-    version: 3,
+    version: 4,
     club: sanitizeClub(c.club),
     points: count(c.points),
     xp: count(c.xp),
@@ -131,16 +152,16 @@ export function sanitizeCareer(value: unknown): Career {
     history,
     rewardedDivisions: (Array.isArray(c.rewardedDivisions) ? c.rewardedDivisions : []).map(count).filter((d) => d >= 2 && d <= 5),
     settings: { haptics: c.settings?.haptics !== false },
-    ...(c.migratedFrom === 2 ? { migratedFrom: 2 as const } : {}),
+    ...(c.migratedFrom === 2 || c.migratedFrom === 3 ? { migratedFrom: c.migratedFrom } : {}),
   };
 }
 
 type LegacyDeck = { attackers?: unknown; defenders?: unknown; keeper?: unknown; tactics?: unknown };
 
 /**
- * v2 → v3: every counter and the history carry over (the streak calendar reads
- * the history), the v2 deck becomes the five-a-side club, and the rules
- * tutorial shows once more because the game changed.
+ * v2 → v4: every counter and the history carry over (the streak calendar reads
+ * the history), the v2 deck seeds the club, and the rules tutorial shows once
+ * more because the game changed.
  */
 export function migrateV2(raw: string | null): Career {
   if (!raw) return emptyCareer;
@@ -162,10 +183,25 @@ export function migrateV2(raw: string | null): Career {
   const deck = parsed.deck as LegacyDeck | null | undefined;
   if (deck && typeof deck.keeper === "string" && deck.keeper) {
     const outfield = [...strings(deck.defenders).slice(0, 2), ...strings(deck.attackers).slice(0, 2)];
-    if (outfield.length === 4) club = { formation: "2-2", keeperId: deck.keeper, outfield, tactics: strings(deck.tactics).slice(0, maxTactics) };
+    if (outfield.length === 4) club = sanitizeClub({ formation: "2-2", keeperId: deck.keeper, outfield, tactics: strings(deck.tactics) });
   }
 
   return { ...base, club, draws, losses, goalsFor, goalsAgainst, tutorialSeen: false, migratedFrom: 2 };
+}
+
+/**
+ * v3 → v4: everything carries over; the five-a-side club is re-seated in a
+ * 4-4-2 (see `sanitizeClub`) and the guide shows once for the new rules.
+ */
+export function migrateV3(raw: string | null): Career | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== "object") return null;
+    return { ...sanitizeCareer(parsed), tutorialSeen: false, migratedFrom: 3 };
+  } catch {
+    return null;
+  }
 }
 
 export type Settlement = { career: Career; result: MatchResult; promoted: number | null; earned: number; duplicate: boolean };

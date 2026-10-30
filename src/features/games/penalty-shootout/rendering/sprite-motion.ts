@@ -36,25 +36,66 @@ export function strikerFrame(actor: SpriteActor, frame: Pick<Frame, "shooterClip
   return frameAt(clip, elapsed + 1e-6);
 }
 
-export function keeperSample(actor: SpriteActor, frame: Pick<Frame, "tick" | "keeper" | "keeperClip" | "keeperTime">) {
+/** One keyframe of a retimed keeper action: [dive age in seconds, source frame, tilt in radians]. */
+type DiveKey = [seconds: number, frame: number, tilt?: number];
+type DiveTimeline = { clip: string; keys: DiveKey[]; landAt: number; airborneFrom: number };
+export type KeeperMotionName = "Idle" | "MidDive" | "HighDive" | "LowDive" | "MidCatch" | "HighCatch" | "LowCatch";
+
+/** Spread a run of source frames evenly across a time window. */
+const span = (from: number, to: number, start: number, end: number): DiveKey[] =>
+  Array.from({ length: to - from + 1 }, (_, i) => [start + (end - start) * i / Math.max(1, to - from + 1), from + i] as DiveKey);
+
+// Hand-placed timing for the imported dives. The source clips open with five
+// near-identical standing frames; stretching those across the reach window made
+// the keeper stand still, slide sideways, then pop into the air. These skip to
+// the load/push frames, reach full stretch alongside the collider extension
+// (0.07-0.5 s), land at the simulation's landing window and fill the existing
+// 2.75 s recovery with the native ground, get-up and reset frames.
+const DIVES: Record<"MidDive" | "HighDive" | "LowDive", DiveTimeline> = {
+  MidDive: { clip: "MidParade", landAt: .62, airborneFrom: 8, keys: [
+    [0, 5], [.05, 6], [.1, 7], [.17, 8, .06], [.26, 9], [.38, 10], [.5, 11], [.62, 12], [.7, 13], [.78, 14], [.86, 15],
+    ...span(16, 23, .95, 1.45), ...span(24, 35, 1.45, 2.3), ...span(36, 45, 2.3, 2.7)] },
+  HighDive: { clip: "HighParade", landAt: .68, airborneFrom: 7, keys: [
+    [0, 4], [.05, 5], [.11, 6], [.18, 7], [.28, 8], [.4, 9], [.52, 10], [.6, 11], [.68, 12], [.76, 13],
+    ...span(14, 23, .84, 1.45), ...span(24, 35, 1.45, 2.3), ...span(36, 47, 2.3, 2.7)] },
+  // No native low side dive exists. Build one from the mid dive: load, push,
+  // tip over toward the post (sprite tilt), then the flat near-ground stretch.
+  LowDive: { clip: "MidParade", landAt: .34, airborneFrom: 11, keys: [
+    [0, 5], [.05, 6], [.09, 7], [.13, 7, .22], [.17, 7, .42], [.2, 11], [.34, 12], [.44, 13], [.54, 14], [.64, 15],
+    ...span(16, 23, .74, 1.45), ...span(24, 35, 1.45, 2.3), ...span(36, 45, 2.3, 2.7)] },
+};
+
+/** Step through frames; tilt eases between neighbouring keys. */
+function sampleKeys(keys: DiveKey[], age: number) {
+  let i = 0;
+  while (i + 1 < keys.length && keys[i + 1][0] <= age) i++;
+  const [time, frame, tilt = 0] = keys[i], next = keys[i + 1];
+  const nextTilt = next && next[1] === frame ? next[2] ?? 0 : 0;
+  const t = next ? Math.min(1, Math.max(0, (age - time) / (next[0] - time))) : 0;
+  return { index: frame, tilt: tilt + (nextTilt - tilt) * t };
+}
+
+/** `landAt` is the dive age of touchdown; `airborneFrom` the first source frame off the ground. Both null when not diving sideways. */
+export type KeeperSample = { name: string; motion: KeeperMotionName; index: number; mirror: boolean; tilt: number; landAt: number | null; airborneFrom: number | null; age: number };
+
+export function keeperSample(actor: SpriteActor, frame: Pick<Frame, "tick" | "keeper" | "keeperClip" | "keeperTime">): KeeperSample {
   const active = /^(dive_|recovery_|centre_block|catch|parry_)/.test(frame.keeperClip);
-  const name = !active ? "Idle" : frame.keeper.direction === 0
-    ? frame.keeper.height > .3 ? "HighCatch" : frame.keeper.height < -.3 ? "LowCatch" : "MidCatch"
-    : frame.keeper.height > .3 ? "HighParade" : frame.keeper.height < -.3 ? "LowCatch" : "MidParade";
-  const clip = actor.animations[name];
-  if (!active) return { name, index: frameAt(clip, frame.tick / 120 * 1000), mirror: false };
-  // Sample the complete authored action through the existing 2.75 s dive/recovery
-  // window. No live wall clock: pause and replay retain exactly the recorded pose.
-  const age = frame.keeper.dive || frame.keeperTime;
-  const duration = clip.frames.reduce((sum, item) => sum + item.durationMs, 0);
-  // Bring the authored reach pose to the simulation's extension window, then
-  // let the remaining poses recover. Uniformly stretching a short low catch
-  // over 2.75 s would leave the visible gloves at waist height during the save.
-  const reachIndex = name === "MidCatch" ? 4 : name === "HighCatch" ? 6 : 10;
-  const reachMs = clip.frames.slice(0, reachIndex).reduce((sum, item) => sum + item.durationMs, 0);
-  const reachSeconds = name.endsWith("Catch") && name !== "LowCatch" ? .35 : .55;
-  const elapsed = age <= reachSeconds ? Math.max(0, age) / reachSeconds * reachMs
-    : reachMs + Math.min(1, (age - reachSeconds) / (2.75 - reachSeconds)) * Math.max(0, duration - 1 - reachMs);
-  // The source lateral dive travels toward screen-left.
-  return { name, index: frameAt(clip, elapsed), mirror: frame.keeper.direction > 0 };
+  if (!active) return { name: "Idle", motion: "Idle", index: frameAt(actor.animations.Idle, frame.tick / 120 * 1000), mirror: false, tilt: 0, landAt: null, airborneFrom: null, age: 0 };
+  // Sample from the recorded dive age only. No live wall clock: pause and
+  // replay retain exactly the recorded pose.
+  const age = Math.max(0, frame.keeper.dive || frame.keeperTime), high = frame.keeper.height > .3, low = frame.keeper.height < -.3;
+  if (frame.keeper.direction !== 0) {
+    const motion = high ? "HighDive" : low ? "LowDive" : "MidDive", dive = DIVES[motion], { index, tilt } = sampleKeys(dive.keys, age);
+    // The source lateral dive travels toward screen-left; mirror for screen-right.
+    const mirror = frame.keeper.direction > 0;
+    return { name: dive.clip, motion, index, mirror, tilt: mirror ? -tilt : tilt, landAt: dive.landAt, airborneFrom: dive.airborneFrom, age };
+  }
+  // Centre saves play at their authored speed, hold the save, then reverse
+  // back into the ready stance before the simulation's recovery ends.
+  const name = high ? "HighCatch" : low ? "LowCatch" : "MidCatch", clip = actor.animations[name];
+  const lead = name === "LowCatch" ? 5 : 0, leadMs = clip.frames.slice(0, lead).reduce((sum, item) => sum + item.durationMs, 0);
+  const duration = clip.frames.reduce((sum, item) => sum + item.durationMs, 0) - leadMs;
+  let elapsed = age * 1000;
+  if (name !== "LowCatch" && age > 1.6) elapsed = Math.max(0, duration - (age - 1.6) * 1000);
+  return { name, motion: name, index: Math.max(lead, frameAt(clip, leadMs + elapsed)), mirror: false, tilt: 0, landAt: null, airborneFrom: null, age };
 }

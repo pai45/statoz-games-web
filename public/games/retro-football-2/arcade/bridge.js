@@ -12,6 +12,16 @@
   // Suppress the pinned vendor's automatic update lookup; all runtime resources are local.
   let Emulator;
   Object.defineProperty(window, 'EmulatorJS', { configurable: true, get: () => Emulator, set: value => { value.prototype.checkForUpdates = () => {}; Emulator = value; } });
+  // Pin the native system directory so FBNeo can locate its reviewed cartridge override.
+  let GameManager;
+  Object.defineProperty(window, 'EJS_GameManager', { configurable: true, get: () => GameManager, set: value => {
+    // Pinned external-file loading supplies ArrayBuffer; FS.writeFile needs a byte view.
+    const write = value.prototype.writeFile;
+    value.prototype.writeFile = function(path, data) { return write.call(this, path, data instanceof ArrayBuffer ? new Uint8Array(data) : data); };
+    const config = value.prototype.getRetroArchCfg;
+    value.prototype.getRetroArchCfg = function() { return config.call(this) + '\nsystem_directory = "/native"\n'; };
+    GameManager = value;
+  } });
   const emit = (type, payload = {}) => parent.postMessage({ protocol: 'retro-football-2-local', version: 1, session, type, payload }, location.origin);
   let ready = false, booted = false, disposed = false, pendingStart = false, paused = false, watcher = 0;
   const timers = new Set();
@@ -53,10 +63,11 @@
   window.addEventListener('error', event => emit('error', { message: event.message || 'The arcade runtime could not start.' }));
   Object.assign(window, {
     EJS_player: '#game', EJS_core: 'fbneo', EJS_gameUrl: 'roms/ssideki2.zip', EJS_biosUrl: 'roms/arcade.7z', EJS_gameName: 'ssideki2', EJS_gameID: 10190,
+    EJS_externalFiles: {'/native/fbneo/patched/ssideki2.zip': 'roms/ssideki2-nologo.zip'},
     EJS_pathtodata: 'data/', EJS_startOnLoaded: true, EJS_threads: false, EJS_disableAutoLang: true,
     EJS_disableDatabases: true, EJS_disableLocalStorage: true, EJS_noAutoFocus: true, EJS_volume: 0.65,
     EJS_Buttons: { playPause:false,restart:false,mute:false,settings:false,fullscreen:false,saveState:false,loadState:false,gamepad:false,cheat:false,volume:false,saveSavFiles:false,loadSavFiles:false,quickSave:false,quickLoad:false,screenshot:false,cacheManager:false,exitEmulation:false,contextMenu:false },
-    EJS_defaultOptions: { 'shader': 'disabled', 'vsync': 'enabled', 'rewindEnabled': 'disabled', 'ff-ratio': 1, 'fbneo-dipswitch-ssideki2-Free_play': 'On' },
+    EJS_defaultOptions: { 'shader': 'disabled', 'vsync': 'enabled', 'rewindEnabled': 'disabled', 'ff-ratio': 1, 'fbneo-dipswitch-ssideki2-Free_play': 'On', 'fbneo-allow-patched-romsets': 'enabled' },
     EJS_onGameStart() {
       if (disposed) return;
       ready = true; window.__retroFootball2Debug.ready = true;

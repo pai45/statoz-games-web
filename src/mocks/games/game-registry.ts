@@ -42,10 +42,13 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
-  "f1-racing": {kind:"hero",title:"F1 RACING",titleLines:["F1","RACING"],subtitle:"CRAZY GRAND PRIX. THE FULL 3D RACING GAME.",badgeLabel:"ONLINE 3D RACING // KEYBOARD",ctaLabel:"START YOUR ENGINE",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/f1-racing"},
+  "tennis-bits": {kind:"hero",title:"TENNIS BITS",titleLines:["TENNIS","BITS"],subtitle:"MOVE. RALLY. WIN THE POINT.",badgeLabel:"LOCAL // ARCADE TENNIS",ctaLabel:"TAKE THE COURT",accent:"lime",scene:"tennis-rally",href:"/play/tennis-bits"},
+  "soccer-real": {kind:"hero",title:"SOCCER REAL",titleLines:["SOCCER","REAL"],subtitle:"TAKE THE PITCH. PLAY THE LOCAL CPU.",badgeLabel:"LOCAL // 3D FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/soccer-real"},
+  "penalty-shooters-2": {kind:"hero",title:"PENALTY SHOOTERS 2",titleLines:["PENALTY","SHOOTERS 2"],subtitle:"PICK YOUR TEAM. CHASE THE CUP.",badgeLabel:"LOCAL // ORIGINAL SHOOTOUT",ctaLabel:"TAKE THE SHOT",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/penalty-shooters-2"},
+  "f1-racing": {kind:"hero",title:"CRAZY GRAND PRIX",titleLines:["CRAZY","GRAND PRIX"],subtitle:"CRAZY GRAND PRIX. RACE ON THIS DEVICE.",badgeLabel:"LOCAL // 3D RACING",ctaLabel:"START YOUR ENGINE",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/f1-racing"},
   "football-shooting": {kind:"hero",title:"FOOTBALL SHOOTING",titleLines:["FOOTBALL","SHOOTING"],subtitle:"FIND THE CORNER. BEND THE BALL. MAKE THE SAVE.",badgeLabel:"3D FOOTBALL // SHOOTOUT + PRACTICE",ctaLabel:"TAKE THE SHOT",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/football-shooting"},
-  "archery-test": {kind:"hero",title:"ARCHERY TEST",titleLines:["ARCHERY","TEST"],subtitle:"DRAW. AIM. RELEASE. REACH THE TARGET.",badgeLabel:"3D ARCHERY // ORIGINAL LEVELS",ctaLabel:"TAKE AIM",accent:"gold",scene:"tennis-rally",href:"/play/archery-test"},
-  "stick-cricket": {kind:"hero",title:"STICK CRICKET",titleLines:["STICK","CRICKET"],subtitle:"STICK CRICKET CHASE. TIME YOUR SHOT.",badgeLabel:"3D CRICKET // BATTING CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/stick-cricket"},
+  "archery-test": {kind:"hero",title:"ARCHERY MASTER",titleLines:["ARCHERY","MASTER"],subtitle:"DRAW. AIM. RELEASE. REACH THE TARGET.",badgeLabel:"3D ARCHERY // ORIGINAL LEVELS",ctaLabel:"TAKE AIM",accent:"gold",scene:"tennis-rally",href:"/play/archery-test"},
+  "stick-cricket": {kind:"hero",title:"STICK CRICKET CHASE",titleLines:["STICK CRICKET","CHASE"],subtitle:"STICK CRICKET CHASE. TIME YOUR SHOT.",badgeLabel:"3D CRICKET // BATTING CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/stick-cricket"},
   "open-golf": {kind:"hero",title:"OPEN GOLF",titleLines:["OPEN","GOLF"],subtitle:"ORIGINAL COURSES. ONE PERFECT PUTT.",badgeLabel:"3D MINI GOLF",ctaLabel:"TEE OFF",accent:"lime",scene:"tennis-rally",href:"/play/open-golf"},
   "final-third": {kind:"hero",title:"FINAL THIRD",titleLines:["FINAL","THIRD"],subtitle:"SIX CHANCES. SWIPE IT, BEND IT, FINISH IT.",badgeLabel:"3D FOOTBALL // ATTACK AND DEFEND",ctaLabel:"KICK OFF",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/final-third"},
   "pitch-rush": {kind:"hero",title:"PITCH RUSH",titleLines:["PITCH","RUSH"],subtitle:"ELEVEN A SIDE. ONE MORE MATCH.",badgeLabel:"ARCADE FOOTBALL // 1–2 LOCAL PLAYERS",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/pitch-rush"},
@@ -64,8 +67,8 @@ export const gameRegistry: Record<GameId, GameEntry> = {
   "pitch-duel": {
     kind: "hero",
     title: "PITCH DUEL",
-    subtitle: "READ THE PLAY. WIN THE DUEL.",
-    badgeLabel: "CARD FOOTBALL // MIND GAMES",
+    subtitle: "ELEVEN A SIDE. WIN THE DUEL.",
+    badgeLabel: "CARD FOOTBALL // 11 A SIDE",
     ctaLabel: "ENTER THE DUEL",
     accent: "game-pitch-duel",
     glow: true,
@@ -126,8 +129,8 @@ export const gameRegistry: Record<GameId, GameEntry> = {
 
   "retro-innings": {
     kind: "hero", title: "CREASEFIRE SIX", titleLines: ["CREASEFIRE", "SIX"],
-    subtitle: "BAT AN OVER. DEFEND YOUR SCORE.", badgeLabel: "PRIVATE // CRICKET PREVIEW",
-    ctaLabel: "PLAY PRIVATE PREVIEW", accent: "game-final-over", scene: "final-over",
+    subtitle: "BAT AN OVER. DEFEND YOUR SCORE.", badgeLabel: "LOCAL // CRICKET",
+    ctaLabel: "PLAY CREASEFIRE SIX", accent: "game-final-over", scene: "final-over",
     href: "/play/retro-innings",
   },
   /* ---- cricket -------------------------------------------------------- */

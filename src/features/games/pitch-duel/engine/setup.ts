@@ -1,9 +1,7 @@
 import type { ActionCard, PlayerCard } from "@/domain/cards";
 
 import type { RandomSource } from "../../shared/engine/random-source";
-import { generateShootoutOpponent } from "../../shared/engine/opponent";
-
-import { formationIds, type ClubSetup } from "./lineup";
+import { fillFormation, formationIds, type ClubSetup } from "./lineup";
 import type { FormationId, MatchSetup } from "./types";
 
 export const divisions = ["LOCAL LEAGUE", "CITY CIRCUIT", "REGIONAL CUP", "NATIONAL LEAGUE", "CHAMPIONS DIVISION"];
@@ -16,8 +14,8 @@ export const opponentClubs = [
   ["Metro Stars", "Crown Athletic", "Ironbridge", "Atlas FC"],
 ];
 
-/** Division level for the shared opponent drafter (ratings ~76 → 88). */
-const opponentLevel = [5, 6, 7, 9, 11];
+/** The CPU squad's target overall per division. */
+const opponentRating = [77, 80, 83, 86, 89];
 
 /** Three points a win; promotion every nine, five divisions. */
 export function divisionFor(points: number): number {
@@ -46,7 +44,10 @@ export function teamFromClub(
 
 export type Opponent = { name: string; team: TeamInput };
 
-/** The CPU club for a division: a name, a formation and five cards near the division's level. */
+/**
+ * The CPU club for a division: a name, a formation and eleven cards near the
+ * division's level, each picked for the place it plays.
+ */
 export function draftOpponent(
   division: number,
   pools: { attackers: PlayerCard[]; defenders: PlayerCard[]; keepers: PlayerCard[] },
@@ -55,12 +56,33 @@ export function draftOpponent(
   const tier = Math.min(4, Math.max(0, division - 1));
   const names = opponentClubs[tier];
   const name = names[Math.floor(random() * names.length)];
-  const squad = generateShootoutOpponent(opponentLevel[tier], pools.attackers, pools.defenders, pools.keepers, random);
-  const [a1, a2, d1, d2, keeper] = squad.shooters;
-  // Two attackers and two defenders suit every shape except All-Out, which would push a defender up front.
-  const shapes = formationIds.filter((f) => f !== "1-3");
-  const formation: FormationId = shapes[Math.floor(random() * shapes.length)];
-  const outfield = formation === "3-1" ? [d1.id, d2.id, a2.id, a1.id] : [d1.id, d2.id, a1.id, a2.id];
-  const cards = Object.fromEntries(squad.shooters.map((c) => [c.id, c]));
-  return { name, team: { name, formation, keeperId: keeper.id, outfield, cards, tactics: [] } };
+  const target = opponentRating[tier];
+  const formation: FormationId = formationIds[Math.floor(random() * formationIds.length)];
+
+  // Cards near the target, in a seeded shuffle so equal fits vary match to match.
+  const near = (cards: PlayerCard[], spread: number) => {
+    const close = cards.filter((c) => Math.abs(c.rating - target) <= spread);
+    const pool = close.length >= 4 ? close : cards;
+    return pool
+      .map((c) => ({ c, key: random() }))
+      .sort((a, b) => a.key - b.key)
+      .map((e) => e.c);
+  };
+  const keeper = near(pools.keepers, 4)[0] ?? pools.keepers[0];
+  const outfieldPool = near([...pools.defenders, ...pools.attackers], 5);
+  const byId = new Map(outfieldPool.map((c) => [c.id, c]));
+  // Rank by fit, then by closeness to the target instead of the raw rating.
+  const lookup = (id: string) => {
+    const card = byId.get(id);
+    return card ? { ...card, rating: 100 - Math.abs(card.rating - target) } : undefined;
+  };
+  let outfield = fillFormation(formation, outfieldPool.map((c) => c.id), lookup);
+  if (outfield.some((id) => !id)) {
+    const all = [...pools.defenders, ...pools.attackers];
+    for (const c of all) byId.set(c.id, c);
+    outfield = fillFormation(formation, all.map((c) => c.id), lookup, outfield);
+  }
+  const ids = outfield.filter((id): id is string => Boolean(id));
+  const cards = Object.fromEntries([keeper, ...ids.map((id) => byId.get(id)!)].map((c) => [c.id, c]));
+  return { name, team: { name, formation, keeperId: keeper.id, outfield: ids, cards, tactics: [] } };
 }

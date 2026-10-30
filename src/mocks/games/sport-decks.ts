@@ -15,6 +15,8 @@ const sourceDecks: Record<GameSport, GameId[]> = {
   golf: ["open-golf"],
   football: [
     "football-shooting",
+    "penalty-shooters-2",
+    "soccer-real",
     "pitch-rush",
     "final-third",
     "retro-football",
@@ -28,7 +30,7 @@ const sourceDecks: Record<GameSport, GameId[]> = {
   ],
   cricket: ["stick-cricket", "retro-innings", "stadium-cricket", "cricket-quiz", "cricket-guess-player"],
   basketball: ["retro-hoops", "vibe-basketball", "hoop-duel", "basketball-quiz", "basketball-guess-player"],
-  tennis: ["tennis-rally", "tennis-quiz", "tennis-guess-winner"],
+  tennis: ["tennis-bits", "tennis-rally", "tennis-quiz", "tennis-guess-winner"],
   motorsport: ["f1-racing", "retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
 };
 
@@ -64,6 +66,10 @@ const sportByGame: Record<GameId, GameSport> = {"final-over":"cricket", ...Objec
     games.map((id) => [id, sport as GameSport] as const),
   ),
 )} as Record<GameId, GameSport>;
+
+export function gameSportFor(game: GameId): GameSport {
+  return sportByGame[game];
+}
 
 export function sportForGame(game: GameId): Sport {
   const sport = sportByGame[game];

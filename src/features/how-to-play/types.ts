@@ -15,7 +15,9 @@ export type HowToPlayMode =
   | "penalty-shootout"
   | "football-bingo"
   | "football-chess"
-  | "hoop-duel";
+  | "hoop-duel"
+  | "stick-cricket" | "archery-test" | "penalty-shooters-2" | "football-shooting"
+  | "tennis-bits" | "soccer-real" | "retro-innings" | "f1-racing";
 
 /**
  * Which palette token drives a guide's edges, tiles and step numbers.
@@ -48,6 +50,8 @@ export type GuideFact = {
 
 export type ModeGuide = {
   id: HowToPlayMode;
+  /** Local arcade guides can launch their maintained game directly. */
+  playHref?: string;
   /** Display name, on the hub card and as the guide's own title. */
   title: string;
   /** The hub card's one-line pitch. */

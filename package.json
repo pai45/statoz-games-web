@@ -40,6 +40,7 @@
     "test:retro-hoops": "tsx --test tests/retro-hoops.test.ts tests/retro-hoops-account.test.ts tests/retro-hoops-protocol.test.ts tests/retro-hoops-catalog.test.ts tests/retro-hoops-animation.test.ts tests/retro-hoops-team-ai.test.ts tests/retro-hoops-view.test.ts tests/retro-hoops-three-points.test.ts tests/retro-hoops-gamelog.test.ts tests/retro-hoops-fidelity-v2.test.ts",
     "typecheck": "next typegen && tsc --noEmit",
     "test:demo": "tsx --test tests/demo-product.test.ts",
+    "test:shop": "tsx --test tests/shop-deals.test.ts",
     "test:home": "tsx --test tests/home-catalog.test.ts && node tests/home-hub.browser.mjs",
     "typography:sync:all": "node scripts/demo-no-upstream.mjs",
     "prebuild:games": "node -e \"console.log('Building active games only')\"",
@@ -76,7 +77,15 @@
     "test:football-shooting:browser": "node tests/football-shooting.browser.mjs",
     "build:f1-racing": "node scripts/build-game-bundles.mjs --game=f1-racing",
     "test:f1-racing": "tsx --test tests/f1-racing.test.ts",
-    "test:f1-racing:browser": "node tests/f1-racing.browser.mjs"
+    "test:f1-racing:browser": "node tests/f1-racing.browser.mjs",
+    "preview:local-games": "node scripts/serve-local-games.mjs",
+    "build:local-games": "node scripts/build-local-games.mjs",
+    "test:local-games": "tsx --test tests/localized-games.test.ts tests/local-games-app.test.ts tests/f1-racing.test.ts",
+    "test:local-games:app": "node tests/local-games-app.browser.mjs",
+    "test:penalty-shooters-2:browser": "node tests/penalty-shooters-2.browser.mjs",
+    "test:tennis-bits:browser": "node tests/tennis-bits.browser.mjs",
+    "test:soccer-real:browser": "node tests/soccer-real.browser.mjs",
+    "test:retro-innings:local": "node tests/retro-innings-local.browser.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

@@ -80,6 +80,11 @@
       "path": "roms/ssideki2.zip",
       "bytes": 6848129,
       "sha256": "047e761b5dc408b835fb1fdbd811fe33874c7d52e898cf20925a4b4bdaba9cdc"
+    },
+    {
+      "path": "roms/ssideki2-nologo.zip",
+      "bytes": 6893788,
+      "sha256": "c32bdba861532f8f5d4199a9b989b47c79f4929cc9a6984cc57e3a28b0d9a5b4"
     }
   ],
   "cover": {
@@ -89,5 +94,15 @@
     "source": "Local native Super Sidekicks 2 gameplay capture from the integrated emulator; test-results/retro-football-2-integration/cover-capture.png",
     "approval": "reference",
     "license": "Original game owner; no redistribution licence recorded"
+  },
+  "localPatch": {
+    "sourceArchiveSha256": "047e761b5dc408b835fb1fdbd811fe33874c7d52e898cf20925a4b4bdaba9cdc",
+    "member": "061-p1.p1",
+    "fileOffset": 277,
+    "cpuAddress": "0x114",
+    "before": 0,
+    "after": 2,
+    "reason": "Disable BIOS eyecatcher through cartridge header flag; P-ROM word-swapped",
+    "reference": "https://www.ajworld.net/neogeodev/neoguide/?p=5"
   }
 }

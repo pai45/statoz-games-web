@@ -8,7 +8,22 @@ const report={checks:[],errors,failed,remote};
 try{
  await page.goto('http://127.0.0.1:8964/demo/embedded-games/retro-football-2/index.html');await page.getByRole('button',{name:'Play Retro Football 2',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.__retroFootball2Debug?.ready,null,{timeout:90000});
+ assert.equal(await page.locator('iframe').evaluate(e=>getComputedStyle(e).visibility),'visible');
+ const bootEngine=page.frames().find(f=>f.url().includes('/arcade/index.html'));
+ const patchIdentity=await bootEngine.evaluate(async()=>{
+  const fs=EJS_emulator.gameManager.FS;
+  const bytes=fs.readFile('/native/fbneo/patched/ssideki2.zip');
+  return {sha256:Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(n=>n.toString(16).padStart(2,'0')).join(''),config:fs.readFile('/home/web_user/.config/retroarch/retroarch.cfg',{encoding:'utf8'})};
+ });
+ assert.equal(patchIdentity.sha256,'c32bdba861532f8f5d4199a9b989b47c79f4929cc9a6984cc57e3a28b0d9a5b4');
+ assert.ok(patchIdentity.config.includes('system_directory = "/native"'));
+ report.patchSha256=patchIdentity.sha256;
+ for(const target of [180,300,450,600,900]) {
+  await bootEngine.waitForFunction(n=>__retroFootball2Debug.frames>=n,target,{timeout:30000});
+  await page.screenshot({path:path.join(out,`boot-unmasked-${target}.png`)});
+ }
  await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.__retroFootball2Debug?.booted,null,{timeout:60000});
+ report.checks.push('Native cartridge header disables BIOS eyecatcher; boot runs with the iframe visible');
  await page.waitForTimeout(1200);
  await page.waitForFunction(()=>!document.querySelector('[data-control="shoot"]').disabled,null,{timeout:5000});
  const engine=page.frames().find(f=>f.url().includes('/arcade/index.html'));

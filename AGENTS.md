@@ -20,6 +20,10 @@ Before creating or changing StatOz demo fixtures, read `.codex/skills/statoz-moc
 
 User direction: Retro Football uses its own classic arcade identity. Follow the installed `independent-game-style` skill: no StatOz visual system, cyberpunk theme, techno fonts, chamfer panels or cyber HUD styling inside this game. The host product retains its existing styling.
 
+## Pitch Duel independent style
+
+User direction (2026-10-30): Pitch Duel is an eleven-a-side, portrait-first card football game with its own Ballers-inspired look (dark violet stadium panels, pink/cyan accents, tiered shield cards, Bebas Neue / Barlow Condensed / Inter). Do not restyle it with the StatOz system inside the game; the host keeps its styling. The Ballers repository is unlicensed: never copy its code, CSS, images, logo or audio — measure and redraw only. See `docs/PITCH-DUEL.md`.
+
 ## Penalty Shootout ownership
 
 This repository is the canonical home for all future Penalty Shootout changes, per the user. The complete 3D game was transferred from statoz_web on 2026-10-21. Develop, test and maintain it here; do not sync changes back to statoz_web or edit Designer staging copies as the runtime source. Preserve local namespaced progress and account isolation.

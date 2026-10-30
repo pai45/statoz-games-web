@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import http from 'node:http';
+import { randomUUID } from 'node:crypto';
 import next from 'next';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
+import { localGames } from './helpers/local-games.mjs';
 
 const root = process.cwd(), pages = process.argv.includes('--pages');
 const base = pages ? '/statoz-games-web' : '';
@@ -25,12 +27,13 @@ const handle = pages ? async (request, response) => {
 const requests = new Map();
 let failureFile, blockAssets = false;
 const blocked = [];
+let manifestUrls = new Set();
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, 'http://localhost');
   requests.set(url.pathname, (requests.get(url.pathname) || 0) + 1);
   response.on('finish', () => { if (response.statusCode >= 300 && url.pathname !== failureFile) console.log('Asset HTTP status:', response.statusCode, url.pathname); });
   const local = url.pathname.slice(base.length);
-  const isAsset = /^\/(?:assets|embedded-games|_next\/static)\//.test(local) || /^\/games\/.*\.(?:png|jpe?g|webp|svg|glb|gltf|bin|wasm|js|css|html|json|ogg|wav|mp3)$/i.test(local);
+  const isAsset = manifestUrls.has(url.pathname) || /^\/(?:assets|embedded-games|_next\/static)\//.test(local) || /^\/games\/.*\.(?:png|jpe?g|webp|svg|glb|gltf|bin|wasm|js|css|html|json|ogg|wav|mp3)$/i.test(local);
   if (url.pathname === failureFile || blockAssets && isAsset) {
     if (blockAssets) blocked.push(url.pathname);
     response.writeHead(503); response.end('Asset networking disabled for cache verification'); return;
@@ -39,14 +42,21 @@ const server = http.createServer((request, response) => {
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = 'http://127.0.0.1:' + server.address().port;
-const browser = await chromium.launch({ executablePath: process.env.DEVICE_ASSETS_CHROMIUM || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true, args: ['--enable-unsafe-swiftshader'] });
+// Exercise the ordinary disk-backed cache for the complete native payloads.
+// Incognito storage is in-memory: https://chromium.googlesource.com/chromium/src/+/lkgr/content/browser/service_worker/README.md
+const profileRoot=path.resolve(root,'.cache/device-cache-e2e');
+const profile=path.join(profileRoot,randomUUID());
+await fs.mkdir(profile,{recursive:true});
+const persistent=await chromium.launchPersistentContext(profile,{ executablePath: process.env.DEVICE_ASSETS_CHROMIUM || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true, viewport: {width:412,height:915}, args: ['--enable-unsafe-swiftshader'] });
+const browser=persistent.browser();
 try {
   const html = await (await fetch(origin + base + '/login')).text();
   const buildId = /<meta name="statoz-assets-build" content="([\w-]+)"/.exec(html)?.[1];
   assert.ok(buildId, 'production HTML must expose its asset build');
   const manifest = await (await fetch(origin + base + '/_game-assets/' + buildId + '.json')).json();
+  manifestUrls = new Set(manifest.files.map(file => file.url));
   failureFile = manifest.files.find(file => file.url.endsWith('/athlete.glb')).url;
-  const context = await browser.newContext({ viewport: { width: 412, height: 915 } });
+  const context = persistent;
   context.on('console', message => { if (message.text().includes('Device asset download failed') || message.text().includes('Device cache')) console.log(message.text()); });
   await context.addInitScript(() => {
     localStorage.setItem('statoz.games.web.auth.v2', JSON.stringify({ version: 2, authenticated: true, email: 'device-test@example.test' }));
@@ -117,13 +127,26 @@ try {
   await page.waitForFunction(() => document.querySelector('iframe')?.contentWindow?.__game?.players?.length === 2, null, { timeout: 90000 });
   // Direct game routes test all enabled destinations; deck gates may appear for
   // card games, but those must not trigger any asset downloads either.
-  const routes = ['retro-hoops', 'retro-circuit', 'retro-football', 'retro-innings', 'stadium-cricket', 'penalty-shootout', 'pitch-duel', 'football-chess', 'grand-prix', 'tennis'];
+  const routes = [...(process.argv.includes('--local-games')?[]:['retro-hoops', 'retro-football-2', 'stadium-cricket', 'penalty-shootout', 'pitch-duel', 'football-chess', 'grand-prix', 'tennis']), ...localGames.map(game=>game.id)];
   const routeResults = [];
   for (const route of routes) {
     const response = await page.goto(origin + base + '/play/' + route);
     assert.ok(response.ok(), route + ' route must exist');
     await waitReady();
-    await page.waitForTimeout(1500);
+    const game=localGames.find(game=>game.id===route);
+    if(game){
+      const matches=frame=>frame.url()==='about:srcdoc'||frame.url().includes('/embedded-games/'+game.id+'/');
+      await expect.poll(()=>page.frames().some(matches),{timeout:60000}).toBe(true);
+      const bundle=page.frames().find(matches);
+      if(game.start){
+        await bundle.getByRole('button',{name:game.start,exact:true}).click();
+        await expect.poll(()=>page.frames().some(frame=>frame.url().includes('/games/'+game.id+'/')),{timeout:30000}).toBe(true);
+        const native=page.frames().find(frame=>frame.url().includes('/games/'+game.id+'/'));
+        await native.waitForFunction(game.ready,null,{timeout:120000});
+        await expect(bundle.getByRole('button',{name:'Pause',exact:true})).toBeEnabled();
+      }else if(game.id==='football-shooting')await bundle.locator('[data-character-source="football-strike"]').waitFor({timeout:60000});
+      else await bundle.locator('#console-exit').waitFor();
+    }else await page.waitForTimeout(1500);
     routeResults.push({ route, frames: page.frames().length - 1 });
     console.log('Cached route: ' + route);
   }
@@ -132,7 +155,6 @@ try {
   assert.ok(await page.evaluate(() => localStorage.getItem('statoz.games.web.auth.v2')), 'account data preserved');
   await fs.writeFile(path.join(out, 'results.json'), JSON.stringify({ files: manifest.files.length, totalBytes: manifest.totalBytes, retainedFile, routeResults, blocked, errors, before }, null, 2));
   console.log(`Device cache verified: ${manifest.files.length} files; retries, reload and ${routes.length + 1} game routes; zero asset network requests after ready.`);
-  await context.close();
   blockAssets = false;
   const unsupported = await browser.newContext();
   await unsupported.addInitScript(() => Object.defineProperty(window, 'isSecureContext', { value: false }));
@@ -159,4 +181,5 @@ try {
   server.closeAllConnections();
   await new Promise(resolve => server.close(resolve));
   await app?.close();
+  if(!process.exitCode){if(!profile.startsWith(profileRoot+path.sep))throw Error('Unexpected test profile path');await fs.rm(profile,{recursive:true,force:true});}
 }

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {ballAt,clamp,FootballEngine} from './engine';
+import {loadRecoveredAthlete,type RecoveredAthlete} from './recovered-athlete';
 
 export function createStadium(container:HTMLElement,engine:FootballEngine){
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -49,6 +50,9 @@ export function createStadium(container:HTMLElement,engine:FootballEngine){
     const number=box(0,1.15,.15,.08,.24,.008,white,root);number.rotation.z=.02;return {root,limbs};
   }
   const keeper=person(orange),striker=person(blue);keeper.root.position.z=-13.6;striker.root.position.set(-.65,0,1.1);striker.root.rotation.y=.18;
+  let originalStriker:RecoveredAthlete|undefined,originalKeeper:RecoveredAthlete|undefined;
+  const kit=(event:Event)=>{const color=(event as CustomEvent<string>).detail;if(/^#[0-9a-f]{6}$/i.test(color))originalStriker?.setTint(color);};window.addEventListener('football-local-kit',kit);
+  void Promise.all([loadRecoveredAthlete(),loadRecoveredAthlete(true)]).then(([a,b])=>{if(disposed){a.dispose();b.dispose();return;}originalStriker=a;originalKeeper=b;striker.root.clear();keeper.root.clear();striker.root.add(a.root);keeper.root.add(b.root);striker.root.rotation.y=Math.PI;keeper.root.rotation.y=0;try{a.setTint(localStorage.getItem('football-shooting.jersey.v1')||'#1669bb');}catch{}container.dataset.characterSource='football-strike';}).catch(()=>{container.dataset.characterSource='fallback';});
   const ball=new THREE.Group();scene.add(ball);mesh(new THREE.SphereGeometry(.22,16,12),white,ball);
   const directions=[[0,1,0],[0,-1,0],[1,.4,0],[-1,.4,0],[0,.4,1],[0,.4,-1],[.7,-.5,.7],[-.7,-.5,.7],[.7,-.5,-.7],[-.7,-.5,-.7]];
   for(const dir of directions){const patch=mesh(new THREE.CircleGeometry(.087,5),dark,ball);patch.position.fromArray(dir).normalize().multiplyScalar(.222);patch.lookAt(patch.position.clone().multiplyScalar(2))}
@@ -68,11 +72,13 @@ export function createStadium(container:HTMLElement,engine:FootballEngine){
     keeper.limbs[2].rotation.x=Math.sin(engine.clock*3)*.06;keeper.limbs[3].rotation.x=-Math.sin(engine.clock*3)*.06;
     striker.root.visible=engine.attacking;striker.root.position.z=flight?1.1-Math.min(engine.elapsed*4,1.4):after?-.3:1.1;
     striker.limbs[3].rotation.x=flight?-Math.sin(Math.min(1,engine.elapsed*5)*Math.PI)*1.4:0;striker.limbs[0].rotation.x=flight?-.6:Math.sin(engine.clock*2)*.05;striker.limbs[1].rotation.x=flight?.5:0;
+    originalStriker?.sample(flight?'Shot_893':engine.phase==='finished'&&engine.won?'Victory':'Idle_1004',flight?engine.elapsed+.65:engine.clock);
+    originalKeeper?.sample(flight&&engine.dive?'SaveMiddle':'Idle_1134',flight?engine.elapsed:engine.clock);
     target.visible=engine.mode==='training'&&engine.phase!=='menu';target.position.x=engine.target.x;target.position.y=engine.target.y;target.scale.setScalar(1+Math.sin(engine.clock*3)*.035);
     cue.visible=engine.cueVisible;cue.position.x=engine.shot.x;cue.position.y=engine.shot.y;
     trail.visible=flight&&p>.05;const points=[];for(let i=0;i<12;i++){const v=ballAt(engine.shot,Math.max(0,p-i*.012));points.push(new THREE.Vector3(v.x,v.y,v.z))}trailGeo.setFromPoints(points);
     camera.lookAt(0,1,-10);renderer.render(scene,camera);frame=requestAnimationFrame(draw);
   }
   frame=requestAnimationFrame(draw);
-  return {canvas:renderer.domElement,dispose(){disposed=true;cancelAnimationFrame(frame);observer.disconnect();scene.clear();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove()}};
+  return {canvas:renderer.domElement,dispose(){disposed=true;window.removeEventListener('football-local-kit',kit);originalStriker?.dispose();originalKeeper?.dispose();cancelAnimationFrame(frame);observer.disconnect();scene.clear();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove()}};
 }

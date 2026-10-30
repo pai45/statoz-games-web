@@ -16,7 +16,9 @@ Progress and settings use the existing account-specific host storage bridge. The
 
 The user explicitly selected **an original browser recreation** on 27 October 2026. This is an independently written arcade interpretation of the researched shooting/keeper concepts, not the Miniclip app, a native port, or a claim of matching its internal physics. The prior REA investigation found an Android Unity IL2CPP APK and static metadata; it did not recover a matching WebGL export or observe native gameplay. The similarly named web embed was a different DEFU Games product and is not used.
 
-All stadium geometry, player rigs, motion, ball markings, netting, HUD, rules and audio tones were authored for this implementation. Three.js and React remain repository dependencies with their existing licenses. No APK data, extracted Miniclip artwork, copied native code, remote scripts, fonts or binary assets are shipped. The catalog cover is a capture of this game's own renderer.
+The local integration was extended on 30 October 2026 with recovered original Football Strike character geometry, skin weights, hierarchy, runtime textures and eight native-curve-derived clips, plus all 524 typed customization records and 43 selected keeper/shot records. `recovered-athlete.ts` renders the original skinned parts; the local player-kit editor applies and persists jersey tint/palette changes. The installed Unity2022 Avatar solver converts original humanoid samples; exact Unity6000 runtime IK/shader parity is not asserted. The complete optional editable library lives in `.local-game-assets/football-shooting`, indexed under `public/games/football-shooting/dissection`.
+
+Stadium geometry, ball/net/HUD/rules/CPU and synthesized audio remain authored browser code. The native APK is not executed, native physics units are not blindly substituted, and this is not an identical Miniclip port. Source ownership/provenance is retained and the assets stay local. See [the local integration report](local-games/README.md).
 
 ## Implementation and verification
 

@@ -2,6 +2,7 @@
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {FootballEngine,gestureShot,parseProgress,recordProgress,type Mode,type Point,type Shot} from './engine';
 import {createStadium} from './stadium';
+import {KitCustomization} from './kit-customization';
 import styles from './screen.module.css';
 type Props={onExit:()=>void;onEvent?:(event:{type:string;payload:Record<string,unknown>})=>void;hostCommand?:{id:number;type:'pause'|'resume'|'dispose'}};
 const SAVE='football-shooting.progress.v1';
@@ -71,6 +72,7 @@ export function FootballShootingGame({onExit,onEvent,hostCommand}:Props){
         <span className={styles.eyebrow}>THE NEXT SHOT IS YOURS</span><h1>FOOTBALL<br/><em>SHOOTING</em></h1><p>Find the corner. Bend the ball.<br/>Then put on the gloves.</p>
         <div className={styles.tabs}><button aria-pressed={mode==='shootout'} onClick={()=>setMode('shootout')}>SHOOTOUT</button><button aria-pressed={mode==='training'} onClick={()=>setMode('training')}>PRACTICE</button></div>
         {mode==='shootout'?<label className={styles.level}>COMPETITION<select aria-label="Competition" value={level} onChange={event=>setLevel(Number(event.target.value))}>{LEVELS.map((name,i)=><option key={name} value={i+1} disabled={i+1>progress.unlocked}>{name}{i+1>progress.unlocked?' · LOCKED':''}</option>)}</select></label>:<p className={styles.detail}>Five balls. Hit three gold targets.<br/>Personal best: {progress.bestTraining} / 5</p>}
+        <KitCustomization/>
         <button className={styles.play} onClick={start}>{mode==='shootout'?'Kick off':'Start practice'} <span>↗</span></button>
         <small>Original browser game · Play against the CPU<br/>Progress saves locally for this account.</small>
       </div>}</div>}

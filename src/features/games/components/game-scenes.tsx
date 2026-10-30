@@ -6,6 +6,7 @@ import { publicAsset } from "@/shared/config";
 import type { GameId, GameSceneId } from "../types";
 import { discoveryFamily } from "./game-discovery.generated";
 import { sampleDiscoveryMotion } from "./discovery-motion";
+import { gameCoverPath, hasBundledCover } from '../home-catalog';
 import styles from "./discovery-card.module.css";
 
 /** Original scene ids remain usable by existing non-card consumers. */
@@ -34,7 +35,7 @@ export type GameSceneProps = {
 };
 
 export function GameScene(props: GameSceneProps) {
-  if (["f1-racing","football-shooting","retro-football-2","stick-cricket","archery-test"].includes(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(`/games/${props.game}/cover.png`)} alt="" fill sizes="(min-width:1024px) 270px,70vw" unoptimized style={{objectFit:'cover'}}/></div>;
+  if (hasBundledCover(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(gameCoverPath(props.game))} alt="" fill sizes="(min-width:1024px) 270px,70vw" unoptimized style={{objectFit:'cover'}}/></div>;
   if (props.game === "open-golf") return <div className={styles.scene} aria-hidden="true"><Image src={publicAsset('/assets/games/covers/open-golf.webp')} alt="" fill unoptimized style={{objectFit:'cover'}} /></div>;
   if (props.game === "final-third") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/final-third/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "pitch-rush") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/pitch-rush/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;

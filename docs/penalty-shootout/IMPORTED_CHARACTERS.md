@@ -12,9 +12,19 @@ The pack contains 55 striker frames and 155 goalkeeper frames across Idle, MidCa
 
 - The 3D pitch and ball remain; camera-facing sprites replace both GLB actors. The live and replay camera stays behind the striker because the supplied art depicts the striker's back and keeper's front. Keeper commands are converted at the input boundary so controls still follow screen direction.
 - Frame 42 is the visually inferred boot-contact frame, not an observed source-engine event. The approach is retimed to the existing one-second ball release; follow-through uses explicit source holds. The boot contact anchor is projected using camera right/up vectors.
-- Native keeper sequences include drop, landing and recovery. Only lateral simulation travel is added; applying the old pelvis drop again would put the sprites below the pitch. Complete sequences are retimed to the existing 2.75-second dive/recovery window. Native left dives mirror for screen-right.
+- Native keeper sequences include drop, landing and recovery. Only lateral simulation travel is added; applying the old pelvis drop again would put the sprites below the pitch. Side dives use hand-placed keyframes (`DIVES` in `rendering/sprite-motion.ts`) inside the existing 2.75-second dive/recovery window; native left dives mirror for screen-right. See *Save animation and effects* below.
 - The source striker has no complete recovery or celebration clip. Once the existing simulation enters a result reaction, the renderer returns to the grounded neutral frame rather than holding the source's raised-boots terminal pose.
-- Source-perspective feet can project below the ball's ground point. Sprites therefore render without the flat plane's grass depth clipping, with keeper before striker and subtle procedural floor shadows.
+- Source-perspective feet can project below the ball's ground point. Sprites therefore render without the flat plane's grass depth clipping, with keeper before striker. Shadows are described below.
+
+## Save animation and effects (28 October 2026)
+
+User request: better keeper save animation, plus shadows and effects on both athletes. Renderer-only; simulation, colliders, odds and replays are unchanged.
+
+- **Dive timing.** Each source dive opens with five near-identical standing frames. Stretching them over the reach window left the keeper standing for about 0.4 s while sliding sideways, then popping into the air. Dives now start on the loaded stance, are airborne by 0.17-0.18 s, reach full stretch alongside the collider extension, land at 0.62 s (mid) / 0.68 s (high), and fill the rest of the window with the native ground, get-up and reset frames.
+- **Low side dive.** There is no native one; the old renderer played the centre kneeling scoop while sliding sideways. `LowDive` reuses the mid dive's push and flat near-ground frames, with a short sprite tilt toward the post between them.
+- **Centre saves** play at their authored 0.4-0.5 s speed, hold, then reverse into the ready stance (low centre saves keep their native get-up).
+- **Shadows.** Every frame's silhouette is measured once at load. A silhouette shadow (the current frame laid on the grass) and a soft contact shadow follow the drawn feet. The keeper's fade and stay on the ground while airborne. Character shadows fall screen-right and toward the camera, because a shadow falling away from this low camera collapses to a line.
+- **Effects** (off under reduced motion): a short afterimage trail of airborne dive frames, turf and dust thrown up on landing (drawn behind the body), a turf flick at boot contact, and a glove-impact flash when the ball is stopped or turned back near the keeper. Everything is computed from recorded simulation time, so pause and replay match.
 
 ## Limits
 

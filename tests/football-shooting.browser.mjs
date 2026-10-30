@@ -20,7 +20,7 @@ const touchStart=async(x,y)=>cdp.send('Input.dispatchTouchEvent',{type:'touchSta
 const touchMove=async(x,y)=>cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,x,y}]});
 const touchEnd=async()=>cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
 try{
- await page.goto('http://127.0.0.1:8974/embedded-games/football-shooting/index.html');await page.waitForFunction(()=>document.querySelector('canvas'));await page.waitForTimeout(400);await page.screenshot({path:path.join(out,'01-clubhouse-portrait.png')});
+ await page.goto('http://127.0.0.1:8974/embedded-games/football-shooting/index.html');await page.waitForFunction(()=>document.querySelector('canvas'));await page.waitForFunction(()=>document.querySelector('[data-character-source]')?.getAttribute('data-character-source')==='football-strike');checks.push('Recovered original Football Strike skinned characters load successfully');await page.screenshot({path:path.join(out,'01-clubhouse-portrait.png')});
  await page.getByRole('button',{name:'PRACTICE',exact:true}).click();await page.getByRole('button',{name:'Start practice',exact:false}).click();await phase('aim');
  const bounds=await touch.boundingBox();assert.ok(bounds.width>=360&&bounds.height>550);await page.waitForTimeout(300);await page.screenshot({path:path.join(out,'02-practice-portrait.png')});
  // A cancelled real touch and a stroke interrupted by pause must not launch.

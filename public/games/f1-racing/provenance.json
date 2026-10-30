@@ -1,14 +1,21 @@
 {
   "game": "F1 Racing",
   "originalGame": "Crazy Grand Prix",
-  "mode": "official-online-embed",
-  "embedUrl": "https://www.crazygames.com/embed/crazy-grand-prix",
+  "mode": "original-native-local-platform-adaptation",
   "source": "https://www.crazygames.com/game/crazy-grand-prix",
   "buildObserved": "6c65ae46-cd7f-4feb-be39-441821588cdf",
-  "date": "2026-10-27",
-  "nativeLocalExecution": "Refused by native site lock; no bypass attempted",
-  "nativeRedistribution": false,
-  "controls": "Original keyboard controls; touch menus only",
-  "network": "Official third-party game and its provider services",
-  "progress": "Provider-owned, not isolated by StatOz account"
+  "date": "2026-10-30",
+  "localOnly": false,
+  "nativeManifest": "native/localization-manifest.json",
+  "nativeLocalExecution": "Explicit copied-client host-policy and SDK adaptation; actual local origin unchanged",
+  "controls": "Original keyboard controls plus authored simultaneous touch driving",
+  "network": "Local career/practice; no required provider service",
+  "progress": "Native Unity device storage, isolated by host game/account scope",
+  "originalDeveloperSource": false,
+  "publicReleaseApproved": true,
+  "limits": [
+    "Provider commerce, cloud accounts, leaderboard and network multiplayer unavailable",
+    "Exhaustive career completion and physical-phone validation not claimed"
+  ],
+  "catalogueCover": "Project-owned Grand Prix Dash cover; no third-party reference cover is published"
 }

@@ -19,3 +19,20 @@ Emulator source: https://github.com/EmulatorJS/EmulatorJS/tree/v4.2.3 ; CDN orig
 Checks: `npm run test:retro-football-2`, `npm run test:retro-football-2:browser`, `node --test tests/device-assets.test.mjs`, `npm run typecheck`, `npm run lint`, `npm run build:pages`. Route checks: `node scripts/check-retro-football-2-route.mjs`. Generated standalone bundles must be rebuilt after authored shell/bridge changes. Physical Android/iOS tests are not implied by browser emulation.
 
 Local verification on 26 October 2026: nine input/catalog tests and ten device-cache tests passed. Home catalog/product ownership checks passed. Type checking passed; lint has no errors and the existing unused `roadworks` warning in Retro Circuit. Eight mobile browser checks passed with no page errors, failed asset requests or remote playback requests. Native team selection, team-name confirmation, training selection and an Italy–England regional qualifier were reached; movement and A/B/C were exercised on the pitch. The full tournament and every set-piece branch have not been played through. Browser screenshots do not establish physical Android/iOS performance.
+
+## Native BIOS-logo removal (28 October 2026)
+
+The original game archive and BIOS are preserved byte-for-byte. A local patched
+cartridge is loaded through FBNeo's supported `/native/fbneo/patched/ssideki2.zip`
+override (`EJS_externalFiles`, `fbneo-allow-patched-romsets=enabled`).
+The override changes only `061-p1.p1` offset `0x115` from 0 to 2: this is CPU
+header address `0x114` in the word-swapped P-ROM, the BIOS eyecatcher flag.
+Reference: https://www.ajworld.net/neogeodev/neoguide/?p=5 .
+The emulator display stays visible during native startup; no logo mask is used.
+Installed file identities and the patch are recorded in `assets-manifest.json`.
+
+Reproduce from an authorized original with:
+`python scripts/patch-retro-football-2-logo.py ORIGINAL.zip roms/ssideki2-nologo.zip`.
+The original local backup is `.cache/retro-football-2-original/ssideki2.zip`.
+The installer requires both the original and patched ZIPs in its local backup.
+No proprietary archive is committed or published.

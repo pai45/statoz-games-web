@@ -1,0 +1,12 @@
+{
+  "change": {
+    "functionIndex": 21883,
+    "originalBodySha256": "ff72855937dbdd269305268d0cb3b10c94a87a89c4e8944af1fd3b91c5a10df0",
+    "originalBodyBytes": 72,
+    "newBodyHex": "0041010b",
+    "meaning": "Explicit local-host policy in a copied client. Does not impersonate the remote origin."
+  },
+  "sourceSha256": "5b20b0c4ddaadf224dc12dfd30b0642af3da81631b861c2bc1050f2bb70765ef",
+  "sha256": "f7c650583a0b2d75b77748f4cc121fc2c219913d7ecf1f6c79678671c36a90f3",
+  "linkage": "metadata v39 SiteLock.IsOnValidHost token0x06000b05, Assembly-CSharp initialized method table and WASM element map. See scripts/map-tennis-local-policy.py."
+}

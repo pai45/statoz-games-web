@@ -1,0 +1,47 @@
+{
+  "method": "Exact audio filenames in original native data.json; normal static HTTP retrieval, no provider identity or origin spoofing.",
+  "files": [
+    {
+      "path": "media/ball_kick.webm",
+      "bytes": 3600,
+      "sha256": "4b4e01f0a209a5ba58bd5c4f2e8604ae6be79b911d783a0abc29948184eaaf86",
+      "url": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/ball_kick.webm"
+    },
+    {
+      "path": "media/crowd_middle_goal.webm",
+      "bytes": 141332,
+      "sha256": "81b4e423b6a4c35659d6d2ad6427477cc9d365ccc20f09837a99c1608e9cc79b",
+      "url": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/crowd_middle_goal.webm"
+    },
+    {
+      "path": "media/dirty_tackle.webm",
+      "bytes": 109815,
+      "sha256": "8cf8f9a34f8413b82be7814737f82653e9d6f9da07dc802680d111d333de9721",
+      "url": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/dirty_tackle.webm"
+    },
+    {
+      "path": "media/near_miss.webm",
+      "bytes": 49366,
+      "sha256": "c147ec88415268d24c88b99bad67e2f16293900210189a816435e432bd61166d",
+      "url": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/near_miss.webm"
+    },
+    {
+      "path": "media/post.webm",
+      "bytes": 4703,
+      "sha256": "dbaab71e7d34da7fad1fb34660fd37d6d8ebe5087d6411aedf7e64c9526fc032",
+      "url": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/post.webm"
+    },
+    {
+      "path": "media/Soundtrack_Portamentos_(No_Effects)_Loop.webm",
+      "bytes": 620551,
+      "sha256": "50d8c45ca1fc94ba8dd51b40b2e64398fa6b960ef620a01421e6f23a7b0167a1",
+      "url": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/Soundtrack_Portamentos_(No_Effects)_Loop.webm"
+    },
+    {
+      "path": "media/tier-3-atmosfera-aud-180823.webm",
+      "bytes": 78492,
+      "sha256": "fd5e880d85d2798095e05082914f9f8b6aa9d32568afd6f299734f6a97c0ca28",
+      "url": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/media/tier-3-atmosfera-aud-180823.webm"
+    }
+  ]
+}

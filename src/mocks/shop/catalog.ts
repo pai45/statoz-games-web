@@ -17,6 +17,21 @@ export const shopCategories: { id: ShopCategory; label: string }[] = [
 
 export { shopFrames };
 
+/** Every player portrait sells as a profile avatar for the same flat price. */
+export const avatarPrice = 25;
+
+/** One of the three kinds of item a daily deal can be. */
+export type DealSlot = "card" | "cosmetic" | "avatar";
+
+/**
+ * The daily market: one deal per slot each day, each discounted by one of the
+ * listed percentages.
+ */
+export const dailyDealConfig: { slots: DealSlot[]; discounts: number[] } = {
+  slots: ["card", "cosmetic", "avatar"],
+  discounts: [20, 25, 30, 40],
+};
+
 export type ShopBanner = {
   id: string;
   label: string;

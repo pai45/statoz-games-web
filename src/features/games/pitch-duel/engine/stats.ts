@@ -22,6 +22,8 @@ const positionMods: Record<string, Mods> = {
   SS: { pac: 1, sho: 3, pas: 1, dri: 3, def: -16, phy: -2 },
   LW: winger,
   RW: winger,
+  LM: winger,
+  RM: winger,
   CAM: { pac: 0, sho: 0, pas: 5, dri: 5, def: -14, phy: -4 },
   CM: { pac: 0, sho: -6, pas: 4, dri: 1, def: -4, phy: 0 },
   CDM: { pac: -4, sho: -12, pas: 1, dri: -3, def: 3, phy: 3 },
@@ -85,7 +87,7 @@ export function deriveStats(card: PlayerCard): DerivedStats {
   return { ...out, keeper, keep, composure: clamp(card.rating - 6 + bonus("composure") + jitter(card, "composure")) };
 }
 
-const wideSpots = new Set(["LW", "RW", "LB", "RB", "LWB", "RWB"]);
+const wideSpots = new Set(["LW", "RW", "LM", "RM", "LB", "RB", "LWB", "RWB"]);
 const centralSpots = new Set(["ST", "CAM", "CB", "CDM", "CM", "SS"]);
 
 /** +2 in a natural lane, −2 out of it. */
