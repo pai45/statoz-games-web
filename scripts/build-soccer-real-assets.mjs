@@ -2,7 +2,15 @@ import fs from 'node:fs/promises';import path from 'node:path';import {createHas
 const root=process.cwd(),game='soccer-real',base=path.join(root,'public/games',game),original=path.join(base,'originals'),native=path.join(base,'native');
 const hash=b=>createHash('sha256').update(b).digest('hex');
 async function files(d){let out=[];for(const e of await fs.readdir(d,{withFileTypes:true})){const f=path.join(d,e.name);out.push(...(e.isDirectory()?await files(f):[f]))}return out}
-const originals=JSON.parse(await fs.readFile(path.join(base,'originals-manifest.json'),'utf8'));for(const f of originals.files){if(hash(await fs.readFile(path.join(original,f.path)))!==f.sha256)throw Error('Original changed '+f.path)}
+const originals=JSON.parse(await fs.readFile(path.join(base,'originals-manifest.json'),'utf8'));
+const hasOriginals=await fs.stat(original).then(entry=>entry.isDirectory()).catch(()=>false);
+if(!hasOriginals){
+ const packaged=JSON.parse(await fs.readFile(path.join(base,'assets-manifest.json'),'utf8'));
+ for(const file of packaged.transformed||[]){const local=path.join(base,file.path);const bytes=await fs.readFile(local);if(bytes.length!==file.bytes||hash(bytes)!==file.sha256)throw Error('Published runtime changed '+file.path)}
+ console.log(game+': verified '+(packaged.transformed||[]).length+' published local files');
+ process.exit(0);
+}
+for(const f of originals.files){if(hash(await fs.readFile(path.join(original,f.path)))!==f.sha256)throw Error('Original changed '+f.path)}
 await fs.mkdir(native,{recursive:true});await fs.copyFile(path.join(root,'src/features/games/soccer-real/local-play.js'),path.join(native,'local-play.js'));await fs.cp(original,native,{recursive:true});await fs.copyFile(path.join(root,'scripts/native-frame-gate.js'),path.join(native,'frame-gate.js'));
 const bridge=await fs.readFile(path.join(root,'src/features/games',game,'bridge.js'),'utf8');await fs.writeFile(path.join(native,'bridge.js'),bridge);
 function replaceFunctions(source,replacements){const ast=ts.createSourceFile('game.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);const edits=[];function visit(node){if(ts.isFunctionDeclaration(node)&&replacements[node.name?.text])edits.push([node.getStart(ast),node.end,'function '+node.name.text+replacements[node.name.text]]);else ts.forEachChild(node,visit)}visit(ast);for(const name of Object.keys(replacements))if(!edits.some(x=>x[2].startsWith('function '+name+'(')))throw Error('Missing function '+name);for(const [start,end,text]of edits.sort((a,b)=>b[0]-a[0]))source=source.slice(0,start)+text+source.slice(end);return source}

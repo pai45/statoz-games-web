@@ -3,7 +3,15 @@ import {localWasmPolicy}from './local-wasm-policy.mjs';
 const root=process.cwd(),game='tennis-bits',base=path.join(root,'public/games',game),original=path.join(base,'originals'),native=path.join(base,'native');
 const hash=b=>createHash('sha256').update(b).digest('hex');
 async function files(d){let out=[];for(const e of await fs.readdir(d,{withFileTypes:true})){const f=path.join(d,e.name);out.push(...(e.isDirectory()?await files(f):[f]))}return out}
-const originals=JSON.parse(await fs.readFile(path.join(base,'originals-manifest.json'),'utf8'));for(const f of originals.files){if(hash(await fs.readFile(path.join(original,f.path)))!==f.sha256)throw Error('Original changed '+f.path)}
+const originals=JSON.parse(await fs.readFile(path.join(base,'originals-manifest.json'),'utf8'));
+const hasOriginals=await fs.stat(original).then(entry=>entry.isDirectory()).catch(()=>false);
+if(!hasOriginals){
+ const packaged=JSON.parse(await fs.readFile(path.join(base,'assets-manifest.json'),'utf8'));
+ for(const file of packaged.transformed||[]){const local=path.join(base,file.path);const bytes=await fs.readFile(local);if(bytes.length!==file.bytes||hash(bytes)!==file.sha256)throw Error('Published runtime changed '+file.path)}
+ console.log(game+': verified '+(packaged.transformed||[]).length+' published local files');
+ process.exit(0);
+}
+for(const f of originals.files){if(hash(await fs.readFile(path.join(original,f.path)))!==f.sha256)throw Error('Original changed '+f.path)}
 await fs.mkdir(native,{recursive:true});await fs.cp(original,native,{recursive:true});await fs.copyFile(path.join(root,'scripts/native-frame-gate.js'),path.join(native,'frame-gate.js'));
 const wasmOriginal=await fs.readFile(path.join(original,'Build/game.wasm'));
 const policy=localWasmPolicy(wasmOriginal,{functionIndex:21883,imports:414,expectedSha256:'5b20b0c4ddaadf224dc12dfd30b0642af3da81631b861c2bc1050f2bb70765ef'});
