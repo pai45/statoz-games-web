@@ -173,6 +173,30 @@ export class ImportedAthletes {
     }) as [Map<string, Silhouette>, Map<string, Silhouette>];
     return new ImportedAthletes(new AtlasAthlete(pack.striker, textures[0]), new AtlasAthlete(pack.keeper, textures[1]), silhouettes);
   }
+  private kitUniforms: { primary: { value: THREE.Color }; secondary: { value: THREE.Color } }[] = [];
+  async prepareKitMasks() {
+    if(this.kitUniforms.length)return;
+    const loader=new THREE.TextureLoader();
+    const textures=await Promise.allSettled(['striker','keeper'].map(name=>loader.loadAsync(publicAsset('/games/penalty-cup/'+name+'-kit-mask.png'))));
+    if(textures.some(t=>t.status==='rejected')){for(const t of textures)if(t.status==='fulfilled')t.value.dispose();throw Error('National kits could not load');}
+    const masks=textures.map(t=>{if(t.status!=='fulfilled')throw Error('Kit mask missing');return t.value;});
+    for(const [actor,index] of [[this.striker,0],[this.keeper,1],...this.ghosts.map(g=>[g,1])] as [AtlasAthlete,number][]){
+      const uniforms={primary:{value:new THREE.Color('#ffffff')},secondary:{value:new THREE.Color('#ffffff')}};
+      this.kitUniforms.push(uniforms);
+      const material=actor.sprite.material as THREE.SpriteMaterial;
+      material.onBeforeCompile=shader=>{
+        shader.uniforms.cupMask={value:masks[index]};shader.uniforms.cupPrimary=uniforms.primary;shader.uniforms.cupSecondary=uniforms.secondary;
+        shader.fragmentShader='uniform sampler2D cupMask; uniform vec3 cupPrimary; uniform vec3 cupSecondary;\n'+shader.fragmentShader;
+        shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\nvec2 coverage=texture2D(cupMask,vMapUv).rg;float shade=0.62+0.38*max(diffuseColor.r,max(diffuseColor.g,diffuseColor.b));diffuseColor.rgb=mix(diffuseColor.rgb,cupPrimary*shade,coverage.r);diffuseColor.rgb=mix(diffuseColor.rgb,cupSecondary*shade,coverage.g);');
+      };
+      material.customProgramCacheKey=()=> 'penalty-cup-masked-kit-v1';material.needsUpdate=true;
+    }
+    this.kitMasks=masks;
+  }
+  private kitMasks: THREE.Texture[] = [];
+  setKitPalette(striker:string,keeper:string,strikerShorts:string,keeperShorts:string){
+    this.kitUniforms.forEach((u,i)=>{u.primary.value.set(i===0?striker:keeper);u.secondary.value.set(i===0?strikerShorts:keeperShorts);});
+  }
   update(frame: Frame, previous: Frame | null, alpha: number, camera: THREE.Camera, ball: Vec3, reducedMotion = false) {
     const blend = (now: number, before?: number) => before === undefined ? now : before + (now - before) * alpha;
     this.strikerFrame = strikerFrame(this.striker.definition, frame);
@@ -300,6 +324,7 @@ export class ImportedAthletes {
     this.ball.tick = frame.tick; this.ball.position.copy(position);
   }
   dispose() {
+    for(const texture of this.kitMasks)texture.dispose();
     this.striker.dispose(); this.keeper.dispose();
     for (const ghost of this.ghosts) ghost.dispose();
     for (const shadow of this.castShadows) shadow.dispose();

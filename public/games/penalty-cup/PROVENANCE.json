@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "title": "Penalty Shooters 2",
+    "creator": "10x10games",
+    "url": "https://poki.com/en/g/penalty-shooters-2",
+    "deployment": "https://5dd28e51-015f-11ea-ad56-9cb6d0d995f7.gdn.poki.com/47a81ce0-7223-495d-be4a-41778fafb74f/",
+    "license": "Commercial source artwork; user confirmed permission to publish on GitHub Pages on 2026-10-26",
+    "approval": "User confirmed permission to publish these sprites on GitHub Pages on 2026-10-26",
+    "method": "Original captured WEBP frames composited with source kit masks and origin coordinates",
+    "dataSha256": "18bb958817b82fd59b9cc6a0c2bcdddd1524ba164129f3a825fb65ffe95706ad"
+  },
+  "adaptation": "Original national-color palettes applied only through source-authored shirt, shorts and stripe masks; source bodies, faces, frame coordinates and native holds remain unchanged. Masks are RGB coverage fields, not new character artwork.",
+  "athletes": "Generic fictional athletes; no real-player likeness",
+  "flags": "Original simplified vector flag icons in flag.tsx",
+  "trophy": "Original SVG design in game.tsx",
+  "font": "Barlow Condensed, SIL OFL 1.1; copied from maintained vendor/final-third",
+  "localOnly": true
+}

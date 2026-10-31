@@ -23,8 +23,8 @@ import {
   ShopRail,
   StripList,
   TileGrid,
+  useScrollToItem,
 } from "../shop-tiles";
-import { useScrollToItem } from "./cards-shelf";
 
 export type StyleKind = "avatars" | "frames" | "banners" | "kits";
 

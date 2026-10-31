@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { Progress, TimerIcon, accentVar } from "@/design-system";
 import type { Sport } from "@/domain/sports";
 import type { EconomySnapshot } from "@/features/economy";
-import { DailyDrop } from "@/features/packs";
 import { dailyDealConfig } from "@/mocks/shop";
 import { useClock } from "@/shared/hooks";
 
@@ -16,8 +15,8 @@ import { ShopRail } from "./shop-tiles";
 import styles from "./shop-screen.module.css";
 
 /**
- * TODAY'S MARKET: the free daily card and three discounted deals. Both reset
- * on a timer, so there is a reason to come back tomorrow.
+ * TODAY'S MARKET: the discounted daily deals. They reset on a timer, so there
+ * is a reason to come back tomorrow.
  */
 export function ShopMarket({
   sport,
@@ -57,12 +56,7 @@ export function ShopMarket({
         </p>
       </header>
 
-      <div className={styles.marketGrid}>
-        <div className={styles.dropSlot}>
-          <DailyDrop sport={sport} actionLabel="BACK TO SHOP" />
-        </div>
-
-        <div className={styles.dealsPanel}>
+      <div className={styles.dealsPanel}>
           <div className={styles.dealsHead}>
             <h2 className={styles.dealsTitle}>DAILY DEALS</h2>
             <span className={styles.meta}>{`${claimed}/${deals.length || dailyDealConfig.slots.length} CLAIMED`}</span>
@@ -85,7 +79,6 @@ export function ShopMarket({
           ) : (
             <div className={styles.dealsLoading} aria-hidden />
           )}
-        </div>
       </div>
     </section>
   );

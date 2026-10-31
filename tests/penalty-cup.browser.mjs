@@ -1,0 +1,54 @@
+import { chromium } from '@playwright/test';
+import { build } from 'esbuild';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import http from 'node:http';
+
+const root=process.cwd(),out=path.join(root,'test-results/penalty-cup');await fs.mkdir(out,{recursive:true});
+const html=await fs.readFile('public/embedded-games/penalty-cup/index.html','utf8');
+const engine=(await build({stdin:{contents:`import * as e from './src/features/games/penalty-cup/tournament';window.cupTestEngine=e;`,resolveDir:root},bundle:true,write:false,format:'iife',platform:'browser',tsconfig:'tsconfig.json'})).outputFiles[0].text;
+const server=http.createServer((req,res)=>{res.setHeader('content-type','text/html');if(req.url.startsWith('/embedded-games/')){res.end(html);return;}res.end(`<!doctype html><html><body style="margin:0"><script>window.accounts={a:{},b:{}};window.account='a';window.records=[];window.__STATOZ_BUNDLE_BOOT__=(session,child)=>JSON.stringify({sessionId:session,origin:location.origin,storageScope:account,stores:accounts[account],resultIds:[]});window.addEventListener('message',e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;records.push(e.data);if(e.data.type==='save')accounts[account]=e.data.payload.stores;});window.reloadCup=()=>document.querySelector('iframe').src='/embedded-games/penalty-cup/index.html?session=test';</script><iframe src="/embedded-games/penalty-cup/index.html?session=test" style="width:100vw;height:100dvh;border:0" allow="autoplay;gamepad"></iframe></body></html>`);});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const executable=process.env.SHOOTOUT_CHROMIUM||process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
+const browser=await chromium.launch({headless:true,...(executable?{executablePath:executable}:{})});
+const errors=[],report=[];let page;
+try{
+ page=await browser.newPage({viewport:{width:1280,height:850},deviceScaleFactor:1,hasTouch:true});page.setDefaultTimeout(20000);
+ page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+ await page.route('**/*',route=>route.request().url().startsWith(`http://127.0.0.1:${server.address().port}`)||/^(data:|blob:)/.test(route.request().url())?route.continue():route.abort());
+ await page.goto(`http://127.0.0.1:${server.address().port}`);await page.addScriptTag({content:engine});
+ const frame=()=>page.frames().find(f=>f.url().includes('/embedded-games/'));
+ await frame().getByRole('button',{name:/THE COMPLETE JOURNEY/}).waitFor();await page.screenshot({path:path.join(out,'desktop-home.png')});
+ await frame().getByRole('button',{name:/THE COMPLETE JOURNEY/}).click();assert.equal(await frame().locator('button[style*="--nation-color"]').count(),48);
+ await frame().getByLabel('Search nations').fill('Japan');await frame().getByRole('button',{name:/Japan JPN/}).click();await frame().getByRole('button',{name:/Start Penalty Cup/}).click();
+ await frame().getByRole('heading',{name:'Your road to the cup'}).waitFor();await page.screenshot({path:path.join(out,'desktop-cup-hub.png')});
+ await frame().getByRole('button',{name:/Play match/}).click();await frame().getByRole('button',{name:/Kick off/}).click();console.log('browser: loading first match');await page.waitForTimeout(2500);await page.screenshot({path:path.join(out,'desktop-pitch-loading.png')});await frame().locator('[data-cup-match][data-phase="preparation"]').waitFor({timeout:60000});console.log('browser: first match ready');
+ await frame().locator('[data-cup-match]').click({position:{x:500,y:380}});await page.keyboard.down('KeyD');await page.waitForTimeout(240);await page.keyboard.up('KeyD');
+ const aim=await frame().locator('[data-cup-match]').getAttribute('data-aim-x');assert.ok(+aim>0);
+ await page.keyboard.down('Space');await page.waitForTimeout(200);await page.keyboard.up('Space');await frame().locator('[data-phase="resolution"]').waitFor({timeout:20000});await page.screenshot({path:path.join(out,'desktop-shot-result.png')});
+ await frame().getByRole('button',{name:'Replay',exact:true}).click();await frame().getByRole('button',{name:'Skip replay',exact:true}).click();await frame().locator('[data-role="keeping"]').waitFor();
+ await page.evaluate(()=>window.frames[0].postMessage({protocolVersion:1,gameId:'penalty-cup',sessionId:'test',type:'pause'},location.origin));await frame().getByRole('dialog',{name:'Match paused'}).waitFor();await page.evaluate(()=>window.frames[0].postMessage({protocolVersion:1,gameId:'penalty-cup',sessionId:'test',type:'resume'},location.origin));await frame().getByRole('dialog',{name:'Match paused'}).waitFor({state:'hidden'});
+ await page.keyboard.press('Escape');await frame().getByRole('button',{name:'Leave match'}).click();
+ await page.evaluate(()=>{window.account='b';window.reloadCup();});await frame().getByRole('button',{name:/THE COMPLETE JOURNEY/}).waitFor();assert.equal(await frame().getByRole('button',{name:/Continue Cup/}).count(),0);
+ await page.evaluate(()=>{window.account='a';window.reloadCup();});await frame().getByRole('button',{name:/Continue Cup/}).waitFor();
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(out,'portrait-home.png')});
+ await frame().getByRole('button',{name:/STRAIGHT TO THE SPOT/}).click();await frame().getByRole('button',{name:/Find opponent/}).click();await page.screenshot({path:path.join(out,'portrait-random-intro.png')});
+ await frame().getByRole('button',{name:/Kick off/}).click();await frame().locator('[data-cup-match][data-phase="preparation"]').waitFor({timeout:60000});await page.screenshot({path:path.join(out,'portrait-gameplay.png')});
+ const stick=frame().getByRole('group',{name:'1 / AIM virtual stick'}),box=await stick.boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width*.85,box.y+box.height*.3);await page.mouse.up();
+ const shoot=frame().getByRole('button',{name:'SHOOT HOLD · RELEASE'});await shoot.hover();await page.mouse.down();await page.waitForTimeout(200);await page.mouse.up();await frame().locator('[data-phase="resolution"]').waitFor({timeout:20000});await frame().getByRole('button',{name:/Next penalty/}).click();await frame().locator('[data-role="keeping"]').waitFor();await page.screenshot({path:path.join(out,'portrait-goalkeeping.png')});
+ await page.setViewportSize({width:844,height:390});await page.screenshot({path:path.join(out,'landscape-goalkeeping.png')});const dive=await frame().getByRole('button',{name:'Dive right high'}).boundingBox();await page.touchscreen.tap(dive.x+dive.width/2,dive.y+dive.height/2);
+ await frame().getByRole('button',{name:/Pause/}).click();await frame().getByRole('button',{name:'Leave match'}).click();
+ // Exercise real screens with a persisted pending semi-final defeat, then retry and accept the same fixture.
+ await page.evaluate(()=>{const e=window.cupTestEngine;let cup=e.newCup('ARG','normal',99,'browser-cup');while(cup.stage!=='semi'){const f=e.currentFixture(cup);cup=e.acceptResult(e.storePending(cup,{id:`${cup.id}:${f.id}:${f.attempts}`,score:[5,2],outcome:'win',kicks:[],suddenDeath:false}));}const f=e.currentFixture(cup);cup=e.storePending(cup,{id:`${cup.id}:${f.id}:${f.attempts}`,score:[2,5],outcome:'loss',kicks:[],suddenDeath:false});window.accounts.a['penalty-cup.v1.a']=JSON.stringify({version:1,active:cup,history:[]});window.reloadCup();});
+ await frame().getByRole('button',{name:/Continue Cup/}).click();await frame().getByRole('button',{name:'Retry match',exact:true}).waitFor();await page.screenshot({path:path.join(out,'landscape-rematch-decision.png')});
+ await frame().getByRole('button',{name:'Retry match',exact:true}).click();await frame().getByRole('button',{name:/Kick off/}).waitFor();
+ await page.evaluate(()=>{const raw=JSON.parse(window.accounts.a['penalty-cup.v1.a']);const e=window.cupTestEngine,f=e.currentFixture(raw.active);assertNever: {if(f.attempts!==1)throw Error('Retry was not persisted');}raw.active=e.storePending(raw.active,{id:`${raw.active.id}:${f.id}:${f.attempts}`,score:[2,5],outcome:'loss',kicks:[],suddenDeath:false});window.accounts.a['penalty-cup.v1.a']=JSON.stringify(raw);window.reloadCup();});
+ await frame().getByRole('button',{name:/Continue Cup/}).click();await frame().getByRole('button',{name:/Accept result/}).click();await frame().getByText('UP NEXT · THIRD-PLACE MATCH',{exact:true}).waitFor();
+ await page.evaluate(()=>{const raw=JSON.parse(window.accounts.a['penalty-cup.v1.a']);let c=window.cupTestEngine.newCup('BRA','normal',5,'champion');while(c.status==='active'){const f=window.cupTestEngine.currentFixture(c);c=window.cupTestEngine.acceptResult(window.cupTestEngine.storePending(c,{id:`${c.id}:${f.id}:${f.attempts}`,score:[5,1],outcome:'win',kicks:[],suddenDeath:false}));}raw.active=c;window.accounts.a['penalty-cup.v1.a']=JSON.stringify(raw);window.reloadCup();});
+ await frame().getByRole('button',{name:/View last cup/}).click();await frame().getByRole('heading',{name:'Champions of the cup'}).waitFor();await frame().getByRole('button',{name:'Knockout bracket',exact:true}).click();await page.setViewportSize({width:1280,height:850});await page.screenshot({path:path.join(out,'desktop-champion-bracket.png')});
+ assert.equal(await frame().locator('section[data-penalty-cup]').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
+ report.push('48-team selector, cup creation, actual shot/replay/keeping, pause/resume, keyboard/pointer, portrait/landscape, independent random mode, account isolation, pending-result reload, retry persistence, bronze progression, champion bracket, offline asset resolution');
+ await page.evaluate(()=>window.frames[0].postMessage({protocolVersion:1,gameId:'penalty-cup',sessionId:'test',type:'dispose'},location.origin));await frame().locator('[data-penalty-cup]').waitFor({state:'detached'});
+ assert.deepEqual(errors,[]);await fs.writeFile(path.join(out,'browser-validation.json'),JSON.stringify({passed:report,errors,hostPauseResumeDispose:true,touchTap:true,physicalDeviceTested:false},null,2));console.log(report.join('\n'));
+}catch(error){if(page)await page.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});await fs.writeFile(path.join(out,'browser-failure.json'),JSON.stringify({error:String(error),errors},null,2));throw error;}finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

@@ -17,6 +17,8 @@ export type PlatformNavProps = {
   /** Overrides the destination derived from the URL. */
   activeId?: NavDestinationId;
   orientation?: "bar" | "rail";
+  /** Narrow icon rail for a phone held sideways. */
+  compact?: boolean;
   className?: string;
 };
 
@@ -60,6 +62,7 @@ function destinationForPath(pathname: string): NavDestinationId {
 export function PlatformNav({
   activeId,
   orientation = "bar",
+  compact = false,
   className,
 }: PlatformNavProps) {
   const pathname = usePathname();
@@ -79,6 +82,7 @@ export function PlatformNav({
       items={items}
       activeId={active}
       orientation={orientation}
+      compact={compact}
       className={className}
     />
   );

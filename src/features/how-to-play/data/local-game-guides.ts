@@ -3,6 +3,7 @@ import type {ModeGuide} from '../types';
 
 type LocalGuide = Pick<ModeGuide,'id'|'icon'|'accent'|'tagline'|'purpose'|'steps'>;
 const games: LocalGuide[] = [
+  {id:'penalty-cup',icon:'sports_soccer',accent:'gold',tagline:'One shot. One nation. One cup.',purpose:'Choose one of 48 national teams and play a complete penalties-only international cup, or face a random opponent in a single shootout. Progress stays local to your account.',steps:[{title:'Choose your journey',body:'Penalty Cup starts in your nation’s actual 2026 group. Random Game draws a different national team for one match. Select Easy, Normal or Hard.'},{title:'Score and save',body:'Aim with WASD, the left stick or the touch stick. Press in the green composure window, hold to charge and release to shoot. Time your goalkeeper dive with arrows, the right stick or the dive pad.'},{title:'Take the cup',body:'Groups play five penalties each, with 3/1/0 points for win/draw/loss. Knockouts use sudden death when tied. Retry a knockout defeat or accept it; a semi-final defeat leads to the third-place match. Continue Cup restores your saved run.'}]},
   {
     id:'stick-cricket', icon:'sports_cricket', accent:'orange', tagline:'Time your shots and chase the target',
     purpose:'Follow the batting lesson, then choose a chase in Stick Cricket Chase. Time a left or right shot as the ball arrives.',

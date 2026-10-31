@@ -136,19 +136,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.marketGrid {
-  display: grid;
-  gap: 16px;
-}
-@media (width >= 64rem) {
-  .marketGrid {
-    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-
-.dropSlot { min-width: 0; }
-
 .dealsPanel { min-width: 0; }
 
 .dealsHead {

@@ -21,6 +21,8 @@ export type NavRailProps = {
   activeId?: string;
   /** `bar` lays the items out horizontally, `rail` stacks them vertically. */
   orientation?: "bar" | "rail";
+  /** Rail only: a narrow icon column with small labels, for short landscape screens. */
+  compact?: boolean;
   label: string;
   className?: string;
 };
@@ -34,16 +36,18 @@ export function NavRail({
   items,
   activeId,
   orientation = "bar",
+  compact = false,
   label,
   className,
 }: NavRailProps) {
   const rail = orientation === "rail";
+  const wide = rail && !compact;
 
   return (
     <nav
       aria-label={label}
       className={[
-        rail ? "h-full w-full py-4" : "px-2 py-3",
+        rail ? (compact ? "h-full w-full py-2" : "h-full w-full py-4") : "px-2 py-3",
         className ?? "",
       ]
         .filter(Boolean)
@@ -53,14 +57,14 @@ export function NavRail({
       <ul
         className={[
           "flex",
-          rail ? "flex-col gap-1.5" : "items-stretch gap-1.5",
+          rail ? (compact ? "flex-col gap-1" : "flex-col gap-1.5") : "items-stretch gap-1.5",
         ].join(" ")}
       >
         {items.map((item) => {
           const active = item.id === activeId;
           const itemClassName = [
-            "flex min-h-15 w-full transition-colors duration-200",
-            rail
+            compact ? "flex min-h-14 w-full transition-colors duration-200" : "flex min-h-15 w-full transition-colors duration-200",
+            wide
               ? "flex-row items-center gap-3 px-4 py-3"
               : "flex-col items-center justify-center gap-1.5 px-1",
           ].join(" ");
@@ -78,7 +82,7 @@ export function NavRail({
               <span
                 className={[
                   "font-display leading-tight",
-                  rail ? "text-xs" : "text-2xs",
+                  wide ? "text-xs" : "text-2xs",
                   active ? "font-bold" : "font-semibold",
                 ].join(" ")}
               >

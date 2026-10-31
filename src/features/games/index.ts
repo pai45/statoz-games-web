@@ -4,13 +4,13 @@ export { GameLeaderboardCta } from "./components/game-leaderboard-cta";
 export { GamePlaceholder } from "./components/game-placeholder";
 export { PitchDuel } from "./pitch-duel";
 export { GameScene, gameSceneAssets, type GameSceneProps } from "./components/game-scenes";
-export { FeaturedGameSpotlight } from "./components/featured-game-spotlight";
+export { AllGamesList } from "./components/all-games-list";
+export { GameCoverflow } from "./components/game-coverflow";
 export { GameLibrary, type GameLibraryProps } from "./components/game-library";
-export { GamesTrendingFeed } from "./components/games-trending-feed";
 export {
   allGamesInFeedOrder,
   libraryCardLayout,
-  spotlightGames,
+  coverflowOffset,
   sportGamesInDeckOrder,
   type LibraryCardLayout,
 } from "./home-catalog";

@@ -13,6 +13,7 @@ export type HowToPlayMode =
   | "pick"
   | "pitch-duel"
   | "penalty-shootout"
+  | "penalty-cup"
   | "football-bingo"
   | "football-chess"
   | "hoop-duel"

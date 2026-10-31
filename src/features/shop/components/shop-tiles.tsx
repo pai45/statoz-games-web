@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, type CSSProperties, type ReactNode } from "react";
 
 import { ProfileIcon, StyleIcon, StarIcon } from "@/design-system";
 import type { Sport } from "@/domain/sports";
@@ -72,6 +72,18 @@ export function ShopFocusTarget({ id, focused, children }: { id: string; focused
       {children}
     </div>
   );
+}
+
+/** Scrolls a deep-linked tile into view once its drawer has opened. */
+export function useScrollToItem(id: string | null) {
+  useEffect(() => {
+    if (!id) return;
+    const frame = window.requestAnimationFrame(() => {
+      const tile = document.getElementById(shopItemDomId(id))?.firstElementChild;
+      tile?.scrollIntoView({ block: "center", inline: "center" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [id]);
 }
 
 export function shopItemDomId(id: string) {

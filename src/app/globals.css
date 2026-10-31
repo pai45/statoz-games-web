@@ -1,6 +1,9 @@
 @import "tailwindcss" source("../");
 @import "../design-system/styles/tokens.css";
 
+/* A phone held sideways (or the rotated platform frame): wide but short. */
+@custom-variant phone-land (@media (orientation: landscape) and (max-height: 540px));
+
 @theme inline {
   /* Surfaces */
   --color-background: var(--ds-color-background-primary);

@@ -15,14 +15,14 @@ const defaults: Preferences = {scale: 1, leftHanded: false, volume: 0.65};
 
 export function StickCricketGame({onExit, onEvent, hostCommand}: CricketGameProps) {
   const shell = useRef<HTMLElement>(null), frame = useRef<HTMLIFrameElement>(null), session = useRef("");
-  const [started, setStarted] = useState(false), [ready, setReady] = useState(false), [booted, setBooted] = useState(false);
+  const [ready, setReady] = useState(false), [booted, setBooted] = useState(false);
   const [paused, setPaused] = useState(false), [options, setOptions] = useState(false), [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0), [source, setSource] = useState("");
   const [prefs, setPrefs] = useState(defaults);
   const display = useRef<HTMLElement>(null);
   const [size, setSize] = useState({width: 640, height: 360});
   useEffect(() => { const node=display.current; if (!node) return; const observer=new ResizeObserver(([entry]) => { const width=Math.min(entry.contentRect.width,entry.contentRect.height*16/9); setSize({width,height:width*9/16}); }); observer.observe(node); return () => observer.disconnect(); }, []);
-  const state = useRef({ready, booted, paused, started, options}); state.current = {ready, booted, paused, started, options};
+  const state = useRef({ready, booted, paused, options}); state.current = {ready, booted, paused, options};
   const events = useRef(onEvent); events.current = onEvent;
   const send = useCallback((type: string, extra: Record<string, unknown> = {}) => {
     const element = frame.current;
@@ -37,13 +37,12 @@ export function StickCricketGame({onExit, onEvent, hostCommand}: CricketGameProp
   const unlockAudio = () => { try { (frame.current?.contentWindow as RuntimeWindow | null)?.__stickCricketUnlock?.(); } catch { /* Runtime may still be loading. */ } };
   const resume = () => { unlockAudio(); send("resume"); setPaused(false); };
 
-  useEffect(() => mountRetroPresentation(shell.current!, () => { if (state.current.started) pause(); }), [pause]);
+  useEffect(() => mountRetroPresentation(shell.current!, () => { if (state.current.ready) pause(); }), [pause]);
   useEffect(() => {
     try { const value = JSON.parse(localStorage.getItem(PREFS) || "null"); if (value) setPrefs({scale: typeof value.scale === "number" ? Math.max(0.85, Math.min(1.25, value.scale)) : 1, leftHanded: value.leftHanded === true, volume: typeof value.volume === "number" ? Math.max(0, Math.min(1, value.volume)) : 0.65}); } catch { /* Temporary play when storage is unavailable. */ }
   }, []);
   useEffect(() => { send("volume", {value: prefs.volume}); }, [prefs.volume, ready, send]);
   useEffect(() => {
-    if (!started) return;
     const boot = (window as Window & {__STATOZ_BOOT__?: Boot}).__STATOZ_BOOT__;
     session.current = crypto.randomUUID();
     const base = boot?.assetRoot ?? `${location.pathname.split(/\/embedded-games\/|\/play\//)[0]}/games/stick-cricket/`;
@@ -61,22 +60,22 @@ export function StickCricketGame({onExit, onEvent, hostCommand}: CricketGameProp
     window.addEventListener("message", receive);
     const timeout = window.setTimeout(() => { if (!state.current.ready) { release(); setError("The local game files did not finish loading. Retry loading."); } }, 120000);
     return () => { window.clearTimeout(timeout); release(); send("dispose"); window.removeEventListener("message", receive); };
-  }, [attempt, started, pause, release, send]);
+  }, [attempt, pause, release, send]);
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       const editable = event.target instanceof HTMLElement && !!event.target.closest("input,select,textarea,[contenteditable=true]");
       if (event.target instanceof HTMLElement && event.target.closest("button") && ["Enter", "Space"].includes(event.code)) return;
-      if (editable || !state.current.started) return;
+      if (editable || !state.current.ready) return;
       if (event.type === "keydown" && !event.repeat && ["Escape", "KeyP"].includes(event.code)) { event.preventDefault(); if (!state.current.options) { if (state.current.paused) { send("resume"); setPaused(false); } else pause(); } return; }
       if (!state.current.ready || !state.current.booted || state.current.paused || state.current.options) return;
       if (input.current?.key(event.code, event.type === "keydown")) event.preventDefault();
     };
-    const blur = () => { if (document.hasFocus() && !document.hidden) return; if (state.current.started && !state.current.paused) pause(); else release(); };
+    const blur = () => { if (document.hasFocus() && !document.hidden) return; if (state.current.ready && !state.current.paused) pause(); else release(); };
     const visibility = () => { if (document.hidden) blur(); };
     window.addEventListener("keydown", key); window.addEventListener("keyup", key); window.addEventListener("blur", blur); document.addEventListener("visibilitychange", visibility);
     return () => { release(); window.removeEventListener("keydown", key); window.removeEventListener("keyup", key); window.removeEventListener("blur", blur); document.removeEventListener("visibilitychange", visibility); };
   }, [pause, release, send]);
-  useEffect(() => { if (hostCommand?.type === "pause") pause(); else if (hostCommand?.type === "resume" && state.current.started) { send("resume"); setPaused(false); } }, [hostCommand, pause, send]);
+  useEffect(() => { if (hostCommand?.type === "pause") pause(); else if (hostCommand?.type === "resume" && state.current.ready) { send("resume"); setPaused(false); } }, [hostCommand, pause, send]);
   useEffect(() => {
     if (!options) return;
     const previous = document.activeElement, dialog = shell.current?.querySelector<HTMLElement>('[role="dialog"]');
@@ -95,17 +94,17 @@ export function StickCricketGame({onExit, onEvent, hostCommand}: CricketGameProp
     onPointerUp={event => { delete event.currentTarget.dataset.held; input.current?.up(`touch:${event.pointerId}`); }}
     onPointerCancel={event => { delete event.currentTarget.dataset.held; input.current?.up(`touch:${event.pointerId}`, true); }}
     onLostPointerCapture={event => { if (event.currentTarget.dataset.held) { delete event.currentTarget.dataset.held; input.current?.up(`touch:${event.pointerId}`, true); } }}><b>{direction === "left" ? "\u25c0" : "\u25b6"}</b><small>BAT {direction.toUpperCase()}</small></button>;
-  const start = () => { setError(""); if (started) { setReady(false); setBooted(false); setPaused(false); setAttempt(value => value + 1); } else setStarted(true); };
+  const start = () => { setError(""); setReady(false); setBooted(false); setPaused(false); setAttempt(value => value + 1); };
   return <section ref={shell} data-retro-frame data-stick-cricket data-controls-active={active} data-left-handed={prefs.leftHanded} className={styles.root} style={{"--control-scale": prefs.scale} as React.CSSProperties} aria-label="Stick Cricket cricket batting">
     <div data-retro-console className={styles.console}>
       <header className={styles.header}><button onClick={() => { release(); send("dispose"); onExit(); }}>Exit</button><h1>STICK CRICKET <small>TIMING / CRICKET</small></h1><div className={styles.utilities}>
-        <button disabled={!ready} onClick={() => paused ? resume() : pause()}>{paused ? "Resume" : "Pause"}</button><button aria-label="Settings" onClick={() => { if (started) pause(); setOptions(true); }}>Settings</button></div></header>
+        <button disabled={!ready} onClick={() => paused ? resume() : pause()}>{paused ? "Resume" : "Pause"}</button><button aria-label="Settings" onClick={() => { if (ready) pause(); setOptions(true); }}>Settings</button></div></header>
       <aside data-retro-grip="left" className={styles.leftGrip} aria-label="Left batting control">{button("left")}</aside>
       <main ref={display} data-retro-display className={styles.display}>
         {source && <iframe ref={frame} src={source} title="Stick Cricket native game engine" allow="autoplay; gamepad" tabIndex={-1} className={styles.engine} style={{width:size.width,height:size.height}} onError={() => setError("The local game files could not load.")}/>}
-        {(!started || !ready || error || paused) && <div className={styles.overlay} role={error ? "alert" : "status"}>
-          <span className={styles.kicker}>STICK CRICKET CHASE / LOCAL GAME</span><h2>{error ? "GAME UNAVAILABLE" : !started ? "STICK CRICKET" : paused ? "PAUSED" : "LOADING STICK CRICKET"}</h2>
-          {error ? <><p>{error}</p><button onClick={start}>Retry loading</button></> : !started ? <><p>Tap the left or right arrow as the ball arrives. Follow the hitting lesson, then pick a chase. Use the game&apos;s on-screen arrows or choose handheld side buttons in Settings.</p><button onClick={start}>Play Stick Cricket Chase</button><small>Original Stick Cricket Chase gameplay and characters.</small></> : paused ? <button onClick={resume}>Resume game</button> : <p>Loading the local game and stadium...</p>}
+        {(!ready || error || paused) && <div className={styles.overlay} role={error ? "alert" : "status"}>
+          <h2>{error ? "GAME UNAVAILABLE" : paused ? "PAUSED" : "LOADING STICK CRICKET"}</h2>
+          {error ? <><p>{error}</p><button onClick={start}>Retry loading</button></> : paused ? <button onClick={resume}>Resume game</button> : <p>Loading the local game and stadium...</p>}
         </div>}
 
       </main>

@@ -61,7 +61,7 @@ export class ShootoutSimulation {
   frames: Frame[] = [];
   private replayIndex = 0;
   private tailTicks = 0;
-  constructor(mode: Mode, level: number, seed: number) {
+  constructor(mode: Mode, level: number, seed: number, private rules: import("../game-types").MatchRules = {}) {
     this.cosmeticSeed = seed >>> 0;
     this.mode = mode; this.level = clamp(level, 1, 12); this.random = seeded(seed);
     this.world = new RAPIER.World({ x: 0, y: -9.81, z: 0 }); this.world.timestep = STEP;
@@ -109,7 +109,7 @@ export class ShootoutSimulation {
     this.contactFacts = []; this.catchTick = -1; this.parryTick = -1; this.keeperVelocity = 0; this.shooterAnimator = new CharacterAnimator(); this.keeperAnimator = new CharacterAnimator();
     this.placeKeeper(true); this.emit("whistle");
   }
-  next() { if (this.phase !== "resolution" && this.phase !== "replay") return; if (this.mode === "shootout" && matchStatus(this.kicks).winner) { this.setPhase("summary"); return; } this.resetKick(); }
+  next() { if (this.phase !== "resolution" && this.phase !== "replay") return; if (this.mode === "shootout" && matchStatus(this.kicks, this.rules).complete) { this.setPhase("summary"); return; } this.resetKick(); }
   cancelInput() { this.wasShoot = false; if (this.phase === "charging") { this.power = 0; this.setPhase("preparation"); } }
   replay() { if (this.phase === "resolution" && this.frames.length) { this.setPhase("replay"); this.replayIndex = 0; } }
   get marker() { return (Math.sin((this.tick * STEP) / 1.5 * Math.PI * 2) + 1) / 2; }
@@ -263,7 +263,7 @@ export class ShootoutSimulation {
   }
   frame(): Frame { return this.phase === "replay" && this.frames.length ? this.frames[Math.min(this.frames.length - 1, Math.floor(this.replayIndex))] : this.liveFrame(); }
   snapshot(): Snapshot {
-    const match = matchStatus(this.kicks);
+    const match = matchStatus(this.kicks, this.rules);
     return { phase: this.phase, role: this.role, mode: this.mode, tick: this.tick, ...match, kicks: [...this.kicks], power: this.power, composure: this.composure, marker: this.marker, aim: copy(this.target), spread: accuracy({ power: this.power, composure: this.composure, style: this.style }), style: this.style, result: this.result, replayProgress: this.frames.length ? this.replayIndex / this.frames.length : 0, notice: this.role === "shooting" ? this.phase === "preparation" ? "Aim first, then hold Shoot to charge" : this.phase === "charging" ? "Aim locked  -  release to shoot" : this.phase === "runup" ? "Aim locked  -  taking the shot" : "" : this.phase === "preparation" ? "Move on the line  -  read the taker" : this.phase === "runup" ? "Commit early for reach, or react late" : "" };
   }
   dispose() { this.queue.free(); this.world.free(); }

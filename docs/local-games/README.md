@@ -74,3 +74,8 @@ Archery retains the previously documented EnvironmentA 1024-quality resource sub
 The final closure pass added 660 Tennis Addressable bundles (20,549,463 bytes); all 752 catalogue entries are now present. Penalty now has all seven WebM files declared in its native project, including six additional match effects. These raw native acquisitions are preserved beside their manifests; they are distinct from the earlier 80,612 editable exports.
 
 Useful commands: `npx tsx --test tests/localized-games.test.ts tests/f1-racing.test.ts`, `npm run test:football-shooting:browser`, `npm run test:archery-test:browser`, `npm run test:stick-cricket:browser`, `npm run typecheck`, `npm run lint`, and `node scripts/build-with-assets.mjs`. Rebuild one game using `node scripts/build-game-bundles.mjs --game=<id>`; Tennis/Soccer installers run automatically, Retro rebuilds its source, and other native installers have separate pinned-input verification.
+
+
+## Direct game entry (2026-10-31)
+
+All six maintained native launchers (Stick Cricket Chase, Archery Master, Penalty Shooters 2, Tennis Bits, Soccer REAL and Crazy Grand Prix) boot as soon as their page opens. The redundant wrapper title/instructions/Play screen is removed. A loading status appears while preparing the game; native game menus and team/level selection remain inside the game. Pause/resume, retry/restart, exit and account-scoped saves keep their existing controls. Browser integration checks enter without clicking a wrapper Play button.

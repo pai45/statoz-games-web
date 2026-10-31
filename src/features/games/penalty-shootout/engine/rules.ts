@@ -5,12 +5,14 @@ export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.ma
 export const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 export const smooth = (v: number) => { const t = clamp(v, 0, 1); return t * t * (3 - 2 * t); };
 export function seeded(seed: number) { let s = seed >>> 0; return () => { s += 0x6d2b79f5; let t = Math.imul(s ^ s >>> 15, 1 | s); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-export function matchStatus(kicks: Pick<KickResult, "role" | "outcome">[]) {
+export function matchStatus(kicks: Pick<KickResult, "role" | "outcome">[], rules: import("../game-types").MatchRules = {}) {
   const a = kicks.filter(k => k.role === "shooting"), b = kicks.filter(k => k.role === "keeping");
   const score: [number, number] = [a.filter(k => k.outcome === "goal").length, b.filter(k => k.outcome === "goal").length];
-  const early = a.length <= 5 && b.length <= 5 && (score[0] > score[1] + 5 - b.length || score[1] > score[0] + 5 - a.length);
+  const early = rules.earlyClinch !== false && a.length <= 5 && b.length <= 5 && (score[0] > score[1] + 5 - b.length || score[1] > score[0] + 5 - a.length);
   const pair = a.length >= 5 && a.length === b.length && score[0] !== score[1];
-  return { score, suddenDeath: kicks.length >= 10 && !early && (!pair || a.length > 5), winner: early || pair ? score[0] > score[1] ? "player" as const : "opponent" as const : null };
+  const complete = early || pair || !!rules.allowDraw && a.length === 5 && b.length === 5;
+  const outcome = complete ? score[0] === score[1] ? "draw" as const : score[0] > score[1] ? "win" as const : "loss" as const : null;
+  return { complete, outcome, score, suddenDeath: !rules.allowDraw && kicks.length >= 10 && !early && (!pair || a.length > 5), winner: early || pair ? score[0] > score[1] ? "player" as const : "opponent" as const : null };
 }
 export function accuracy(command: Pick<ShotCommand, "composure" | "power" | "style">) {
   return (0.035 + (1 - command.composure) * 0.7 + Math.max(0, command.power - 0.78) ** 2 * 7) * (command.style === "placed" ? 0.72 : command.style === "chip" ? 1.2 : 1);

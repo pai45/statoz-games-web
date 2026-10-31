@@ -17,7 +17,7 @@ export function sportGamesInDeckOrder(sport: GameSport): GameId[] {
 }
 
 /** Games whose cover ships with the game bundle rather than the shared covers folder. */
-const bundledCoverGames: readonly string[] = ["football-shooting", "retro-football-2", "stick-cricket", "archery-test", "penalty-shooters-2", "soccer-real", "tennis-bits"];
+const bundledCoverGames: readonly string[] = ["penalty-cup", "football-shooting", "retro-football-2", "stick-cricket", "archery-test", "soccer-real", "tennis-bits"];
 
 export const hasBundledCover = (id: GameId) => bundledCoverGames.includes(id);
 
@@ -27,14 +27,16 @@ export function gameCoverPath(id: GameId): string {
   return hasBundledCover(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`;
 }
 
-/** How many games the home banner rotates through. */
-export const spotlightLimit = { all: 3, sport: 3 } as const;
-
-/** The games the featured banner rotates through for the selected view. */
-export function spotlightGames(sport: GameSport | null): GameId[] {
-  return sport
-    ? sportGamesInDeckOrder(sport).slice(0, spotlightLimit.sport)
-    : allGamesInFeedOrder().slice(0, spotlightLimit.all);
+/**
+ * Where game `index` sits in the home coverflow relative to the centre card:
+ * 0 is the centre, negative to the left, positive to the right. Lists of five
+ * or more wrap around, so there are always games on both sides.
+ */
+export function coverflowOffset(index: number, active: number, count: number): number {
+  const offset = index - active;
+  if (count < 5) return offset;
+  const half = Math.floor(count / 2);
+  return ((offset + count + half) % count) - half;
 }
 
 /**

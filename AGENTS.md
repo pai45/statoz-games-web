@@ -24,6 +24,10 @@ User direction: Retro Football uses its own classic arcade identity. Follow the 
 
 User direction (2026-10-30): Pitch Duel is an eleven-a-side, portrait-first card football game with its own Ballers-inspired look (dark violet stadium panels, pink/cyan accents, player cards in the StatOz collectible layout with a stat panel, Bebas Neue / Barlow Condensed / Inter). Do not restyle it with the StatOz system inside the game; the host keeps its styling. The Ballers repository is unlicensed: never copy its code, CSS, images, logo or audio — measure and redraw only. See `docs/PITCH-DUEL.md`.
 
+## Penalty Cup independent style
+
+Penalty Cup is a separate game at /play/penalty-cup, maintained here only. Follow independent-game-style: game-owned football broadcast menus and interface, no StatOz/cyber styling inside the game. Share Penalty Shootout's match runtime with optional group-draw rules; preserve default Shootout behavior. Frozen 2026 data, tournament state and account-scoped saves live in the penalty-cup feature. See docs/PENALTY-CUP.md. Keep changes local unless separately authorized for release.
+
 ## Penalty Shootout ownership
 
 This repository is the canonical home for all future Penalty Shootout changes, per the user. The complete 3D game was transferred from statoz_web on 2026-10-21. Develop, test and maintain it here; do not sync changes back to statoz_web or edit Designer staging copies as the runtime source. Preserve local namespaced progress and account isolation.

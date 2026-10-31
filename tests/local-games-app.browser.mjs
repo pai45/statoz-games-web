@@ -56,8 +56,8 @@ async function boot(page,game,{catalogue=false,email=accountA}={}){
  const frame=await host(page,game.id);
  assert.equal(await frame.evaluate(()=>window.__STATOZ_BOOT__.storageScope),scope(email));
  let native=null;
- if(game.start){
-  await frame.getByRole('button',{name:game.start,exact:true}).click();
+ if(game.ready){
+  assert.equal(await frame.getByRole('button',{name:/^Play /}).count(),0,'No extra starter screen');
   await expect.poll(()=>page.frames().some(f=>f.url().includes(`/games/${game.id}/`)&&f.url().includes('/index.html')),{timeout:30000}).toBe(true);
   native=page.frames().find(f=>f.url().includes(`/games/${game.id}/`)&&f.url().includes('/index.html'));
   await native.waitForFunction(game.ready,null,{timeout:120000});
@@ -133,7 +133,8 @@ try{
  simulateMissing=false;
  await page.getByRole('button',{name:'Try again',exact:true}).click();
  const recovered=await host(page,'soccer-real');
- await recovered.getByRole('button',{name:'Play Soccer REAL',exact:true}).waitFor();
+ await expect.poll(()=>page.frames().some(f=>f.url().includes('/games/soccer-real/native/index.html')),{timeout:30000}).toBe(true);
+ await page.frames().find(f=>f.url().includes('/games/soccer-real/native/index.html')).waitForFunction(games.find(g=>g.id==='soccer-real').ready,null,{timeout:120000});
  await exit(page,games.find(g=>g.id==='soccer-real'),recovered);
  checks.push('A deliberately unavailable bundle shows a useful error, retries successfully and preserves normal exit');
  await guest.close();

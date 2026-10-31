@@ -177,7 +177,7 @@ test('manifest includes built game dependencies and static code, encodes names a
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'game-assets-'));
   const put = async (file, text = 'bytes') => { await fs.mkdir(path.dirname(path.join(root, file)), { recursive: true }); await fs.writeFile(path.join(root, file), text); };
   try {
-    for (const game of ['open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'f1-racing', 'archery-test', 'tennis-bits', 'soccer-real', 'penalty-shooters-2', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
+    for (const game of ['penalty-cup', 'open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'f1-racing', 'archery-test', 'tennis-bits', 'soccer-real', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
     await put('src/domain/removed-games.json', await fs.readFile(path.join(process.cwd(), 'src/domain/removed-games.json'), 'utf8'));
     await put('src/catalog.ts', '"/assets/shop/portraits/LEO 10.webp" "/assets/shop/banners/BLUE 10.webp"');
     await put('public/assets/shop/banners/BLUE 10.webp');
@@ -186,9 +186,11 @@ test('manifest includes built game dependencies and static code, encodes names a
     for (const asset of ['arcade/data/cores/fbneo-wasm.data', 'arcade/roms/ssideki2.zip', 'arcade/roms/arcade.7z', 'arcade/bridge.js', 'arcade/index.html', 'cover.png']) await put('public/games/retro-football-2/' + asset);
     for (const asset of ['unity/Build/game.wasm','unity/Build/game.data','unity/StreamingAssets/aa/catalog.bin','unity/StreamingAssets/aa/WebGL/scene.bundle','unity/bridge.js','cover.png']) await put('public/games/stick-cricket/' + asset);
     for(const asset of ['native/index.html','native/local-platform.js','native/engine.bundle.js','native/assets/models/512/terrains/EnvironmentA.glb','native/assets/fonts/helve.xml','native/assets/sounds/effects.mp3'])await put('public/games/archery-test/'+asset);
-    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb','games/penalty-shooters-2/native/media/music.webm','games/football-shooting/recovered/animations.bin'])await put('public/'+asset);
+    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb','games/football-shooting/recovered/animations.bin'])await put('public/'+asset);
     for (const id of ['retro-hoops', 'retro-football-2', 'football-shooting']) for (const asset of [`assets/games/${id}/sprite.png`, `assets/games/${id}.svg`, `assets/games/covers/${id}.webp`, `assets/games/identity/${id}.svg`]) await put('public/' + asset);
     await put('public/games/tennis-bits/dissection/large-library.json');await put('public/games/tennis-bits/originals/Build/game.wasm');
+    await put('public/games/penalty-cup/cover.png');
+    await put('public/games/penalty-cup/striker-kit-mask.png');
     await put('public/assets/games/penalty-shootout/imported-characters/manifest.json');
     const first = await generateAssetManifest({ root, buildId: 'one', basePath: '/demo', exportDir: path.join(root, 'out') });
     for (const asset of ['data/cores/fbneo-wasm.data', 'roms/strhoop.zip', 'roms/arcade.7z', 'bridge.js', 'index.html']) {
@@ -206,8 +208,8 @@ test('manifest includes built game dependencies and static code, encodes names a
       assert.ok(!first.files.some(file => file.url.includes('/embedded-games/' + id + '/') || file.url.includes('/games/' + id + '/') || file.url.includes('/games/covers/' + id + '.') || file.url.includes('/games/identity/' + id + '.')));
       assert.equal(await fs.readFile(path.join(root, 'public/assets/games/covers/' + id + '.webp'), 'utf8'), 'bytes');
     }
-    assert.ok(first.files.some(file=>file.url==='/demo/assets/games/penalty-shootout/imported-characters/manifest.json'));
-    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb','games/penalty-shooters-2/native/media/music.webm'])assert.ok(first.files.some(file=>file.url==='/demo/'+asset));
+    assert.ok(!first.files.some(file=>file.url.includes('/assets/games/penalty-shootout/')));
+    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb'])assert.ok(first.files.some(file=>file.url==='/demo/'+asset));
     assert.ok(!first.files.some(file=>file.url.includes('/dissection/')||file.url.includes('/originals/')));
     for(const asset of ['native/assets/models/512/terrains/EnvironmentA.glb','native/assets/fonts/helve.xml','native/assets/sounds/effects.mp3'])assert.ok(first.files.some(file=>file.url==='/demo/games/archery-test/'+asset),'Missing native dependency '+asset);
     assert.ok(!first.files.some(file => file.url.includes('/assets/shop/portraits/')));
@@ -218,9 +220,9 @@ test('manifest includes built game dependencies and static code, encodes names a
     assert.ok(first.files.some(file => file.url.endsWith('/ad-space-anchor.svg')));
     assert.ok(!first.files.some(file => /unused|promo/.test(file.url)));
     await put('public/assets/games/penalty-shootout/model.glb', 'changed');
-    const second = await generateAssetManifest({ root, buildId: 'two' });
-    assert.notEqual(first.revision, second.revision);
+    const second = await generateAssetManifest({ root, buildId: 'two', basePath: '/demo' });
+    assert.equal(first.revision, second.revision);
     assert.ok(!second.files.some(file => file.url.includes('/assets/shop/portraits/')));
-    assert.ok(second.files.every(file => !file.url.startsWith('/demo/')));
+    assert.ok(second.files.every(file => file.url.startsWith('/demo/')));
   } finally { await fs.rm(root, { recursive: true, force: true }); }
 });

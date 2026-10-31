@@ -14,6 +14,7 @@ const sourceDecks: Record<GameSport, GameId[]> = {
   archery: ["archery-test"],
   golf: ["open-golf"],
   football: [
+    "penalty-cup",
     "football-shooting",
     "penalty-shooters-2",
     "soccer-real",

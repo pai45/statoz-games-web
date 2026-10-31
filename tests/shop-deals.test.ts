@@ -11,7 +11,6 @@ import {
 import { dailyDealConfig } from "../src/mocks/shop/catalog";
 
 const pools = {
-  card: Array.from({ length: 40 }, (_, index) => `card-${index}`),
   cosmetic: Array.from({ length: 25 }, (_, index) => `cosmetic-${index}`),
   avatar: Array.from({ length: 30 }, (_, index) => `avatar-${index}`),
 };
@@ -45,9 +44,8 @@ test("one deal per slot, in slot order, with a configured discount", () => {
 test("an empty pool skips its slot without moving the others", () => {
   const full = pick("tennis:2026-10-28");
   const partial = pick("tennis:2026-10-28", { ...pools, cosmetic: [] });
-  assert.deepEqual(partial.map((deal) => deal.slot), ["card", "avatar"]);
-  assert.deepEqual(partial[0], full[0]);
-  assert.deepEqual(partial[1], full[2]);
+  assert.deepEqual(partial.map((deal) => deal.slot), ["avatar"]);
+  assert.deepEqual(partial[0], full[1]);
 });
 
 test("deal prices round down, never reach zero, and keep free items free", () => {
@@ -68,4 +66,8 @@ test("the day key and reset countdown follow local midnight", () => {
   assert.equal(dayKey(midnight), "2026-10-29");
   assert.ok(msUntilReset(midnight) > 23 * 3_600_000);
   assert.equal(formatCountdown(7 * 3_600_000 + 41 * 60_000 + 12_000), "07:41:12");
+});
+
+test("player cards are never a daily deal", () => {
+  assert.ok(!(dailyDealConfig.slots as string[]).includes("card"));
 });

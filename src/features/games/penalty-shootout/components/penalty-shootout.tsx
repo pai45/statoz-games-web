@@ -11,8 +11,9 @@ import { initializePhysics, ShootoutSimulation } from "../engine/simulation";
 import { ShootoutInput } from "../input";
 import { ShootoutAudio } from "../audio";
 import { ShootoutScene } from "../rendering/scene";
+import { startShootoutLoop } from "../match-runtime";
 import { levelFromXp, readShootoutProgress, recordShootout, useShootoutProgress } from "../state/shootout-progress";
-import { RUNTIME_VERSION, STEP, type Frame, type Mode, type Settings, type Snapshot, type Style } from "../game-types";
+import { RUNTIME_VERSION, type Frame, type Mode, type Settings, type Snapshot, type Style } from "../game-types";
 import styles from "./shootout-3d.module.css";
 
 export type PenaltyShootoutProps = { game: GameId; entry: GameEntry };
@@ -37,7 +38,7 @@ export function PenaltyShootout({ entry }: PenaltyShootoutProps) {
   useEffect(() => {
     if (!host.current) return;
     let cancelled = false, scene: ShootoutScene | null = null, input: ShootoutInput | null = null, audio: ShootoutAudio | null = null, simulation: ShootoutSimulation | null = null;
-    let raf = 0, last = performance.now(), hud = 0;
+    let stopRender = () => {};
     const visibility = () => { if (document.hidden) pause(); };
     document.addEventListener("visibilitychange", visibility);
     const initialize = async () => {
@@ -49,26 +50,12 @@ export function PenaltyShootout({ entry }: PenaltyShootoutProps) {
         input = new ShootoutInput(pause); audio = new ShootoutAudio(settingsRef.current);
         const rt: Runtime = { simulation, scene, input, audio, active: false, recorded: false, paused: false, sessionId: "preview", accumulator: 0, previous: null };
         runtime.current = rt; setSnapshot(simulation.snapshot()); setReady(true);
-        const draw = (now: number) => {
-          if (cancelled) return;
-          const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
-          if (rt.active && !rt.paused) {
-            rt.accumulator += dt;
-            while (rt.accumulator >= STEP) {
-              rt.previous = rt.simulation.frame(); rt.input.setRole(rt.simulation.role); rt.simulation.step(rt.input.sample()); rt.accumulator -= STEP;
-            }
-            rt.audio.events(rt.simulation.consumeEvents());
-          }
-          const current = rt.simulation.snapshot();
-          rt.scene.render(rt.simulation.frame(), rt.previous, rt.accumulator / STEP, current, settingsRef.current.reducedMotion);
-          if (now - hud > 50) { hud = now; setSnapshot(current); }
-          raf = requestAnimationFrame(draw);
-        };
-        raf = requestAnimationFrame(draw);
+        const stopLoop = startShootoutLoop(rt, () => settingsRef.current, setSnapshot);
+        stopRender = stopLoop;
       } catch (cause) { if (!cancelled) { setError(cause instanceof Error ? cause.message : "Could not load the pitch"); setReady(false); } }
     };
     void initialize();
-    return () => { cancelled = true; cancelAnimationFrame(raf); document.removeEventListener("visibilitychange", visibility); input?.dispose(); audio?.dispose(); scene?.dispose(); runtime.current?.simulation.dispose(); if (!runtime.current && simulation) simulation.dispose(); runtime.current = null; };
+    return () => { cancelled = true; stopRender(); document.removeEventListener("visibilitychange", visibility); input?.dispose(); audio?.dispose(); scene?.dispose(); runtime.current?.simulation.dispose(); if (!runtime.current && simulation) simulation.dispose(); runtime.current = null; };
   }, [pause, retry]);
   useEffect(() => {
     settingsRef.current = settings; runtime.current?.audio.configure(settings);

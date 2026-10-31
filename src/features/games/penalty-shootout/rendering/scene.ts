@@ -73,6 +73,12 @@ export class ShootoutScene {
     this.scene.add(athletes.group);
     this.ui.dataset.characterArt = "penalty-shooters-2";
   }
+  private teamColors: [string,string,string,string] | null = null;
+  async setTeamColors(player:string,opponent:string,playerShorts:string,opponentShorts:string){
+    if(!this.athletes)return;
+    await this.athletes.prepareKitMasks();
+    this.teamColors=[player,opponent,playerShorts,opponentShorts];
+  }
   private pitch() {
     const texture = canvasTexture(1024, 1024, ctx => { ctx.fillStyle = "#4d6b35"; ctx.fillRect(0, 0, 1024, 1024); let seed = 72; const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; for (let i = 0; i < 52000; i++) { ctx.fillStyle = random() > 0.5 ? "rgba(28,48,18,.15)" : "rgba(153,156,97,.14)"; ctx.fillRect(random() * 1024, random() * 1024, 1, 4); } }); texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(8, 12); texture.anisotropy = 4;
     const grass = new THREE.Mesh(new THREE.PlaneGeometry(105, 140), new THREE.MeshStandardMaterial({ map: texture, roughness: 1 })); grass.rotation.x = -Math.PI / 2; grass.position.set(0, -0.005, 35); grass.receiveShadow = true; this.scene.add(grass);
@@ -108,6 +114,7 @@ export class ShootoutScene {
     const view = broadcastCamera(frame, snapshot, this.size.width / this.size.height, reducedMotion), desired = vec(view.position);
     if (changed || reducedMotion || !this.frameCount) this.camera.position.copy(desired); else this.camera.position.lerp(desired, 0.1);
     this.camera.fov = view.fov; this.camera.updateProjectionMatrix(); this.camera.lookAt(vec(view.look));
+    if(this.teamColors){const [p,o,ps,os]=this.teamColors;const shooting=snapshot.role==='shooting';this.athletes.setKitPalette(shooting?p:o,shooting?o:p,shooting?ps:os,shooting?os:ps);}
     this.athletes.update(frame, samplePrevious, alpha, this.camera, point, reducedMotion);
     this.ui.dataset.strikerFrame = String(this.athletes.strikerFrame);
     this.ui.dataset.keeperAnimation = this.athletes.keeperAnimation;

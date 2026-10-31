@@ -85,7 +85,11 @@
     "test:penalty-shooters-2:browser": "node tests/penalty-shooters-2.browser.mjs",
     "test:tennis-bits:browser": "node tests/tennis-bits.browser.mjs",
     "test:soccer-real:browser": "node tests/soccer-real.browser.mjs",
-    "test:retro-innings:local": "node tests/retro-innings-local.browser.mjs"
+    "test:retro-innings:local": "node tests/retro-innings-local.browser.mjs",
+    "build:penalty-cup": "node scripts/build-game-bundles.mjs --game=penalty-cup",
+    "test:penalty-cup": "tsx --test tests/penalty-cup.test.ts",
+    "test:penalty-cup:browser": "node tests/penalty-cup.browser.mjs",
+    "test:penalty-cup:app": "node tests/penalty-cup.app.browser.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

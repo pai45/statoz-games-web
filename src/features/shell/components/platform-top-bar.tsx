@@ -33,7 +33,7 @@ export function PlatformTopBar({
         : "StatOz");
   return (
     <header
-      className="flex h-19.5 shrink-0 items-center gap-3 border-b bg-surface-nav px-4 pr-3.5"
+      className="flex h-19.5 shrink-0 items-center gap-3 border-b bg-surface-nav px-4 pr-3.5 phone-land:h-12"
       style={{
         background: pathname === "/" ? "color-mix(in srgb, var(--ds-color-background-nav) 84%, transparent)" : undefined,
         borderColor: `color-mix(in srgb, ${accent} 26%, transparent)`,
@@ -41,7 +41,7 @@ export function PlatformTopBar({
       }}
     >
       <h1
-        className="flex-1 truncate font-display text-2xl font-black leading-compact tracking-tight"
+        className="flex-1 truncate font-display text-2xl font-black leading-compact tracking-tight phone-land:text-lg"
         style={{ textShadow: `0 0 12px color-mix(in srgb, ${accent} 30%, transparent)` }}
       >
         {resolvedTitle}

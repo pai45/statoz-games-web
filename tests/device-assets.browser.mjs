@@ -138,8 +138,8 @@ try {
       const matches=frame=>frame.url()==='about:srcdoc'||frame.url().includes('/embedded-games/'+game.id+'/');
       await expect.poll(()=>page.frames().some(matches),{timeout:60000}).toBe(true);
       const bundle=page.frames().find(matches);
-      if(game.start){
-        await bundle.getByRole('button',{name:game.start,exact:true}).click();
+      if(game.ready){
+        assert.equal(await bundle.getByRole('button',{name:/^Play /}).count(),0,'No extra starter screen');
         await expect.poll(()=>page.frames().some(frame=>frame.url().includes('/games/'+game.id+'/')),{timeout:30000}).toBe(true);
         const native=page.frames().find(frame=>frame.url().includes('/games/'+game.id+'/'));
         await native.waitForFunction(game.ready,null,{timeout:120000});

@@ -9,7 +9,7 @@ import {guideFor} from '../src/features/how-to-play/data/guides';
 import type {GameId} from '../src/features/games/types';
 
 test('all local games connect discovery, launcher, sport exit, installed artwork and a playable guide',()=>{
- const expected:Partial<Record<GameId,string>>={'stick-cricket':'cricket','archery-test':'archery','penalty-shooters-2':'football','tennis-bits':'tennis','soccer-real':'football','f1-racing':'motorsport'};
+ const expected:Partial<Record<GameId,string>>={'stick-cricket':'cricket','archery-test':'archery','tennis-bits':'tennis','soccer-real':'football','f1-racing':'motorsport'};
  for(const [id,sport]of Object.entries(expected)){
   const game=id as GameId,entry=gameRegistry[game],guide=guideFor(game);
   assert.ok(allGamesInFeedOrder().includes(game));

@@ -6,7 +6,7 @@ const server=http.createServer((req,res)=>{if(req.url==='/favicon.ico'){res.writ
 
 (async()=>{await new Promise(r=>server.listen(8967,'127.0.0.1',r));const browser=await chromium.launch({channel:'chrome',headless:true,args:['--enable-gpu','--ignore-gpu-blocklist','--use-angle=d3d11']});const context=await browser.newContext({viewport:{width:915,height:412},hasTouch:true,isMobile:true,deviceScaleFactor:1});const page=await context.newPage();const errors=[],failed=[],remote=[],checks=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push({url:r.url(),status:r.status()})});page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith('http://127.0.0.1:8967/'))remote.push(r.url())});
 try {
- await page.goto('http://127.0.0.1:8967/demo/embedded-games/stick-cricket/index.html');await page.getByRole('button',{name:'Play Stick Cricket Chase',exact:true}).click();
+ await page.goto('http://127.0.0.1:8967/demo/embedded-games/stick-cricket/index.html');
  await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.__stickCricketDebug?.ready,null,{timeout:100000});await page.waitForTimeout(7000);
  const engine=page.frames().find(f=>f.url().includes('/unity/index.html'));assert.ok(engine);await page.screenshot({path:path.join(out,'01-mobile-tutorial.png')});
  const rect=await engine.locator('canvas').boundingBox();assert.ok(Math.abs(rect.width/rect.height-16/9)<.01);checks.push('Native Unity build loads with a 16:9 canvas and original lesson');

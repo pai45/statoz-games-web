@@ -6,7 +6,7 @@ import { accentVar } from "@/design-system";
 import type { PlayerCard as PlayerCardData } from "@/domain/cards";
 import type { Sport } from "@/domain/sports";
 import type { EconomyItemKind, EconomySnapshot } from "@/features/economy";
-import { allPlayerCards, playerCardCoinPrice, playerCardInrPrice, portraitAssets } from "@/features/packs";
+import { allPlayerCards, portraitAssets } from "@/features/packs";
 import {
   avatarPrice,
   colorProducts,
@@ -23,11 +23,9 @@ import { ShopCardFrame, ShopFooter, ShopFooterLabel, ShopPricePill, ShopStateSta
 import {
   AvatarPreview,
   BannerPreview,
-  cardAccents,
   cardSport,
   ColorPreview,
   FramePreview,
-  ShopPlayerCard,
 } from "./shop-previews";
 import styles from "./shop-screen.module.css";
 
@@ -39,16 +37,13 @@ type Cosmetic =
   | { kind: "color"; item: ColorProduct };
 
 export type DealEntry =
-  | { slot: "card"; card: PlayerCardData }
   | { slot: "avatar"; card: PlayerCardData }
   | { slot: "cosmetic"; cosmetic: Cosmetic };
 
 /** Everything in a sport that can go on offer, by deal slot. Free items never do. */
 export function buildDealPools(sport: Sport): Record<DealSlot, DealEntry[]> {
   const cards = allPlayerCards.filter((card) => cardSport(card) === sport);
-  const premium = cards.filter((card) => card.tier !== "bronze");
   return {
-    card: (premium.length ? premium : cards).map((card) => ({ slot: "card", card })),
     avatar: cards.filter((card) => portraitAssets[card.id]).map((card) => ({ slot: "avatar", card })),
     cosmetic: [
       ...shopFrames.filter((frame) => frame.sport === sport).map((frame): Cosmetic => ({ kind: "frame", frame })),
@@ -67,7 +62,6 @@ type DealView = {
   kindLabel: string;
   accent: string;
   coins: number;
-  inr?: number;
   owned: boolean;
   thumb: ReactNode;
   preview: ReactNode;
@@ -76,21 +70,6 @@ type DealView = {
 /** A deal entry resolved to what the tile draws and what buying it does. */
 export function describeDeal(entry: DealEntry, economy: EconomySnapshot): DealView {
   const cyan = accentVar("cyan");
-  if (entry.slot === "card") {
-    const { card } = entry;
-    return {
-      kind: "playerCard",
-      id: card.id,
-      label: card.name,
-      kindLabel: "PLAYER CARD",
-      accent: cardAccents[card.tier],
-      coins: playerCardCoinPrice(card),
-      inr: playerCardInrPrice(card),
-      owned: economy.owned.playerCardIds.includes(card.id),
-      thumb: <ShopPlayerCard card={card} />,
-      preview: <ShopPlayerCard card={card} selected />,
-    };
-  }
   if (entry.slot === "avatar") {
     const { card } = entry;
     return {
@@ -161,7 +140,6 @@ export function DealTile({
 }) {
   const view = describeDeal(deal.item, economy);
   const coins = dealPrice(view.coins, deal.discount);
-  const inr = view.inr === undefined ? undefined : dealPrice(view.inr, deal.discount);
   const request = { kind: view.kind, id: view.id, label: view.label, accent: view.accent, preview: view.preview, dealDiscount: deal.discount };
 
   return (
@@ -183,23 +161,12 @@ export function DealTile({
           <ShopFooterLabel accent={view.accent}>DEAL CLAIMED</ShopFooterLabel>
         </ShopFooter>
       ) : (
-        <>
-          <ShopFooter
-            onSelect={() => buy({ ...request, price: coins })}
-            label={`Buy ${view.label} for ${coins} Oz Coins, ${deal.discount}% off`}
-          >
-            <ShopPricePill coins={coins} was={view.coins} size={11} />
-          </ShopFooter>
-          {inr !== undefined && view.inr !== undefined ? (
-            <ShopFooter
-              onSelect={() => buy({ ...request, price: inr, simulatedInr: true })}
-              label={`Buy ${view.label} for ${inr} rupees, ${deal.discount}% off`}
-              tint={`color-mix(in srgb, ${view.accent} 18%, transparent)`}
-            >
-              <ShopPricePill inr={inr} was={view.inr} accent={view.accent} size={11} />
-            </ShopFooter>
-          ) : null}
-        </>
+        <ShopFooter
+          onSelect={() => buy({ ...request, price: coins })}
+          label={`Buy ${view.label} for ${coins} Oz Coins, ${deal.discount}% off`}
+        >
+          <ShopPricePill coins={coins} was={view.coins} size={11} />
+        </ShopFooter>
       )}
     </ShopCardFrame>
   );

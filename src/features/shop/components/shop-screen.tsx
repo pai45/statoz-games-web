@@ -10,31 +10,28 @@ import { useEconomy } from "@/features/economy";
 
 import { useShopActions } from "../hooks/use-shop-actions";
 import { ShopMarket } from "./shop-hero";
-import { shopItemDomId } from "./shop-tiles";
-import { CardsShelf } from "./shelves/cards-shelf";
 import { CoinsShelf } from "./shelves/coins-shelf";
-import { PacksShelf } from "./shelves/packs-shelf";
 import { StyleShelf, type StyleKind } from "./shelves/style-shelf";
 import styles from "./shop-screen.module.css";
 
 /**
  * The storefront: one scrolling page instead of a sport-by-category grid.
  *
- * TODAY'S MARKET (the free daily card and three daily deals) leads, then one
- * shelf each for packs, player cards, style and coins. The sport chips at the
+ * TODAY'S MARKET (the daily deals) leads, then the style and coins shelves.
+ * Player cards and packs are not sold here. The sport chips at the
  * top switch every shelf at once.
  *
  * Deep links keep working: `?tab=` names the shelf to scroll to (the old
- * category ids map onto the new shelves) and `?focus=` names an item to open
- * and light up.
+ * category ids map onto the new shelves; retired `packs`/`cards` links open
+ * at the top) and `?focus=` names an item to open and light up.
  */
 
-type ShelfId = "packs" | "cards" | "style" | "coins";
+type ShelfId = "style" | "coins";
 
 const styleKinds: StyleKind[] = ["avatars", "frames", "banners", "kits"];
 
 function shelfFor(tab: string | null): ShelfId | null {
-  if (tab === "packs" || tab === "cards" || tab === "coins" || tab === "style") return tab;
+  if (tab === "coins" || tab === "style") return tab;
   if (styleKinds.includes(tab as StyleKind)) return "style";
   return null;
 }
@@ -61,15 +58,13 @@ export function ShopScreen() {
 function ShopStorefront({ initialSport, tab, focus }: { initialSport: Sport; tab: string | null; focus: string | null }) {
   const economy = useEconomy();
   const [sport, setSport] = useState<Sport>(initialSport);
-  const { buy, buyCoins, openPack, overlays } = useShopActions(sport);
+  const { buy, buyCoins, overlays } = useShopActions(sport);
   const accent = accentVar(sportModuleFor(sport).accent);
   const target = shelfFor(tab);
 
   useEffect(() => {
-    if (!target) return;
-    const tile = target === "packs" && focus ? document.getElementById(shopItemDomId(focus))?.firstElementChild : null;
-    (tile ?? document.getElementById(target))?.scrollIntoView({ block: tile ? "center" : "start" });
-  }, [target, focus]);
+    if (target) document.getElementById(target)?.scrollIntoView({ block: "start" });
+  }, [target]);
 
   function changeSport(label: string) {
     const next = sportOrder.find((entry) => sportModuleFor(entry).label.toUpperCase() === label);
@@ -105,8 +100,6 @@ function ShopStorefront({ initialSport, tab, focus }: { initialSport: Sport; tab
 
       <div className="relative z-[1] mx-auto flex w-full max-w-[1500px] flex-1 flex-col gap-9 px-3 py-5 sm:px-5 lg:px-7">
         <ShopMarket sport={sport} economy={economy} buy={buy} />
-        <PacksShelf sport={sport} economy={economy} focusId={target === "packs" ? focus : null} onOpen={openPack} />
-        <CardsShelf sport={sport} economy={economy} focusId={target === "cards" ? focus : null} buy={buy} />
         <StyleShelf
           sport={sport}
           economy={economy}

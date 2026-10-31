@@ -1,20 +1,14 @@
 import test from'node:test';import assert from'node:assert/strict';import fs from'node:fs';import path from'node:path';import{createHash}from'node:crypto';import{gunzipSync}from'node:zlib';import vm from'node:vm';
 import{gameForHref}from'../src/mocks/games/game-registry';import{isGameEnabled}from'../src/domain/demo-product';
-const games=['stick-cricket','archery-test','penalty-shooters-2','tennis-bits','soccer-real','f1-racing'];
+const games=['stick-cricket','archery-test','tennis-bits','soccer-real','f1-racing'];
 const hash=(b:Buffer)=>createHash('sha256').update(b).digest('hex');
-test('late-loaded native tennis bundles and penalty audio are complete and hash-identical',()=>{
+test('late-loaded native tennis bundles are complete and hash-identical',()=>{
  const base='public/games/tennis-bits/';
  const catalog=fs.readFileSync(base+'originals/StreamingAssets/aa/catalog.bin').toString('latin1');
  const declared=new Set(catalog.match(/[A-Za-z_][A-Za-z0-9_.-]{9,}_[0-9a-f]{32}\.bundle/g));
  assert.equal(declared.size,752);
  const manifest=JSON.parse(fs.readFileSync(base+'originals-manifest.json','utf8'));
  for(const name of declared){const relative='StreamingAssets/aa/WebGL/'+name;const entry=manifest.files.find((f:{path:string})=>f.path===relative);assert.ok(entry,relative);assert.equal(hash(fs.readFileSync(base+'native/'+relative)),entry.sha256,relative);}
- const penalty='public/games/penalty-shooters-2/';
- const data=fs.readFileSync(penalty+'native/data.json','utf8');
- const sounds=new Set([...data.matchAll(/"(media\/[a-zA-Z0-9_() .-]+\.webm)"/g)].map(m=>m[1]));
- assert.equal(sounds.size,7);
- const originals=JSON.parse(fs.readFileSync(penalty+'supplemental-manifest.json','utf8'));
- for(const sound of sounds){const entry=originals.files.find((f:{path:string})=>f.path===sound);assert.ok(entry,sound);assert.equal(hash(fs.readFileSync(penalty+'native/'+sound)),entry.sha256,sound);}
 });
 test('active local clients have enabled routes and bundled launchers',()=>{for(const id of games){assert.equal(isGameEnabled(id),true);assert.equal(gameForHref('/play/'+id)?.game,id);assert.ok(fs.existsSync('public/embedded-games/'+id+'/index.html'));}});
 test('editable recovered libraries are complete and do not enter the device cache',()=>{const libraries=JSON.parse(fs.readFileSync('docs/local-games/extraction-library.json','utf8'));assert.equal(libraries.length,8);for(const row of libraries){assert.deepEqual(row.missing,[]);const manifest=JSON.parse(fs.readFileSync(`.local-game-assets/${row.game}/manifest.json`,'utf8'));assert.equal(manifest.files.length,row.files);for(const entry of [manifest.files[0],manifest.files.at(-1)]){const p=path.join('.local-game-assets',row.game,entry.path);assert.equal(hash(fs.readFileSync(p)),entry.sha256);}}});

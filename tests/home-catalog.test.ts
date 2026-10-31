@@ -5,9 +5,8 @@ import { gameSportOrder as sportOrder } from "../src/domain/game-sports";
 import {
   allGamesInFeedOrder,
   gameCoverPath,
+  coverflowOffset,
   libraryCardLayout,
-  spotlightGames,
-  spotlightLimit,
   sportGamesInDeckOrder,
 } from "../src/features/games/home-catalog";
 
@@ -36,13 +35,21 @@ test("home feed lists every enabled game once, curated order first", () => {
   for (const sport of sportOrder) for (const id of sportGamesInDeckOrder(sport)) assert.ok(ids.includes(id));
 });
 
-test("carousel rotates through three leading games of the selected view", () => {
-  assert.equal(spotlightLimit.all, 3);
-  assert.deepEqual(spotlightGames(null), allGamesInFeedOrder().slice(0, 3));
-  for (const sport of sportOrder) {
-    const games = spotlightGames(sport);
-    assert.ok(games.length >= 1 && games.length <= spotlightLimit.sport);
-    assert.deepEqual(games, sportGamesInDeckOrder(sport).slice(0, games.length));
+test("coverflow centres the active game with games on both sides", () => {
+  // Short lists do not wrap: the first game has nothing to its left.
+  assert.deepEqual([0, 1, 2].map((i) => coverflowOffset(i, 0, 3)), [0, 1, 2]);
+  assert.deepEqual([0, 1, 2].map((i) => coverflowOffset(i, 2, 3)), [-2, -1, 0]);
+  // Longer lists wrap, so the first game has the last ones on its left.
+  const count = allGamesInFeedOrder().length;
+  assert.ok(count >= 5);
+  assert.equal(coverflowOffset(0, 0, count), 0);
+  assert.equal(coverflowOffset(count - 1, 0, count), -1);
+  assert.equal(coverflowOffset(1, count - 1, count), 2);
+  // Every game gets a distinct slot.
+  for (const active of [0, 3, count - 1]) {
+    const offsets = Array.from({ length: count }, (_, i) => coverflowOffset(i, active, count));
+    assert.equal(new Set(offsets).size, count);
+    assert.ok(offsets.every((offset) => Math.abs(offset) <= Math.ceil(count / 2)));
   }
 });
 
