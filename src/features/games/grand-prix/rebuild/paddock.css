@@ -1,0 +1,293 @@
+/* The paddock keeps Grand Prix Dash's own printed motorsport identity. */
+.gp-paddock { --gp-line:#50564e; --gp-soft:#b9bbae; max-width:none; }
+.gp-paddock h1:focus { outline:none; }
+.gp-paddock .gp-header { height:66px; }
+.gp-paddock .gp-footer { margin-top:24px; }
+.gp-game.gp-help { min-height:0; }
+.gp-help > .gp-scrim { position:fixed; }
+.gp-landing-hero { display:grid; grid-template-columns:1fr 1fr; min-height:440px; position:relative; border-bottom:1px solid var(--gp-line); overflow:hidden; }
+.gp-landing-copy { position:relative; z-index:1; padding:46px 0 36px; }
+.gp-landing-copy h1 { font-size:clamp(64px,8vw,116px); letter-spacing:-.035em; line-height:.9; margin:22px 0; }
+.gp-landing-copy h1 em { color:var(--gp-red); font-style:normal; }
+.gp-landing-copy > p:not(.gp-kicker) { font-size:17px; color:var(--gp-soft); line-height:1.5; }
+.gp-landing-copy strong { color:var(--gp-paper); }
+.gp-landing-spec { display:flex; align-items:center; gap:14px; font-size:10px; letter-spacing:.12em; margin-top:29px; color:var(--gp-muted); }
+.gp-landing-spec i { width:4px; height:4px; background:var(--gp-red); }
+.gp-landing-machine { position:relative; display:flex; align-items:center; justify-content:center; min-width:0; isolation:isolate; }
+.gp-landing-road { position:absolute; inset:-60px 13%; background:linear-gradient(90deg,transparent 4%,#85857a22 4% 4.5%,transparent 4.5% 95%,#85857a22 95% 95.5%,transparent 95.5%),#2e343180; transform:rotate(24deg); z-index:-1; }
+.gp-landing-road:before,.gp-landing-road:after { content:''; position:absolute; top:0; bottom:0; width:2px; background:repeating-linear-gradient(transparent 0 40px,#c3bfa033 40px 90px,transparent 90px 130px); }
+.gp-landing-road:before { left:27%; }
+.gp-landing-road:after { right:27%; }
+.gp-landing-machine > .gp-car-art { width:190px; height:380px; transform:rotate(24deg); filter:drop-shadow(24px 28px 10px #0005); }
+.gp-landing-machine .gp-car-art svg { width:100%; height:100%; }
+.gp-speed-line { position:absolute; font:clamp(60px,8vw,116px) Impact,'Arial Narrow',sans-serif; transform:rotate(-66deg); color:#d8b96e12; letter-spacing:.01em; right:-80px; white-space:nowrap; z-index:-1; }
+.gp-landing-car-name { position:absolute; bottom:30px; right:10px; font-size:13px; font-weight:700; text-align:right; }
+.gp-landing-car-name small { display:block; color:var(--gp-muted); font-size:9px; margin-top:4px; letter-spacing:.12em; }
+.gp-mode-cards { display:grid; grid-template-columns:1fr 1fr; gap:18px; padding-top:24px; }
+.gp-game .gp-mode-card { position:relative; text-align:left; padding:23px 26px 0; background:var(--gp-panel); border:1px solid var(--gp-line); border-top:3px solid var(--gp-red); overflow:hidden; }
+.gp-game .gp-mode-card:hover { transform:translateY(-3px); background:#303434; border-color:var(--gp-red); }
+.gp-game .gp-mode-trial { border-top-color:var(--gp-gold); }
+.gp-game .gp-mode-trial:hover { border-color:var(--gp-gold); }
+.gp-mode-top { display:flex; align-items:center; justify-content:space-between; color:var(--gp-soft); font-size:10px; letter-spacing:.13em; }
+.gp-mode-top > span { color:var(--gp-red); font-size:22px; line-height:1; }
+.gp-mode-trial .gp-mode-top > span { color:var(--gp-gold); }
+.gp-mode-card h2 { font-size:38px; margin-top:18px; }
+.gp-mode-card p { color:var(--gp-soft); font-weight:400; margin-top:7px; font-size:13px; }
+.gp-mode-action { display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--gp-line); margin-top:22px; padding:15px 0; font-size:10px; letter-spacing:.12em; }
+.gp-mode-action > span { font-size:20px; color:var(--gp-red); }
+.gp-mode-trial .gp-mode-action > span { color:var(--gp-gold); }
+.gp-journey { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:20px 0; border-bottom:1px solid var(--gp-line); }
+.gp-journey > span { font-size:11px; font-weight:700; letter-spacing:.15em; color:var(--gp-gold); white-space:nowrap; }
+.gp-journey ol { display:flex; justify-content:flex-end; gap:14px; list-style:none; margin:0; padding:0; }
+.gp-journey li { display:flex; }
+.gp-game .gp-journey button { display:flex; align-items:center; gap:8px; padding:0; border:0; background:transparent; font-size:11px; color:var(--gp-soft); }
+.gp-journey button b { display:grid; place-items:center; width:28px; height:28px; border:1px solid var(--gp-line); font-size:10px; }
+.gp-journey [aria-current='step'] button { color:var(--gp-paper); }
+.gp-journey [aria-current='step'] b { background:var(--gp-red); border-color:var(--gp-red); }
+.gp-step { padding-top:30px; }
+.gp-step-heading h1,.gp-utility h1 { font-size:clamp(32px,4.3vw,54px); margin:10px 0; }
+.gp-step-heading > p:last-child { color:var(--gp-soft); font-size:13px; }
+.gp-step-body { margin-top:26px; min-height:300px; animation:gp-step-enter .2s ease-out; }
+@keyframes gp-step-enter { from { opacity:.5; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.gp-step-car { display:grid; grid-template-columns:minmax(260px,.8fr) minmax(0,1.5fr); gap:24px; }
+.gp-showcase { position:relative; display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:18px 24px; background:linear-gradient(125deg,#ffffff05,transparent),var(--gp-panel); border:1px solid var(--gp-line); overflow:hidden; min-height:320px; }
+.gp-showcase:after { content:''; width:6px; position:absolute; left:0; top:0; bottom:0; background:var(--team-color); }
+.gp-showcase > .gp-car-art { width:115px; height:250px; transform:rotate(-12deg); position:relative; z-index:1; }
+.gp-showcase .gp-car-art svg { width:100%; height:100%; }
+.gp-showcase-number { position:absolute; left:15px; top:-15px; font:155px Impact,sans-serif; color:#ffffff05; }
+.gp-showcase h2 { font-size:35px; margin:10px 0; overflow-wrap:anywhere; }
+.gp-showcase p { font-size:12px; color:var(--gp-soft); }
+.gp-cycle { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:20px; border-top:1px solid var(--gp-line); padding-top:10px; margin-top:5px; font-size:11px; color:var(--gp-soft); }
+.gp-cycle button { min-width:52px; }
+.gp-car-picks { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+.gp-game .gp-car-picks > button { display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; text-align:center; border-bottom:3px solid var(--team-color); padding:10px 7px; }
+.gp-car-picks .gp-car-art { width:42px; height:88px; margin-bottom:9px; }
+.gp-car-picks .gp-car-art svg { width:100%; height:100%; }
+.gp-car-picks button > span { font-size:11px; }
+.gp-car-picks button > small { display:block; font-size:8px; color:var(--gp-muted); margin-top:7px; letter-spacing:.08em; }
+.gp-car-picks button.selected > small { color:var(--gp-gold); }
+.gp-step-track { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(230px,1fr); gap:24px; }
+.gp-circuit-showcase { position:relative; min-height:350px; background:var(--gp-panel); border:1px solid var(--gp-line); overflow:hidden; }
+.gp-circuit-showcase canvas { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:.8; }
+.gp-circuit-showcase > div { position:relative; margin-top:180px; padding:40px 24px 22px; background:linear-gradient(transparent,#202629 38%); }
+.gp-circuit-showcase h2 { font-size:38px; margin:8px 0; }
+.gp-circuit-showcase p:not(.gp-kicker) { font-size:12px; color:var(--gp-soft); max-width:370px; }
+.gp-circuit-showcase div > span { display:block; margin-top:14px; color:var(--gp-gold); font-size:10px; }
+.gp-track-picks { display:flex; flex-direction:column; gap:8px; }
+.gp-game .gp-choice { position:relative; text-align:left; padding:20px; }
+.gp-choice-check { position:absolute; top:14px; right:14px; font-size:14px; color:var(--gp-muted); }
+.gp-choice.selected .gp-choice-check { color:var(--gp-gold); }
+.gp-track-picks .gp-choice { display:grid; grid-template-columns:1fr auto; padding:12px 42px 12px 16px; align-items:center; gap:3px 15px; flex:1; }
+.gp-track-picks .gp-choice > small { grid-column:1/-1; font-size:8px; color:var(--gp-muted); letter-spacing:.14em; }
+.gp-track-picks .gp-choice > strong { font-size:15px; }
+.gp-track-picks .gp-choice > span:not(.gp-choice-check) { font-size:10px; color:var(--gp-soft); }
+.gp-big-choices { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.gp-big-choices .gp-choice { display:flex; flex-direction:column; min-height:280px; padding:30px; }
+.gp-choice-eyebrow { font-size:9px; color:var(--gp-muted); letter-spacing:.12em; margin-right:14px; }
+.gp-big-number { display:flex; align-items:baseline; gap:14px; font:95px Impact,'Arial Narrow',sans-serif; margin:18px 0 12px; }
+.gp-big-number small { font:11px Arial,sans-serif; letter-spacing:.14em; color:var(--gp-muted); }
+.gp-big-choices .gp-choice > strong { font:29px Impact,'Arial Narrow',sans-serif; letter-spacing:.03em; }
+.gp-big-choices .gp-choice p { color:var(--gp-soft); font-size:13px; font-weight:400; line-height:1.65; margin-top:10px; max-width:240px; }
+.gp-big-choices .gp-choice > small { font-size:9px; margin-top:auto; padding-top:30px; color:var(--gp-gold); letter-spacing:.1em; }
+.gp-difficulty-bars { display:flex; align-items:end; gap:9px; height:76px; margin:0 0 26px; }
+.gp-difficulty-bars i { display:block; width:22px; height:25px; background:#484d48; }
+.gp-difficulty-bars i:nth-child(2) { height:43px; }
+.gp-difficulty-bars i:nth-child(3) { height:64px; }
+.gp-difficulty-bars i.lit { background:var(--gp-gold); }
+.gp-options-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.gp-option-panel { padding:24px; background:var(--gp-panel); border:1px solid var(--gp-line); }
+.gp-option-panel h2 { font-size:25px; margin-bottom:15px; }
+.gp-option { display:flex; gap:20px; justify-content:space-between; align-items:center; padding:17px 0; border-bottom:1px solid var(--gp-line); cursor:pointer; min-height:72px; }
+.gp-option strong { font-size:14px; display:block; }
+.gp-option small { display:block; font-size:12px; color:var(--gp-soft); line-height:1.5; margin-top:4px; max-width:320px; }
+.gp-option input { appearance:auto; width:23px; height:23px; flex-shrink:0; cursor:pointer; }
+.gp-game .gp-small-note { color:var(--gp-muted); font-size:11px; line-height:1.6; margin-top:18px; }
+.gp-extra-settings { margin-top:20px; font-size:13px; }
+.gp-extra-settings summary { cursor:pointer; min-height:44px; padding:12px 0; color:var(--gp-gold); }
+.gp-extra-settings summary:focus-visible { outline:2px solid var(--gp-gold); outline-offset:4px; }
+.gp-trial-note { color:var(--gp-soft); font-size:15px; line-height:1.8; padding:8px 0 20px; max-width:400px; }
+.gp-tyre-picks { display:flex; gap:8px; margin-top:16px; border:0; padding:0; }
+.gp-tyre-picks legend { font-size:12px; margin-bottom:10px; }
+.gp-tyre-picks button { flex:1; }
+.gp-preferences { max-width:680px; }
+.gp-preference { display:block; padding:16px 0; }
+.gp-preference > span { display:flex; justify-content:space-between; gap:20px; font-size:13px; margin-bottom:12px; }
+.gp-preference output { color:var(--gp-gold); font-variant-numeric:tabular-nums; }
+.gp-preference input { width:100%; display:block; min-height:24px; }
+.gp-ready-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.gp-ready-art { position:relative; overflow:hidden; display:grid; place-items:center; min-height:350px; background:var(--gp-panel); border:1px solid var(--gp-line); }
+.gp-ready-art > canvas { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.3; }
+.gp-ready-art > .gp-car-art { position:relative; width:130px; height:285px; transform:rotate(20deg); filter:drop-shadow(15px 20px 8px #0008); }
+.gp-ready-art > .gp-car-art svg { width:100%; height:100%; }
+.gp-ready-art > .gp-kicker { position:absolute; bottom:18px; left:20px; }
+.gp-race-ticket { padding:12px 0; }
+.gp-race-ticket h2 { font-size:38px; margin-top:8px; }
+.gp-race-ticket dl { margin:16px 0 0; }
+.gp-race-ticket dl > div { display:grid; grid-template-columns:78px 1fr auto; align-items:center; gap:12px; border-top:1px solid var(--gp-line); padding:10px 0; min-height:49px; }
+.gp-race-ticket dt { font-size:12px; color:var(--gp-muted); }
+.gp-race-ticket dd { font-size:13px; margin:0; text-transform:capitalize; }
+.gp-game .gp-race-ticket button { font-size:10px; color:var(--gp-gold); background:none; border:0; padding:4px 0 4px 8px; min-height:32px; text-decoration:underline; }
+.gp-step-actions { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 0 0; border-top:1px solid var(--gp-line); margin-top:26px; }
+.gp-step-actions p { font-size:9px; color:var(--gp-muted); letter-spacing:.08em; text-align:center; }
+.gp-step-actions .gp-primary { min-width:230px; display:flex; gap:30px; justify-content:space-between; align-items:center; }
+.gp-utility { padding:36px 0; min-height:65dvh; }
+.gp-utility > .gp-primary { margin-top:26px; }
+.gp-utility > p:not(.gp-kicker) { color:var(--gp-soft); margin:16px 0; }
+.gp-utility > h2 { margin-top:26px; font-size:27px; }
+
+@media (min-width:1600px) { .gp-paddock { padding-left:max(30px,calc((100vw - 1260px)/2)); padding-right:max(30px,calc((100vw - 1260px)/2)); } }
+@media (max-width:1000px) {
+  .gp-step-car { grid-template-columns:1fr; }
+  .gp-showcase { min-height:210px; grid-template-columns:auto 1fr auto; gap:30px; padding:16px 30px; }
+  .gp-showcase > .gp-car-art { width:85px; height:180px; }
+  .gp-cycle { grid-column:auto; border:0; flex-direction:column-reverse; padding:0; gap:6px; }
+  .gp-journey { gap:14px; }
+  .gp-journey ol { gap:10px; }
+  .gp-journey button span { font-size:10px; }
+  .gp-big-choices .gp-choice { padding:24px 18px; }
+  .gp-step-actions p { display:none; }
+  .gp-track-picks .gp-choice { grid-template-columns:1fr; }
+}
+@media (max-width:650px) {
+  .gp-landing-hero { min-height:350px; grid-template-columns:1.2fr 1fr; }
+  .gp-landing-copy { padding-top:32px; }
+  .gp-landing-copy h1 { font-size:clamp(50px,11vw,72px); margin:19px 0; }
+  .gp-landing-copy > p:not(.gp-kicker) { font-size:14px; }
+  .gp-landing-copy .gp-kicker { font-size:7px; letter-spacing:.13em; }
+  .gp-landing-machine > .gp-car-art { width:120px; height:260px; }
+  .gp-landing-machine { margin-right:0; }
+  .gp-speed-line { display:none; }
+  .gp-landing-car-name { bottom:28px; right:6px; font-size:10px; }
+  .gp-landing-car-name small { font-size:7px; }
+  .gp-landing-spec { font-size:7px; gap:8px; white-space:nowrap; }
+  .gp-mode-cards { gap:12px; padding-top:16px; }
+  .gp-game .gp-mode-card { padding:16px 14px 0; }
+  .gp-mode-top { font-size:7px; letter-spacing:.07em; }
+  .gp-mode-top > span { font-size:16px; }
+  .gp-mode-card h2 { font-size:27px; margin-top:14px; }
+  .gp-mode-card p { font-size:11px; min-height:34px; }
+  .gp-mode-action { font-size:7px; letter-spacing:.06em; margin-top:12px; padding:10px 0; }
+  .gp-journey { flex-direction:column; align-items:flex-start; padding:16px 0 12px; gap:9px; }
+  .gp-journey > span { font-size:9px; }
+  .gp-journey ol { width:100%; justify-content:space-between; gap:6px; }
+  .gp-game .gp-journey button { flex-direction:column; gap:5px; min-width:34px; }
+  .gp-journey button b { width:24px; height:24px; font-size:8px; }
+  .gp-journey button span { font-size:8px; }
+  .gp-step { padding-top:22px; }
+  .gp-step-heading h1 { font-size:30px; }
+  .gp-step-heading > p:last-child { font-size:12px; }
+  .gp-step-body { margin-top:20px; }
+  .gp-step-car { gap:14px; }
+  .gp-showcase { gap:15px; padding:15px 18px; min-height:190px; }
+  .gp-showcase h2 { font-size:29px; }
+  .gp-showcase > .gp-car-art { width:70px; height:150px; }
+  .gp-showcase p { font-size:10px; }
+  .gp-cycle button { padding:8px; min-width:40px; }
+  .gp-car-picks { grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+  .gp-game .gp-car-picks > button { padding:7px 4px; }
+  .gp-car-picks .gp-car-art { width:31px; height:65px; }
+  .gp-car-picks button > span { font-size:8px; min-height:24px; display:flex; align-items:center; }
+  .gp-car-picks button > small { font-size:6px; letter-spacing:0; }
+  .gp-step-track { grid-template-columns:1fr; gap:14px; }
+  .gp-circuit-showcase { min-height:280px; }
+  .gp-circuit-showcase > div { margin-top:130px; padding:30px 18px 18px; }
+  .gp-circuit-showcase h2 { font-size:32px; }
+  .gp-track-picks { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .gp-track-picks .gp-choice { padding:12px 28px 12px 12px; }
+  .gp-track-picks .gp-choice > strong { font-size:12px; }
+  .gp-choice-check { top:10px; right:10px; font-size:12px; }
+  .gp-big-choices { grid-template-columns:1fr; gap:10px; }
+  .gp-big-choices .gp-choice { min-height:140px; padding:20px; display:grid; grid-template-columns:105px 1fr; gap:6px 15px; }
+  .gp-choice-eyebrow { grid-column:1/-1; font-size:8px; }
+  .gp-big-number { grid-row:2/4; font-size:66px; margin:0; gap:6px; }
+  .gp-big-number small { font-size:8px; }
+  .gp-big-choices .gp-choice > strong { font-size:25px; }
+  .gp-big-choices .gp-choice p { font-size:12px; margin:0; max-width:none; }
+  .gp-big-choices .gp-choice > small { grid-column:2; padding:0; margin:0; font-size:8px; }
+  .gp-difficulty-bars { grid-row:1/4; height:70px; margin:auto 0; gap:6px; }
+  .gp-difficulty-bars i { width:17px; }
+  .gp-options-grid,.gp-ready-grid { grid-template-columns:1fr; gap:14px; }
+  .gp-option-panel { padding:20px; }
+  .gp-ready-art { min-height:230px; }
+  .gp-ready-art > .gp-car-art { width:85px; height:195px; }
+  .gp-race-ticket h2 { font-size:32px; }
+  .gp-race-ticket dl > div { grid-template-columns:60px 1fr auto; gap:8px; }
+  .gp-race-ticket dd { font-size:12px; }
+  .gp-step-actions { gap:10px; margin-top:20px; padding-top:16px; }
+  .gp-step-actions > button { font-size:10px; padding:13px; }
+  .gp-step-actions .gp-primary { min-width:0; flex:1; gap:10px; font-size:11px; }
+  .gp-step-actions .gp-secondary { font-size:9px; }
+  .gp-paddock .gp-footer { margin-top:18px; }
+}
+@media (orientation:landscape) and (max-height:520px) {
+  .gp-paddock .gp-header { height:40px; }
+  .gp-paddock .gp-header button { min-height:36px; }
+  .gp-landing-hero { min-height:260px; }
+  .gp-landing-copy { padding:22px 0; }
+  .gp-landing-copy h1 { font-size:65px; margin:12px 0; }
+  .gp-landing-copy > p:not(.gp-kicker) { font-size:13px; }
+  .gp-landing-spec { margin-top:14px; font-size:8px; }
+  .gp-landing-machine > .gp-car-art { height:245px; width:120px; }
+  .gp-mode-cards { padding-top:14px; gap:14px; }
+  .gp-game .gp-mode-card { padding:14px 20px 0; }
+  .gp-mode-card h2 { font-size:30px; margin-top:8px; }
+  .gp-mode-card p { font-size:12px; }
+  .gp-mode-action { margin-top:10px; padding:10px 0; }
+  .gp-journey { padding:6px 0; }
+  .gp-game .gp-journey button { min-height:32px; }
+  .gp-step { padding-top:10px; }
+  .gp-step-heading h1 { font-size:28px; margin:5px 0; }
+  .gp-step-heading > p:last-child { display:none; }
+  .gp-step-body { min-height:0; margin-top:12px; }
+  .gp-step-car { grid-template-columns:minmax(220px,.8fr) minmax(0,1.5fr); gap:16px; }
+  .gp-showcase { grid-template-columns:65px 1fr; min-height:170px; padding:8px 16px; gap:4px 14px; }
+  .gp-showcase > .gp-car-art { width:52px; height:110px; }
+  .gp-showcase h2 { font-size:26px; margin:5px 0; }
+  .gp-showcase p { font-size:10px; }
+  .gp-cycle { grid-column:1/-1; flex-direction:row; border-top:1px solid var(--gp-line); padding-top:5px; }
+  .gp-cycle button { padding:4px 10px; min-width:48px; }
+  .gp-car-picks { gap:6px; }
+  .gp-game .gp-car-picks > button { padding:5px; }
+  .gp-car-picks .gp-car-art { width:24px; height:48px; margin-bottom:3px; }
+  .gp-car-picks button > span { font-size:8px; }
+  .gp-car-picks button > small { font-size:6px; margin-top:4px; }
+  .gp-circuit-showcase { min-height:190px; }
+  .gp-circuit-showcase > div { margin-top:34px; padding:26px 16px 12px; }
+  .gp-circuit-showcase h2 { font-size:27px; margin:5px 0; }
+  .gp-circuit-showcase p:not(.gp-kicker) { font-size:10px; }
+  .gp-circuit-showcase div > span { font-size:8px; margin-top:9px; }
+  .gp-track-picks { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+  .gp-track-picks .gp-choice { padding:8px 26px 8px 10px; }
+  .gp-track-picks .gp-choice > strong { font-size:12px; }
+  .gp-big-choices .gp-choice { min-height:170px; padding:18px; }
+  .gp-big-number { font-size:56px; margin:8px 0; }
+  .gp-big-choices .gp-choice > strong { font-size:23px; }
+  .gp-big-choices .gp-choice p { font-size:11px; margin-top:5px; line-height:1.4; }
+  .gp-big-choices .gp-choice > small { padding-top:12px; font-size:8px; }
+  .gp-difficulty-bars { height:45px; margin-bottom:12px; }
+  .gp-difficulty-bars i { width:18px; height:18px; }
+  .gp-difficulty-bars i:nth-child(2) { height:30px; }
+  .gp-difficulty-bars i:nth-child(3) { height:45px; }
+  .gp-step-actions { margin-top:16px; }
+  .gp-step-actions { position:sticky; bottom:0; z-index:3; background:#181c1e; padding:10px 0; }
+  .gp-home { display:grid; grid-template-columns:1.15fr 1fr; grid-template-rows:48px 1fr auto; column-gap:24px; }
+  .gp-home .gp-header,.gp-home .gp-footer,.gp-home > .gp-warning { grid-column:1/-1; }
+  .gp-home .gp-landing-hero { display:block; border:0; min-height:270px; isolation:isolate; }
+  .gp-home .gp-landing-copy { padding:25px 0 18px; }
+  .gp-home .gp-landing-copy h1 { font-size:clamp(42px,6vw,58px); max-width:230px; }
+  .gp-home .gp-landing-copy .gp-kicker { font-size:7px; letter-spacing:.1em; }
+  .gp-home .gp-landing-machine { position:absolute; inset:0 -10px 0 46%; z-index:-1; opacity:.65; }
+  .gp-home .gp-landing-car-name,.gp-home .gp-speed-line { display:none; }
+  .gp-home .gp-mode-cards { grid-template-columns:1fr; gap:10px; padding-top:18px; padding-bottom:10px; }
+  .gp-home .gp-mode-card { padding:12px 16px 0; }
+  .gp-home .gp-mode-card h2 { font-size:28px; margin-top:6px; }
+  .gp-home .gp-mode-card p { font-size:11px; margin-top:3px; }
+  .gp-home .gp-mode-action { margin-top:9px; padding:8px 0; }
+  .gp-home .gp-footer { margin-top:0; padding:10px 0; flex-direction:row; align-items:center; }
+  .gp-home .gp-footer > div { width:auto; gap:18px; }
+  .gp-home .gp-footer button { font-size:8px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .gp-step-body { animation:none; }
+  .gp-game .gp-mode-card:hover { transform:none; }
+}

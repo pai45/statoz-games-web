@@ -20,7 +20,7 @@ import {
 import { effectFor } from "../engine/tactics";
 import type { FormationId } from "../engine/types";
 
-import { ShieldCard, primaryPosition } from "./card-art";
+import { DuelCard, primaryPosition } from "./card-art";
 import { StarIcon } from "./icons";
 import { Pill } from "./ui";
 import styles from "./pitch-duel.module.css";
@@ -32,7 +32,7 @@ type Drag = { from: Place | { bench: string }; id: string; x: number; y: number;
 const groups: ("ALL" | PositionGroup)[] = ["ALL", "GK", "DEF", "MID", "FWD"];
 
 /** Slot depth (0 own goal … ~0.56) to a top offset on the portrait pitch. */
-const topFor = (depth: number) => 0.9 - (depth / 0.56) * 0.78;
+const topFor = (depth: number) => 0.93 - (depth / 0.56) * 0.83;
 
 /**
  * The eleven-a-side lineup editor. Drag a card onto another place to swap
@@ -247,7 +247,7 @@ export function LineupEditor({
         aria-label={`${pos}: ${card ? `${card.name}, ${card.rating}` : "empty"}${picked === place ? ", picked" : ""}`}
         data-pitch-duel-option={`place-${place}`}
       >
-        {card ? <ShieldCard card={card} size="mini" /> : <span className={styles.placeEmpty}>+</span>}
+        {card ? <DuelCard card={card} size="mini" /> : <span className={styles.placeEmpty}>+</span>}
         <span className={styles.placePos} data-fit={fit}>
           {pos}
         </span>
@@ -324,7 +324,7 @@ export function LineupEditor({
               onPointerUp={endDrag}
               onPointerCancel={() => setDrag(null)}
             >
-              <ShieldCard card={card} size="mini" onClick={() => tapBench(card.id)} label={`Bring in ${card.name}, ${primaryPosition(card)}, ${card.rating}`} />
+              <DuelCard card={card} size="mini" onClick={() => tapBench(card.id)} label={`Bring in ${card.name}, ${primaryPosition(card)}, ${card.rating}`} />
               {isAcademyId(card.id) ? <small className={styles.academyTag}>ACADEMY</small> : null}
             </span>
           ))}
@@ -372,7 +372,7 @@ export function LineupEditor({
 
       {ghost && drag ? (
         <span className={styles.ghost} style={{ left: drag.x, top: drag.y }} aria-hidden>
-          <ShieldCard card={ghost} size="mini" />
+          <DuelCard card={ghost} size="mini" />
         </span>
       ) : null}
     </div>

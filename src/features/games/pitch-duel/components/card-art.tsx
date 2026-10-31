@@ -6,40 +6,59 @@ import type { CSSProperties } from "react";
 import type { PlayerCard as PlayerCardData } from "@/domain/cards";
 import { portraitForCard } from "@/features/packs";
 
+import { attacks } from "../engine/actions";
+import { positionGroup } from "../engine/lineup";
 import { deriveStats, positionsOf } from "../engine/stats";
-import type { DerivedStats } from "../engine/types";
+import type { DerivedStats, StatKey } from "../engine/types";
 
 import styles from "./card.module.css";
 
 /** Possession and score colours: you are blue, they are red. */
 export const sideAccent = { home: "#60a5fa", away: "#f87171" } as const;
 
-/** Card tiers as the shield shows them; platinum reads as the lilac "legend" frame. */
-const tierName: Record<PlayerCardData["tier"], string> = { bronze: "bronze", silver: "silver", gold: "gold", platinum: "legend" };
+/** Rarity rank: drives the edge weight, the OVR face and the filled pips. */
+const tierRank: Record<PlayerCardData["tier"], number> = { bronze: 0, silver: 1, gold: 2, platinum: 3 };
 
 export function primaryPosition(card: PlayerCardData): string {
   return positionsOf(card)[0];
 }
 
-/** Ballers-style card numbers: six outfield stats, or four for a keeper. */
-export function statPairs(stats: DerivedStats, keeper: boolean): [string, number][] {
+export type CardStat = { key: string; label: string; value: number };
+
+/** The six numbers a card prints: outfield attributes, or the keeper's set. */
+export function statPairs(stats: DerivedStats, keeper: boolean): CardStat[] {
   return keeper
     ? [
-        ["DIV", stats.keeper.div],
-        ["REF", stats.keeper.ref],
-        ["HAN", stats.keeper.han],
-        ["POS", stats.keeper.pos],
-        ["KEP", stats.keep],
-        ["NRV", stats.composure],
+        { key: "div", label: "DIV", value: stats.keeper.div },
+        { key: "ref", label: "REF", value: stats.keeper.ref },
+        { key: "han", label: "HAN", value: stats.keeper.han },
+        { key: "pos", label: "POS", value: stats.keeper.pos },
+        { key: "keep", label: "KEP", value: stats.keep },
+        { key: "composure", label: "NRV", value: stats.composure },
       ]
     : [
-        ["PAC", stats.pac],
-        ["DRI", stats.dri],
-        ["SHO", stats.sho],
-        ["DEF", stats.def],
-        ["PAS", stats.pas],
-        ["PHY", stats.phy],
+        { key: "pac", label: "PAC", value: stats.pac },
+        { key: "sho", label: "SHO", value: stats.sho },
+        { key: "pas", label: "PAS", value: stats.pas },
+        { key: "dri", label: "DRI", value: stats.dri },
+        { key: "def", label: "DEF", value: stats.def },
+        { key: "phy", label: "PHY", value: stats.phy },
       ];
+}
+
+/** Value bands for the stat numbers: 85+ elite, 75+ strong, 65+ fair, below that weak. */
+export function statGrade(value: number): "elite" | "strong" | "fair" | "weak" {
+  return value >= 85 ? "elite" : value >= 75 ? "strong" : value >= 65 ? "fair" : "weak";
+}
+
+/**
+ * The stats an open-play move leans on, looked up from the label the duel
+ * result carries: the attacker's weights and the defender's weights.
+ */
+export function duelStatKeys(attackLabel: string): { attacker: StatKey[]; defender: StatKey[] } | null {
+  const move = Object.values(attacks).find((a) => a.label === attackLabel);
+  if (!move) return null;
+  return { attacker: Object.keys(move.off) as StatKey[], defender: Object.keys(move.def) as StatKey[] };
 }
 
 /** A drawn head-and-shoulders for cards without portrait art. */
@@ -52,17 +71,23 @@ function Silhouette() {
   );
 }
 
-export type ShieldSize = "lg" | "md" | "sm" | "mini";
+export type CardSize = "lg" | "md" | "sm" | "mini";
 
 /**
- * The shield card: rating, position and nation at the top left, the portrait,
- * a name bar and a 2×3 stat grid. `mini` is the lineup token (rating, nation
- * and position on one band under the portrait).
+ * The player card, built on the StatOz collectible layout: a chamfered 2:3
+ * frame with a rarity edge, the portrait plate, the role and nation plate at
+ * the top left, the OVR compartment at the top right, the trait strip and a
+ * nameplate with rarity pips. Below the nameplate sits the stat panel, three
+ * by two, each number graded by colour with a bar under it.
+ *
+ * `mini` is the lineup token: portrait, OVR and a position plate, no stats.
+ * `highlight` lights the stats a duel was decided on and dims the rest.
  */
-export function ShieldCard({
+export function DuelCard({
   card,
   size = "md",
   stats,
+  highlight,
   onClick,
   label,
   selected,
@@ -70,9 +95,10 @@ export function ShieldCard({
   style,
 }: {
   card: PlayerCardData;
-  size?: ShieldSize;
-  /** Defaults to the card's derived stats; pass null to hide the grid. */
+  size?: CardSize;
+  /** Defaults to the card's derived stats; pass null for the plain collectible face. */
   stats?: DerivedStats | null;
+  highlight?: readonly string[];
   onClick?: () => void;
   label?: string;
   selected?: boolean;
@@ -81,70 +107,114 @@ export function ShieldCard({
 }) {
   const portrait = portraitForCard(card);
   const keeper = card.role === "goalkeeper";
-  const shown = size === "mini" || stats === null ? null : (stats ?? deriveStats(card));
+  const mini = size === "mini";
+  const shown = mini || stats === null ? null : (stats ?? deriveStats(card));
+  const position = primaryPosition(card);
+  const group = positionGroup(position);
+  const rank = tierRank[card.tier];
+  const hot = shown && highlight?.length ? new Set(highlight) : null;
+
   const body = (
-    <span className={styles.face}>
-      <span className={styles.shine} aria-hidden />
-      {size === "mini" ? null : (
-        <span className={styles.corner}>
-          <b className={styles.ovr}>{card.rating}</b>
-          <small className={styles.pos}>{primaryPosition(card)}</small>
-          <span className={styles.nation}>{card.countryCode}</span>
+    <>
+      <span className={styles.edge} aria-hidden />
+      <span className={styles.face}>
+        <span className={styles.stripes} aria-hidden />
+
+        <span className={styles.plate}>
+          {portrait ? (
+            <Image src={portrait} alt="" fill sizes={size === "lg" ? "160px" : mini ? "64px" : "120px"} className={styles.portraitImg} draggable={false} />
+          ) : (
+            <Silhouette />
+          )}
+          {!mini && card.trait ? <span className={styles.trait}>{card.trait}</span> : null}
         </span>
-      )}
-      <span className={styles.portrait}>
-        {portrait ? <Image src={portrait} alt="" fill sizes={size === "lg" ? "160px" : "96px"} className={styles.portraitImg} /> : <Silhouette />}
-      </span>
-      {size === "mini" ? (
-        <span className={styles.band}>
+
+        {mini ? null : (
+          <span className={styles.tag}>
+            <b>
+              {group} · {position}
+            </b>
+            <small>{card.countryCode}</small>
+          </span>
+        )}
+
+        <span className={styles.ovr}>
           <b>{card.rating}</b>
-          <span className={styles.bandNation}>{card.countryCode}</span>
-          <small>{primaryPosition(card)}</small>
+          {mini ? null : (
+            <>
+              <i aria-hidden />
+              <small>OVR</small>
+            </>
+          )}
         </span>
-      ) : (
-        <span className={styles.name}>{card.shortName}</span>
-      )}
-      {shown ? (
-        <span className={styles.stats}>
-          {statPairs(shown, keeper).map(([k, v]) => (
-            <span key={k}>
-              <b>{v}</b>
-              <small>{k}</small>
-            </span>
-          ))}
+
+        <span className={styles.nameplate}>
+          {mini ? (
+            <>
+              <b className={styles.miniPos}>{position}</b>
+              <small className={styles.miniNation}>{card.countryCode}</small>
+            </>
+          ) : (
+            <>
+              <span className={styles.pips} aria-hidden>
+                {[0, 1, 2, 3].map((i) => (
+                  <i key={i} data-on={i <= rank || undefined} />
+                ))}
+              </span>
+              <span className={styles.name}>{card.shortName}</span>
+            </>
+          )}
         </span>
-      ) : null}
-    </span>
+
+        {shown ? (
+          <span className={styles.stats} data-focus={hot ? true : undefined}>
+            {statPairs(shown, keeper).map((s) => (
+              <span key={s.key} className={styles.stat} data-grade={statGrade(s.value)} data-hot={hot?.has(s.key) || undefined}>
+                <b>{s.value}</b>
+                <small>{s.label}</small>
+                <i style={{ "--v": `${s.value}%` } as CSSProperties} aria-hidden />
+              </span>
+            ))}
+          </span>
+        ) : null}
+
+        <span className={styles.shine} aria-hidden />
+      </span>
+    </>
   );
 
+  const name = label ?? `${card.name}, ${position}, rated ${card.rating}`;
   const common = {
     className: styles.card,
-    "data-tier": tierName[card.tier],
+    "data-tier": card.tier,
+    "data-group": group,
     "data-size": size,
+    "data-stats": shown ? true : undefined,
     "data-selected": selected || undefined,
     "data-muted": muted || undefined,
     style,
   };
 
   return onClick ? (
-    <button type="button" {...common} onClick={onClick} aria-label={label ?? `${card.name}, ${primaryPosition(card)}, rated ${card.rating}`}>
+    <button type="button" {...common} onClick={onClick} aria-label={name} aria-pressed={selected}>
       {body}
     </button>
   ) : (
-    <span {...common} role="img" aria-label={label ?? `${card.name}, ${primaryPosition(card)}, rated ${card.rating}`}>
+    <span {...common} role="img" aria-label={name}>
       {body}
     </span>
   );
 }
 
-/** The six stats as a sheet list (player details, lineup preview). */
-export function StatBlock({ stats, keeper }: { stats: DerivedStats; keeper?: boolean }) {
+/** The six stats as a sheet list with bars (player details). */
+export function StatBlock({ stats, keeper, highlight }: { stats: DerivedStats; keeper?: boolean; highlight?: readonly string[] }) {
+  const hot = highlight?.length ? new Set(highlight) : null;
   return (
     <dl className={styles.statBlock}>
-      {statPairs(stats, Boolean(keeper)).map(([label, value]) => (
-        <div key={label} style={{ "--stat": `${value}%` } as CSSProperties}>
-          <dt>{label}</dt>
-          <dd>{value}</dd>
+      {statPairs(stats, Boolean(keeper)).map((s) => (
+        <div key={s.key} data-grade={statGrade(s.value)} data-hot={hot?.has(s.key) || undefined} style={{ "--v": `${s.value}%` } as CSSProperties}>
+          <dt>{s.label}</dt>
+          <dd>{s.value}</dd>
         </div>
       ))}
     </dl>

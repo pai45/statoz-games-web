@@ -4,12 +4,11 @@ import { gameForHref, gameRegistry, playableGameHrefs } from "../src/mocks/games
 import { deckFor, sportForGame } from "../src/mocks/games/sport-decks";
 import { signInLocal } from "../src/features/auth/state/auth-session";
 
-test("Private cricket preview remains separate from Stadium Cricket without requiring a deck", () => {
-  assert.equal(gameForHref("/play/retro-innings")?.game, "retro-innings");
-  assert.ok(playableGameHrefs().includes("/play/retro-innings"));
-  assert.equal(sportForGame("retro-innings"), "cricket");
-  assert.ok(deckFor("cricket").heroes.includes("retro-innings"));
-  assert.match(gameRegistry["retro-innings"].badgeLabel!, /PRIVATE/);
+test("Creasefire Six is retired while Stadium Cricket remains available", () => {
+  assert.equal(gameForHref("/play/retro-innings"), null);
+  assert.ok(!playableGameHrefs().includes("/play/retro-innings"));
+  assert.equal(sportForGame("stadium-cricket"), "cricket");
+  assert.ok(!deckFor("cricket").heroes.includes("retro-innings"));
   assert.equal(gameRegistry["retro-innings"].requiresDeck, undefined);
   assert.equal(gameForHref("/play/final-over"), null);
   assert.equal(gameForHref("/play/stadium-cricket")?.game, "stadium-cricket");

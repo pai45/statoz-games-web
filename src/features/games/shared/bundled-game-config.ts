@@ -2,9 +2,9 @@ import { gameSportFor } from '@/mocks/games/sport-decks';
 import type { GameId } from '../types';
 
 export const bundledGameIds: readonly GameId[] = [
-  'stick-cricket', 'archery-test', 'penalty-shooters-2', 'football-shooting',
-  'tennis-bits', 'soccer-real', 'retro-innings', 'f1-racing',
-  'pitch-rush', 'retro-football-2', 'retro-hoops',
+  'stick-cricket', 'archery-test', 'penalty-shooters-2',
+  'tennis-bits', 'soccer-real', 'f1-racing',
+  'pitch-rush',
 ];
 
 export const isBundledGame = (game: GameId) => bundledGameIds.includes(game);

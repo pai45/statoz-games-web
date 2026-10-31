@@ -2,7 +2,7 @@
 
 Pitch Duel is a portrait-first, eleven-a-side football card game at `/play/pitch-duel`. Its gameplay follows the card-football structure of [Ballers](https://github.com/kiellzz/ballers-game): a zone ladder, one duel per decision, tap-to-pick set pieces, and a match screen built around two cards facing off. It adds one thing Ballers lacks: the CPU commits a hidden counter every turn.
 
-The game has its own look, separate from the StatOz design system: dark violet night-stadium panels, pink and cyan accents, glossy tiered shield cards, condensed type. The host app around it keeps StatOz styling.
+The game has its own look, separate from the StatOz design system: dark violet night-stadium panels, pink and cyan accents, player cards in the StatOz collectible layout with a stat panel added, condensed type. The host app around it keeps StatOz styling.
 
 All code is in `src/features/games/pitch-duel`:
 
@@ -18,7 +18,7 @@ All code is in `src/features/games/pitch-duel`:
 Mechanics and art direction are inspired by Ballers (kiellzz/ballers-game). **That repository has no licence and ships real player photos, sponsor imagery and music, so none of its code, CSS, images or audio is copied.**
 
 The look was studied from the public demo. REA browser captures (Welcome, mode select, Freestyle home) and Playwright measurements (lineup, opponent select, match, goal modal) were taken at 390×844, along with the repository's own README screenshots. Everything in this folder is redrawn from scratch:
-- the shield cards, pitch, goal, net, wall and stadium are CSS gradients and inline SVG;
+- the cards, pitch, goal, net, wall and stadium are CSS gradients and inline SVG;
 - the wordmark is our own;
 - portraits come from the existing StatOz card catalogue.
 
@@ -42,7 +42,21 @@ The look was studied from the public demo. REA browser captures (Welcome, mode s
 | Move buttons | violet pills in two columns; the picked one turns white | `.move` |
 | Events bar | `rgba(31,19,47,.65)→rgba(8,8,16,.82)`, "Show" toggle | `EventsBar`, events sheet |
 | Goal modal | `#0a0015→#1a0033`, 20px radius, blue edge, scorer card, CONTINUE | `Modal` + `.goalModal` |
-| Card tiers | gold yellow stripes, legend lilac stripes | `ShieldCard` (bronze, silver, gold, legend for platinum) |
+| Player card | shield card, rating/position/flag top left, 2×3 stats | `DuelCard`, on the StatOz collectible layout instead (see below) |
+
+## Player card
+
+`DuelCard` (`components/card-art.tsx`, `card.module.css`) keeps the structure of the StatOz collectible card that Pitch Duel used before the revamp, redrawn in the game's own CSS and fonts. It does not import the design system.
+
+- **Frame:** a 2:3 rectangle with the StatOz chamfer (big cut top left and bottom right, half cut on the others). A rarity edge, thicker and brighter with each tier, surrounds a dark foil face with 45° hairlines. The tier colours are bronze `#cd7f32`, silver `#cbd5e1`, gold `#fdc700` and platinum cyan `#5cdfff` to violet `#c27aff`.
+- **Top:** the portrait plate. A role and nation plate sits at the top left, for example "MID · CM" over "ARG", coloured by position group: GK gold, DEF violet, MID green, FWD cyan. The OVR compartment sits at the top right.
+- **Middle:** the trait strip, then the nameplate with four rarity pips and the short name.
+- **Stat panel (new):** with stats, the card grows to 5:8 and adds a 3×2 panel: PAC, SHO, PAS / DRI, DEF, PHY, or DIV, REF, HAN / POS, KEP, NRV for keepers. Each number is coloured by band (85+ green, 75+ lime, 65+ amber, below that orange) and has a bar under it.
+- **Duel highlight:** after an open-play duel, each card lights the stats that decided it. These come from the move's attacker and defender weights in `engine/actions.ts`; the other stats dim.
+- **Sizes:**
+  - `lg` is used on the duel stage, which passes live match stats.
+  - `md` is the plain face (`stats={null}`) in the goal modal and player sheet. The sheet lists the stats with bars beside it.
+  - `mini` is the lineup token: portrait, OVR, position and nation, with no stats.
 
 ## Match loop
 
@@ -123,7 +137,7 @@ Each formation has ten places. Each place has a line, the lanes it covers, a shi
 - **Keyboard:** Enter picks a place, the arrow keys move between places, Enter places the card.
 - Changing formation re-seats the eleven where they fit best.
 - Auto Pick fields the best eleven for the shape.
-- Each position badge shows how well the player fits: green for natural, amber for near, red for out of position.
+- Each position badge shows how well the player fits: green for natural, amber for near, red for out of position. The badge sits on the token's bottom edge, and tokens are spaced so that no badge or card covers another card's OVR in any of the five shapes from 360px wide.
 
 **League:** 3 points for a win, 1 for a draw, promotion every 9 points up to division 5. Each promotion grants an original fictional `pd2-*` card. Coins are 120, 75 or 45.
 
@@ -144,7 +158,7 @@ Pitch Duel opts out of the landscape `MobileGameViewport` (`shared/mobile-viewpo
 2. YOUR LINEUP and OPP. LINEUP tabs, which open bottom sheets.
 3. The stage:
    - the situation box and the match map, which opens a big map sheet;
-   - the two shield cards around the VS;
+   - the two player cards around the VS, with their live match stats;
    - the pick tags ("LOCKED IN" until the reveal);
    - the tip or the verdict.
 4. The moves as violet pills in the thumb zone, with a scrolling tactic row.

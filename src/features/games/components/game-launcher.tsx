@@ -51,7 +51,6 @@ export type GameLauncherProps = {
  */
 const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
   "vibe-basketball": dynamic(() => import("../vibe-basketball/screen").then(m=>m.VibeBasketball), {ssr:false,loading:()=> <div role="status">Loading Vibe Basketball…</div>}),
-  "retro-hoops": dynamic(() => import("../retro-hoops").then(m=>m.RetroHoops), {ssr:false,loading:()=> <div role="status" className="grid min-h-dvh place-content-center">LOADING RETRO HOOPS…</div>}),
   "penalty-shootout": PenaltyShootout,
   "pitch-duel": PitchDuel,
   "stadium-cricket": StadiumCricket,

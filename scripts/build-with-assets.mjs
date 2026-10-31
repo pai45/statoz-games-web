@@ -18,10 +18,23 @@ export async function buildWithAssets(env = process.env) {
   // Static exports copy public verbatim: keep retired runtimes out of the artifact.
   if (env.GITHUB_PAGES === 'true') {
     const removedGames = JSON.parse(await fs.readFile(path.join(root, 'src/domain/removed-games.json'), 'utf8'));
-    for (const id of removedGames) for (const prefix of ['games', 'embedded-games']) {
+    for (const id of removedGames) for (const prefix of ['games', 'embedded-games', 'assets/games']) {
       const source = path.join(root, 'out', prefix, id);
       const archive = path.join(root, '.cache/removed-exports', buildId, prefix, id);
+      if (!path.resolve(source).startsWith(path.resolve(root, 'out') + path.sep) || !path.resolve(archive).startsWith(path.resolve(root, '.cache/removed-exports') + path.sep)) throw Error('Invalid retired asset path');
       if (await fs.stat(source).catch(() => null)) {
+        await fs.mkdir(path.dirname(archive), { recursive: true });
+        await fs.rename(source, archive);
+      }
+    }
+    // Shared single-file covers and identity artwork also stay out of releases.
+    for (const folder of ['assets/games', 'assets/games/covers', 'assets/games/identity']) {
+      const directory = path.join(root, 'out', folder);
+      for (const entry of await fs.readdir(directory, { withFileTypes: true }).catch(error => { if (error.code === 'ENOENT') return []; throw error; })) {
+        if (!entry.isFile() || !removedGames.some(id => entry.name.startsWith(id + '.'))) continue;
+        const source = path.resolve(directory, entry.name);
+        const archive = path.resolve(root, '.cache/removed-exports', buildId, folder, entry.name);
+        if (!source.startsWith(path.resolve(root, 'out') + path.sep) || !archive.startsWith(path.resolve(root, '.cache/removed-exports') + path.sep)) throw Error('Invalid retired artwork path');
         await fs.mkdir(path.dirname(archive), { recursive: true });
         await fs.rename(source, archive);
       }

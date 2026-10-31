@@ -1,3 +1,4 @@
+import removedGames from "@/domain/removed-games.json";
 import type { ModeGuide } from "../types";
 import { localGameGuides } from './local-game-guides';
 
@@ -377,7 +378,7 @@ const allGuides: ModeGuide[] = [
 ];
 
 /** The guide for a mode, or `undefined` when the slug names no mode. */
-export const guides: ModeGuide[] = [...allGuides.filter(guide => guide.id !== "hoop-duel"), ...localGameGuides];
+export const guides: ModeGuide[] = [...allGuides.filter(guide => guide.id !== "hoop-duel"), ...localGameGuides].filter(guide => !removedGames.includes(guide.id));
 
 export function guideFor(mode: string): ModeGuide | undefined {
   return guides.find((guide) => guide.id === mode);

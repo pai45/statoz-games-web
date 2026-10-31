@@ -92,3 +92,7 @@ next-env.d.ts
 /.cache/tennis-local-policy/
 /.cache/device-cache-e2e/
 
+
+# Retired game bytes remain on this workstation only.
+/.cache/removed-games/
+/.cache/removed-exports/

@@ -6,7 +6,7 @@ import { attacks, defenses } from "../engine/actions";
 import { defenderOptions, setPieceTitles, takerOptions } from "../engine/set-pieces";
 import type { CpuIntent, MatchState, Resolution, Side } from "../engine/types";
 
-import { ShieldCard, sideAccent } from "./card-art";
+import { DuelCard, duelStatKeys, sideAccent } from "./card-art";
 import { BallIcon } from "./icons";
 import styles from "./match.module.css";
 
@@ -56,7 +56,7 @@ export function promptFor(state: MatchState): { text: string; hint: string } {
 }
 
 /**
- * Two shield cards, a pink VS between them. The card with the ball wears the
+ * Two player cards, a pink VS between them. The card with the ball wears the
  * possession triangle and the ball at its foot. During a reveal the cards
  * clash, the winner lifts and the headline drops in.
  */
@@ -80,6 +80,9 @@ export function DuelStage({
   const theirs = res ? (res.attackingSide === "home" ? res.defenseLabel : res.attackLabel) : null;
   const revealedIntent = !res && state.intentRevealed ? intentLabel(state.cpuIntent, state) : null;
   const phaseBanner = !res && state.phase !== "choose" ? prompt.text : null;
+  // After a duel, each card lights the stats the move was decided on.
+  const decided = res?.kind === "duel" ? duelStatKeys(res.attackLabel) : null;
+  const lit = (side: Side) => (decided && res ? (res.attackingSide === side ? decided.attacker : decided.defender) : undefined);
 
   return (
     <section className={styles.duel} aria-label="Duel" data-revealing={res ? true : undefined}>
@@ -88,6 +91,8 @@ export function DuelStage({
           side="home"
           cardId={faceoff.home}
           card={home}
+          stats={state.teams.home.stats[faceoff.home]}
+          highlight={lit("home")}
           ball={faceoff.ball === "home"}
           result={res ? (res.userWon ? "win" : "lose") : undefined}
           tag={mine ?? (state.phase === "choose" ? (faceoff.ball === "home" ? "ON THE BALL" : "DEFENDING") : "READY")}
@@ -105,6 +110,8 @@ export function DuelStage({
           side="away"
           cardId={faceoff.away}
           card={away}
+          stats={state.teams.away.stats[faceoff.away]}
+          highlight={lit("away")}
           ball={faceoff.ball === "away"}
           result={res ? (res.userWon ? "lose" : "win") : undefined}
           tag={theirs ?? revealedIntent ?? (state.phase === "choose" ? "LOCKED IN" : "READY")}
@@ -132,6 +139,8 @@ function Slot({
   side,
   cardId,
   card,
+  stats,
+  highlight,
   ball,
   result,
   tag,
@@ -141,6 +150,8 @@ function Slot({
   side: Side;
   cardId: string;
   card: MatchState["teams"]["home"]["cards"][string] | undefined;
+  stats: MatchState["teams"]["home"]["stats"][string] | undefined;
+  highlight: readonly string[] | undefined;
   ball: boolean;
   result: "win" | "lose" | undefined;
   tag: string;
@@ -152,7 +163,7 @@ function Slot({
       {ball ? <i className={styles.possession} style={{ "--side": sideAccent[side] } as CSSProperties} aria-label="Has the ball" /> : null}
       <div key={cardId} className={styles.deal}>
         {card ? (
-          <ShieldCard card={card} size="lg" onClick={onInspect} label={`${side === "home" ? "Your" : "Their"} player: ${card.name}. View stats`} />
+          <DuelCard card={card} size="lg" stats={stats} highlight={highlight} onClick={onInspect} label={`${side === "home" ? "Your" : "Their"} player: ${card.name}. View stats`} />
         ) : null}
         {ball ? (
           <span className={styles.cardBall} aria-hidden>

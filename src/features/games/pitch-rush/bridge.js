@@ -48,9 +48,31 @@ for(const [button,pointers,attack] of [[attackButton,attackPointers,true],[defen
   for(const type of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(type,release);
 }
 document.getElementById('btnPause').setAttribute('aria-label','Pause match');
-const help=document.createElement('p');help.className='mobileHelp';help.textContent='Hold Attack + aim with the stick, then release. Short hold: pass · Longer hold: shot · Defence: slide tackle';
-document.querySelector('#menu .tag').after(help);
 if(coarse.matches)document.querySelector('[data-mode="2"]').textContent='2 controllers';
+// Lobby structure: header, match setup, extras, then the pinned Kick Off footer.
+// Vendor code finds these elements by id or data attribute, so moving them is safe.
+const lobbyPanel=document.querySelector('#menu > .panel');
+const lobbyHead=document.createElement('header');lobbyHead.className='lobbyHead';
+const lobbyBack=document.createElement('button');
+lobbyBack.type='button';lobbyBack.id='exitGame';lobbyBack.className='lobbyBack';
+lobbyBack.textContent='‹ Football';lobbyBack.setAttribute('aria-label','Exit to football');
+lobbyHead.append(lobbyBack,lobbyPanel.querySelector('h1'),lobbyPanel.querySelector('.tag'));
+const lobbySetup=document.createElement('section');lobbySetup.className='lobbySetup';
+lobbySetup.innerHTML='<h2 class="lobbyLabel" id="setupLabel">Match setup</h2>';
+lobbySetup.setAttribute('aria-labelledby','setupLabel');
+for(const row of lobbyPanel.querySelectorAll(':scope > .row'))lobbySetup.append(row);
+const controlKey=document.createElement('ul');controlKey.className='controlKey';
+controlKey.setAttribute('aria-label','Touch controls');
+controlKey.innerHTML='<li><b>Stick</b><span>Move · aim</span></li><li><b>Attack</b><span>Tap pass · hold shot</span></li><li><b>Defence</b><span>Slide tackle</span></li>';
+lobbySetup.append(controlKey);
+// The vendor tips cover keys only and are hidden on touch; touch players get this instead.
+const help=document.createElement('p');help.className='mobileHelp';help.textContent='Hold Attack, aim with the stick, then release. A short hold passes, a longer hold shoots. Defence slides in when the other team has the ball.';
+localSetup.querySelector('details > summary').after(help);
+const offlineNote=lobbyPanel.querySelector(':scope > p.fineprint:not(#iosHint)');
+offlineNote.classList.add('offlineNote');
+const lobbyMore=document.createElement('div');lobbyMore.className='lobbyMore';
+lobbyMore.append(localSetup,advanced,onlineSetup,document.getElementById('iosHint'),offlineNote);
+lobbyPanel.prepend(lobbyHead,lobbySetup,lobbyMore);
 function sizePlayfield(){
   if(coarse.matches&&innerWidth>innerHeight){
     const box=canvas.getBoundingClientRect();
@@ -109,9 +131,10 @@ host.command=type=>{
   }
 };
 const exit=()=>{hostPause();host.emit('exit');};
-for(const panel of [document.querySelector('#menu .panelFooter'),document.querySelector('#pause .panel')]){
+lobbyBack.addEventListener('click',exit);
+{
   const button=document.createElement('button');button.type='button';button.textContent='Exit to football';
-  button.addEventListener('click',exit);panel.append(button);
+  button.addEventListener('click',exit);document.querySelector('#pause .panel').append(button);
 }
 window.addEventListener('blur',hostPause);
 document.getElementById('stick').addEventListener('lostpointercapture',()=>{

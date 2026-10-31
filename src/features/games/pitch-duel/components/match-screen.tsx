@@ -10,7 +10,7 @@ import type { MatchInput, MatchState, SetPieceOption, Side } from "../engine/typ
 import { usePitchDuelMatch } from "../state/use-pitch-duel-match";
 
 import { ActionPad, TacticTray, useNumberKeys } from "./action-pad";
-import { ShieldCard, StatBlock, primaryPosition, sideAccent } from "./card-art";
+import { DuelCard, StatBlock, primaryPosition, sideAccent } from "./card-art";
 import { DuelStage, type Faceoff } from "./duel-stage";
 import { PitchIcon } from "./icons";
 import { EventLog, EventsBar, MatchMap, PeriodStats, Scoreboard, SquadList, setPieceSpot } from "./match-parts";
@@ -176,7 +176,7 @@ export function MatchScreen({
             {scorer ? (
               <div className={styles.goalCard}>
                 <small>GOAL SCORER</small>
-                <ShieldCard card={scorer} size="md" stats={null} />
+                <DuelCard card={scorer} size="md" stats={null} />
                 <span className={styles.goalChips}>
                   <b>{scorer.rating}</b>
                   <b>{primaryPosition(scorer)}</b>
@@ -258,7 +258,7 @@ function PlayerDetail({ state, side, id, onBack }: { state: MatchState; side: Si
   const keeper = id === team.keeperId;
   return (
     <div className={styles.detail}>
-      <ShieldCard card={card} size="md" stats={team.stats[id]} />
+      <DuelCard card={card} size="md" stats={null} />
       <div className={styles.detailBody}>
         <h3>{card.name}</h3>
         <p className={styles.muted}>
@@ -272,7 +272,7 @@ function PlayerDetail({ state, side, id, onBack }: { state: MatchState; side: Si
           {line.red ? " · sent off" : line.yellow ? " · booked" : ""}
         </p>
         <Pill tone="grey" back onClick={onBack}>
-          BACK TO LINEUP
+          BACK
         </Pill>
       </div>
     </div>

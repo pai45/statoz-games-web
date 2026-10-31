@@ -1,8 +1,10 @@
-# Retro Innings: private handheld preview
+# Creasefire Six (Retro Innings): retired
+
+> Removed from Future Games Web on 30 October 2026 at the user's request. Discovery and direct play routes are disabled; normal builds and device downloads exclude the runtime. Source and local save namespaces are retained as development history. The implementation notes below describe the retired preview.
 
 The Cricket catalog opens the shared offline bundle through BundledGame. The game owns its entire viewport: a landscape handheld shell, a central native 256×224 field, D-pad/run/loft on the left, stroke/action controls on the right, and a fullscreen/menu/exit bar. Portrait remains usable and prompts rotation. Native fullscreen/orientation availability depends on the browser; fitted viewport play remains available when denied.
 
-Source lives in src/features/games/retro-innings/runtime. Run `node scripts/build-retro-innings.mjs`, then `node scripts/build-game-bundles.mjs --game=retro-innings` for this game only. The ordinary `npm run build:games` pipeline also rebuilds cricket. A selected bundle build preserves other game entries/files. No Flutter import occurs automatically.
+Source lives in src/features/games/retro-innings/runtime. The ordinary bundle pipeline excludes this retired game, and explicit `--game=retro-innings` selection is rejected. A selected bundle build preserves other game entries/files. No Flutter import occurs automatically.
 
 The authoritative match is preserved in match-template.html/simulation.mjs. Renderer/ground/motion/console modules own presentation and controls. There is one copy of each gameplay control and one scoring engine. The state bridge is intentionally opaque at the legacy JavaScript boundary; strict TypeScript checks and complete-state parity checks validate the adapter. This is not a complete TypeScript rules rewrite.
 

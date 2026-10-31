@@ -22,7 +22,7 @@ User direction: Retro Football uses its own classic arcade identity. Follow the 
 
 ## Pitch Duel independent style
 
-User direction (2026-10-30): Pitch Duel is an eleven-a-side, portrait-first card football game with its own Ballers-inspired look (dark violet stadium panels, pink/cyan accents, tiered shield cards, Bebas Neue / Barlow Condensed / Inter). Do not restyle it with the StatOz system inside the game; the host keeps its styling. The Ballers repository is unlicensed: never copy its code, CSS, images, logo or audio — measure and redraw only. See `docs/PITCH-DUEL.md`.
+User direction (2026-10-30): Pitch Duel is an eleven-a-side, portrait-first card football game with its own Ballers-inspired look (dark violet stadium panels, pink/cyan accents, player cards in the StatOz collectible layout with a stat panel, Bebas Neue / Barlow Condensed / Inter). Do not restyle it with the StatOz system inside the game; the host keeps its styling. The Ballers repository is unlicensed: never copy its code, CSS, images, logo or audio — measure and redraw only. See `docs/PITCH-DUEL.md`.
 
 ## Penalty Shootout ownership
 

@@ -1,5 +1,7 @@
 # Street Hoop local integration
 
+> Release exclusion — 30 October 2026: Street Hoop (`retro-hoops`), Retro Football 2 (`retro-football-2`) and Football Shooting (`football-shooting`) are removed from discovery, play routes, bundle builds and GitHub Pages artifacts. All source, runtime assets, notices and local saves remain on this workstation. This does not publish a release.
+
 This replaces the playable content at `/play/retro-hoops` with the actual Street Hoop arcade game while retaining its stable route, handheld frame and on-screen controls. The former original Rimforge 3 implementation and saved results remain in the repository; they are not the active game or used to fabricate arcade results.
 
 The included runtime adapter and mobile controls are original project code. The local engine is EmulatorJS 4.2.3 (GPL-3.0), source https://github.com/EmulatorJS/EmulatorJS/tree/v4.2.3 . Its unmodified licence is retained in `data/LICENSE`. The FBNeo core is downloaded from the same official CDN; preserve its licence and source notices. The ROM and BIOS retain their respective owners' rights and have no recorded redistribution licence. Their files and the generated local emulator assets are ignored by git. No hosting or publication is authorized by this integration.

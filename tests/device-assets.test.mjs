@@ -187,22 +187,27 @@ test('manifest includes built game dependencies and static code, encodes names a
     for (const asset of ['unity/Build/game.wasm','unity/Build/game.data','unity/StreamingAssets/aa/catalog.bin','unity/StreamingAssets/aa/WebGL/scene.bundle','unity/bridge.js','cover.png']) await put('public/games/stick-cricket/' + asset);
     for(const asset of ['native/index.html','native/local-platform.js','native/engine.bundle.js','native/assets/models/512/terrains/EnvironmentA.glb','native/assets/fonts/helve.xml','native/assets/sounds/effects.mp3'])await put('public/games/archery-test/'+asset);
     for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb','games/penalty-shooters-2/native/media/music.webm','games/football-shooting/recovered/animations.bin'])await put('public/'+asset);
+    for (const id of ['retro-hoops', 'retro-football-2', 'football-shooting']) for (const asset of [`assets/games/${id}/sprite.png`, `assets/games/${id}.svg`, `assets/games/covers/${id}.webp`, `assets/games/identity/${id}.svg`]) await put('public/' + asset);
     await put('public/games/tennis-bits/dissection/large-library.json');await put('public/games/tennis-bits/originals/Build/game.wasm');
     await put('public/assets/games/penalty-shootout/imported-characters/manifest.json');
     const first = await generateAssetManifest({ root, buildId: 'one', basePath: '/demo', exportDir: path.join(root, 'out') });
     for (const asset of ['data/cores/fbneo-wasm.data', 'roms/strhoop.zip', 'roms/arcade.7z', 'bridge.js', 'index.html']) {
       const entry = first.files.find(file => file.url === '/demo/games/retro-hoops/street-hoop/' + asset);
-      assert.ok(entry, 'Missing arcade dependency: ' + asset); assert.equal(entry.hash, digest('bytes'));
+      assert.equal(entry, undefined, 'Retired arcade dependency: ' + asset);
     }
     for (const asset of ['arcade/data/cores/fbneo-wasm.data', 'arcade/roms/ssideki2.zip', 'arcade/roms/arcade.7z', 'arcade/bridge.js', 'arcade/index.html', 'cover.png']) {
       const entry = first.files.find(file => file.url === '/demo/games/retro-football-2/' + asset);
-      assert.ok(entry, 'Missing football arcade dependency: ' + asset); assert.equal(entry.hash, digest('bytes'));
+      assert.equal(entry, undefined, 'Retired football arcade dependency: ' + asset);
     }
     for (const asset of ['unity/Build/game.data','unity/StreamingAssets/aa/catalog.bin','unity/StreamingAssets/aa/WebGL/scene.bundle']) {const entry=first.files.find(file=>file.url==='/demo/games/stick-cricket/'+asset);assert.ok(entry,'Missing Unity dependency: '+asset);assert.equal(entry.hash,digest('bytes'));}
     for (const id of ['final-third', 'retro-football', 'retro-circuit']) assert.ok(!first.files.some(file => file.url.includes('/embedded-games/' + id + '/')));
-    assert.ok(first.files.some(file=>file.url==='/demo/embedded-games/retro-innings/index.html'));
+    assert.ok(!first.files.some(file=>file.url.includes('/embedded-games/retro-innings/') || file.url.includes('/games/retro-innings/')));
+    for (const id of ['retro-hoops', 'retro-football-2', 'football-shooting']) {
+      assert.ok(!first.files.some(file => file.url.includes('/embedded-games/' + id + '/') || file.url.includes('/games/' + id + '/') || file.url.includes('/games/covers/' + id + '.') || file.url.includes('/games/identity/' + id + '.')));
+      assert.equal(await fs.readFile(path.join(root, 'public/assets/games/covers/' + id + '.webp'), 'utf8'), 'bytes');
+    }
     assert.ok(first.files.some(file=>file.url==='/demo/assets/games/penalty-shootout/imported-characters/manifest.json'));
-    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb','games/penalty-shooters-2/native/media/music.webm','games/football-shooting/recovered/animations.bin'])assert.ok(first.files.some(file=>file.url==='/demo/'+asset));
+    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb','games/penalty-shooters-2/native/media/music.webm'])assert.ok(first.files.some(file=>file.url==='/demo/'+asset));
     assert.ok(!first.files.some(file=>file.url.includes('/dissection/')||file.url.includes('/originals/')));
     for(const asset of ['native/assets/models/512/terrains/EnvironmentA.glb','native/assets/fonts/helve.xml','native/assets/sounds/effects.mp3'])assert.ok(first.files.some(file=>file.url==='/demo/games/archery-test/'+asset),'Missing native dependency '+asset);
     assert.ok(!first.files.some(file => file.url.includes('/assets/shop/portraits/')));

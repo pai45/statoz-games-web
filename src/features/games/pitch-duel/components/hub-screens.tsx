@@ -12,7 +12,7 @@ import type { MatchState } from "../engine/types";
 import type { Career } from "../state/career-schema";
 import type { MatchSettlement } from "../state/progress";
 
-import { ShieldCard, primaryPosition, sideAccent } from "./card-art";
+import { DuelCard, primaryPosition, sideAccent } from "./card-art";
 import { StarIcon, SwapIcon } from "./icons";
 import { Eyebrow, Pill } from "./ui";
 import styles from "./pitch-duel.module.css";
@@ -264,7 +264,7 @@ export function SummaryScreen({ state, settlement, onNext, onClub }: { state: Ma
 
       {bestCard ? (
         <section className={styles.mvp} aria-label="Player of the match">
-          <ShieldCard card={bestCard} size="md" stats={state.teams[best.side].stats[best.id]} />
+          <DuelCard card={bestCard} size="md" stats={state.teams[best.side].stats[best.id]} />
           <div>
             <small className={styles.kicker}>PLAYER OF THE MATCH</small>
             <strong>{bestCard.name}</strong>

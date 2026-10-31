@@ -1,6 +1,8 @@
-# Retro Football 2 — local integration
+# Retro Football 2 ï¿½ local integration
 
-Retro Football 2 is a separate Future Games Web catalog entry at `/play/retro-football-2/`. Its native game is Super Sidekicks 2 — The World Championship / Tokuten Ou 2 (Neo Geo NGM-061/NGH-061). Existing Retro Football and Street Hoop remain available with their own identities and storage.
+> Release exclusion â€” 30 October 2026: Street Hoop (`retro-hoops`), Retro Football 2 (`retro-football-2`) and Football Shooting (`football-shooting`) are removed from discovery, play routes, bundle builds and GitHub Pages artifacts. All source, runtime assets, notices and local saves remain on this workstation. This does not publish a release.
+
+Retro Football 2 is a separate Future Games Web catalog entry at `/play/retro-football-2/`. Its native game is Super Sidekicks 2 ï¿½ The World Championship / Tokuten Ou 2 (Neo Geo NGM-061/NGH-061). Existing Retro Football and Street Hoop remain available with their own identities and storage.
 
 This is the complete cartridge running through local EmulatorJS 4.2.3 / FBNeo, not a reconstruction of its mechanics. Native team selection, tournament, player motion, sound and rules remain owned by that original game. The host does not fabricate match results, XP or economy rewards.
 
@@ -18,4 +20,4 @@ Emulator source: https://github.com/EmulatorJS/EmulatorJS/tree/v4.2.3 ; CDN orig
 
 Checks: `npm run test:retro-football-2`, `npm run test:retro-football-2:browser`, `node --test tests/device-assets.test.mjs`, `npm run typecheck`, `npm run lint`, `npm run build:pages`. Route checks: `node scripts/check-retro-football-2-route.mjs`. Generated standalone bundles must be rebuilt after authored shell/bridge changes. Physical Android/iOS tests are not implied by browser emulation.
 
-Local verification on 26 October 2026: nine input/catalog tests and ten device-cache tests passed. Home catalog/product ownership checks passed. Type checking passed; lint has no errors and the existing unused `roadworks` warning in Retro Circuit. Eight mobile browser checks passed with no page errors, failed asset requests or remote playback requests. Native team selection, team-name confirmation, training selection and an Italy–England regional qualifier were reached; movement and A/B/C were exercised on the pitch. The full tournament and every set-piece branch have not been played through. Browser screenshots do not establish physical Android/iOS performance.
+Local verification on 26 October 2026: nine input/catalog tests and ten device-cache tests passed. Home catalog/product ownership checks passed. Type checking passed; lint has no errors and the existing unused `roadworks` warning in Retro Circuit. Eight mobile browser checks passed with no page errors, failed asset requests or remote playback requests. Native team selection, team-name confirmation, training selection and an Italyï¿½England regional qualifier were reached; movement and A/B/C were exercised on the pitch. The full tournament and every set-piece branch have not been played through. Browser screenshots do not establish physical Android/iOS performance.

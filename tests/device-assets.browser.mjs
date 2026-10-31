@@ -127,7 +127,7 @@ try {
   await page.waitForFunction(() => document.querySelector('iframe')?.contentWindow?.__game?.players?.length === 2, null, { timeout: 90000 });
   // Direct game routes test all enabled destinations; deck gates may appear for
   // card games, but those must not trigger any asset downloads either.
-  const routes = [...(process.argv.includes('--local-games')?[]:['retro-hoops', 'retro-football-2', 'stadium-cricket', 'penalty-shootout', 'pitch-duel', 'football-chess', 'grand-prix', 'tennis']), ...localGames.map(game=>game.id)];
+  const routes = [...(process.argv.includes('--local-games')?[]:['stadium-cricket', 'penalty-shootout', 'pitch-duel', 'football-chess', 'grand-prix', 'tennis']), ...localGames.map(game=>game.id)];
   const routeResults = [];
   for (const route of routes) {
     const response = await page.goto(origin + base + '/play/' + route);

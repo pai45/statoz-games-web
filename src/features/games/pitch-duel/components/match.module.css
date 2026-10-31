@@ -430,7 +430,7 @@
 
 /* Cards fit the room the stage leaves. */
 .slot [data-size="lg"] {
-  --w: clamp(5.5rem, min(34cqw, 40cqh * 0.654), 10rem);
+  --w: clamp(5.5rem, min(34cqw, 41cqh * 0.625), 10rem);
 }
 
 .possession {
@@ -500,10 +500,11 @@
   }
 }
 
+/* The ball sits in the card's bottom corner cut, clear of the stat panel. */
 .cardBall {
   position: absolute;
-  right: -0.4rem;
-  bottom: 14%;
+  right: -0.75rem;
+  bottom: -0.55rem;
   z-index: 2;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
   animation: ballBounce 1s ease-in-out infinite;
@@ -511,7 +512,7 @@
 
 .slot[data-side="away"] .cardBall {
   right: auto;
-  left: -0.4rem;
+  left: -0.75rem;
 }
 
 @keyframes ballBounce {
@@ -1096,7 +1097,7 @@
   box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28), 0 0 24px rgba(56, 132, 255, 0.2);
 }
 
-.goalCard small {
+.goalCard > small {
   color: #93c5fd;
   font: 800 0.75rem/1 var(--pd-font-display), sans-serif;
   letter-spacing: 0.2em;

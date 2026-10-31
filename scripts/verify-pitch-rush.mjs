@@ -166,7 +166,7 @@ try{
       await frame.locator('#endActions:not(.hidden)').waitFor();await frame.locator('#endMenu').click();
       evidence.push('Local two-player setup and touch-accessible result menu');
     }
-    await press(frame,'#menu .panelFooter button:last-child');
+    await press(frame,'#exitGame');
     await page.waitForURL('**/games/football');
     evidence.push({size,field,checks:['library cover','launch','pause/resume','input interruption','loss/rematch','win/initials','account save','exit']});
     await context.close();

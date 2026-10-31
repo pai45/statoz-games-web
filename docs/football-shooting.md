@@ -1,5 +1,7 @@
 # Football Shooting
 
+> Release exclusion — 30 October 2026: Street Hoop (`retro-hoops`), Retro Football 2 (`retro-football-2`) and Football Shooting (`football-shooting`) are removed from discovery, play routes, bundle builds and GitHub Pages artifacts. All source, runtime assets, notices and local saves remain on this workstation. This does not publish a release.
+
 Original offline browser football game for Future Games Web, at `/play/football-shooting`.
 
 ## Play

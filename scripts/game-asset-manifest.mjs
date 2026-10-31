@@ -37,7 +37,7 @@ export async function generateAssetManifest({ root, buildId, basePath = '', expo
   const source = (await Promise.all(sourceFiles.map(file => fs.readFile(file, 'utf8')))).join('\n');
   const selected = referencedShopFiles(source, publicFiles);
   for (const file of publicFiles) {
-    if (removedGames.some(id => file.startsWith(`embedded-games/${id}/`) || file.startsWith(`games/${id}/`))) continue;
+    if (removedGames.some(id => file.startsWith(`embedded-games/${id}/`) || file.startsWith(`games/${id}/`) || file.startsWith(`assets/games/${id}/`) || [`assets/games/${id}.`, `assets/games/covers/${id}.`, `assets/games/identity/${id}.`].some(prefix => file.startsWith(prefix)))) continue;
     // Editable research libraries and immutable build inputs are available locally,
     // while the device cache contains the game-owned runtime representation only.
     if (/^games\/[^/]+\/(?:dissection|originals)\//.test(file)) continue;
