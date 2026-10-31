@@ -78,14 +78,15 @@ function sampleKeys(keys: DiveKey[], age: number) {
 /** `landAt` is the dive age of touchdown; `airborneFrom` the first source frame off the ground. Both null when not diving sideways. */
 export type KeeperSample = { name: string; motion: KeeperMotionName; index: number; mirror: boolean; tilt: number; landAt: number | null; airborneFrom: number | null; age: number };
 
-export function keeperSample(actor: SpriteActor, frame: Pick<Frame, "tick" | "keeper" | "keeperClip" | "keeperTime">): KeeperSample {
+export function keeperSample(actor: SpriteActor, frame: Pick<Frame, "tick" | "keeper" | "keeperClip" | "keeperTime">, smoothLowDive = false): KeeperSample {
   const active = /^(dive_|recovery_|centre_block|catch|parry_)/.test(frame.keeperClip);
   if (!active) return { name: "Idle", motion: "Idle", index: frameAt(actor.animations.Idle, frame.tick / 120 * 1000), mirror: false, tilt: 0, landAt: null, airborneFrom: null, age: 0 };
   // Sample from the recorded dive age only. No live wall clock: pause and
   // replay retain exactly the recorded pose.
   const age = Math.max(0, frame.keeper.dive || frame.keeperTime), high = frame.keeper.height > .3, low = frame.keeper.height < -.3;
   if (frame.keeper.direction !== 0) {
-    const motion = high ? "HighDive" : low ? "LowDive" : "MidDive", dive = DIVES[motion], { index, tilt } = sampleKeys(dive.keys, age);
+    const motion = high ? "HighDive" : low ? "LowDive" : "MidDive";
+    const dive = smoothLowDive && low ? CUP_LOW_DIVE : DIVES[motion], { index, tilt } = sampleKeys(dive.keys, age);
     // The source lateral dive travels toward screen-left; mirror for screen-right.
     const mirror = frame.keeper.direction > 0;
     return { name: dive.clip, motion, index, mirror, tilt: mirror ? -tilt : tilt, landAt: dive.landAt, airborneFrom: dive.airborneFrom, age };
@@ -99,3 +100,9 @@ export function keeperSample(actor: SpriteActor, frame: Pick<Frame, "tick" | "ke
   if (name !== "LowCatch" && age > 1.6) elapsed = Math.max(0, duration - (age - 1.6) * 1000);
   return { name, motion: name, index: Math.max(lead, frameAt(clip, leadMs + elapsed)), mirror: false, tilt: 0, landAt: null, airborneFrom: null, age };
 }
+// Cup's low saves retain the source's push and stretch poses instead of
+// jumping from the loaded stance straight to a grounded pose.
+const CUP_LOW_DIVE: DiveTimeline = { clip:'MidParade', landAt:.62, airborneFrom:8, keys:[
+ [0,5],[.05,6],[.1,7],[.16,8,.08],[.24,9,.1],[.34,10,.08],[.46,11],[.62,12],[.72,13],[.82,14],[.92,15],
+ ...span(16,23,1.02,1.5),...span(24,35,1.5,2.3),...span(36,45,2.3,2.7)
+] };

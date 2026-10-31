@@ -46,7 +46,7 @@ export const gameRegistry: Record<GameId, GameEntry> = {
   "soccer-real": {kind:"hero",title:"SOCCER REAL",titleLines:["SOCCER","REAL"],subtitle:"TAKE THE PITCH. PLAY THE LOCAL CPU.",badgeLabel:"LOCAL // 3D FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/soccer-real"},
   "penalty-cup": {kind:"hero",title:"PENALTY CUP",titleLines:["PENALTY","CUP"],subtitle:"ONE SHOT. ONE NATION. ONE CUP.",badgeLabel:"48 NATIONS // INTERNATIONAL CUP",ctaLabel:"CHASE THE CUP",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/penalty-cup"},
   "penalty-shooters-2": {kind:"hero",title:"PENALTY SHOOTERS 2",titleLines:["PENALTY","SHOOTERS 2"],subtitle:"PICK YOUR TEAM. CHASE THE CUP.",badgeLabel:"LOCAL // ORIGINAL SHOOTOUT",ctaLabel:"TAKE THE SHOT",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/penalty-shooters-2"},
-  "f1-racing": {kind:"hero",title:"CRAZY GRAND PRIX",titleLines:["CRAZY","GRAND PRIX"],subtitle:"CRAZY GRAND PRIX. RACE ON THIS DEVICE.",badgeLabel:"LOCAL // 3D RACING",ctaLabel:"START YOUR ENGINE",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/f1-racing"},
+  "f1-racing": {kind:"hero",title:"RACER",titleLines:["RACER"],subtitle:"ONE QUICK RACE. CHASE THE LEAD.",badgeLabel:"STATOZ CIRCUITS // ARCADE RACING",ctaLabel:"QUICK RACE",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/racer"},
   "football-shooting": {kind:"hero",title:"FOOTBALL SHOOTING",titleLines:["FOOTBALL","SHOOTING"],subtitle:"FIND THE CORNER. BEND THE BALL. MAKE THE SAVE.",badgeLabel:"3D FOOTBALL // SHOOTOUT + PRACTICE",ctaLabel:"TAKE THE SHOT",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/football-shooting"},
   "archery-test": {kind:"hero",title:"ARCHERY MASTER",titleLines:["ARCHERY","MASTER"],subtitle:"DRAW. AIM. RELEASE. REACH THE TARGET.",badgeLabel:"3D ARCHERY // ORIGINAL LEVELS",ctaLabel:"TAKE AIM",accent:"gold",scene:"tennis-rally",href:"/play/archery-test"},
   "stick-cricket": {kind:"hero",title:"STICK CRICKET CHASE",titleLines:["STICK CRICKET","CHASE"],subtitle:"STICK CRICKET CHASE. TIME YOUR SHOT.",badgeLabel:"3D CRICKET // BATTING CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/stick-cricket"},
@@ -265,6 +265,9 @@ export function gameEntryFor(id: GameId): GameEntry | undefined {
 const gameByHref: Record<string, GameId> = Object.fromEntries(
   Object.entries(gameRegistry).filter(([id]) => isGameEnabled(id)).map(([id, entry]) => [entry.href, id as GameId]),
 );
+
+// Keep the former entry address compatible; both launch the reviewed Racer bundle.
+if (isGameEnabled('f1-racing')) gameByHref['/play/f1-racing'] = 'f1-racing';
 
 export function playableGameHrefs(): string[] {
   return Object.keys(gameByHref);

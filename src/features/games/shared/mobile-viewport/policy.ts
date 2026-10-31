@@ -1,7 +1,7 @@
 export function usesMobileLandscape(game: string): boolean {
   // Final Third is designed portrait-first (swipe up at the goal), like a phone football game.
   // Pitch Duel is a portrait card battler: scoreboard on top, moves under the thumb.
-  return game !== 'penalty-cup' && game !== 'football-chess' && game !== 'tennis-rally' && game !== 'final-third' && game !== 'archery-test' && game !== 'football-shooting' && game !== 'pitch-duel';
+  return game !== 'football-chess' && game !== 'tennis-rally' && game !== 'final-third' && game !== 'archery-test' && game !== 'football-shooting' && game !== 'pitch-duel';
 }
 
 /** Phones only (either side of the screen at most 500px), not tablets: these get the landscape platform shell. */

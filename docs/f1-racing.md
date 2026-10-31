@@ -1,5 +1,7 @@
 # Crazy Grand Prix / F1 Racing — local client
 
+**31 October 2026:** The active entry is now [Racer](racer/README.md) at `/play/racer`, an authored arcade game using adapted recovered meshes. `/play/f1-racing` is a compatible alias. The native integration below is retained history; Racer does not load the Unity client.
+
 `/play/f1-racing` now launches the recovered original Unity client locally. The former online embed was replaced on 30 October 2026 at the owner's request. Career, practice, cars, tracks, art and physics come from the native build. Local keyboard and simultaneous touch-driving controls, host pause/audio/dispose and game/account-prefixed Unity storage are authored integration code.
 
 The copied WASM has an explicit local-host policy at function34010 and the framework has an offline `_InitSDK` boundary. The actual browser origin is unchanged. Complete original payload hashes, old/new method body details and output hashes live in `native/localization-manifest.json`. This is an adapted original client, not an unchanged native build or an original Unity source project.

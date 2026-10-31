@@ -197,7 +197,7 @@ export class ImportedAthletes {
   setKitPalette(striker:string,keeper:string,strikerShorts:string,keeperShorts:string){
     this.kitUniforms.forEach((u,i)=>{u.primary.value.set(i===0?striker:keeper);u.secondary.value.set(i===0?strikerShorts:keeperShorts);});
   }
-  update(frame: Frame, previous: Frame | null, alpha: number, camera: THREE.Camera, ball: Vec3, reducedMotion = false) {
+  update(frame: Frame, previous: Frame | null, alpha: number, camera: THREE.Camera, ball: Vec3, reducedMotion = false, smoothLowDive = false) {
     const blend = (now: number, before?: number) => before === undefined ? now : before + (now - before) * alpha;
     this.strikerFrame = strikerFrame(this.striker.definition, frame);
     this.striker.show("kick", this.strikerFrame);
@@ -212,7 +212,7 @@ export class ImportedAthletes {
       .addScaledVector(up, contact[1] * strikerScale);
     this.striker.sprite.position.x += blend(frame.shooterX, previous?.shooterX) - TAKER.x;
     this.striker.sprite.position.z += blend(frame.shooterZ, previous?.shooterZ) - (GOAL.spot + TAKER.contactOffset);
-    const sample = keeperSample(this.keeper.definition, frame);
+    const sample = keeperSample(this.keeper.definition, frame, smoothLowDive);
     this.keeperAnimation = sample.name; this.keeperFrame = sample.index; this.keeperMotion = sample.motion;
     this.keeper.show(sample.name, sample.index, sample.mirror, reducedMotion ? 0 : sample.tilt);
     const pelvis = (pose: Frame["keeper"]) => ({ x: pose.root.x - Math.sin(pose.lean) * .94 });

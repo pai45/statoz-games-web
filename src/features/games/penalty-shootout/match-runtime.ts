@@ -7,14 +7,20 @@ import { STEP, type Frame, type Settings, type Snapshot, type MatchRules } from 
 export type MatchRuntime = { simulation: ShootoutSimulation; scene: ShootoutScene; input: ShootoutInput; audio: ShootoutAudio; active: boolean; paused: boolean; accumulator: number; previous: Frame | null };
 
 /** The same 120 Hz simulation and interpolated renderer serve both games. */
-export function startShootoutLoop(rt:MatchRuntime, settings:()=>Settings, publish:(s:Snapshot)=>void):()=>void {
- let raf=0,previousTime=performance.now(),lastHud=0,disposed=false;
+export function startShootoutLoop(rt:MatchRuntime, settings:()=>Settings, publish:(s:Snapshot)=>void, options:{maxRenderFps?:number;hudFps?:number;onCheckpoint?:(c:import('./game-types').MatchCheckpoint)=>void}={}):()=>void {
+ let raf=0,previousTime=performance.now(),lastHud=0,lastRender=0,disposed=false,seenKicks=rt.simulation.kicks.length,renderedPaused=false;
  const draw=(now:number)=>{
   if(disposed)return;
   const dt=Math.min(.05,Math.max(0,(now-previousTime)/1000));previousTime=now;
   if(rt.active&&!rt.paused){rt.accumulator+=dt;while(rt.accumulator>=STEP){rt.previous=rt.simulation.frame();rt.input.setRole(rt.simulation.role);rt.simulation.step(rt.input.sample());rt.accumulator-=STEP;}rt.audio.events(rt.simulation.consumeEvents());}
-  const snapshot=rt.simulation.snapshot();rt.scene.render(rt.simulation.frame(),rt.previous,rt.accumulator/STEP,snapshot,settings().reducedMotion);
-  if(now-lastHud>50){lastHud=now;publish(snapshot);}raf=requestAnimationFrame(draw);
+  if(rt.simulation.kicks.length>seenKicks){seenKicks=rt.simulation.kicks.length;options.onCheckpoint?.(rt.simulation.checkpoint());}
+  if(options.maxRenderFps&&rt.paused&&renderedPaused){raf=requestAnimationFrame(draw);return;}
+  if(!options.maxRenderFps||now-lastRender>=1000/options.maxRenderFps-.5){
+   const snapshot=rt.simulation.snapshot();
+   if(!options.maxRenderFps||!rt.paused||!renderedPaused)rt.scene.render(rt.simulation.frame(),rt.previous,rt.accumulator/STEP,snapshot,settings().reducedMotion);
+   renderedPaused=rt.paused;lastRender=now;
+   if(now-lastHud>1000/(options.hudFps??20)){lastHud=now;publish(snapshot);}
+  }raf=requestAnimationFrame(draw);
  };raf=requestAnimationFrame(draw);
  return ()=>{disposed=true;cancelAnimationFrame(raf);};
 }

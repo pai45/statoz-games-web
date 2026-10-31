@@ -17,26 +17,26 @@ export function sportGamesInDeckOrder(sport: GameSport): GameId[] {
 }
 
 /** Games whose cover ships with the game bundle rather than the shared covers folder. */
-const bundledCoverGames: readonly string[] = ["penalty-cup", "football-shooting", "retro-football-2", "stick-cricket", "archery-test", "soccer-real", "tennis-bits"];
+const bundledCoverGames: readonly string[] = ["penalty-cup", "f1-racing", "football-shooting", "retro-football-2", "stick-cricket", "archery-test", "soccer-real", "tennis-bits"];
 
 export const hasBundledCover = (id: GameId) => bundledCoverGames.includes(id);
 
 /** Public path of a game's cover art (pass through `publicAsset`). */
 export function gameCoverPath(id: GameId): string {
-  if (id === "f1-racing") return "/assets/games/covers/grand-prix-dash.webp";
+  if (id === "f1-racing") return "/games/f1-racing/racer-cover.png";
   return hasBundledCover(id) ? `/games/${id}/cover.png` : `/assets/games/covers/${id}.webp`;
 }
 
 /**
  * Where game `index` sits in the home coverflow relative to the centre card:
  * 0 is the centre, negative to the left, positive to the right. Lists of five
- * or more wrap around, so there are always games on both sides.
+ * or more wrap around, so there are always games on both sides. `centre` may
+ * be fractional while a drag is between two games.
  */
-export function coverflowOffset(index: number, active: number, count: number): number {
-  const offset = index - active;
+export function coverflowOffset(index: number, centre: number, count: number): number {
+  const offset = index - centre;
   if (count < 5) return offset;
-  const half = Math.floor(count / 2);
-  return ((offset + count + half) % count) - half;
+  return offset - count * Math.round(offset / count);
 }
 
 /**

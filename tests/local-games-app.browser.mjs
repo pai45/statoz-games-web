@@ -51,12 +51,14 @@ async function boot(page,game,{catalogue=false,email=accountA}={}){
   await expect.poll(async()=>{await enterApp(page);return page.locator('[data-discovery-card]').count();},{timeout:60000}).toBeGreaterThan(0);
   const card=page.locator(`[data-discovery-card="${game.id}"]`).first();
   await card.getByRole('link',{name:'Play '+game.title,exact:true}).click();
-  await page.waitForURL('**/play/'+game.id);
+  await page.waitForURL('**'+(game.href||'/play/'+game.id));
  }else await page.goto(origin+'/play/'+game.id,{waitUntil:'domcontentloaded'});
  const frame=await host(page,game.id);
  assert.equal(await frame.evaluate(()=>window.__STATOZ_BOOT__.storageScope),scope(email));
  let native=null;
- if(game.ready){
+ if(game.host){
+  await frame.waitForFunction(game.ready,null,{timeout:30000});
+ }else if(game.ready){
   assert.equal(await frame.getByRole('button',{name:/^Play /}).count(),0,'No extra starter screen');
   await expect.poll(()=>page.frames().some(f=>f.url().includes(`/games/${game.id}/`)&&f.url().includes('/index.html')),{timeout:30000}).toBe(true);
   native=page.frames().find(f=>f.url().includes(`/games/${game.id}/`)&&f.url().includes('/index.html'));

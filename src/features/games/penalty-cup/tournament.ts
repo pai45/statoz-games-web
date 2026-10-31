@@ -1,7 +1,8 @@
 import { matchStatus, seeded } from '../penalty-shootout/engine/rules';
 import { nations, groups, dataVersion } from './nations';
 import thirdRoutes from './third-routes.json';
-import type { Cup, Difficulty, Fixture, MatchResult, Stage, Standing } from './types';
+import type { Cup, Fixture, MatchResult, Stage, Standing } from './types';
+import type { MatchCheckpoint } from '../penalty-shootout/game-types';
 
 export const nation = (id: string) => { const found=nations.find(n=>n.id===id); if(!found)throw Error('Unknown nation');return found; };
 const rows = (teams: string[], fixtures: Fixture[]): Standing[] => teams.map(team=>{
@@ -29,15 +30,16 @@ export function standings(cup: Cup, group: string): Standing[] {
 export function thirdStandings(cup: Cup): Standing[] {return groups.map(g=>standings(cup,g)[2]).sort((a,b)=>b.points-a.points||overall(a,b));}
 const hash=(seed:number,text:string)=>{let n=seed>>>0;for(const c of text)n=Math.imul(n^c.charCodeAt(0),16777619)>>>0;return n;};
 const makeFixture=(cup: Pick<Cup,'id'|'seed'>,stage:Stage,day:number,id:string,home:string,away:string):Fixture=>({id,stage,day,home,away,seed:hash(cup.seed,id),attempts:0});
-export function newCup(team:string,difficulty:Difficulty,seed:number,id:string): Cup {
+export function newCup(team:string,seed:number,id:string): Cup {
  nation(team);
- const cup:Cup={version:1,dataVersion,id,team,difficulty,seed:seed>>>0,stage:'group',day:0,fixtures:[],status:'active',pending:null,updatedAt:new Date().toISOString()};
+ const cup:Cup={version:2,dataVersion,id,team,seed:seed>>>0,stage:'group',day:0,fixtures:[],status:'active',pending:null,checkpoint:null,updatedAt:new Date().toISOString()};
  const pairs=[[[0,1],[2,3]],[[0,2],[3,1]],[[3,0],[1,2]]];
  for(const g of groups){const teams=nations.filter(n=>n.group===g);pairs.forEach((day,d)=>day.forEach(([a,b],i)=>cup.fixtures.push(makeFixture(cup,'group',d,`G${g}-${d}-${i}`,teams[a].id,teams[b].id))));}
  return cup;
 }
 export function currentFixture(cup:Cup):Fixture|undefined {return cup.status==='active'?cup.fixtures.find(f=>f.stage===cup.stage&&f.day===cup.day&&!f.score&&(f.home===cup.team||f.away===cup.team)):undefined;}
-export function difficultyLevel(d:Difficulty,stage:Stage):number {return Math.min(12,({easy:1,normal:5,hard:9}[d])+({group:0,round32:1,round16:2,quarter:3,semi:4,bronze:4,final:5}[stage]));}
+/** One balanced competition, with a small stage-based progression. */
+export function cpuLevel(stage:Stage):number {return {group:5,round32:6,round16:7,quarter:8,semi:9,bronze:9,final:10}[stage];}
 export function randomOpponent(team:string,seed:number):string {nation(team);const pool=nations.filter(n=>n.id!==team);return pool[Math.floor(seeded(seed)()*pool.length)].id;}
 export function simulateFixture(f:Fixture):Fixture {
  if(f.score)return f;
@@ -70,16 +72,24 @@ export function storePending(cup:Cup,result:MatchResult):Cup {
  if(result.score.some(n=>!Number.isInteger(n)||n<0)||result.score.length!==2)throw Error('Invalid result');
  const expected=result.score[0]===result.score[1]?'draw':result.score[0]>result.score[1]?'win':'loss';
  if(result.outcome!==expected||fixture.stage!=='group'&&expected==='draw'||fixture.stage==='group'&&result.score.some(n=>n>5))throw Error('Invalid outcome');
- return {...cup,pending:result,updatedAt:new Date().toISOString()};
+ return {...cup,pending:result,checkpoint:null,updatedAt:new Date().toISOString()};
+}
+export function storeCheckpoint(cup:Cup,id:string,match:MatchCheckpoint):Cup {
+ const f=currentFixture(cup);
+ if(!f||cup.pending||id!==`${cup.id}:${f.id}:${f.attempts}`||match.seed!==f.seed||match.level!==cpuLevel(f.stage))return cup;
+ if(cup.checkpoint && cup.checkpoint.match.kicks.length>=match.kicks.length)return cup;
+ const status=matchStatus(match.kicks,f.stage==='group'?{allowDraw:true,earlyClinch:false}:{});
+ if(status.complete&&status.outcome)return storePending(cup,{id,score:status.score,outcome:status.outcome,kicks:match.kicks,suddenDeath:status.suddenDeath});
+ return {...cup,checkpoint:{id,match},updatedAt:new Date().toISOString()};
 }
 export function retryFixture(cup:Cup):Cup {
  const f=currentFixture(cup);if(!f||f.stage==='group'||cup.pending?.outcome!=='loss')return cup;
- return {...cup,pending:null,fixtures:cup.fixtures.map(x=>x.id===f.id?{...x,attempts:x.attempts+1,seed:hash(cup.seed,`${x.id}:${x.attempts+1}`)}:x),updatedAt:new Date().toISOString()};
+ return {...cup,pending:null,checkpoint:null,fixtures:cup.fixtures.map(x=>x.id===f.id?{...x,attempts:x.attempts+1,seed:hash(cup.seed,`${x.id}:${x.attempts+1}`)}:x),updatedAt:new Date().toISOString()};
 }
 export function acceptResult(cup:Cup):Cup {
  const f=currentFixture(cup),result=cup.pending;if(!f||!result)return cup;
  const score:[number,number]=f.home===cup.team?result.score:[result.score[1],result.score[0]];
- const next:Cup={...cup,pending:null,updatedAt:new Date().toISOString(),fixtures:cup.fixtures.map(x=>x.id===f.id?{...x,score,winner:score[0]===score[1]?undefined:score[0]>score[1]?x.home:x.away}:x)};
+ const next:Cup={...cup,pending:null,checkpoint:null,updatedAt:new Date().toISOString(),fixtures:cup.fixtures.map(x=>x.id===f.id?{...x,score,winner:score[0]===score[1]?undefined:score[0]>score[1]?x.home:x.away}:x)};
  // Finish the entire matchday/round atomically; subsequent visits never reroll CPU fixtures.
  next.fixtures=next.fixtures.map(x=>x.stage===cup.stage&&x.day===cup.day?simulateFixture(x):x);
  if(cup.stage==='group'){

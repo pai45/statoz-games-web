@@ -4,7 +4,13 @@ import { GOAL } from "../game-types";
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 export const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 export const smooth = (v: number) => { const t = clamp(v, 0, 1); return t * t * (3 - 2 * t); };
-export function seeded(seed: number) { let s = seed >>> 0; return () => { s += 0x6d2b79f5; let t = Math.imul(s ^ s >>> 15, 1 | s); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+export function seeded(seed: number) {
+  let s = seed >>> 0;
+  const random = () => { s = (s + 0x6d2b79f5) >>> 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  random.state = () => s;
+  random.restore = (state: number) => { s = state >>> 0; };
+  return random;
+}
 export function matchStatus(kicks: Pick<KickResult, "role" | "outcome">[], rules: import("../game-types").MatchRules = {}) {
   const a = kicks.filter(k => k.role === "shooting"), b = kicks.filter(k => k.role === "keeping");
   const score: [number, number] = [a.filter(k => k.outcome === "goal").length, b.filter(k => k.outcome === "goal").length];

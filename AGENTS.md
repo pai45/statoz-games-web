@@ -26,6 +26,8 @@ User direction (2026-10-30): Pitch Duel is an eleven-a-side, portrait-first card
 
 ## Penalty Cup independent style
 
+Penalty Cup is landscape-only. Keep every menu and overlay within one iPhone viewport; paginate nations, standings, brackets and history instead of adding page scrolling. It has one balanced stage progression and no selectable difficulty. Preserve old cup saves through the v2 migration and checkpoint completed penalties, including RNG state. Runtime and mobile checks are documented in docs/PENALTY-CUP.md.
+
 Penalty Cup is a separate game at /play/penalty-cup, maintained here only. Follow independent-game-style: game-owned football broadcast menus and interface, no StatOz/cyber styling inside the game. Share Penalty Shootout's match runtime with optional group-draw rules; preserve default Shootout behavior. Frozen 2026 data, tournament state and account-scoped saves live in the penalty-cup feature. See docs/PENALTY-CUP.md. Keep changes local unless separately authorized for release.
 
 ## Penalty Shootout ownership

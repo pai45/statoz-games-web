@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
-import { accentVar, Button } from "@/design-system";
+import { accentVar, Button, GridViewIcon } from "@/design-system";
 import { gameSportModuleFor } from "@/domain/game-sports";
 import { gameRegistry, gameSportFor } from "@/mocks/games";
 import { publicAsset } from "@/shared/config";
@@ -14,6 +14,8 @@ import styles from "./game-coverflow.module.css";
 
 /** Horizontal travel, in px, that counts as a swipe. */
 const swipeDistance = 40;
+/** Travel, in px, before a press becomes a drag (smaller moves are still taps). */
+const dragStart = 8;
 /** Cards drawn on each side of the centre; the outermost one is faded out so newcomers fade in. */
 const reach = 3;
 
@@ -21,17 +23,21 @@ const pad = (value: number) => String(value).padStart(2, "0");
 
 /**
  * The home page's game browser: one large game in the centre with the rest of
- * the library fanned out to its left and right. Swipe, the arrows or the
- * keyboard move through every game; tapping a side card brings it to the
+ * the library fanned out to its left and right. Dragging moves the cards with the
+ * finger; the arrows or the keyboard step through every game; tapping a side card brings it to the
  * centre, and tapping the centre card (or PLAY) opens the game.
  */
 export function GameCoverflow({ games, label, onViewAll }: { games: GameId[]; label: string; onViewAll: () => void }) {
   const count = games.length;
   const [index, setIndex] = useState(0);
   const tilt = useCardTilt({ x: 10, y: 6, sheen: 140 });
-  const swipe = useRef<{ x: number; y: number } | null>(null);
+  /** The press being dragged: start point and the px distance between two neighbouring cards. */
+  const drag = useRef<{ x: number; y: number; pointer: number; spacing: number; moving: boolean } | null>(null);
+  /** How far the cards have been dragged, in card slots (positive = towards the right). */
+  const [shift, setShift] = useState(0);
   const swiped = useRef(false);
   const stageRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   // Publish the stage size so the cards fit both its width and its height.
   useLayoutEffect(() => {
@@ -53,6 +59,15 @@ export function GameCoverflow({ games, label, onViewAll }: { games: GameId[]; la
   const entry = gameRegistry[id];
   const sport = gameSportFor(id);
   const go = (next: number) => setIndex(((next % count) + count) % count);
+  // Cards closer to the centre than this are drawn; long lists wrap, so never show the wrap point.
+  const visible = count < 5 ? reach : Math.min(reach, count / 2);
+  const clampShift = (value: number) => Math.max(-visible, Math.min(visible, value));
+  const slotWidth = () => {
+    const track = trackRef.current;
+    const card = track?.querySelector<HTMLElement>("[data-centre]");
+    const spread = track ? parseFloat(getComputedStyle(track).getPropertyValue("--spread")) : NaN;
+    return (card?.offsetWidth || 300) * (spread || 0.6);
+  };
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -60,20 +75,43 @@ export function GameCoverflow({ games, label, onViewAll }: { games: GameId[]; la
     event.preventDefault();
     go(active + (event.key === "ArrowRight" ? 1 : -1));
   };
+  // Drag: the cards follow the finger (or mouse); on release the nearest game snaps to the centre.
   const stage = {
-    onPointerMove: tilt.onPointerMove,
-    onPointerDown: (event: PointerEvent<HTMLElement>) => { swipe.current = { x: event.clientX, y: event.clientY }; swiped.current = false; },
-    onPointerUp: (event: PointerEvent<HTMLElement>) => {
-      const start = swipe.current; swipe.current = null;
-      if (!start || count < 2) return;
-      const dx = event.clientX - start.x, dy = event.clientY - start.y;
-      if (Math.abs(dx) < swipeDistance || Math.abs(dx) < Math.abs(dy)) return;
-      swiped.current = true;
-      const steps = Math.min(3, Math.max(1, Math.round(Math.abs(dx) / 140)));
-      go(active + (dx < 0 ? steps : -steps));
+    onPointerDown: (event: PointerEvent<HTMLElement>) => {
+      swiped.current = false;
+      if (count < 2 || (event.pointerType === "mouse" && event.button !== 0)) return;
+      drag.current = { x: event.clientX, y: event.clientY, pointer: event.pointerId, spacing: slotWidth(), moving: false };
     },
-    onPointerLeave: (event: PointerEvent<HTMLElement>) => { swipe.current = null; tilt.onPointerLeave(event); },
-    // A swipe ends on a card; it must not also open or select it.
+    onPointerMove: (event: PointerEvent<HTMLElement>) => {
+      const press = drag.current;
+      if (!press || press.pointer !== event.pointerId) { tilt.onPointerMove(event); return; }
+      const dx = event.clientX - press.x, dy = event.clientY - press.y;
+      if (!press.moving) {
+        if (Math.abs(dy) > dragStart && Math.abs(dy) > Math.abs(dx)) { drag.current = null; return; }
+        if (Math.abs(dx) <= dragStart) return;
+        press.moving = true;
+        // Keep receiving the moves even when the finger leaves the card it started on.
+        try { stageRef.current?.setPointerCapture(event.pointerId); } catch { /* the pointer is already gone */ }
+      }
+      setShift(clampShift(dx / press.spacing));
+    },
+    onPointerUp: (event: PointerEvent<HTMLElement>) => {
+      const press = drag.current; drag.current = null;
+      setShift(0);
+      if (!press) return;
+      const dx = event.clientX - press.x, dy = event.clientY - press.y;
+      let steps = Math.round(clampShift(dx / press.spacing));
+      // A quick flick that did not reach halfway still moves one game.
+      if (!steps && Math.abs(dx) >= swipeDistance && Math.abs(dx) > Math.abs(dy)) steps = Math.sign(dx);
+      if (press.moving || steps) swiped.current = true;
+      if (steps) go(active - steps);
+    },
+    onPointerCancel: () => { drag.current = null; setShift(0); },
+    onPointerLeave: (event: PointerEvent<HTMLElement>) => {
+      if (!drag.current?.moving) drag.current = null;
+      tilt.onPointerLeave(event);
+    },
+    // A drag ends on a card; it must not also open or select it.
     onClickCapture: (event: MouseEvent<HTMLElement>) => {
       if (!swiped.current) return;
       swiped.current = false;
@@ -93,11 +131,12 @@ export function GameCoverflow({ games, label, onViewAll }: { games: GameId[]; la
     </div>
 
     <div ref={stageRef} className={styles.stage} {...stage}>
-      <div className={styles.track}>
+      <div ref={trackRef} className={shift ? `${styles.track} ${styles.dragging}` : styles.track}>
         {games.map((game, i) => {
-          const offset = coverflowOffset(i, active, count);
-          if (Math.abs(offset) > reach) return null;
-          return <CoverCard key={game} game={game} offset={offset} onSelect={() => go(i)} />;
+          const position = coverflowOffset(i, active - shift, count);
+          if (Math.abs(position) >= visible + 1) return null;
+          const fade = Math.max(0, Math.min(1, visible - Math.abs(position)));
+          return <CoverCard key={game} game={game} centre={i === active} position={position} fade={fade} onSelect={() => go(i)} />;
         })}
       </div>
       {count > 1 ? <>
@@ -120,9 +159,11 @@ export function GameCoverflow({ games, label, onViewAll }: { games: GameId[]; la
       </div>
       <div className={styles.actions}>
         <PlayButton game={id} />
-        <Button variant="tonal" size="md" accent={accentVar("violet")} onClick={onViewAll}>VIEW ALL GAMES</Button>
       </div>
     </div>
+    <Button variant="ghost" size="md" accent="var(--ds-color-text-default)" onClick={onViewAll} label="View all games" className={styles.viewAll}>
+      <GridViewIcon size={22} />
+    </Button>
   </section>;
 }
 
@@ -132,12 +173,12 @@ function PlayButton({ game }: { game: GameId }) {
   return <Button variant="solid" size="md" glow accent={accentVar(entry.accent)} href={launch.href} onClick={launch.onClick} label={`Play ${entry.title}`}>PLAY</Button>;
 }
 
-function CoverCard({ game, offset, onSelect }: { game: GameId; offset: number; onSelect: () => void }) {
+/** `position` is the card's place in slots from the centre (fractional mid-drag); `fade` hides the outermost cards. */
+function CoverCard({ game, centre, position, fade, onSelect }: { game: GameId; centre: boolean; position: number; fade: number; onSelect: () => void }) {
   const entry = gameRegistry[game];
   const launch = useGameLaunch(entry);
-  const centre = offset === 0;
-  const style = { "--d": offset, "--ad": Math.abs(offset), "--card-accent": accentVar(entry.accent), zIndex: 10 - Math.abs(offset) } as CSSProperties;
-  const className = [styles.card, centre && styles.centre, Math.abs(offset) === reach && styles.edgeOut].filter(Boolean).join(" ");
+  const style = { "--d": position, "--ad": Math.abs(position), "--fade": fade, "--card-accent": accentVar(entry.accent), zIndex: 100 - Math.round(Math.abs(position) * 10) } as CSSProperties;
+  const className = [styles.card, centre && styles.centre, fade < 0.5 && styles.edgeOut].filter(Boolean).join(" ");
   const body = <>
     <span className={styles.edge} aria-hidden="true" />
     <span className={styles.fill}>
@@ -150,6 +191,6 @@ function CoverCard({ game, offset, onSelect }: { game: GameId; offset: number; o
   </>;
   if (!centre) return <button type="button" className={className} style={style} aria-label={`Show ${entry.title}`} tabIndex={-1} onClick={onSelect}>{body}</button>;
   return launch.href
-    ? <Link href={launch.href} className={className} style={style} aria-label={`Play ${entry.title}`} draggable={false}>{body}</Link>
-    : <button type="button" className={className} style={style} aria-label={`Play ${entry.title}`} onClick={launch.onClick}>{body}</button>;
+    ? <Link href={launch.href} className={className} style={style} aria-label={`Play ${entry.title}`} draggable={false} data-centre="">{body}</Link>
+    : <button type="button" className={className} style={style} aria-label={`Play ${entry.title}`} onClick={launch.onClick} data-centre="">{body}</button>;
 }

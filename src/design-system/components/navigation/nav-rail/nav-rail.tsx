@@ -1,5 +1,7 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+
+import styles from "./nav-rail.module.css";
 
 type NavRailItemBase = {
   id: string;
@@ -27,10 +29,13 @@ export type NavRailProps = {
   className?: string;
 };
 
+const slotNumber = (index: number) => String(index + 1).padStart(2, "0");
+
 /**
- * Primary destination switcher. The same items, accents, and active treatment
- * render either as a bottom bar on small screens or as a side rail on large
- * ones, so the product's navigation identity survives the reflow.
+ * Primary destination switcher, styled as a game loadout. Every destination is
+ * a numbered slot; only the current one glows. The same items render as a
+ * bottom hotbar on small screens or a side rail on large ones, so the
+ * navigation identity survives the reflow.
  */
 export function NavRail({
   items,
@@ -41,74 +46,44 @@ export function NavRail({
   className,
 }: NavRailProps) {
   const rail = orientation === "rail";
-  const wide = rail && !compact;
+  const variant = rail ? (compact ? "compact" : "rail") : "bar";
+  const activeIndex = items.findIndex((item) => item.id === activeId);
 
   return (
     <nav
       aria-label={label}
-      className={[
-        rail ? (compact ? "h-full w-full py-2" : "h-full w-full py-4") : "px-2 py-3",
-        className ?? "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      style={{ background: "var(--ds-gradient-nav-bar)" }}
+      data-variant={variant}
+      className={[styles.nav, className ?? ""].filter(Boolean).join(" ")}
+      style={{ "--nav-accent": items[Math.max(activeIndex, 0)]?.accent } as CSSProperties}
     >
-      <ul
-        className={[
-          "flex",
-          rail ? (compact ? "flex-col gap-1" : "flex-col gap-1.5") : "items-stretch gap-1.5",
-        ].join(" ")}
-      >
-        {items.map((item) => {
+      {variant === "rail" && (
+        <div className={styles.header} aria-hidden="true">
+          <span className={styles.headerTitle}><small>SELECT</small>MODE</span>
+          <span className={styles.meter}>
+            {items.map((item, index) => <i key={item.id} data-on={index === activeIndex || undefined} />)}
+          </span>
+          <b className={styles.meterCount}>{activeIndex < 0 ? "--" : slotNumber(activeIndex)}/{slotNumber(items.length - 1)}</b>
+        </div>
+      )}
+      <ul className={styles.list}>
+        {items.map((item, index) => {
           const active = item.id === activeId;
-          const itemClassName = [
-            compact ? "flex min-h-14 w-full transition-colors duration-200" : "flex min-h-15 w-full transition-colors duration-200",
-            wide
-              ? "flex-row items-center gap-3 px-4 py-3"
-              : "flex-col items-center justify-center gap-1.5 px-1",
-          ].join(" ");
-          const itemStyle = {
-            color: active ? item.accent : "var(--ds-color-text-disabled)",
-            background: active
-              ? `color-mix(in srgb, ${item.accent} 10%, transparent)`
-              : undefined,
-          };
+          const itemStyle = { "--nav-accent": item.accent } as CSSProperties;
           const content = (
             <>
-              <span className="grid size-5 shrink-0 place-items-center">
-                {item.icon}
-              </span>
-              <span
-                className={[
-                  "font-display leading-tight",
-                  wide ? "text-xs" : "text-2xs",
-                  active ? "font-bold" : "font-semibold",
-                ].join(" ")}
-              >
-                {item.label}
-              </span>
+              <span className={styles.slot}><span className={styles.glyph}>{item.icon}</span></span>
+              <span className={styles.label}>{item.label}</span>
+              {variant === "rail" && <span className={styles.key} aria-hidden="true">{slotNumber(index)}</span>}
             </>
           );
           return (
-            <li key={item.id} className={rail ? "" : "flex-1"}>
+            <li key={item.id} className={styles.cell}>
               {item.href ? (
-                <Link
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={itemClassName}
-                  style={itemStyle}
-                >
+                <Link href={item.href} aria-current={active ? "page" : undefined} className={styles.item} data-active={active || undefined} style={itemStyle}>
                   {content}
                 </Link>
               ) : (
-                <button
-                  type="button"
-                  onClick={item.onSelect}
-                  aria-current={active ? "page" : undefined}
-                  className={itemClassName}
-                  style={itemStyle}
-                >
+                <button type="button" onClick={item.onSelect} aria-current={active ? "page" : undefined} className={styles.item} data-active={active || undefined} style={itemStyle}>
                   {content}
                 </button>
               )}

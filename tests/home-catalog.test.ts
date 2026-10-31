@@ -51,6 +51,10 @@ test("coverflow centres the active game with games on both sides", () => {
     assert.equal(new Set(offsets).size, count);
     assert.ok(offsets.every((offset) => Math.abs(offset) <= Math.ceil(count / 2)));
   }
+  // Mid-drag the cards sit between slots, and the wrap point stays far from the centre.
+  assert.equal(coverflowOffset(0, 0.4, count), -0.4);
+  assert.equal(coverflowOffset(1, 0.4, count), 0.6);
+  assert.ok(Math.abs(coverflowOffset(count - 1, 0.4, count) + 1.4) < 1e-9);
 });
 
 test("desktop bento fills every row for each catalog size", () => {

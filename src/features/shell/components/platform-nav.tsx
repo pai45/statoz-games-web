@@ -4,11 +4,8 @@ import { usePathname } from "next/navigation";
 
 import {
   accentVar,
-  FootballIcon,
+  NavMarkIcon,
   NavRail,
-  ProfileIcon,
-  ShopIcon,
-  TrophyIcon,
   type NavRailItem,
 } from "@/design-system";
 import { navDestinations, type NavDestinationId } from "@/shared/config";
@@ -23,11 +20,11 @@ export type PlatformNavProps = {
 };
 
 const icons: Record<NavDestinationId, React.ReactNode> = {
-  sports: <FootballIcon size={20} />,
-  quiz: <TrophyIcon size={20} />,
-  shop: <ShopIcon size={20} />,
-  leaderboard: <TrophyIcon size={20} />,
-  profile: <ProfileIcon size={20} />,
+  sports: <NavMarkIcon mark="games" size={20} />,
+  quiz: <NavMarkIcon mark="quiz" size={20} />,
+  shop: <NavMarkIcon mark="shop" size={20} />,
+  leaderboard: <NavMarkIcon mark="top" size={20} />,
+  profile: <NavMarkIcon mark="profile" size={20} />,
 };
 
 /** Platform destinations share one violet accent so no single tab dominates. */

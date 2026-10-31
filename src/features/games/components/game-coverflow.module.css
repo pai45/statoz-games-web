@@ -54,11 +54,13 @@
   position:absolute;left:50%;top:50%;display:block;width:var(--card-w);aspect-ratio:3 / 2;padding:0;border:0;background:none;color:inherit;cursor:pointer;pointer-events:auto;touch-action:pan-y;
   -webkit-tap-highlight-color:transparent;
   transform:translate(-50%,-50%) translateX(calc(var(--d) * var(--card-w) * var(--spread))) translateZ(calc(var(--ad) * -90px)) rotateY(calc(var(--d) * -16deg)) scale(calc(1 - var(--ad) * .15));
-  opacity:calc(1 - var(--ad) * .2);
+  opacity:calc((1 - var(--ad) * .2) * var(--fade,1));
   filter:brightness(calc(1 - var(--ad) * .22)) saturate(calc(1 - var(--ad) * .12));
   transition:transform 520ms cubic-bezier(.2,.8,.2,1),opacity 420ms,filter 420ms;
 }
-.card.edgeOut{opacity:0;pointer-events:none}
+.card.edgeOut{pointer-events:none}
+/* While dragging the cards follow the pointer directly; letting go animates them into place. */
+.dragging .card{transition:none}
 .centre{filter:drop-shadow(0 10px 26px color-mix(in srgb,var(--card-accent) 40%,transparent))}
 .card:focus-visible{outline:2px solid var(--card-accent);outline-offset:4px}
 .edge,.fill{clip-path:polygon(0 0,calc(100% - var(--card-cut)) 0,100% var(--card-cut),100% 100%,var(--card-cut) 100%,0 calc(100% - var(--card-cut)))}
@@ -77,7 +79,7 @@
 .bracketEnd{right:10px;bottom:10px;border-right:2px solid var(--bracket);border-bottom:2px solid var(--bracket)}
 
 .step{
-  position:absolute;top:50%;z-index:20;pointer-events:auto;display:grid;place-items:center;width:44px;height:44px;margin-top:-22px;padding:0;cursor:pointer;
+  position:absolute;top:50%;z-index:200;pointer-events:auto;display:grid;place-items:center;width:44px;height:44px;margin-top:-22px;padding:0;cursor:pointer;
   border:1px solid color-mix(in srgb,var(--spot-accent) 45%,transparent);border-radius:var(--ds-radius-pill);
   background:color-mix(in srgb,var(--ds-color-background-primary) 70%,transparent);color:var(--ds-color-text-default);backdrop-filter:blur(6px);
 }
@@ -87,7 +89,10 @@
 .stepNext{right:8px}
 
 /* ---- Name and actions ----------------------------------------------------- */
-.info{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 24px;padding:10px 16px 14px;text-align:center}
+/* Side padding keeps the row clear of the corner VIEW ALL button (and centred). */
+.info{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 24px;padding:10px 72px 14px;text-align:center}
+/* VIEW ALL GAMES: one square icon button pinned to the carousel's bottom-right corner. */
+.viewAll{position:absolute;right:16px;bottom:14px;z-index:200;width:44px;padding:0}
 .meta{min-width:0}
 .name{
   margin:0;font:900 clamp(18px,1.4vw + 12px,30px)/1.05 var(--ds-font-display);letter-spacing:.04em;text-transform:uppercase;
@@ -99,8 +104,12 @@
 /* A phone held sideways: little height, so the name sits beside the buttons on one short row. */
 @media (orientation:landscape) and (max-height:540px){
   .flow{min-height:220px}
+  /* The page fits the screen here, so the carousel takes every touch. Inside the turned phone shell a
+     sideways drag is a vertical move on the glass, and pan-y would hand it to the browser as a scroll. */
+  .stage,.card{touch-action:none}
   .stage{min-height:120px}
-  .info{flex-wrap:nowrap;justify-content:space-between;padding:6px 16px 8px;text-align:left}
+  .info{flex-wrap:nowrap;justify-content:space-between;padding:6px 72px 8px 16px;text-align:left}
+  .viewAll{bottom:8px}
   .sub{justify-content:flex-start;margin-top:4px}
   .name{font-size:18px}
   .step{width:38px;height:38px;margin-top:-19px}

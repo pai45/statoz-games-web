@@ -51,6 +51,12 @@ async function open(context, name, { phoneFrame = false } = {}) {
   await page.goto(origin + '/', { waitUntil: 'domcontentloaded', timeout: 180000 });
   const root = phoneFrame ? page.frameLocator('iframe[data-mobile-platform-frame]') : page;
   await centre(root).waitFor({ timeout: 180000 });
+  // The server-rendered carousel shows before React takes it over; a slow dev compile can leave it inert for a while.
+  const next = carousel(root).getByRole('button', { name: 'Next game' });
+  for (let tries = 0; !(await next.evaluate(button => Object.keys(button).some(key => key.startsWith('__reactProps')))); tries++) {
+    if (tries > 900) throw new Error(`${name}: the carousel never became interactive`);
+    await page.waitForTimeout(200);
+  }
   await page.evaluate(() => document.fonts.ready);
   return { page, root };
 }
@@ -67,13 +73,29 @@ async function checkCoverflow(root, name) {
   assert.ok(sides.some(x => x < middle) && sides.some(x => x > middle), `${name}: games sit on both sides of the centre`);
   const overflow = await root.locator('html').evaluate(html => html.scrollWidth - html.clientWidth);
   assert.ok(overflow <= 0, `${name}: no horizontal page scroll (${overflow}px)`);
+  // VIEW ALL is one icon button in the carousel's bottom-right corner, clear of PLAY.
+  const corner = await carousel(root).evaluate(section => {
+    const rect = element => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height }; };
+    const viewAll = section.querySelector('[aria-label="View all games"]');
+    const play = [...section.querySelectorAll('a[aria-label^="Play "]')].at(-1);
+    return { section: rect(section), viewAll: rect(viewAll), play: rect(play), text: viewAll.textContent.trim() };
+  });
+  assert.equal(corner.text, '', `${name}: VIEW ALL shows only an icon`);
+  assert.ok(Math.abs(corner.viewAll.width - corner.viewAll.height) < 2, `${name}: VIEW ALL is square (${JSON.stringify(corner.viewAll)})`);
+  assert.ok(corner.section.right - corner.viewAll.right <= 24 && corner.section.bottom - corner.viewAll.bottom <= 24, `${name}: VIEW ALL sits in the bottom-right corner`);
+  assert.ok(corner.play.right <= corner.viewAll.left || corner.play.bottom <= corner.viewAll.top, `${name}: VIEW ALL does not cover PLAY`);
   return total;
 }
 
-async function swipe(root, from, to) {
-  const stage = centre(root).locator('xpath=../..');
-  await stage.dispatchEvent('pointerdown', { clientX: from, clientY: 200, pointerType: 'touch', isPrimary: true });
-  await stage.dispatchEvent('pointerup', { clientX: to, clientY: 205, pointerType: 'touch', isPrimary: true });
+/** A real finger drag of `distance` px straight up the upright screen, which is leftwards in the turned shell. */
+async function touchDragUp(page, root, distance) {
+  const box = await centre(root).boundingBox();
+  const x = box.x + box.width / 2, y = box.y + box.height / 2;
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type, at) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y: at }] });
+  await touch('touchStart', y);
+  for (let step = 1; step <= 10; step++) { await touch('touchMove', y - (distance * step) / 10); await page.waitForTimeout(16); }
+  await touch('touchEnd');
 }
 
 try {
@@ -100,8 +122,30 @@ try {
   assert.equal((await title(root)).toUpperCase(), sideName.toUpperCase(), 'tapping a side card centres it');
   assert.ok(!page.url().includes('/play/'), 'tapping a side card does not open it');
 
+  // Dragging: the cards follow the mouse; letting go settles on the nearest game without opening it.
+  const before = Number((await counter(root)).split('/')[0]);
+  const start = await centre(root).boundingBox();
+  const sx = start.x + start.width / 2, sy = start.y + start.height / 2, slot = start.width * 0.6;
+  await page.mouse.move(sx, sy);
+  await page.mouse.down();
+  await page.mouse.move(sx - slot * 0.5, sy, { steps: 6 });
+  const mid = await centre(root).boundingBox();
+  assert.ok(mid.x < start.x - slot * 0.3, `the centre card follows the drag (${Math.round(start.x)} -> ${Math.round(mid.x)})`);
+  await page.mouse.move(sx - slot * 1.2, sy, { steps: 6 });
+  await page.mouse.up();
+  assert.equal(await counter(root), `${pad(before % total + 1)} / ${pad(total)}`, 'dragging left by one card shows the next game');
+  assert.ok(!page.url().includes('/play/'), 'a drag does not open the game');
+  const settled = await counter(root);
+  await page.mouse.move(sx, sy);
+  await page.mouse.down();
+  await page.mouse.move(sx + 20, sy, { steps: 3 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+  assert.equal(await counter(root), settled, 'a short drag snaps back to the same game');
+  assert.ok(!page.url().includes('/play/'), 'a short drag does not open the game');
+
   // VIEW ALL GAMES: every game as a row, a sport filter, Escape closes.
-  await page.getByRole('button', { name: 'VIEW ALL GAMES' }).click();
+  await page.getByRole('button', { name: 'View all games', exact: true }).click();
   await page.waitForURL('**/?view=all');
   const list = page.getByRole('dialog', { name: 'ALL GAMES' });
   await list.waitFor();
@@ -136,7 +180,7 @@ try {
   await page.screenshot({ path: path.join(out, 'tablet.png') });
   await tablet.close();
 
-  // Upright phone: the whole shell is turned to landscape; a swipe moves on without opening a game.
+  // Upright phone: the whole shell is turned to landscape; a finger drag moves on without opening a game.
   const phone = await browser.newContext({ viewport: { width: 393, height: 851 }, hasTouch: true, isMobile: true });
   await seed(phone);
   ({ page, root } = await open(phone, 'phone', { phoneFrame: true }));
@@ -144,9 +188,9 @@ try {
   const inner = await root.locator('html').evaluate(() => ({ width: innerWidth, height: innerHeight }));
   assert.deepEqual(inner, { width: 851, height: 393 }, 'the shell lays out as landscape');
   await checkCoverflow(root, 'phone');
-  await swipe(root, 600, 300);
-  await root.locator('section[aria-roledescription="carousel"] h2 + p span', { hasText: /^0[2-9] \// }).waitFor();
-  assert.ok(!page.url().includes('/play/'), 'a swipe does not open the game');
+  await touchDragUp(page, root, 220);
+  await root.locator('section[aria-roledescription="carousel"] h2 + p span', { hasText: /^0[2-9] \// }).waitFor({ timeout: 5000 });
+  assert.ok(!page.url().includes('/play/'), 'a drag does not open the game');
   await page.screenshot({ path: path.join(out, 'phone.png') });
   await phone.close();
 

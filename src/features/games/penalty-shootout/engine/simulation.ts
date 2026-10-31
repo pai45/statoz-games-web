@@ -31,7 +31,8 @@ export class ShootoutSimulation {
   private caughtSide: "hand_L" | "hand_R" = "hand_L";
   private parryTick = -1;
   private colliders = new Map<number, "keeper" | "frame" | "ground">();
-  private random: () => number;
+  private random: ReturnType<typeof seeded>;
+  private queuedKeeperDive: InputFrame['dive'] = null;
   private contacts = new Set<"keeper" | "frame" | "ground">();
   readonly mode: Mode;
   readonly level: number;
@@ -99,6 +100,7 @@ export class ShootoutSimulation {
   private setPhase(phase: Phase) { this.phase = phase; this.phaseTick = this.tick; }
   private age() { return (this.tick - this.phaseTick) * STEP; }
   private resetKick() {
+    this.queuedKeeperDive = null;
     this.cosmeticKick = this.kicks.length;
     this.role = this.mode === "keeping" ? "keeping" : this.mode === "shooting" ? "shooting" : this.kicks.length % 2 ? "keeping" : "shooting";
     this.setPhase("preparation"); this.wasShoot = false; this.power = 0; this.composure = 1; this.target = { x: 0, y: 1.15 }; this.style = "driven";
@@ -122,9 +124,11 @@ export class ShootoutSimulation {
     const extend = smooth((age - .07) / .43), land = smooth((age - .65) / .65), recover = smooth((age - 1.45) / 1.25);
     const lean = -direction * 1.48 * extend * (1 - recover);
     const pelvisX = this.keeperX + direction * 1.6 * smooth(age / .65);
-    const pelvisY = d && direction ? mix(mix(.94, .65 + Math.max(0, height) * .65, extend), .30, land) * (1 - recover) + .94 * recover : .94;
+    const centreDip = this.rules.responsiveKeeping && d && !direction ? Math.max(0, -height) * .45 * extend * (1 - recover) : 0;
+    const pelvisY = d && direction ? mix(mix(.94, .65 + Math.max(0, height) * .65, extend), .30, land) * (1 - recover) + .94 * recover : .94 - centreDip;
     const root = { x: pelvisX + Math.sin(lean) * .94, y: pelvisY - Math.cos(lean) * .94, z: .3 - .12 * land * (1 - recover) };
-    const handY = d ? mix(1.08, direction ? mix(.30, 2.12, (height + 1) / 2) : .88, extend) : 1.08;
+    const centreHandY = this.rules.responsiveKeeping ? clamp(1.06 + height * .85, .22, 2.05) : .88;
+    const handY = d ? mix(1.08, direction ? mix(.30, 2.12, (height + 1) / 2) : centreHandY, extend) : 1.08;
     const reach = direction * 1.13 * extend * (1 - recover);
     const hand = (side: number) => {
       const shoulder = { x: root.x + side * .19 * Math.cos(lean) - 1.48 * Math.sin(lean), y: root.y + side * .19 * Math.sin(lean) + 1.48 * Math.cos(lean), z: root.z };
@@ -207,7 +211,16 @@ export class ShootoutSimulation {
     } else {
       this.keeperVelocity = this.dive ? 0 : -input.x * 1.5;
       if (!this.dive) this.keeperX = clamp(this.keeperX + this.keeperVelocity * STEP, -1.05, 1.05);
-      if (input.dive) this.commitDive(-input.dive.x, input.dive.y);
+      if (input.dive) {
+        if (this.rules.responsiveKeeping && (this.phase === 'preparation' || this.phase === 'runup' && age < .62)) this.queuedKeeperDive = input.dive;
+        else this.commitDive(-input.dive.x, input.dive.y);
+      }
+      // An early mobile tap prepares a dive for contact, instead of exhausting
+      // the entire save animation while the opponent is still waiting to run up.
+      if (this.queuedKeeperDive && this.phase === 'runup' && age >= .62) {
+        this.commitDive(-this.queuedKeeperDive.x, this.queuedKeeperDive.y);
+        this.queuedKeeperDive = null;
+      }
       if (this.phase === "preparation" && age > 1.8) { this.style = this.cpuShot.style; this.power = this.cpuShot.power; this.composure = this.cpuShot.composure; this.setPhase("runup"); }
     }
     this.wasShoot = input.shoot;
@@ -265,6 +278,16 @@ export class ShootoutSimulation {
   snapshot(): Snapshot {
     const match = matchStatus(this.kicks, this.rules);
     return { phase: this.phase, role: this.role, mode: this.mode, tick: this.tick, ...match, kicks: [...this.kicks], power: this.power, composure: this.composure, marker: this.marker, aim: copy(this.target), spread: accuracy({ power: this.power, composure: this.composure, style: this.style }), style: this.style, result: this.result, replayProgress: this.frames.length ? this.replayIndex / this.frames.length : 0, notice: this.role === "shooting" ? this.phase === "preparation" ? "Aim first, then hold Shoot to charge" : this.phase === "charging" ? "Aim locked  -  release to shoot" : this.phase === "runup" ? "Aim locked  -  taking the shot" : "" : this.phase === "preparation" ? "Move on the line  -  read the taker" : this.phase === "runup" ? "Commit early for reach, or react late" : "" };
+  }
+  checkpoint(): import('../game-types').MatchCheckpoint {
+    if (!['resolution', 'replay', 'summary'].includes(this.phase)) throw Error('A penalty must finish before checkpointing');
+    return { version: 1, seed: this.cosmeticSeed, level: this.level, tick: this.tick, randomState: this.random.state(), kicks: copy(this.kicks) };
+  }
+  restoreCheckpoint(checkpoint: import('../game-types').MatchCheckpoint) {
+    if (checkpoint.version !== 1 || checkpoint.seed !== this.cosmeticSeed || checkpoint.level !== this.level) throw Error('Incompatible match checkpoint');
+    this.kicks = copy(checkpoint.kicks); this.tick = checkpoint.tick; this.random.restore(checkpoint.randomState); this.events = []; this.eventId = 0;
+    if (matchStatus(this.kicks, this.rules).complete) { this.result = this.kicks.at(-1) ?? null; this.setPhase('summary'); }
+    else this.resetKick();
   }
   dispose() { this.queue.free(); this.world.free(); }
 }

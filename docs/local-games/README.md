@@ -1,5 +1,7 @@
 # Local game integration — 30 October 2026
 
+**31 October 2026:** Racer supersedes the active Crazy Grand Prix entry. Its new quick race, controls, source, retained assets and current validation are documented in [Racer](../racer/README.md). Earlier native-racing validation below describes the archived client.
+
 > Release exclusion — 30 October 2026: Street Hoop (`retro-hoops`), Retro Football 2 (`retro-football-2`) and Football Shooting (`football-shooting`) are removed from discovery, play routes, bundle builds and GitHub Pages artifacts. All source, runtime assets, notices and local saves remain on this workstation. This does not publish a release.
 
 Maintained code and playable assets live in this Future Games Web checkout. Designer remains the read-only acquisition/research source. No online backend, provider account, advertisement, payment or matchmaking service is required for the local modes below. On 30 October 2026, the project owner authorized publishing the playable runtime assets on GitHub Pages; optional editable research libraries remain local-only.
@@ -19,7 +21,7 @@ The separate QA hub remains available: run `npm run preview:local-games` and ope
 | Tennis Bits | `/play/tennis-bits` | Complete original WASM/data/framework and all 752 catalogued Addressable bundles, local platform/storage, native tutorial and CPU tennis. |
 | Soccer REAL | `/play/soccer-real` | Original shipped Three.js game and models, native CPU quick matches/tournament, local persistence. The formerly online entry now starts local CPU play. Optional mid-match ad offers are skipped without awarding a boost. |
 | Creasefire Six (Retro Innings) | Retired 30 October 2026 | Removed from discovery, direct play routes, local builds and device downloads; source retained as development history. |
-| Crazy Grand Prix | `/play/f1-racing` | Original Unity native game, original cars/tracks/physics/career/practice, a copied-client local-host policy and authored offline platform, keyboard/touch driving, account-scoped Unity saves and pause/dispose. |
+| Racer (formerly Crazy Grand Prix) | `/play/racer` (`/play/f1-racing` compatible) | Authored Three.js quick race: recovered and restyled car/circuit meshes, StatOz Circuits signs, two laps, six cars, analog steering, brake/boost and account-scoped personal best. Original Unity client retained as history. |
 
 ## Main application integration
 

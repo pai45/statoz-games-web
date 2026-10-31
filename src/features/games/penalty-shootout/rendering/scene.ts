@@ -103,6 +103,11 @@ export class ShootoutScene {
     const net = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xe2e6dc, transparent: true, opacity: 0.33 })); this.scene.add(net); return net;
   }
   private resize() { const width = Math.max(1, this.host.clientWidth), height = Math.max(1, this.host.clientHeight); this.size = { width, height }; this.renderer.setSize(width, height, false); this.camera.aspect = width / height; this.camera.updateProjectionMatrix(); }
+  private mobileCup = false;
+  optimizeForCup() {
+    this.mobileCup = true;
+    if(matchMedia('(pointer:coarse)').matches || this.host.clientHeight<500){this.quality=Math.min(window.devicePixelRatio,1.25);this.renderer.setPixelRatio(this.quality);this.renderer.shadowMap.enabled=false;this.resize();}
+  }
   render(frame: Frame, previous: Frame | null, alpha: number, snapshot: Snapshot, reducedMotion: boolean) {
     if (!this.athletes || this.disposed) return;
     // Recorded ticks jump backwards when replay starts. Discard only that
@@ -115,7 +120,7 @@ export class ShootoutScene {
     if (changed || reducedMotion || !this.frameCount) this.camera.position.copy(desired); else this.camera.position.lerp(desired, 0.1);
     this.camera.fov = view.fov; this.camera.updateProjectionMatrix(); this.camera.lookAt(vec(view.look));
     if(this.teamColors){const [p,o,ps,os]=this.teamColors;const shooting=snapshot.role==='shooting';this.athletes.setKitPalette(shooting?p:o,shooting?o:p,shooting?ps:os,shooting?os:ps);}
-    this.athletes.update(frame, samplePrevious, alpha, this.camera, point, reducedMotion);
+    this.athletes.update(frame, samplePrevious, alpha, this.camera, point, reducedMotion, this.mobileCup);
     this.ui.dataset.strikerFrame = String(this.athletes.strikerFrame);
     this.ui.dataset.keeperAnimation = this.athletes.keeperAnimation;
     this.ui.dataset.keeperFrame = String(this.athletes.keeperFrame);
@@ -129,7 +134,7 @@ export class ShootoutScene {
     for (let i = 0; i < vertices.count; i++) { const x = this.goalPosition[i * 3], y = this.goalPosition[i * 3 + 1], z = this.goalPosition[i * 3 + 2]; const distance = Math.hypot(x - point.x, y - point.y); vertices.setZ(i, snapshot.result?.outcome === "goal" && !reducedMotion ? z - Math.sin(frame.tick * 0.14 + distance * 3) * 0.1 * Math.exp(-distance) : z); } vertices.needsUpdate = true;
     this.renderer.render(this.scene, this.camera);
     const now = performance.now(), delta = now - this.previousTime; this.previousTime = now; this.sampleMs += delta; this.frameCount++;
-    if (this.frameCount % 180 === 0) { const average = this.sampleMs / 180; if (average > 27 && this.quality > 0.85) { this.quality = Math.max(0.85, this.quality - 0.2); this.renderer.setPixelRatio(this.quality); this.renderer.shadowMap.enabled = this.quality > 1; this.resize(); } this.sampleMs = 0; this.ui.dataset.drawCalls = String(this.renderer.info.render.calls); this.ui.dataset.fps = (1000 / average).toFixed(1); }
+    if (this.frameCount % 180 === 0) { const average = this.sampleMs / 180; if (average > 27 && this.quality > 0.85) { this.quality = Math.max(0.85, this.quality - 0.2); this.renderer.setPixelRatio(this.quality); this.renderer.shadowMap.enabled = !this.mobileCup && this.quality > 1; this.resize(); } this.sampleMs = 0; this.ui.dataset.drawCalls = String(this.renderer.info.render.calls); this.ui.dataset.fps = (1000 / average).toFixed(1); }
   }
   dispose() {
     this.disposed = true; this.resizeObserver.disconnect(); this.renderer.domElement.removeEventListener("webglcontextlost", this.lost); this.renderer.domElement.removeEventListener("webglcontextrestored", this.restored);
