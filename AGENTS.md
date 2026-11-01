@@ -30,6 +30,10 @@ Penalty Cup is landscape-only. Keep every menu and overlay within one iPhone vie
 
 Penalty Cup is a separate game at /play/penalty-cup, maintained here only. Follow independent-game-style: game-owned football broadcast menus and interface, no StatOz/cyber styling inside the game. Share Penalty Shootout's match runtime with optional group-draw rules; preserve default Shootout behavior. Frozen 2026 data, tournament state and account-scoped saves live in the penalty-cup feature. See docs/PENALTY-CUP.md. Keep changes local unless separately authorized for release.
 
+## Longbow independent style
+
+Longbow (`/play/longbow`) is an original landscape 3D archery game. It sits beside Archery Master (`archery-test`) and shares no files with it. Follow `independent-game-style`: parchment, forest green, brass and wood, no StatOz or cyber styling inside the game. Runtime third-party assets must be CC0, verified at the original source, and recorded with hashes in `public/games/longbow/PROVENANCE.json` (checked by `npm run test:longbow`). See docs/LONGBOW.md.
+
 ## Penalty Shootout ownership
 
 This repository is the canonical home for all future Penalty Shootout changes, per the user. The complete 3D game was transferred from statoz_web on 2026-10-21. Develop, test and maintain it here; do not sync changes back to statoz_web or edit Designer staging copies as the runtime source. Preserve local namespaced progress and account isolation.

@@ -78,7 +78,7 @@ function sizePlayfield(){
     const box=canvas.getBoundingClientRect();
     canvas.height=480;canvas.width=Math.max(420,Math.round(480*box.width/box.height));
   }else{canvas.width=900;canvas.height=620;}
-  renderer.ctx.imageSmoothingEnabled=false;
+  renderer.ctx.imageSmoothingEnabled=true;
   if(game.state)renderer.updateCamera(game.state,true);
 }
 sizePlayfield();

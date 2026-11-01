@@ -3,7 +3,7 @@ import type { GameId } from '../types';
 
 export const bundledGameIds: readonly GameId[] = [
   "penalty-cup", "cricketer",
-  'stick-cricket', 'archery-test',
+  'stick-cricket', 'archery-test', 'longbow',
   'tennis-bits', 'soccer-real', 'f1-racing',
   'pitch-rush',
 ];

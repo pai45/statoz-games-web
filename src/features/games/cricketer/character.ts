@@ -2,156 +2,346 @@ import * as T from 'three';
 import {clone} from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type {GLTF} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-export type PlayerPose='ready'|'swing'|'run'|'bowl'|'field'|'celebrate';
-type Joint={bone:T.Object3D;child:T.Object3D|null;parent:T.Object3D|null;restPosition:T.Vector3;restQuaternion:T.Quaternion};
-type Mapping={target:Joint;source:T.Object3D;child:T.Object3D|null;parent:T.Object3D|null;correction:T.Quaternion;forward:T.Vector3};
-const V=(x=0,y=0,z=0)=>new T.Vector3(x,y,z),UP=V(0,1,0),FORWARD=V(0,0,1);
-const clamp=(n:number,a=0,b=1)=>Math.max(a,Math.min(b,n));
-const material=(color:string,roughness=.76)=>new T.MeshStandardMaterial({color,roughness});
-const links=[
- ['Hips','Spine','CATRigPelvis','CATRigSpine2'],['Spine','Spine1','CATRigSpine1','CATRigSpine2'],['Spine1','Spine2','CATRigSpine2','CATRigSpine3'],['Spine2','Neck','CATRigSpine3','CATRigShoulder'],['Neck','Head','CATRigNeck1','CATRigHead'],['Head','','CATRigHead',''],
- ...(['Left','Right'] as const).flatMap((side)=>{const s=side==='Left'?'L':'R';return [[side+'Shoulder',side+'Arm','CATRig'+s+'ArmCollarbone','CATRig'+s+'Arm1'],[side+'Arm',side+'ForeArm','CATRig'+s+'Arm1','CATRig'+s+'Arm21'],[side+'ForeArm',side+'Hand','CATRig'+s+'Arm21','CATRig'+s+'ArmPalm'],[side+'Hand',side+'HandMiddle1','CATRig'+s+'ArmPalm',''],[side+'UpLeg',side+'Leg','CATRig'+s+'Leg1','CATRig'+s+'Leg2'],[side+'Leg',side+'Foot','CATRig'+s+'Leg2','CATRig'+s+'LegAnkle'],[side+'Foot',side+'ToeBase','CATRig'+s+'LegAnkle','CATRig'+s+'LegDigit11']];}),
-];
-const clips:Record<string,string>={drive:'106_straight_drive_a',cut:'205_frontfoot_cut_a',pull:'204_frontfoot_pull_a',hook:'105_hook_a',sweep:'202_reverse_sweep_a',scoop:'208_scoop_a'};
-function frame(primary:T.Vector3,forward:T.Vector3){const y=primary.clone().normalize(),z=forward.clone().addScaledVector(y,-forward.dot(y));if(z.lengthSq()<1e-6)z.copy(V(1,0,0)).addScaledVector(y,-y.x);z.normalize();const x=y.clone().cross(z).normalize();z.copy(x).cross(y).normalize();return new T.Quaternion().setFromRotationMatrix(new T.Matrix4().makeBasis(x,y,z));}
-function direction(bone:T.Object3D,child:T.Object3D|null,parent:T.Object3D|null){return child?child.getWorldPosition(V()).sub(bone.getWorldPosition(V())):parent?bone.getWorldPosition(V()).sub(parent.getWorldPosition(V())):UP.clone();}
-function addMesh(root:T.Object3D,geometry:T.BufferGeometry,mat:T.Material,x=0,y=0,z=0){const m=new T.Mesh(geometry,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;root.add(m);return m;}
-function box(root:T.Object3D,mat:T.Material,p:readonly[number,number,number],size:readonly[number,number,number]){return addMesh(root,new T.BoxGeometry(...size),mat,...p);}
-function line(root:T.Object3D,mat:T.Material,a:T.Vector3,b:T.Vector3,r:number){const m=addMesh(root,new T.CylinderGeometry(r,r,a.distanceTo(b),8),mat);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UP,b.clone().sub(a).normalize());return m;}
-function setWorldQuaternion(bone:T.Object3D,q:T.Quaternion){const parent=bone.parent?.getWorldQuaternion(new T.Quaternion())||new T.Quaternion();bone.quaternion.copy(parent.invert().multiply(q));bone.updateWorldMatrix(false,true);}
-function numberTexture(number:string){const c=document.createElement('canvas');c.width=128;c.height=160;const ctx=c.getContext('2d')!;ctx.clearRect(0,0,128,160);ctx.fillStyle='#f7ebcf';ctx.textAlign='center';ctx.font='bold 86px Arial';ctx.fillText(number,64,125);ctx.font='bold 13px Arial';ctx.fillText('CRICKETER',64,30);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+/**
+ * Cricketer players: one low-poly skinned body (CC-BY, bhagathartworks) with its own batting
+ * cycle, Cricketer kits painted from baked face regions, original helmet/pads, and authored
+ * running, bowling and fielding poses on the same 49-joint rig.
+ */
+export type PlayerPose = 'ready' | 'swing' | 'recover' | 'wait' | 'run' | 'walk' | 'bowl' | 'field' | 'celebrate';
+export type Kit = {shirt: string; trim: string; trousers: string; skin: string; hair: string; sleeve?: string; hand?: string; accent?: string; beard?: boolean};
+type Snapshot = Map<T.Object3D, {p: T.Vector3; q: T.Quaternion}>;
 
-/** Shared CC-BY mesh, original sports equipment, retained native-curve motion retargeting. */
+/** Times (seconds) inside the source batting cycle. */
+export const CYCLE = {stance: .12, trigger: .30, contact: 1.14, finish: 1.85, settle: 5.95, wait: 5.8, carry: 4.6};
+const REGIONS = 11, SCALE = .92;
+// Bat mesh local frame: handle top at y=-1.27, toe at y=6.12, blade face centred near z=.3.
+const BLADE = {handle: -1.27, shoulder: 1.1, sweet: 3.95, toe: 6.0, z: .3};
+const V = (x = 0, y = 0, z = 0) => new T.Vector3(x, y, z), Q = () => new T.Quaternion();
+const clamp = (n: number, a = 0, b = 1) => Math.max(a, Math.min(b, n));
+const smooth = (a: number, b: number, x: number) => {const t = clamp((x-a)/(b-a)); return t*t*(3-2*t);};
+const worldPos = (o: T.Object3D) => o.getWorldPosition(V());
+const worldQuat = (o: T.Object3D) => o.getWorldQuaternion(Q());
+function setWorldQuaternion(o: T.Object3D, q: T.Quaternion) {o.quaternion.copy((o.parent ? worldQuat(o.parent) : Q()).invert().multiply(q)); o.updateMatrixWorld(true);}
+function rotateWorld(o: T.Object3D, r: T.Quaternion) {setWorldQuaternion(o, r.clone().multiply(worldQuat(o)));}
+function setWorldPosition(o: T.Object3D, p: T.Vector3) {o.position.copy(o.parent ? o.parent.worldToLocal(p.clone()) : p); o.updateMatrixWorld(true);}
+function limited(q: T.Quaternion, max: number) {const angle = 2*Math.acos(clamp(Math.abs(q.w), 0, 1)); return angle > max && angle > 1e-6 ? Q().slerp(q, max/angle) : q;}
+const flatMaterial = (color: T.ColorRepresentation, roughness = .7) => new T.MeshStandardMaterial({color, roughness, flatShading: true});
+function addMesh(parent: T.Object3D, geometry: T.BufferGeometry, material: T.Material, p = V()) {const m = new T.Mesh(geometry, material); m.position.copy(p); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;}
+function rod(parent: T.Object3D, material: T.Material, a: T.Vector3, b: T.Vector3, r: number, sides = 6) {const m = addMesh(parent, new T.CylinderGeometry(r, r, a.distanceTo(b), sides), material, a.clone().add(b).multiplyScalar(.5)); m.quaternion.setFromUnitVectors(V(0, 1, 0), b.clone().sub(a).normalize()); return m;}
+
+function numberTexture(number: string, ink: string) {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 160; const ctx = c.getContext('2d')!;
+  ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+  ctx.font = '900 92px "Arial Narrow",Arial,sans-serif'; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.strokeText(number, 64, 128); ctx.fillStyle = ink; ctx.fillText(number, 64, 128);
+  ctx.font = '700 15px Arial,sans-serif'; ctx.fillText('CRICKETER', 64, 26);
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
+}
+let batTexture: T.CanvasTexture | null = null;
+/** Original bat livery drawn into the source bat's UV layout (grip top-left, faces in the left columns). */
+function batLivery() {
+  if (batTexture) return batTexture;
+  const s = 512, c = document.createElement('canvas'); c.width = c.height = s; const ctx = c.getContext('2d')!;
+  const willow = ctx.createLinearGradient(0, 0, s*.4, 0); willow.addColorStop(0, '#e9cf9c'); willow.addColorStop(.5, '#f2dcae'); willow.addColorStop(1, '#ddbf86');
+  ctx.fillStyle = willow; ctx.fillRect(0, 0, s, s);
+  ctx.strokeStyle = 'rgba(150,104,52,.18)'; ctx.lineWidth = 1; for (let x = 3; x < s; x += 7) {ctx.beginPath(); ctx.moveTo(x, s*.33); ctx.lineTo(x+2, s); ctx.stroke();}
+  ctx.fillStyle = '#1d3b31'; ctx.fillRect(0, 0, s*.4, s*.335);
+  ctx.strokeStyle = '#2f5a49'; ctx.lineWidth = 5; for (let y = -s*.4; y < s*.34; y += 13) {ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(s*.4, y+s*.4*.35); ctx.stroke();}
+  ctx.fillStyle = '#c4432f'; ctx.fillRect(0, s*.115, s*.4, s*.05);
+  ctx.fillStyle = '#16231d'; ctx.fillRect(0, s*.315, s*.4, s*.025);
+  for (const [x0, x1] of [[0, .118], [.122, .243]]) {
+    const cx = (x0+x1)/2*s, w = (x1-x0)*s;
+    ctx.save(); ctx.translate(cx, s*.62); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle = '#c4432f'; ctx.fillRect(-s*.19, -w*.38, s*.38, w*.76);
+    ctx.fillStyle = '#f7ecd2'; ctx.font = `900 ${w*.5}px "Arial Narrow",Arial,sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('CRICKETER', 0, w*.03, s*.34);
+    ctx.restore();
+    ctx.fillStyle = '#1d3b31'; ctx.fillRect(cx-w*.3, s*.9, w*.6, s*.03);
+  }
+  batTexture = new T.CanvasTexture(c); batTexture.colorSpace = T.SRGBColorSpace; batTexture.flipY = false; batTexture.anisotropy = 4;
+  return batTexture;
+}
+
+function kitMaterial(kit: Kit, number: T.Texture, batting: boolean) {
+  const skin = new T.Color(kit.skin), hair = new T.Color(kit.hair);
+  const palette = [skin, skin, new T.Color(kit.hand || (batting ? '#f1ebdb' : kit.skin)), hair, kit.beard ? hair.clone() : skin.clone().lerp(hair, .12), new T.Color(kit.shirt), new T.Color(kit.trim),
+    new T.Color(kit.sleeve || kit.shirt), new T.Color(kit.trousers), new T.Color('#f3f0e8'), new T.Color(kit.accent || kit.trim)];
+  if (palette.length !== REGIONS) throw Error('Kit palette mismatch');
+  const material = new T.MeshStandardMaterial({roughness: .8, metalness: 0, flatShading: true});
+  material.onBeforeCompile = shader => {
+    shader.uniforms.uPalette = {value: palette}; shader.uniforms.uNumber = {value: number};
+    shader.vertexShader = 'attribute float _region; attribute vec2 _kituv; varying float vRegion; varying vec2 vKitUV;\n'+shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvRegion=_region; vKitUV=_kituv;');
+    shader.fragmentShader = `uniform vec3 uPalette[${REGIONS}]; uniform sampler2D uNumber; varying float vRegion; varying vec2 vKitUV;\n`+shader.fragmentShader.replace('#include <map_fragment>',
+      '#include <map_fragment>\ndiffuseColor.rgb=uPalette[int(clamp(vRegion+.5,0.,10.))];\nif(vKitUV.x>=0.&&vKitUV.x<=1.&&vKitUV.y>=0.&&vKitUV.y<=1.){vec4 lettering=texture2D(uNumber,vKitUV);diffuseColor.rgb=mix(diffuseColor.rgb,lettering.rgb,lettering.a);}');
+  };
+  material.customProgramCacheKey = () => 'cricketer-kit-regions-v1';
+  material.addEventListener('dispose', () => number.dispose());
+  return material;
+}
+
+export type PlayerOptions = {batting: boolean; kit: Kit; number: string};
 export class CricketerPlayer {
-  root=new T.Group();bat=new T.Group();head:T.Object3D;model:T.Object3D;
-  private orient=new T.Group();private source:T.Object3D;private sourceMixer:T.AnimationMixer;
-  private actions=new Map<string,T.AnimationAction>();private active='';private joints=new Map<string,Joint>();private mappings:Mapping[]=[];
-  private lastKind:PlayerPose|null=null;
-  private hipStart=V();private sourceHipStart=V();private gripError=0;private color:string;
-  constructor(shared:GLTF,motion:GLTF,readonly batting=true,color='#c74630',number='07') {
-    this.color=color;this.orient.rotation.y=Math.PI;this.root.add(this.orient);
-    this.model=clone(shared.scene);this.orient.add(this.model);this.root.updateMatrixWorld(true);
-    const bounds=new T.Box3().setFromObject(this.model),size=bounds.getSize(V()),center=bounds.getCenter(V()),scale=1.8/size.y;
-    this.model.scale.multiplyScalar(scale);this.model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);this.root.updateMatrixWorld(true);
-    const jerseyNumber=numberTexture(number);
-    this.model.traverse(o=>{
-      if(o instanceof T.Bone){const name=o.name.replace(/_\d+$/,'');this.joints.set(name,{bone:o,child:null,parent:o.parent,restPosition:o.position.clone(),restQuaternion:o.quaternion.clone()});}
-      if(o instanceof T.Mesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;const mats:T.Material[]=Array.isArray(o.material)?o.material:[o.material];o.material=mats.map(m=>{
-        if(m.name==='Wolf3D_Outfit_Top'){
-          if(!o.geometry.hasAttribute('kitRestPosition')){const p=o.geometry.getAttribute('position'),values=new Float32Array(p.count*3);for(let i=0;i<p.count;i++){const point=o.getVertexPosition(i,V()).applyMatrix4(o.matrixWorld);this.orient.worldToLocal(point).toArray(values,i*3);}o.geometry.setAttribute('kitRestPosition',new T.BufferAttribute(values,3));}
-          const kit=material(color);kit.addEventListener('dispose',()=>jerseyNumber.dispose());kit.onBeforeCompile=shader=>{shader.uniforms.kitNumber={value:jerseyNumber};shader.vertexShader='attribute vec3 kitRestPosition; varying vec3 vKitPosition;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvKitPosition=kitRestPosition;');shader.fragmentShader='uniform sampler2D kitNumber; varying vec3 vKitPosition;\n'+shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\nvec2 kitUV=vec2(.5-vKitPosition.x/.24,(vKitPosition.y-1.08)/.29);if(vKitPosition.z<-.035&&kitUV.x>=0.&&kitUV.x<=1.&&kitUV.y>=0.&&kitUV.y<=1.){vec4 lettering=texture2D(kitNumber,kitUV);diffuseColor.rgb=mix(diffuseColor.rgb,lettering.rgb,lettering.a);}');};kit.customProgramCacheKey=()=> 'cricketer-kit-lettering-v2';return kit;
-        }
-        if(m.name==='Wolf3D_Outfit_Bottom')return material(batting?'#e9e3d1':'#204536');if(m.name==='Wolf3D_Outfit_Footwear')return material('#eeeadd',.6);
-        if(m.name==='Wolf3D_Glasses'||batting&&m.name==='Wolf3D_Hair'){o.visible=false;return m;}
-        const surface:T.Material=m.clone();
-        if(batting&&o instanceof T.SkinnedMesh&&/Wolf3D_(Skin|Body)$/.test(m.name)){
-          if(!o.geometry.hasAttribute('gloveWeight')){const indices=o.geometry.getAttribute('skinIndex'),weights=o.geometry.getAttribute('skinWeight'),mask=new Float32Array(indices.count),bones=o.skeleton.bones;for(let i=0;i<indices.count;i++){let w=0;for(let j=0;j<4;j++){const index=indices.getComponent(i,j);if(/^(Left|Right)Hand/.test(bones[index]?.name||''))w+=weights.getComponent(i,j);}mask[i]=clamp((w-.3)/.55);}o.geometry.setAttribute('gloveWeight',new T.BufferAttribute(mask,1));}
-          surface.onBeforeCompile=shader=>{shader.vertexShader='attribute float gloveWeight; varying float vGloveWeight;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvGloveWeight=gloveWeight;');shader.fragmentShader='varying float vGloveWeight;\n'+shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,vec3(.94,.91,.83),vGloveWeight);');};surface.customProgramCacheKey=()=> 'cricketer-glove-surface-v2';
-        }
-        return surface;
-      });if(o.material.length===1)o.material=o.material[0];}
+  root = new T.Group(); model: T.Object3D; head: T.Bone; readonly batting: boolean;
+  /** Native sweet-spot position at contact, in root space. The renderer aligns the ball line with it. */
+  contactLocal = V();
+  private orient = new T.Group(); private duration: number;
+  // Direct track evaluation: every sample writes every animated value (AnimationMixer skips unchanged values,
+  // which would leave post-sample corrections in place).
+  private tracks: {target: T.Object3D; path: 'position' | 'quaternion' | 'scale'; interpolant: T.Interpolant}[] = [];
+  private bones = new Map<string, T.Bone>(); private rest: Snapshot = new Map(); private animated: T.Object3D[] = [];
+  private body!: T.SkinnedMesh; private batNode!: T.Object3D; private batMesh!: T.Mesh; private carry!: {p: T.Vector3; q: T.Quaternion};
+  private kind: PlayerPose | null = null; private staticKey = ''; private blendFrom: Snapshot | null = null; private blendStart = 0; private blendTime = .24; private lastClip = -1;
+  private gripError = 0; private bladeError = 0; private blade = V(); private target: T.Vector3 | null = null;
+
+  constructor(gltf: GLTF, readonly options: PlayerOptions) {
+    this.batting = options.batting;
+    this.orient.rotation.y = Math.PI; this.root.add(this.orient);
+    this.model = clone(gltf.scene); this.model.scale.setScalar(SCALE); this.orient.add(this.model);
+    this.model.traverse(o => {
+      if ((o as T.Bone).isBone) {const bone = o as T.Bone; this.bones.set(bone.name.replace(/_\d+$/, ''), bone); this.animated.push(bone);}
+      if (o instanceof T.SkinnedMesh) this.body = o;
+      if (o.name === 'Cricketer_Bat') this.batNode = o;
+      if (o.name === 'Cricketer_Bat_Mesh') this.batMesh = o as T.Mesh;
     });
-    this.head=this.joint('Head').bone;
-    for(const [name,child] of links){const joint=this.joints.get(name);if(joint)joint.child=this.joints.get(child)?.bone||null;}
-    this.source=clone(motion.scene);this.source.scale.setScalar(.87);this.source.position.set(-.23*.87,0,.405*.87);this.orient.add(this.source);this.source.visible=false;
-    this.root.updateMatrixWorld(true);this.sourceMixer=new T.AnimationMixer(this.source);
-    for(const c of motion.animations)this.actions.set(c.name,this.sourceMixer.clipAction(c));
-    const forward=FORWARD.clone().applyQuaternion(this.orient.getWorldQuaternion(new T.Quaternion()));
-    for(const [name,,sourceName,sourceChild] of links){const target=this.joints.get(name),source=this.source.getObjectByName(sourceName);if(!target||!source)continue;const child=sourceChild?this.source.getObjectByName(sourceChild)||null:null,parent=source.parent;
-      const targetFrame=frame(direction(target.bone,target.child,target.parent),forward),sourceWorld=source.getWorldQuaternion(new T.Quaternion());
-      this.mappings.push({target,source,child,parent,correction:targetFrame.invert().multiply(target.bone.getWorldQuaternion(new T.Quaternion())),forward:forward.clone().applyQuaternion(sourceWorld.clone().invert())});
+    if (!this.body || !this.batNode || !this.batMesh) throw Error('Cricketer player asset is incomplete');
+    this.animated.push(this.batNode);
+    for (const o of this.animated) this.rest.set(o, {p: o.position.clone(), q: o.quaternion.clone()});
+    this.head = this.bone('Head');
+    const ink = options.kit.trim;
+    this.body.material = kitMaterial(options.kit, numberTexture(options.number, ink), options.batting);
+    this.body.castShadow = true; this.body.receiveShadow = true; this.body.frustumCulled = false;
+    this.batMesh.material = new T.MeshStandardMaterial({map: batLivery(), roughness: .62, flatShading: true}); this.batMesh.castShadow = true;
+    this.batNode.visible = options.batting;
+    const clip = gltf.animations[0]; if (!clip) throw Error('Cricketer batting cycle missing');
+    this.duration = clip.duration;
+    for (const track of clip.tracks) {
+      const {nodeName, propertyName} = T.PropertyBinding.parseTrackName(track.name), target = T.PropertyBinding.findNode(this.model, nodeName) as T.Object3D | null;
+      if (!target || (propertyName !== 'position' && propertyName !== 'quaternion' && propertyName !== 'scale')) throw Error('Unsupported batting track '+track.name);
+      const size = track.getValueSize(), result = new Float32Array(size);
+      const interpolant = propertyName === 'quaternion' ? new T.QuaternionLinearInterpolant(track.times, track.values, size, result) : new T.LinearInterpolant(track.times, track.values, size, result);
+      this.tracks.push({target, path: propertyName, interpolant});
     }
-    this.hipStart.copy(this.joint('Hips').bone.position);
-    this.sourceHipStart.copy(this.source.getObjectByName('CATRigPelvis')!.getWorldPosition(V()));
-    this.makeBat();this.makeKit();this.pose(0,'ready');
+    this.sample(CYCLE.carry); this.carry = {p: this.batNode.position.clone(), q: this.batNode.quaternion.clone()};
+    this.sample(CYCLE.contact); this.root.updateMatrixWorld(true); this.contactLocal.copy(this.root.worldToLocal(this.sweetSpot()));
+    this.sample(CYCLE.stance); this.root.updateMatrixWorld(true); this.makeGear();
+    this.pose(0, 'ready', 9);
   }
-  private joint(name:string){const j=this.joints.get(name);if(!j)throw Error('Player rig is missing '+name);return j;}
-  private reset(){for(const j of this.joints.values()){j.bone.position.copy(j.restPosition);j.bone.quaternion.copy(j.restQuaternion);}this.root.updateMatrixWorld(true);}
-  private sample(name:string,time:number){
-    if(this.active!==name){this.sourceMixer.stopAllAction();const action=this.actions.get(name);if(!action)throw Error('Missing cricket motion '+name);action.reset().setLoop(T.LoopOnce,1);action.clampWhenFinished=true;action.play();this.active=name;}
-    const action=this.actions.get(name)!;action.paused=false;action.time=clamp(time,0,Math.max(0,action.getClip().duration-.00001));this.sourceMixer.update(0);action.paused=true;this.root.updateMatrixWorld(true);
-    for(const m of this.mappings){const sourceQ=m.source.getWorldQuaternion(new T.Quaternion());const q=frame(direction(m.source,m.child,m.parent),m.forward.clone().applyQuaternion(sourceQ)).multiply(m.correction);setWorldQuaternion(m.target.bone,q);}
-    // Keep the shared model's limb lengths; root motion is a relative hip offset, never a scaled absolute pose.
-    const hip=this.joint('Hips').bone,parent=hip.parent!;
-    const sourceHip=this.source.getObjectByName('CATRigPelvis')!.getWorldPosition(V());
-    const delta=sourceHip.sub(this.sourceHipStart.clone().applyMatrix4(this.root.matrixWorld));delta.x=0;delta.z=0;delta.y=clamp(delta.y,-.08,.035);
-    const localDelta=delta.applyQuaternion(parent.getWorldQuaternion(new T.Quaternion()).invert()).divide(parent.getWorldScale(V(1,1,1)));
-    hip.position.copy(this.hipStart).add(localDelta);this.root.updateMatrixWorld(true);
+
+  private bone(name: string) {const b = this.bones.get(name); if (!b) throw Error('Player rig is missing '+name); return b;}
+  private sample(t: number) {
+    const time = ((t%this.duration)+this.duration)%this.duration;
+    for (const {target, path, interpolant} of this.tracks) target[path].fromArray(interpolant.evaluate(time) as unknown as number[]);
+    this.lastClip = time; this.root.updateMatrixWorld(true);
   }
-  private aim(name:string,childName:string,directionLocal:T.Vector3){const joint=this.joint(name).bone,child=this.joint(childName).bone;const current=child.getWorldPosition(V()).sub(joint.getWorldPosition(V())).normalize();const desired=directionLocal.clone().normalize().applyQuaternion(this.orient.getWorldQuaternion(new T.Quaternion()));setWorldQuaternion(joint,new T.Quaternion().setFromUnitVectors(current,desired).multiply(joint.getWorldQuaternion(new T.Quaternion())));}
-  private authored(time:number,kind:PlayerPose,progress:number){
-    this.reset();const running=kind==='run'||kind==='bowl'&&progress<.72,stride=running?Math.sin(time*13):0;
-    for(const [side,sign] of [['Left',1],['Right',-1]] as const){
-      this.aim(side+'UpLeg',side+'Leg',V(sign*.04,-1,running?stride*sign*.75:.10));
-      this.aim(side+'Leg',side+'Foot',V(0,-1,running?-Math.max(0,stride*sign)*.65:-.04));
-      this.aim(side+'Foot',side+'ToeBase',V(0,-.07,1));
-      let upper=V(sign*.12,-1,running?-stride*sign*.7:.18),lower=V(0,-.6,running?stride*sign*.7:.55);
-      if(kind==='bowl'&&progress>=.72&&side==='Right'){const a=(progress-.72)/.28*Math.PI*2;upper=V(-.10,Math.cos(a),-Math.sin(a));lower=V(0,Math.cos(a+.15),-Math.sin(a+.15));}
-      if(kind==='celebrate'){upper=V(sign*.6,1,0);lower=V(sign*.15,1,0);}
-      if(kind==='field'){upper=V(sign*.12,-.8,.35);lower=V(-sign*.2,-.3,.8);}
-      this.aim(side+'Arm',side+'ForeArm',upper);this.aim(side+'ForeArm',side+'Hand',lower);
+  private reset() {for (const [o, r] of this.rest) {o.position.copy(r.p); o.quaternion.copy(r.q);} this.root.updateMatrixWorld(true);}
+  private snapshot(): Snapshot {const s: Snapshot = new Map(); for (const o of this.animated) s.set(o, {p: o.position.clone(), q: o.quaternion.clone()}); return s;}
+  private sweetSpot() {return this.batMesh.localToWorld(V(0, BLADE.sweet, BLADE.z));}
+  private dir(x: number, y: number, z: number) {return V(x, y, z).normalize().applyQuaternion(worldQuat(this.root));}
+
+  /** Pose for this frame. `progress` is the delivery age (ready), swing progress (swing: .5 = contact), seconds since contact (recover) or role progress (bowl). */
+  pose(time: number, kind: PlayerPose, progress = 0, aim = 1, shot = 'drive', contactHeight = .6) {
+    const blending = this.blendFrom && time-this.blendStart < this.blendTime;
+    const staticKey = kind === 'field' || kind === 'wait' ? kind : '';
+    if (staticKey && staticKey === this.staticKey && !blending && kind === this.kind) return;
+    if (this.kind !== null && kind !== this.kind) {this.blendFrom = this.snapshot(); this.blendStart = time; this.blendTime = kind === 'swing' ? .12 : .26;}
+    this.kind = kind; this.target = null;
+    if (kind === 'ready' || kind === 'swing' || kind === 'recover' || kind === 'wait') this.clipPose(time, kind, progress, aim, shot, contactHeight);
+    else this.authored(time, kind, progress);
+    if (this.blendFrom) {
+      const w = smooth(0, 1, (time-this.blendStart)/this.blendTime);
+      if (w >= 1) this.blendFrom = null;
+      else for (const [o, from] of this.blendFrom) {o.position.lerpVectors(from.p, o.position, w); o.quaternion.copy(from.q.clone().slerp(o.quaternion, w));}
+      this.root.updateMatrixWorld(true);
     }
-    const stance=kind==='ready'||kind==='swing';
-    if(stance){const hips=this.joint('Hips').bone;setWorldQuaternion(hips,new T.Quaternion().setFromAxisAngle(UP,.55).multiply(hips.getWorldQuaternion(new T.Quaternion())));}
-    const spine=this.joint('Spine1').bone;const right=V(1,0,0).applyQuaternion(this.orient.getWorldQuaternion(new T.Quaternion()));setWorldQuaternion(spine,new T.Quaternion().setFromAxisAngle(right,kind==='field'?.20:running?.10:stance?.10:0).multiply(spine.getWorldQuaternion(new T.Quaternion())));this.root.updateMatrixWorld(true);
-    if(stance){const head=this.joint('Head').bone;setWorldQuaternion(head,new T.Quaternion().setFromAxisAngle(UP,-.45).multiply(head.getWorldQuaternion(new T.Quaternion())));}
-  }
-  private compactStance(weight:number,time:number){const before=new Map([...this.joints].map(([name,j])=>[name,{q:j.bone.quaternion.clone(),p:j.bone.position.clone()}]));this.authored(time,'ready',0);for(const [name,j] of this.joints){const native=before.get(name)!,authored=j.bone.quaternion.clone();j.bone.quaternion.copy(native.q).slerp(authored,weight);j.bone.position.lerpVectors(native.p,j.bone.position,weight);}this.root.updateMatrixWorld(true);}
-  private solveChain(upperName:string,lowerName:string,handName:string,target:T.Vector3){
-    const upper=this.joint(upperName).bone,lower=this.joint(lowerName).bone,hand=this.joint(handName).bone;
-    const a=upper.getWorldPosition(V()),b=lower.getWorldPosition(V()),c=hand.getWorldPosition(V()),l1=a.distanceTo(b),l2=b.distanceTo(c),dir=target.clone().sub(a),d=clamp(dir.length(),Math.abs(l1-l2)+.001,l1+l2-.001);dir.normalize();
-    const pole=b.clone().sub(a).addScaledVector(dir,-b.clone().sub(a).dot(dir));if(pole.lengthSq()<1e-6)pole.copy(V(upperName.startsWith('Left')?1:-1,0,.5)).applyQuaternion(this.orient.getWorldQuaternion(new T.Quaternion()));pole.normalize();
-    const cosine=clamp((l1*l1+d*d-l2*l2)/(2*l1*d),-1,1),elbow=a.clone().addScaledVector(dir,l1*cosine).addScaledVector(pole,l1*Math.sqrt(1-cosine*cosine));
-    setWorldQuaternion(upper,new T.Quaternion().setFromUnitVectors(b.clone().sub(a).normalize(),elbow.clone().sub(a).normalize()).multiply(upper.getWorldQuaternion(new T.Quaternion())));
-    const current=hand.getWorldPosition(V()).sub(lower.getWorldPosition(V())).normalize(),desired=target.clone().sub(lower.getWorldPosition(V())).normalize();setWorldQuaternion(lower,new T.Quaternion().setFromUnitVectors(current,desired).multiply(lower.getWorldQuaternion(new T.Quaternion())));
-    return hand.getWorldPosition(V()).distanceTo(target);
-  }
-  private crouch(drop:number){if(drop<.001)return;const feet=['Left','Right'].map(side=>{const bone=this.joint(side+'Foot').bone;return {p:bone.getWorldPosition(V()),q:bone.getWorldQuaternion(new T.Quaternion())};});const hip=this.joint('Hips').bone,position=hip.getWorldPosition(V()).add(V(0,-drop,0));hip.position.copy(hip.parent!.worldToLocal(position));this.root.updateMatrixWorld(true);['Left','Right'].forEach((side,i)=>{this.solveChain(side+'UpLeg',side+'Leg',side+'Foot',feet[i].p);setWorldQuaternion(this.joint(side+'Foot').bone,feet[i].q);});}
-  private holdBat(progress:number,contactHeight:number,side:number,shot:string){
-    this.root.updateMatrixWorld(true);
-    const left=this.joint('LeftHand').bone.getWorldPosition(V()),right=this.joint('RightHand').bone.getWorldPosition(V());
-    const leftLocal=this.root.worldToLocal(left.clone()),rightLocal=this.root.worldToLocal(right.clone());
-    const nativeBat=this.source.getObjectByName('bat')!;
-    const up=V(0,0,1).applyQuaternion(nativeBat.getWorldQuaternion(new T.Quaternion())).applyQuaternion(this.root.getWorldQuaternion(new T.Quaternion()).invert()).normalize();
-    this.bat.position.copy(leftLocal).add(rightLocal).multiplyScalar(.5).addScaledVector(up,.1);
-    this.bat.quaternion.copy(frame(up,V(0,0,1)));
-    if(progress>=0){const d=progress-.5,w=Math.exp(-Math.pow(d/.24,2));const target=V(.16+d*side*.35,contactHeight+.63*Math.cos(.9)+d*(shot==='scoop'?-1.1:.4),-.1-d*.8);const targetQ=new T.Quaternion().setFromEuler(new T.Euler(d*(shot==='sweep'?1.5:.5),d*side*.7,.9+d*(shot==='sweep'?2.5:1.65)*side));this.bat.position.lerp(target,w);this.bat.quaternion.slerp(targetQ,w);}else{this.bat.position.set(.17,1.08,-.28);this.bat.rotation.set(-.12,0,-.36);}
-    this.bat.updateMatrixWorld(true);
-    // Wrist targets flank the handle; finger pads close around it rather than letting the bat float.
-    const q=this.bat.getWorldQuaternion(new T.Quaternion()),across=V(1,0,0).applyQuaternion(q);
-    const targets=[V(0,-.045,0).applyMatrix4(this.bat.matrixWorld).addScaledVector(across,-.035),V(0,-.16,0).applyMatrix4(this.bat.matrixWorld).addScaledVector(across,.035)];
-    if(progress>=0)for(let attempt=0;attempt<2;attempt++){let drop=0;for(const [i,s] of ['Left','Right'].entries()){const shoulder=this.joint(s+'Arm').bone.getWorldPosition(V()),elbow=this.joint(s+'ForeArm').bone.getWorldPosition(V()),wrist=this.joint(s+'Hand').bone.getWorldPosition(V()),reach=shoulder.distanceTo(elbow)+elbow.distanceTo(wrist)-.015,horizontal=(shoulder.x-targets[i].x)**2+(shoulder.z-targets[i].z)**2;drop=Math.max(drop,shoulder.y-targets[i].y-Math.sqrt(Math.max(.001,reach*reach-horizontal)));}if(drop>.001)this.crouch(Math.min(.18,drop));else break;}
-    this.gripError=Math.max(this.solveChain('LeftArm','LeftForeArm','LeftHand',targets[0]),this.solveChain('RightArm','RightForeArm','RightHand',targets[1]));
-    for(const [i,name] of ['Left','Right'].entries()){
-      const hand=this.joint(name+'Hand').bone;const current=direction(hand,this.joint(name+'HandMiddle1').bone,hand.parent).normalize();const desired=across.clone().multiplyScalar(i===0?1:-1);const rotate=new T.Quaternion().setFromUnitVectors(current,desired);setWorldQuaternion(hand,rotate.multiply(hand.getWorldQuaternion(new T.Quaternion())));
-      for(const joint of this.joints.values())if(joint.bone.name.startsWith(name+'Hand')&&/\d_\d+$/.test(joint.bone.name)&&!joint.bone.name.includes('end'))joint.bone.quaternion.multiply(new T.Quaternion().setFromAxisAngle(V(1,0,0),joint.bone.name.includes('Thumb')?.55:/[23]_/.test(joint.bone.name)?1.05:.55));
-    }
+    if (this.target) this.solveContact(this.target, 1);
+    this.batNode.visible = this.batting;
+    this.staticKey = this.blendFrom ? '' : staticKey;
     this.root.updateMatrixWorld(true);
   }
-  pose(time:number,kind:PlayerPose,progress=0,side=1,shot='drive',contactHeight=.7){
-    if((kind==='ready'||kind==='field')&&this.lastKind===kind)return;this.lastKind=kind;
-    if(this.batting&&(kind==='ready'||kind==='swing'||kind==='celebrate')){
-      this.reset();if(kind==='swing'){const name=clips[shot]||clips.drive,duration=this.actions.get(name)!.getClip().duration;this.sample(name,progress<=.5?.08+progress*.64:.40+(progress-.5)*2*(duration-.40));const correction=Math.exp(-Math.pow((progress-.5)/.24,2));this.compactStance(correction,time);this.crouch(clamp((.83-contactHeight)*.85,0,.43)*correction);}
-      else if(kind==='celebrate')this.sample('Victory 1',time%3.3);
-      else {this.sample('003_brace_for_shot_backlift',.28);this.compactStance(1,time);}
-      if(kind!=='celebrate')this.holdBat(kind==='swing'?progress:-1,contactHeight,side,shot);
-    }else this.authored(time,kind,progress);
-    this.bat.visible=this.batting&&kind!=='run';
-    this.root.updateMatrixWorld(true);
-  }
-  private makeBat(){this.bat.name='Cricketer_bat';this.root.add(this.bat);const willow=material('#d8b47c'),edge=material('#b98e54'),grip=material('#173e32'),label=material('#d94830');line(this.bat,grip,V(0,.015,0),V(0,-.29,0),.022);for(let i=0;i<11;i++)addMesh(this.bat,new T.TorusGeometry(.023,.003,4,12),grip,0,-.02-i*.023,0).rotation.x=Math.PI/2;const shape=new T.Shape();shape.moveTo(-.025,-.28);shape.lineTo(-.055,-.36);shape.lineTo(-.058,-.91);shape.quadraticCurveTo(0,-.97,.058,-.91);shape.lineTo(.055,-.36);shape.lineTo(.025,-.28);shape.closePath();addMesh(this.bat,new T.ExtrudeGeometry(shape,{depth:.045,bevelEnabled:true,bevelSize:.007,bevelThickness:.006,bevelSegments:2,steps:1}),willow,0,0,-.025);box(this.bat,edge,[0,-.63,.028],[.038,.51,.025]);box(this.bat,label,[0,-.42,-.034],[.075,.13,.006]);}
-  private attach(gear:T.Object3D,bone:T.Object3D,position:T.Vector3,quaternion:T.Quaternion){this.root.add(gear);gear.position.copy(this.root.worldToLocal(position.clone()));gear.quaternion.copy(this.root.getWorldQuaternion(new T.Quaternion()).invert().multiply(quaternion));this.root.updateMatrixWorld(true);bone.attach(gear);}
-  private makeKit(){
-    const white=material('#fff4dd',.65),rib=material('#ded8c3'),dark=material('#203730',.45),red=material(this.color,.48),seam=material('#bbb8a8');
-    const forward=FORWARD.clone().applyQuaternion(this.orient.getWorldQuaternion(new T.Quaternion())),orientation=this.orient.getWorldQuaternion(new T.Quaternion());
-    for(const eye of ['LeftEye','RightEye']){const joint=this.joints.get(eye);if(!joint)continue;const iris=new T.Group();addMesh(iris,new T.SphereGeometry(.009,12,8),material('#54351e',.4),0,0,0).scale.z=.30;addMesh(iris,new T.SphereGeometry(.0048,10,6),material('#181d18',.35),0,0,.0025).scale.z=.28;addMesh(iris,new T.SphereGeometry(.0018,6,4),white,-.002,.003,.004);this.attach(iris,joint.bone,joint.bone.getWorldPosition(V()).addScaledVector(forward,.020),orientation);}
-    if(this.batting){const helmet=new T.Group();helmet.name='Cricketer_helmet';addMesh(helmet,new T.SphereGeometry(.164,20,12,0,Math.PI*2,0,Math.PI*.56),red);box(helmet,red,[0,-.012,.15],[.31,.025,.16]);for(const y of [-.03,-.085,-.14,-.19]){line(helmet,dark,V(-.145,y,.17),V(0,y-.012,.21),.0055);line(helmet,dark,V(0,y-.012,.21),V(.145,y,.17),.0055);}for(const x of [-.145,.145]){line(helmet,dark,V(x,-.01,.075),V(x,-.19,.17),.007);line(helmet,dark,V(x*.5,-.03,.192),V(x*.5,-.19,.192),.0045);}this.attach(helmet,this.head,this.head.getWorldPosition(V()).add(V(0,.10,0)),orientation);
-      for(const side of ['Left','Right']){
-        const knee=this.joint(side+'Leg').bone.getWorldPosition(V()),ankle=this.joint(side+'Foot').bone.getWorldPosition(V()),pad=new T.Group();pad.name='Cricketer_'+side+'_pad';box(pad,white,[0,0,0],[.17,.40,.06]);for(let i=-2;i<=2;i++)addMesh(pad,new T.CapsuleGeometry(.016,.30,4,6),i%2?rib:white,i*.031,0,.037);box(pad,white,[0,.16,.048],[.18,.055,.05]);for(const y of [-.14,.01,.14])box(pad,seam,[0,y,-.042],[.19,.022,.017]);this.attach(pad,this.joint(side+'Leg').bone,knee.clone().lerp(ankle,.53).addScaledVector(forward,.085),frame(knee.clone().sub(ankle),forward));
-        const hand=this.joint(side+'Hand').bone;const padding=new T.Group();padding.name='Cricketer_'+side+'_glove';box(padding,white,[0,.045,0],[.08,.095,.05]);box(padding,red,[0,-.002,0],[.082,.028,.057]);hand.add(padding);
-        for(const finger of ['Index','Middle','Ring','Pinky','Thumb'])for(const n of [1,2,3]){const j=this.joints.get(side+'Hand'+finger+n);if(j)addMesh(j.bone,new T.CapsuleGeometry(.0105,finger==='Thumb'?.014:.021,3,6),white,0,.017,0);}
+
+  private clipPose(time: number, kind: PlayerPose, progress: number, aim: number, shot: string, contactHeight: number) {
+    this.reset();
+    const length = this.duration;
+    let t: number;
+    if (kind === 'wait') t = CYCLE.wait+.08*Math.sin(time*.8);
+    else if (kind === 'ready') {
+      // Get set from the relaxed bat-down position into the high backlift, then hold with a small waggle.
+      const getSet = length-CYCLE.settle+CYCLE.stance;
+      t = progress < 1 ? CYCLE.settle+smooth(0, 1, progress)*getSet : CYCLE.stance+.045*Math.sin(time*2.1);
+    } else if (kind === 'swing') t = progress <= .5 ? CYCLE.trigger+(CYCLE.contact-CYCLE.trigger)*Math.pow(progress/.5, 1.35)
+      : CYCLE.contact+(CYCLE.finish-CYCLE.contact)*(progress-.5)/.5;
+    // Recover: progress is seconds since contact. The swing covers the first .42s; then the cycle plays on at walking pace.
+    else t = Math.min(CYCLE.settle-.2, CYCLE.finish+Math.max(0, progress-.42)*.95);
+    if (t > length) t -= length;
+    this.sample(t);
+    if (kind === 'swing' || kind === 'recover') {
+      // Shot direction: lead the follow-through toward the side the ball is struck.
+      const follow = kind === 'swing' ? smooth(.45, .9, progress) : 1-smooth(.2, .9, progress);
+      const yaw = (aim < 0 ? .55 : -.18)*follow+(shot === 'pull' || shot === 'hook' ? .22 : shot === 'cut' ? -.2 : 0)*follow;
+      if (Math.abs(yaw) > 1e-4) rotateWorld(this.bone('Spine'), Q().setFromAxisAngle(V(0, 1, 0), yaw));
+      if (kind === 'swing') {
+        // Shift the native swing by the ball's offset from the native contact point (faded in and out),
+        // and snap exactly onto the ball only in the last instant before contact.
+        const near = Math.exp(-Math.pow((progress-.5)/.2, 2)), snap = Math.exp(-Math.pow((progress-.5)/.05, 2));
+        const low = clamp((this.contactLocal.y-contactHeight)*.62, 0, .3)+(shot === 'sweep' || shot === 'scoop' ? .06 : 0);
+        this.crouch(low*near);
+        const ball = this.root.localToWorld(V(this.contactLocal.x, contactHeight, this.contactLocal.z));
+        const offset = ball.clone().sub(this.root.localToWorld(this.contactLocal.clone())).add(this.dir(0, 1, 0).multiplyScalar(low));
+        this.target = this.sweetSpot().addScaledVector(offset, near).lerp(ball, snap);
       }
     }
   }
-  inspection(){this.model.traverse(o=>{if(o instanceof T.SkinnedMesh)o.computeBoundingBox();});const box=new T.Box3().setFromObject(this.model);return {skinnedMeshes:(()=>{let n=0;this.model.traverse(o=>{if(o instanceof T.SkinnedMesh)n++;});return n;})(),bones:this.joints.size,gripError:this.gripError,bounds:{min:box.min.toArray(),max:box.max.toArray()},motion:this.active};}
+
+  /** Legs: keep both feet planted while the hips drop. */
+  private crouch(drop: number) {
+    if (drop < .002) return;
+    const feet = ['Left', 'Right'].map(side => {const b = this.bone(side+'Foot'); return {p: worldPos(b), q: worldQuat(b)};});
+    const hips = this.bone('Hips'); setWorldPosition(hips, worldPos(hips).add(this.dir(0, -1, 0).multiplyScalar(drop)));
+    ['Left', 'Right'].forEach((side, i) => {this.solveChain(side+'UpLeg', side+'Leg', side+'Foot', feet[i].p); setWorldQuaternion(this.bone(side+'Foot'), feet[i].q);});
+  }
+  private solveChain(upperName: string, lowerName: string, endName: string, target: T.Vector3, pole?: T.Vector3) {
+    const upper = this.bone(upperName), lower = this.bone(lowerName), end = this.bone(endName);
+    const a = worldPos(upper), b = worldPos(lower), c = worldPos(end), l1 = a.distanceTo(b), l2 = b.distanceTo(c);
+    const toTarget = target.clone().sub(a), d = clamp(toTarget.length(), Math.abs(l1-l2)+.001, l1+l2-.001); toTarget.normalize();
+    const bend = (pole ? pole.clone() : b.clone().sub(a)).addScaledVector(toTarget, -(pole ? pole : b.clone().sub(a)).dot(toTarget));
+    if (bend.lengthSq() < 1e-8) bend.copy(this.dir(0, 0, 1)); bend.normalize();
+    const cosine = clamp((l1*l1+d*d-l2*l2)/(2*l1*d), -1, 1), elbow = a.clone().addScaledVector(toTarget, l1*cosine).addScaledVector(bend, l1*Math.sqrt(1-cosine*cosine));
+    rotateWorld(upper, Q().setFromUnitVectors(b.clone().sub(a).normalize(), elbow.sub(a).normalize()));
+    const now = worldPos(lower); rotateWorld(lower, Q().setFromUnitVectors(worldPos(end).sub(now).normalize(), target.clone().sub(now).normalize()));
+    return worldPos(end).distanceTo(target);
+  }
+
+  /** Bring the bat's sweet spot onto the ball: spine and lead-shoulder CCD, a wrist pivot, then the top hand re-grips. */
+  private solveContact(target: T.Vector3, weight: number) {
+    const leftHand = this.bone('LeftHand');
+    const batInverse = this.batMesh.matrixWorld.clone().invert();
+    const grip = worldPos(leftHand).applyMatrix4(batInverse), gripTurn = worldQuat(this.batMesh).invert().multiply(worldQuat(leftHand));
+    if (weight > .001) {
+      const joints: [string, number][] = [['Spine', .32], ['Spine1', .32], ['Spine2', .36], ['RightArm', .55]];
+      for (let pass = 0; pass < 5; pass++) for (const [name, max] of joints) {
+        const bone = this.bone(name), pivot = worldPos(bone), from = this.sweetSpot().sub(pivot), to = target.clone().sub(pivot);
+        if (from.lengthSq() < 1e-6 || to.lengthSq() < 1e-6) continue;
+        rotateWorld(bone, limited(Q().slerp(Q().setFromUnitVectors(from.normalize(), to.normalize()), weight), max*weight));
+      }
+      // Wrist pivot about the top of the handle keeps the hands on the grip.
+      const pivot = this.batMesh.localToWorld(V(0, BLADE.handle+.6, BLADE.z)), from = this.sweetSpot().sub(pivot), to = target.clone().sub(pivot);
+      const turn = limited(Q().slerp(Q().setFromUnitVectors(from.normalize(), to.normalize()), weight), .75*weight);
+      const node = this.batNode, position = worldPos(node).sub(pivot).applyQuaternion(turn).add(pivot);
+      setWorldQuaternion(node, turn.clone().multiply(worldQuat(node))); setWorldPosition(node, position);
+    }
+    // Top hand re-grips the handle wherever the shoulder/spine correction moved it.
+    const want = grip.applyMatrix4(this.batMesh.matrixWorld);
+    this.gripError = this.solveChain('LeftArm', 'LeftForeArm', 'LeftHand', want, this.dir(-.2, -.6, -.4));
+    setWorldQuaternion(leftHand, worldQuat(this.batMesh).multiply(gripTurn));
+    // Report the closest point of the blade to the ball.
+    const local = target.clone().applyMatrix4(this.batMesh.matrixWorld.clone().invert());
+    this.blade.copy(this.batMesh.localToWorld(V(0, clamp(local.y, BLADE.shoulder, BLADE.toe), BLADE.z)));
+    this.bladeError = this.blade.distanceTo(target);
+  }
+
+  /** Authored role motion on the shared rig. Body frame: +Z forward, +X the player's left. */
+  private authored(time: number, kind: PlayerPose, progress: number) {
+    // Start from the cycle's upright standing frame so head and limb twist stay natural.
+    this.reset(); this.sample(CYCLE.carry);
+    const q = kind === 'bowl' ? clamp((progress-.7)/.42, 0, 1.6) : 0;
+    const striding = kind === 'run' || kind === 'walk' || kind === 'bowl' && progress < .7;
+    const speed = kind === 'walk' ? 7.5 : 12.5, phase = time*speed, swing = kind === 'walk' ? .42 : .78;
+    let lean = kind === 'field' ? .62 : striding ? (kind === 'walk' ? .06 : .2) : 0;
+    if (kind === 'bowl' && !striding) lean = q < .45 ? -.18+q*.2 : -.09+smooth(.45, .85, q)*.75+smooth(.85, 1.3, q)*.25;
+    // Pelvis faces forward, upright or leaning.
+    const hips = this.bone('Hips'), spine = this.bone('Spine1');
+    const up = worldPos(spine).sub(worldPos(hips)).normalize(), left = worldPos(this.bone('LeftUpLeg')).sub(worldPos(this.bone('RightUpLeg')));
+    left.addScaledVector(up, -left.dot(up)).normalize();
+    const current = new T.Matrix4().makeBasis(left, up, left.clone().cross(up)), wantUp = this.dir(0, Math.cos(lean*.35), Math.sin(lean*.35)), wantLeft = this.dir(1, 0, 0);
+    const twist = kind === 'bowl' && !striding ? (q < .5 ? -.9+q*.6 : -.6+smooth(.5, .9, q)*1.1) : 0;
+    if (twist) wantLeft.applyAxisAngle(this.dir(0, 1, 0), twist);
+    const desired = new T.Matrix4().makeBasis(wantLeft, wantUp, wantLeft.clone().cross(wantUp));
+    rotateWorld(hips, Q().setFromRotationMatrix(desired.multiply(current.transpose())));
+    setWorldPosition(hips, this.root.localToWorld(V(0, .95, 0)));
+    rotateWorld(this.bone('Spine'), Q().setFromAxisAngle(this.dir(1, 0, 0), lean*.65));
+    rotateWorld(this.bone('Spine2'), Q().setFromAxisAngle(this.dir(1, 0, 0), lean*.3));
+    for (const [side, sign] of [['Left', 1], ['Right', -1]] as const) {
+      const s = Math.sin(phase+(sign > 0 ? 0 : Math.PI)), thigh = striding ? s*swing : 0, knee = striding ? .25+Math.max(0, -Math.sin(phase+(sign > 0 ? 0 : Math.PI)-.9))*(kind === 'walk' ? .55 : 1.25) : 0;
+      let upper = V(sign*.06, -Math.cos(thigh), Math.sin(thigh)), lower = V(sign*.03, -Math.cos(thigh-knee), Math.sin(thigh-knee));
+      if (kind === 'field') {upper = V(sign*.28, -1, .85); lower = V(sign*.06, -1, -.35);}
+      if (kind === 'celebrate') {upper = V(sign*.08, -1, sign*.05); lower = V(sign*.05, -1, 0);}
+      if (kind === 'bowl' && !striding) {
+        if (side === 'Left') {const lift = q < .4 ? smooth(0, .3, q) : 1-smooth(.4, .6, q); upper = V(.06, -Math.cos(.35+lift*.9), Math.sin(.35+lift*.9)); lower = V(.03, -1, lift*.6);}
+        else {const drag = smooth(.4, .9, q), through = smooth(.85, 1.4, q); upper = V(-.08, -1, -.45+drag*.9+through*.8); lower = V(-.04, -.7, -.7+drag*1.1+through*.4);}
+      }
+      this.aim(side+'UpLeg', side+'Leg', upper); this.aim(side+'Leg', side+'Foot', lower); this.aim(side+'Foot', side+'ToeBase', V(sign*.05, -.25, 1));
+      // Arms counter-swing with bent elbows; roles override.
+      const arm = striding ? -s*swing*1.2 : 0;
+      let shoulder = V(sign*.2, -Math.cos(arm), Math.sin(arm)), elbow = V(sign*.02, -Math.cos(arm+1.45), Math.sin(arm+1.45));
+      if (!striding && kind !== 'bowl') {shoulder = V(sign*.22, -1, .08); elbow = V(sign*.05, -.8, .55);}
+      if (kind === 'field') {shoulder = V(sign*.12, -.85, .55); elbow = V(-sign*.05, -.85, .5);}
+      if (kind === 'celebrate') {const pump = Math.sin(time*7)*.2; shoulder = V(sign*.5, 1, .1+pump); elbow = V(sign*.18, 1, .05);}
+      if (kind === 'bowl' && !striding) {
+        if (side === 'Right') {const a = -2.6+smooth(.1, .71, q)*2.95+smooth(.71, 1.3, q)*2.6; shoulder = V(-.12, Math.cos(a), Math.sin(a)); elbow = V(-.06, Math.cos(a+.1), Math.sin(a+.1));}
+        else {const a = .5-smooth(.45, .85, q)*2.6; shoulder = V(.25, Math.cos(a), Math.sin(a)); elbow = V(.1, Math.cos(a+.6), Math.sin(a+.6));}
+      }
+      this.aim(side+'Arm', side+'ForeArm', shoulder); this.aim(side+'ForeArm', side+'Hand', elbow);
+    }
+    this.aim('Neck', 'Head', V(0, 1, kind === 'field' ? .25 : .08)); this.aim('Head', 'HeadTop_End', V(0, 1, kind === 'field' ? .62 : kind === 'bowl' ? .5 : .4));
+    // Plant on the ground: lowest foot point touches the turf, with a light running bob.
+    const lowest = Math.min(...['LeftFoot', 'RightFoot'].map(n => this.root.worldToLocal(worldPos(this.bone(n))).y-.075), ...['LeftToe_End', 'RightToe_End'].map(n => this.root.worldToLocal(worldPos(this.bone(n))).y-.015));
+    const bob = kind === 'celebrate' ? Math.abs(Math.sin(time*7))*.07 : 0;
+    setWorldPosition(hips, worldPos(hips).add(this.dir(0, 1, 0).multiplyScalar(bob-lowest)));
+    if (this.batting) {this.batNode.position.copy(this.carry.p); this.batNode.quaternion.copy(this.carry.q);}
+    this.root.updateMatrixWorld(true);
+  }
+  private aim(name: string, childName: string, body: T.Vector3) {
+    const bone = this.bone(name), current = worldPos(this.bone(childName)).sub(worldPos(bone));
+    if (current.lengthSq() < 1e-8) return;
+    rotateWorld(bone, Q().setFromUnitVectors(current.normalize(), this.dir(body.x, body.y, body.z)));
+  }
+
+  /** Helmet and pads are original low-poly gear attached to the rig. Eyes give the plain face a read at distance. */
+  private makeGear() {
+    const kit = this.options.kit, head = this.bone('Head'), top = this.bone('HeadTop_End');
+    const h = worldPos(head), crown = worldPos(top), up = crown.clone().sub(h).normalize(), size = crown.distanceTo(h);
+    // The nose is the most forward (+Z in bind space) face-skin vertex; skin it into the current pose.
+    const geometry = this.body.geometry, regions = geometry.getAttribute('_region'), positions = geometry.getAttribute('position'), skinIndex = geometry.getAttribute('skinIndex'), headIndex = this.body.skeleton.bones.indexOf(head);
+    let noseIndex = -1, best = -Infinity;
+    for (let i = 0; i < regions.count; i++) if (regions.getX(i) === 0 && skinIndex.getX(i) === headIndex && positions.getZ(i) > best) {best = positions.getZ(i); noseIndex = i;}
+    if (noseIndex < 0) throw Error('Player face not found');
+    const nose = this.body.getVertexPosition(noseIndex, V()).applyMatrix4(this.body.matrixWorld);
+    const forward = nose.clone().sub(h); forward.addScaledVector(up, -forward.dot(up)).normalize();
+    const side = up.clone().cross(forward).normalize(), frame = Q().setFromRotationMatrix(new T.Matrix4().makeBasis(side, up, forward));
+    const attach = (gear: T.Object3D, bone: T.Object3D, position: T.Vector3, quaternion: T.Quaternion) => {this.root.add(gear); gear.position.copy(this.root.worldToLocal(position.clone())); gear.quaternion.copy(worldQuat(this.root).invert().multiply(quaternion)); this.root.updateMatrixWorld(true); bone.attach(gear);};
+    const dark = flatMaterial('#151a17', .5);
+    const eyes = new T.Group(); eyes.name = 'Cricketer_eyes';
+    for (const s of [-1, 1]) {const eye = addMesh(eyes, new T.SphereGeometry(.011, 6, 4), dark, V(s*.034, 0, 0)); eye.scale.set(1, .8, .45); eye.castShadow = false; const brow = addMesh(eyes, new T.BoxGeometry(.03, .006, .008), flatMaterial(kit.hair, .9), V(s*.035, .022, -.002)); brow.rotation.z = -s*.12; brow.castShadow = false;}
+    attach(eyes, head, nose.clone().addScaledVector(up, size*.1).addScaledVector(forward, -.026), frame);
+    if (!this.batting) return;
+    const shell = flatMaterial(kit.shirt, .45), trim = flatMaterial(kit.trim, .5), grille = flatMaterial('#1a1f1d', .4);
+    const helmet = new T.Group(); helmet.name = 'Cricketer_helmet'; const r = size*.68;
+    addMesh(helmet, new T.SphereGeometry(r, 12, 7, 0, Math.PI*2, 0, Math.PI*.58), shell).scale.set(1, .98, 1.08);
+    const peak = addMesh(helmet, new T.CylinderGeometry(r*1.02, r*1.06, .016, 12, 1, false, -Math.PI*.42, Math.PI*.84), shell, V(0, -r*.05, r*.12)); peak.rotation.y = 0; peak.scale.z = 1.35;
+    addMesh(helmet, new T.TorusGeometry(r*.99, .009, 4, 14, Math.PI*1.2), trim, V(0, -r*.08, 0)).rotation.set(Math.PI/2, 0, -Math.PI*.1);
+    for (const y of [-.06, -.11, -.16]) {rod(helmet, grille, V(-r*.88, y*size/.2, r*.55), V(0, y*size/.2-.01, r*1.18), .0055, 4); rod(helmet, grille, V(0, y*size/.2-.01, r*1.18), V(r*.88, y*size/.2, r*.55), .0055, 4);}
+    for (const x of [-.45, 0, .45]) rod(helmet, grille, V(x*r, -r*.12, r*(1.12-Math.abs(x)*.3)), V(x*r, -r*1.12, r*(1.12-Math.abs(x)*.25)), .005, 4);
+    addMesh(helmet, new T.CylinderGeometry(r*.75, r*.82, r*.32, 10, 1, true, Math.PI*.55, Math.PI*.9), shell, V(0, -r*.5, -r*.18));
+    attach(helmet, head, h.clone().addScaledVector(up, size*.5).addScaledVector(forward, -size*.06), frame);
+    const padMaterial = flatMaterial('#f6f2e8', .62), rib = flatMaterial('#e3ddcf', .7), strap = flatMaterial(kit.trim, .55);
+    for (const s of ['Left', 'Right']) {
+      const knee = worldPos(this.bone(s+'Leg')), ankle = worldPos(this.bone(s+'Foot')), toe = worldPos(this.bone(s+'ToeBase'));
+      const axis = knee.clone().sub(ankle), length = axis.length(); axis.normalize();
+      const front = toe.clone().sub(ankle); front.addScaledVector(axis, -front.dot(axis)).normalize();
+      const across = axis.clone().cross(front).normalize(), padFrame = Q().setFromRotationMatrix(new T.Matrix4().makeBasis(across, axis, front));
+      const pad = new T.Group(); pad.name = 'Cricketer_'+s+'_pad'; const tall = length+.16;
+      // Five vertical rolls curving round the shin, a knee roll, a side wing and straps tucked behind.
+      for (let i = -2; i <= 2; i++) addMesh(pad, new T.CylinderGeometry(.024, .022, tall*(1-Math.abs(i)*.05), 6), i%2 ? rib : padMaterial, V(i*.031, -Math.abs(i)*.01, .018-i*i*.006));
+      addMesh(pad, new T.CylinderGeometry(.032, .032, .15, 7), padMaterial, V(0, tall*.36, .03)).rotation.z = Math.PI/2;
+      addMesh(pad, new T.BoxGeometry(.05, tall*.72, .016), padMaterial, V(.088, -.03, -.012)).rotation.y = -.7;
+      for (const y of [-.3, .05, .24]) addMesh(pad, new T.BoxGeometry(.15, .022, .014), strap, V(0, y*tall, -.03));
+      attach(pad, this.bone(s+'Leg'), ankle.clone().lerp(knee, .48).addScaledVector(front, .075), padFrame);
+    }
+  }
+
+  /** Blade point nearest the ball at contact (falls back to the sweet spot). */
+  bladePoint() {return this.target ? this.blade.clone() : this.sweetSpot();}
+  inspection() {
+    let skinnedMeshes = 0; this.model.traverse(o => {if (o instanceof T.SkinnedMesh) skinnedMeshes++;});
+    this.body.computeBoundingBox(); const box = this.body.boundingBox!.clone().applyMatrix4(this.body.matrixWorld);
+    return {skinnedMeshes, bones: this.bones.size, gripError: this.gripError, bladeError: this.bladeError, bounds: {min: box.min.toArray(), max: box.max.toArray()}, motion: 'bat_drive_cycle@'+this.lastClip.toFixed(3), kind: this.kind};
+  }
 }

@@ -11,6 +11,11 @@ const games: LocalGuide[] = [
     steps:[{title:'Start with the lesson',body:'Use the original hitting lesson to learn when to play the ball.'},{title:'Choose a side',body:'Tap the game’s left or right arrow. You can also use keyboard arrows or enable the handheld buttons in Settings.'},{title:'Chase the score',body:'Choose a native chase and follow its target, balls and wickets. Use Pause before leaving the game.'}],
   },
   {
+    id:'longbow', icon:'my_location', accent:'gold', tagline:'Draw. Read the wind. Let it fly.',
+    purpose:'Play Longbow, an original 3D archery game in landscape. Clear thirty career lanes across three ranges, or duel three rival archers. Progress stays on this device for your account.',
+    steps:[{title:'Draw and hold',body:'Press and hold anywhere on the range to draw the bow. The sight settles once the bow is fully drawn; release while it is steady. Space also draws.'},{title:'Aim into the wind',body:'Drag, or use the arrow keys, to move the sight. The bow is sighted for each lane distance, so aim upwind of gold and lead moving targets.'},{title:'Earn stars and win duels',body:'Each lane gives a set number of arrows; one star clears it and twenty stars open the next range. In a duel you and your rival shoot in turn over five ends.'}],
+  },
+  {
     id:'archery-test', icon:'my_location', accent:'gold', tagline:'Draw, aim and release',
     purpose:'Reach each target score within the arrow limit in Archery Master. Keep a phone portrait for the largest target view.',
     steps:[{title:'Choose a level',body:'Start the native level and check the target score and arrows remaining.'},{title:'Draw and aim',body:'Hold to draw the bow, then drag to adjust the aim. On a phone, use the right half of the playfield.'},{title:'Release your shot',body:'Release to fire. Earn the target score to unlock the next level. Settings controls the game volume.'}],

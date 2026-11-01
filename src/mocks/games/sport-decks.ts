@@ -11,7 +11,7 @@ import type { GameId } from "@/features/games/types";
  * keeping two lists, so a game can be promoted by editing one field.
  */
 const sourceDecks: Record<GameSport, GameId[]> = {
-  archery: ["archery-test"],
+  archery: ["longbow", "archery-test"],
   golf: ["open-golf"],
   football: [
     "penalty-cup",

@@ -177,7 +177,7 @@ test('manifest includes built game dependencies and static code, encodes names a
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'game-assets-'));
   const put = async (file, text = 'bytes') => { await fs.mkdir(path.dirname(path.join(root, file)), { recursive: true }); await fs.writeFile(path.join(root, file), text); };
   try {
-    for (const game of ['cricketer', 'penalty-cup', 'open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'f1-racing', 'archery-test', 'tennis-bits', 'soccer-real', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
+    for (const game of ['cricketer', 'penalty-cup', 'open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'f1-racing', 'archery-test', 'longbow', 'tennis-bits', 'soccer-real', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball']) await put(`public/embedded-games/${game}/index.html`);
     await put('src/domain/removed-games.json', await fs.readFile(path.join(process.cwd(), 'src/domain/removed-games.json'), 'utf8'));
     await put('src/catalog.ts', '"/assets/shop/portraits/LEO 10.webp" "/assets/shop/banners/BLUE 10.webp"');
     await put('public/assets/shop/banners/BLUE 10.webp');
@@ -209,7 +209,8 @@ test('manifest includes built game dependencies and static code, encodes names a
       assert.equal(await fs.readFile(path.join(root, 'public/assets/games/covers/' + id + '.webp'), 'utf8'), 'bytes');
     }
     assert.ok(!first.files.some(file=>file.url.includes('/assets/games/penalty-shootout/')));
-    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle','games/soccer-real/native/images/mid_player17.glb'])assert.ok(first.files.some(file=>file.url==='/demo/'+asset));
+    for(const asset of ['games/tennis-bits/native/Build/game.wasm','games/tennis-bits/native/StreamingAssets/aa/tennis.bundle'])assert.ok(!first.files.some(file=>file.url==='/demo/'+asset),'Retired Tennis dependency: '+asset);
+    assert.ok(first.files.some(file=>file.url==='/demo/games/soccer-real/native/images/mid_player17.glb'));
     assert.ok(!first.files.some(file=>file.url.includes('/dissection/')||file.url.includes('/originals/')));
     for(const asset of ['native/assets/models/512/terrains/EnvironmentA.glb','native/assets/fonts/helve.xml','native/assets/sounds/effects.mp3'])assert.ok(first.files.some(file=>file.url==='/demo/games/archery-test/'+asset),'Missing native dependency '+asset);
     assert.ok(!first.files.some(file => file.url.includes('/assets/shop/portraits/')));

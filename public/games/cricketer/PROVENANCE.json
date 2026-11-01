@@ -1,8 +1,8 @@
 {
   "game": "cricketer",
-  "version": 2,
+  "version": 3,
   "original": [
-    "Cricketer helmet, segmented pads and gloves, bat, iris/pupil details, kit surfaces and numbering, retarget mapping and contact/foot IK",
+    "Cricketer kit regions and colours, numbers, bat livery, helmet, pads, eyes, contact/crouch/re-grip constraints and authored role motion",
     "oval, stands, pavilion surround, interface, simulation and synthesized SFX"
   ],
   "models": [
@@ -27,34 +27,27 @@
   "ground": "Original match oval and 20.12m pitch; the pack training strip/ground is not used.",
   "characterDesign": {
     "sharedPlayer": {
-      "file": "player-shared.glb",
-      "title": "Indian Cricket Player Rigged",
-      "author": "numaan.k99",
-      "source": "https://sketchfab.com/3d-models/indian-cricket-player-rigged-a1001b602e4f430bb9de68c24d9a4aa7",
+      "file": "cricketer-player.glb",
+      "title": "Virat Kohli Cricket Batting Animation - Low Poly",
+      "author": "bhagathartworks",
+      "source": "https://sketchfab.com/3d-models/virat-kohli-cricket-batting-animation-low-poly-a21f5e7ee14f4b6aa5cf6c94a1016932",
       "license": "CC-BY-4.0",
       "licenseFile": "PLAYER-LICENSE.txt",
-      "sha256": "b14ca1dd8f7e3fb01f36b04e7dab808fda26566a35f587040bc375317608a341",
+      "sourceZipSha256": "dbb28d8b412d95d3bc50ba3c13f4b43240acc5ba54c54210571108b3214bbecb",
+      "sha256": "048d84139861a7fa5da973c021179118af316630bd692c0e3926200b8d222706",
+      "bytes": 706808,
+      "builtBy": "scripts/build-cricketer-player.mjs",
       "adaptations": [
-        "original red/ivory and green kits replace original national kit textures",
-        "original helmet, gloves, pads, bat, pupils and numbers",
-        "glasses hidden; batting hair hidden beneath helmet",
-        "83-bone skinned geometry; motion retargeting and planted-foot/hand constraints"
+        "photographic body texture and branded bat texture removed; faces classified into kit regions at build time",
+        "flat low-poly faces with runtime Cricketer kit colours, numbers and bat livery",
+        "unnamed players; no real-person, team or brand representation",
+        "49-joint Mixamo skin and its 6.9s batting cycle; constant channels removed"
       ]
     },
-    "nativeMotion": {
-      "file": "source-motion.local.glb",
-      "owner": "Stick Sports",
-      "source": "Retained local REA conversion of Stick Cricket Chase batsman",
-      "license": "No independent redistribution license supplied; user explicitly authorized the GitHub Pages release",
-      "sha256": "8bb1bd776f9162e9a528f87952ac2d8b608a10accf3b23cefb057acd22b80801",
-      "clipCount": 10,
-      "nativeBodyMeshesIncluded": false,
-      "limitations": "Native-curve-derived Unity2022 Avatar re-solve, not original Unity6000 controller/IK parity."
-    },
-    "REA": [
-      "ev_6c9b61163a7266c131222659ecfa423f28baeeccf69f4b8605f13a88301a8326",
-      "ev_1c0a5087db1c5f5fbefa51101144d2701b466961a6b03e7a2d4e720a6e8f1479"
+    "retired": [
+      "player-shared.glb (numaan.k99 model)",
+      "source-motion.local.glb (Stick Cricket motion) - both removed from the runtime"
     ],
-    "scope": "GitHub Pages release explicitly authorized by the user; no Flutter synchronization."
+    "scope": "Local build; no Flutter synchronization."
   }
 }

@@ -17,12 +17,12 @@ export function sportGamesInDeckOrder(sport: GameSport): GameId[] {
 }
 
 /** Games whose cover ships with the game bundle rather than the shared covers folder. */
-const bundledCoverGames: readonly string[] = ["cricketer", "penalty-cup", "f1-racing", "football-shooting", "retro-football-2", "stick-cricket", "archery-test", "soccer-real", "tennis-bits"];
+const bundledCoverGames: readonly string[] = ["cricketer", "penalty-cup", "f1-racing", "football-shooting", "retro-football-2", "stick-cricket", "archery-test", "longbow", "soccer-real", "tennis-bits"];
 
 export const hasBundledCover = (id: GameId) => bundledCoverGames.includes(id);
 
 /** Original illustrated covers for the latest launch additions; older artwork is retained. */
-const launchCoverGames: readonly GameId[] = ["cricketer","f1-racing","penalty-cup","soccer-real","tennis-bits"];
+const launchCoverGames: readonly GameId[] = ["cricketer","f1-racing","penalty-cup","soccer-real","tennis-bits","open-golf","archery-test"];
 
 /** Public path of a game's cover art (pass through `publicAsset`). */
 export function gameCoverPath(id: GameId): string {

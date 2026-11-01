@@ -10,23 +10,50 @@ export async function buildPitchRush({prelude}) {
   for(const [name,hash] of Object.entries(provenance.files)) {
     if(createHash('sha256').update(await fs.readFile(path.join(source,name))).digest('hex')!==hash) throw Error('WebSoccer source changed: '+name);
   }
+  const art=JSON.parse(await fs.readFile(path.join(root,'public/games/pitch-rush/sports-art.json'),'utf8'));
+  for(const item of art.sources) {
+    if(createHash('sha256').update(await fs.readFile(path.join(root,'vendor/kenney-sports-pack',item.path))).digest('hex')!==item.sha256)throw Error('Kenney source changed: '+item.path);
+  }
+  const atlas=await fs.readFile(path.join(root,'public/games/pitch-rush',art.atlas.file));
+  if(createHash('sha256').update(atlas).digest('hex')!==art.atlas.sha256)throw Error('Pitch Rush sports atlas changed');
   const bridge=await fs.readFile(path.join(root,'src/features/games/pitch-rush/bridge.js'),'utf8');
   const result=await build({entryPoints:[path.join(source,'src/main.js')],bundle:true,write:false,format:'iife',target:'es2020',minify:true,plugins:[{name:'pitch-rush-adaptation',setup(b){
+    b.onResolve({filter:/^pitch-rush-(?:art-runtime|renderer)$/},args=>({path:path.join(root,'src/features/games/pitch-rush',args.path.endsWith('renderer')?'renderer.js':'art.js')}));
+    b.onResolve({filter:/^pitch-rush-art$/},()=>({path:'pitch-rush-art',namespace:'sports-art'}));
+    b.onLoad({filter:/.*/,namespace:'sports-art'},()=>({contents:`export const manifest=${JSON.stringify(art)};export const atlasUrl=${JSON.stringify('data:image/png;base64,'+atlas.toString('base64'))};`,loader:'js'}));
     b.onLoad({filter:/[\\/]config\.js$/},()=>({contents:"export const DEFAULT_RELAY=''; export const relayFor=()=>null; export const boardFor=()=>null;",loader:'js'}));
     b.onLoad({filter:/[\\/]game[\\/]sim\.js$/},async args=>({contents:adaptSimulation(await fs.readFile(args.path,'utf8')),loader:'js'}));
     b.onLoad({filter:/[\\/]game[\\/]kick\.js$/},async args=>({contents:adaptKicks(await fs.readFile(args.path,'utf8')),loader:'js'}));
     b.onLoad({filter:/[\\/]touch\.js$/},async args=>({contents:(await fs.readFile(args.path,'utf8')).replace('const MAX_THROW = 46;','const MAX_THROW = 28;').replace('    this.button(kick, BTN.FIRE);','    // Separate attack and defence bindings are supplied by the game adapter.'),loader:'js'}));
     b.onLoad({filter:/[\\/]main\.js$/},async args=>{
       let js=await fs.readFile(args.path,'utf8');
+      js=js.replace("from './render/renderer.js'","from 'pitch-rush-renderer'").replace("from './render/titlescreen.js'","from 'pitch-rush-art-runtime'");
+      if(!js.includes("const canvas = document.getElementById('game');"))throw Error('Pitch Rush bootstrap integration changed');
+      js=js.replace("const canvas = document.getElementById('game');", "async function startPitchRush(){\n await prepareSportsArt();\n if(hostDisposed)return;\n const canvas = document.getElementById('game');");
       js=js.replace('import { FRAME_TIME, TICK_RATE }','import { BTN, FRAME_TIME, TICK_RATE }');
-      js='let hostDisposed=false,hostRaf=0;\n'+js.replaceAll('requestAnimationFrame(frame)', 'hostRaf=requestAnimationFrame(frame)');
+      js="import {prepareSportsArt} from 'pitch-rush-art-runtime';\nlet hostDisposed=false,hostRaf=0;\nwindow.__STATOZ_HOST__.command=type=>{if(type==='dispose')hostDisposed=true;};\n"+js.replaceAll('requestAnimationFrame(frame)', 'hostRaf=requestAnimationFrame(frame)');
       js=js.replace('function frame(now) {','function frame(now) {\n if(hostDisposed)return;\n hostUpdate();');
       js=js.replace('game.acc += elapsed;',`game.acc += elapsed * ${GAMEPLAY_RATE};`);
       js=js.replace('game.transport.sample(tick);','syncTouchAction(); game.transport.sample(tick);');
       js=js.replace('function beginMatch(state, transport) {','function beginMatch(state, transport) {\n releaseInputs();');
       js=js.replace('  game.paused = on;',"  game.paused = on;\n  if(on){music.stop();audio.ctx?.suspend?.();}else if(soundOn){audio.wake();}");
       js=js.replace('function toMenu() {','function toMenu() {\n game.paused=false; if(soundOn)audio.wake();');
-      return {contents:js+'\n'+bridge,loader:'js'};
+      const finish=bridge.replace("host.emit('ready');", "document.getElementById('artLoading').remove();document.getElementById('start').disabled=false;document.documentElement.dataset.artState='ready';host.emit('ready');");
+      return {contents:js+'\n'+finish+`\n}
+      function startWithArtwork(){startPitchRush().catch(error=>{
+        console.error('Pitch Rush artwork could not load',error);
+        document.documentElement.dataset.artState='error';
+        const loading=document.getElementById('artLoading');
+        loading.querySelector('[role="status"]').textContent='The football artwork could not load. Please try again.';
+        loading.querySelector('#retryArt').hidden=false;
+      });}
+      document.getElementById('retryArt').addEventListener('click',()=>{
+        document.getElementById('retryArt').hidden=true;
+        document.querySelector('#artLoading [role="status"]').textContent='Preparing the pitch…';
+        startWithArtwork();
+      });
+      document.getElementById('exitArt').addEventListener('click',()=>window.__STATOZ_HOST__.emit('exit'));
+      startWithArtwork();`,loader:'js'};
     });
   }}]});
   let html=await fs.readFile(path.join(source,'index.html'),'utf8');
@@ -38,11 +65,13 @@ export async function buildPitchRush({prelude}) {
     .replace('<h1>WEB<span>SOCCER</span></h1>','<h1>PITCH<span>RUSH</span></h1>')
     .replace('HTML / JavaScript &middot; local &amp; online','ELEVEN A SIDE. ONE MORE MATCH.')
     .replace('<button data-mode="online">Online</button>','<button data-mode="online" hidden disabled>Online</button>')
+    .replace('<button id="start"', '<button disabled id="start"')
     .replace('<link rel="stylesheet" href="styles.css">',()=>'<style>'+css+'\n'+skin+'</style>')
     .replace(/<link rel="(?:manifest|apple-touch-icon)"[^>]*>/g,'')
     .replace('<div id="menu" class="overlay">',()=>'<div id="menu" class="overlay" style="--cover:url('+cover+')">')
     .replace('<div class="panelFooter">','<p class="fineprint">Offline edition · CPU or two players on one device. Two-player mode uses keyboard or gamepads.</p><div class="panelFooter">')
-    .replace('</body>','<footer id="gameCredits">Based on WebSoccer by Mark Clausing · MIT license</footer></body>')
+    .replace('</body>','<footer id="gameCredits">WebSoccer by Mark Clausing · MIT / Art by Kenney · CC0</footer></body>')
+    .replace('<div id="wrap">','<div id="wrap"><section id="artLoading" class="overlay" aria-label="Loading artwork"><div class="panel small"><h2>Pitch Rush</h2><p role="status">Preparing the pitch…</p><button id="retryArt" hidden type="button">Try again</button><button id="exitArt" type="button">Exit to football</button></div></section>')
     .replace('<script type="module" src="src/main.js"></script>',()=>prelude+'<script>'+result.outputFiles[0].text.replaceAll('</script','<\\/script')+'</script>');
   return html;
 }

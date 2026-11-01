@@ -1,7 +1,8 @@
 import * as T from 'three';
-import {CricketerPlayer} from './character';
+import {CricketerPlayer, type PlayerPose} from './character';
+import {KITS} from './kits';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {ballPosition, contactAt, PITCH, RELEASE, WINDUP, type Match} from './engine';
+import {ballPosition, contactAt, PITCH, RELEASE, type Match} from './engine';
 
 type Rig = CricketerPlayer;
 const Y=new T.Vector3(0,1,0), v=(x=0,y=0,z=0)=>new T.Vector3(x,y,z);
@@ -11,11 +12,20 @@ function box(parent:T.Object3D,m:T.Material,x:number,y:number,z:number,w:number,
 function rod(parent:T.Object3D,m:T.Material,a:T.Vector3,b:T.Vector3,r:number,r2=r) {const o=mesh(new T.CylinderGeometry(r2,r,1,8),m,v(),parent);segment(o,a,b);return o;}
 function segment(o:T.Object3D,a:T.Vector3,b:T.Vector3){o.position.copy(a).add(b).multiplyScalar(.5);const delta=b.clone().sub(a);o.scale.y=delta.length();o.quaternion.setFromUnitVectors(Y,delta.normalize());}
 function sphere(parent:T.Object3D,m:T.Material,x:number,y:number,z:number,r:number,sx=1,sy=1,sz=1){const o=mesh(new T.SphereGeometry(r,12,10),m,v(x,y,z),parent);o.scale.set(sx,sy,sz);return o;}
+const smoothstep=(a:number,b:number,x:number)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
+/** Seconds since bat-on-ball (or since the ball passed), and the length of the whole post-delivery window. */
+function afterContact(s:Match){
+  const flown=!!s.outcome&&(s.outcome.runs>0||s.outcome.caught), runs=s.outcome?.runs||0, ran=runs>0&&runs<4;
+  const total=(flown?s.trajectory.duration:0)+(ran?runs*.7:0)+1.15;
+  const since=s.phase==='flight'?s.age:s.phase==='running'?s.trajectory.duration+s.age:s.phase==='between'?(flown?s.trajectory.duration:0)+(ran?runs*.7:0)+s.age:total;
+  return {since,total};
+}
+function blobTexture(){const c=document.createElement('canvas');c.width=c.height=64;const ctx=c.getContext('2d')!;const g=ctx.createRadialGradient(32,32,2,32,32,31);g.addColorStop(0,'rgba(20,34,20,.55)');g.addColorStop(1,'rgba(20,34,20,0)');ctx.fillStyle=g;ctx.fillRect(0,0,64,64);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
 function label(text:string,bg:string,fg:string,w=512,h=128){const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d')!;ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);ctx.font=`900 ${h*.61}px 'Arial Narrow',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=fg;ctx.fillText(text,w/2,h*.53,w*.91);const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;return new T.MeshBasicMaterial({map:tex,side:T.DoubleSide});}
 
 export class CricketView {
   renderer:T.WebGLRenderer; scene=new T.Scene(); camera=new T.PerspectiveCamera(48,16/9,.1,400);
-  batter!:Rig; bowler!:Rig; runner!:Rig; fielders:Rig[]=[]; ball:T.Mesh; shadow:T.Mesh; trail:T.Mesh[]=[];
+  batter!:Rig; bowler!:Rig; runner!:Rig; fielders:Rig[]=[]; ball:T.Mesh; shadow:T.Mesh; trail:T.Mesh[]=[]; private blobs=new Map<Rig,T.Mesh>(); private blobMaterial:T.MeshBasicMaterial|null=null;
   private observer:ResizeObserver; private disposed=false; private lastTier=-1; private goal=v(); private eye=v(); private resources=new Set<T.Object3D>();
   private wicketTemplate:T.Group|null=null;
   constructor(private canvas:HTMLCanvasElement) {
@@ -24,7 +34,8 @@ export class CricketView {
     this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.06;
     this.scene.background=new T.Color('#b4d9d3');this.scene.fog=new T.Fog('#b4d9d3',105,230);
     this.scene.add(new T.HemisphereLight('#eff9ff','#526b32',2.3));
-    const sun=new T.DirectionalLight('#fff0cd',3);sun.position.set(-22,45,25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-35;sun.shadow.camera.right=35;sun.shadow.camera.top=25;sun.shadow.camera.bottom=-35;sun.shadow.bias=-.0004;this.scene.add(sun);
+    // Crisp sun shadows cover the pitch; far fielders get soft contact shadows instead.
+    const sun=new T.DirectionalLight('#fff0cd',3);sun.position.set(-22,45,15);sun.target.position.set(0,0,-10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-17;sun.shadow.camera.right=17;sun.shadow.camera.top=17;sun.shadow.camera.bottom=-17;sun.shadow.camera.near=10;sun.shadow.camera.far=110;sun.shadow.bias=-.0003;sun.shadow.normalBias=.02;this.scene.add(sun,sun.target);
     this.ground();
     this.ball=sphere(this.scene,mat('#fff6e5',.4),0,2,-PITCH,.075);
     const seam=mesh(new T.TorusGeometry(.076,.005,5,18),mat('#b3412a'),v(),this.ball);seam.rotation.x=.8;
@@ -71,47 +82,66 @@ export class CricketView {
     box(house,green,0,6.5,7.5,30,.3,5);box(house,white,0,2.6,9.8,30,.15,.12);
     const mast=mesh(new T.PlaneGeometry(18,2.1),label('WILLOW PARK','#204d3f','#f7edcf'),v(0,7,6.08),house);mast.rotation.y=0;
     for(const x of [-57,57])for(const z of [-72,52]){rod(this.scene,concrete,v(x,0,z),v(x,27,z),.3,.15);const light=box(this.scene,white,x,27,z,7,2,.4);light.rotation.x=-.2;}
-    for(let i=0;i<14;i++){const x=Math.sin(i*67.2)*130,z=-110-Math.cos(i*39.3)*35;rod(this.scene,mat('#775c39'),v(x,0,z),v(x,8,z),.8,.4);sphere(this.scene,mat(i%2?'#426747':'#557947'),x,10,z,7,1,1.5,1);}
+    for(let i=0;i<14;i++){const x=Math.sin(i*67.2)*130,z=-110-Math.cos(i*39.3)*35;rod(this.scene,mat('#775c39'),v(x,0,z),v(x,8,z),.8,.4);const crown=mesh(new T.IcosahedronGeometry(7,1),new T.MeshStandardMaterial({color:i%2?'#426747':'#557947',roughness:.9,flatShading:true}),v(x,10,z),this.scene);crown.scale.set(1,1.45,1);}
   }
   async loadAssets(base:string) {
-    const loader=new GLTFLoader();const [pavilion, wicket, shared, motion]=await Promise.all([loader.loadAsync(base+'pavilion.glb'),loader.loadAsync(base+'wicket.glb'),loader.loadAsync(base+'player-shared.glb'),loader.loadAsync(base+'source-motion.local.glb')]);
-    if(this.disposed){for(const gltf of [pavilion,wicket,shared,motion])this.disposeObject(gltf.scene);return;}
-    this.batter=new CricketerPlayer(shared,motion,true,'#be412d','07');this.scene.add(this.batter.root);
-    this.runner=new CricketerPlayer(shared,motion,true,'#be412d','11');this.runner.root.position.set(1.8,0,-PITCH);this.runner.root.rotation.y=Math.PI;this.scene.add(this.runner.root);
-    this.bowler=new CricketerPlayer(shared,motion,false,'#22634d','23');this.scene.add(this.bowler.root);
-    for(let i=0;i<8;i++){const f=new CricketerPlayer(shared,motion,false,'#22634d',String(i+12));const a=(i+.4)/8*Math.PI*2;f.root.position.set(Math.sin(a)*(i%2?45:32),0,-12+Math.cos(a)*36);f.root.rotation.y=Math.atan2(-f.root.position.x,-f.root.position.z);this.fielders.push(f);this.scene.add(f.root);}
+    const loader=new GLTFLoader();const [pavilion, wicket, player]=await Promise.all([loader.loadAsync(base+'pavilion.glb'),loader.loadAsync(base+'wicket.glb'),loader.loadAsync(base+'cricketer-player.glb')]);
+    if(this.disposed){for(const gltf of [pavilion,wicket,player])this.disposeObject(gltf.scene);return;}
+    this.blobMaterial=new T.MeshBasicMaterial({map:blobTexture(),transparent:true,depthWrite:false});
+    const add=(rig:Rig)=>{this.scene.add(rig.root);const blob=mesh(new T.CircleGeometry(.62,20),this.blobMaterial!,v(),this.scene);blob.rotation.x=-Math.PI/2;blob.castShadow=false;blob.receiveShadow=false;this.blobs.set(rig,blob);return rig;};
+    this.batter=add(new CricketerPlayer(player,{batting:true,kit:KITS.batting[0],number:'07'}));
+    this.runner=add(new CricketerPlayer(player,{batting:true,kit:KITS.batting[1],number:'11'}));this.runner.root.position.set(1.8,0,-PITCH);
+    this.bowler=add(new CricketerPlayer(player,{batting:false,kit:KITS.fielding[0],number:'23'}));
+    for(let i=0;i<8;i++){const f=add(new CricketerPlayer(player,{batting:false,kit:KITS.fielding[i+1],number:String(i+12)}));f.root.position.copy(this.fieldSpot(i));f.root.rotation.y=Math.atan2(-f.root.position.x,-f.root.position.z);this.fielders.push(f);}
     const normalize=(object:T.Group,size:number)=>{const b=new T.Box3().setFromObject(object),dim=b.getSize(v()),center=b.getCenter(v());const scale=size/dim.y;object.scale.setScalar(scale);object.position.set(-center.x*scale,-b.min.y*scale,-center.z*scale);const group=new T.Group();group.add(object);return group;};
     const p=normalize(pavilion.scene,6);p.position.set(32,0,-82);p.rotation.y=-.25;this.scene.add(p);this.resources.add(p);
     this.wicketTemplate=normalize(wicket.scene,.711);
     for(const z of [.4,-PITCH]){const w=this.wicketTemplate.clone(true);w.position.set(0,0,z);this.scene.add(w);this.resources.add(w);}
   }
+  private fieldSpot(i:number){const a=(i+.4)/8*Math.PI*2;return v(Math.sin(a)*(i%2?45:32),0,-12+Math.cos(a)*36);}
   draw(s:Match|null,time:number,reduced=false) {
     const tier=s?.challenge.tier||0;
     if(tier!==this.lastTier){this.lastTier=tier;const color=tier===0?'#badbd3':tier===1?'#e7bda0':'#91aab9';this.scene.background=new T.Color(color);this.scene.fog=new T.Fog(color,105,230);}
-    const running=s?.phase==='running', runProgress=running?Math.min(1,s.age/(s.outcome!.runs*.7)):0;
-    const runZ=running?-(Math.sin(runProgress*s.outcome!.runs*Math.PI/2)**2)*PITCH:0;
-    const contactOffset=.16+.63*Math.sin(.9);
-    this.batter.root.position.x=s?s.delivery.line-contactOffset:-.52;this.batter.root.position.z=.1+runZ;
-    this.batter.root.rotation.y=running?Math.cos(runProgress*s!.outcome!.runs*Math.PI)<0?Math.PI:0:0;
-    const swinging=s?.input&&s.phase==='delivery';
-    const swingAge=swinging?s.age-s.input!.at:s?.outcome&&s.phase==='flight'?s.age+WINDUP:10;
-    const swingProgress=swinging?Math.min(.5,.5*swingAge/Math.max(1/120,contactAt(s!)-s!.input!.at)):Math.min(1,.5+(s?.phase==='flight'?s.age:0)/.42);
-    const kind=s?.phase==='finished'&&s.won?'celebrate':running?'run':swingAge<.65?'swing':'ready';
-    this.batter.pose(time,kind,swingProgress,s?.delivery.side==='left'?1:-1,s?.delivery.shot,s?.delivery.contactHeight);
-    this.runner.root.position.z=-PITCH-runZ;this.runner.root.rotation.y=running?this.batter.root.rotation.y+Math.PI:Math.PI;this.runner.pose(time,running?'run':'ready');
-    const bowling=s?.phase==='delivery', progress=bowling?Math.min(1,s.age/RELEASE):1;
-    this.bowler.root.position.set(.38,0,-PITCH-8*(1-progress));this.bowler.pose(time,bowling?'bowl':'field',progress);
-    this.bowler.root.rotation.y=Math.PI;
-    const p=s?ballPosition(s):{x:0,y:2,z:-PITCH};this.ball.position.set(p.x,p.y,p.z);this.ball.rotation.x=time*8;this.ball.visible=!!s&&(!bowling||s.age>=RELEASE);
+    const phase=s?.phase, after=s&&phase!=='delivery'?afterContact(s):null;
+    const running=phase==='running', runs=s?.outcome?.runs||0, runProgress=running?Math.min(1,s!.age/(runs*.7)):0;
+    const runZ=running?-(Math.sin(runProgress*runs*Math.PI/2)**2)*PITCH:0, towardBowler=running&&Math.sin(runProgress*runs*Math.PI)>0;
+    // The batter stands so the ball line meets the native sweet spot at contact.
+    const contact=this.batter.contactLocal;
+    this.batter.root.position.set((s?s.delivery.line:.16)-contact.x,0,-contact.z+runZ);
+    this.batter.root.rotation.y=running?(towardBowler?Math.PI:0):0;
+    const aim=s?.delivery.side==='left'?-1:1, shot=s?.delivery.shot, height=s?.delivery.contactHeight;
+    let kind:PlayerPose='ready', progress=s&&phase==='delivery'?s.age:9;
+    if(s&&phase==='finished'&&s.won)kind='celebrate';
+    else if(running)kind='run';
+    else if(s?.input&&phase==='delivery'){kind='swing';progress=Math.min(.5,.5*(s.age-s.input.at)/Math.max(1/120,contactAt(s)-s.input.at));}
+    else if(s?.input&&after){if(after.since<.42){kind='swing';progress=.5+after.since/.84;}else{kind='recover';progress=after.since;}}
+    this.batter.pose(time,kind,progress,aim,shot,height);
+    // Non-striker waits with the bat down and runs the opposite way.
+    this.runner.root.position.set(1.8,0,-PITCH-runZ);this.runner.root.rotation.y=running?(towardBowler?0:Math.PI):Math.PI;
+    this.runner.pose(time,running?'run':'wait');
+    // Bowler: run-up, delivery stride and follow-through, then a walk back to the mark.
+    const mark=-PITCH-8, stop=-PITCH+1.8;
+    if(s&&phase==='delivery'){const p=s.age/RELEASE;this.bowler.root.position.set(.38,0,p<1?mark+(-PITCH-mark)*p:-PITCH+(stop+PITCH)*smoothstep(1,1.6,p));this.bowler.root.rotation.y=0;this.bowler.pose(time,'bowl',p);}
+    else if(after&&phase!=='finished'){const u=smoothstep(.12,.95,after.since/after.total);this.bowler.root.position.set(.38,0,stop+(mark-stop)*u);this.bowler.root.rotation.y=u>0&&u<1?Math.PI:0;this.bowler.pose(time,u>0&&u<1?(after.total<3?'run':'walk'):'field');}
+    else{this.bowler.root.position.set(.38,0,s?stop:mark);this.bowler.root.rotation.y=0;this.bowler.pose(time,'field');}
+    const p=s?ballPosition(s):{x:0,y:2,z:-PITCH};this.ball.position.set(p.x,p.y,p.z);this.ball.rotation.x=time*8;this.ball.visible=!!s&&(phase!=='delivery'||s.age>=RELEASE);
     this.shadow.position.set(p.x,.023,p.z);this.shadow.scale.setScalar(1+p.y*.08);this.shadow.visible=this.ball.visible;
-    for(let i=0;i<this.trail.length;i++){const tr=this.trail[i];tr.visible=!!s&&s.phase==='flight'&&!reduced;if(tr.visible){const t=Math.max(0,s!.age-i*.016),sample=ballPosition({...s!,age:t});tr.position.set(sample.x,sample.y,sample.z);}}
-    this.fielders.forEach((f,i)=>{const a=(i+.4)/8*Math.PI*2;const origin=v(Math.sin(a)*(i%2?45:32),0,-12+Math.cos(a)*36);const pursuit=s?.phase==='flight'&&i===0||running&&i===0;const alpha=pursuit?Math.min(1,s!.age/(s!.phase==='flight'?s!.trajectory.duration:.7)):0;f.root.position.copy(origin).lerp(v(s?.trajectory.landing.x||0,0,s?.trajectory.landing.z||0),alpha);f.pose(time,pursuit?alpha>.86?'field':'run':'field');});
+    for(let i=0;i<this.trail.length;i++){const tr=this.trail[i];tr.visible=!!s&&phase==='flight'&&!reduced;if(tr.visible){const t=Math.max(0,s!.age-i*.016),sample=ballPosition({...s!,age:t});tr.position.set(sample.x,sample.y,sample.z);}}
+    // The fielder nearest the landing spot chases the ball; the rest walk in facing the batter.
+    const landing=s?.trajectory.landing, chasing=!!s&&!!landing&&(phase==='flight'||running);
+    let chaser=-1;if(chasing){let best=Infinity;this.fielders.forEach((_,i)=>{const d=this.fieldSpot(i).distanceTo(v(landing!.x,0,landing!.z));if(d<best){best=d;chaser=i;}});}
+    this.fielders.forEach((f,i)=>{
+      const origin=this.fieldSpot(i);
+      if(i===chaser){const alpha=Math.min(1,phase==='flight'?s!.age/s!.trajectory.duration:1);const goal=v(landing!.x,0,landing!.z);f.root.position.copy(origin).lerp(goal,smoothstep(0,1,alpha));const d=goal.clone().sub(origin);f.root.rotation.y=alpha>.92?Math.atan2(-f.root.position.x,-f.root.position.z):Math.atan2(d.x,d.z);f.pose(time,alpha>.92?'field':'run');}
+      else{f.root.position.copy(origin);f.root.rotation.y=Math.atan2(-origin.x,-origin.z);f.pose(time,'field');}
+    });
+    for(const [rig,blob] of this.blobs)blob.position.set(rig.root.position.x,.03,rig.root.position.z);
     if(!s){this.eye.set(7,3.4,9);this.goal.set(0,1.0,-6);}
-    else if(s.phase==='flight'&&!reduced){this.eye.set(p.x*.38+4,Math.max(3.6,p.y*.4+3),p.z*.43+7);this.goal.set(p.x,p.y*.6,p.z-4);}
+    else if(phase==='flight'&&!reduced){this.eye.set(p.x*.38+4,Math.max(3.6,p.y*.4+3),p.z*.43+7);this.goal.set(p.x,p.y*.6,p.z-4);}
     else {this.eye.set(.95,2.7,6.4);this.goal.set(0,1.0,-7);}
     this.camera.position.copy(this.eye);this.camera.lookAt(this.goal);this.renderer.render(this.scene,this.camera);
   }
-  contactInspection(s:Match){this.batter.root.updateMatrixWorld(true);const blade=v(0,-.63,0).applyMatrix4(this.batter.bat.matrixWorld);return {expectedContact:contactAt(s),ball:ballPosition(s),blade:blade.toArray(),phase:s.phase,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,character:this.batter.inspection()};}
+  contactInspection(s:Match){this.batter.root.updateMatrixWorld(true);const blade=this.batter.bladePoint();return {expectedContact:contactAt(s),ball:ballPosition(s),blade:blade.toArray(),phase:s.phase,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,character:this.batter.inspection()};}
   private disposeObject(root:T.Object3D){root.traverse(o=>{if(o instanceof T.Mesh){o.geometry.dispose();const materials=Array.isArray(o.material)?o.material:[o.material];materials.forEach(m=>{for(const value of Object.values(m))if(value instanceof T.Texture)value.dispose();m.dispose();});}});}
-  dispose(){this.disposed=true;this.observer.disconnect();this.disposeObject(this.scene);if(this.wicketTemplate)this.disposeObject(this.wicketTemplate);this.renderer.dispose();this.renderer.forceContextLoss();}
+  dispose(){this.disposed=true;this.observer.disconnect();this.disposeObject(this.scene);this.blobMaterial?.map?.dispose();if(this.wicketTemplate)this.disposeObject(this.wicketTemplate);this.renderer.dispose();this.renderer.forceContextLoss();}
 }

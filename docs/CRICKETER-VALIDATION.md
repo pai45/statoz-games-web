@@ -1,4 +1,23 @@
-# Cricketer validation — character remake, 1 November 2026
+# Cricketer validation — low-poly player remake, 1 November 2026 (later pass)
+
+All players now use the low-poly bhagathartworks model and its own batting cycle (see `CRICKETER-CHARACTERS.md`). The previous body (`player-shared.glb`) and Stick Cricket motion (`source-motion.local.glb`) were removed from the runtime. This GitHub Pages release was explicitly authorized by the user; no Flutter synchronization is included.
+
+| Check | Result |
+| --- | --- |
+| `npm run test:cricketer` (engine) | 12 passed, 0 failed |
+| `npm run test:cricketer:characters` | 30 contact cases (6 shots × 5 heights): max blade-to-ball error < 1 mm, max top-hand grip error 1.2 mm; feet within 21 mm of ground in all roles; 0 page errors |
+| `npm run test:cricketer:browser` | 14 scenario groups passed; in-game contact blade-to-ball < 1 mm, 1 skinned mesh, 49 bones; 0 errors / failed / remote requests |
+| `npm run build:cricketer` | Passed; offline bundle 2,382,646 bytes (was 4,842,662) |
+| `npm run build:pages` + `npm run test:cricketer:app` | Static build passed with the new players; exported app 5 scenario groups passed. A second Pages build after the cover refresh was blocked by an unrelated, in-progress Longbow test (`tests/longbow.test.ts` type errors), so re-run it once that work settles. |
+| Typecheck / focused ESLint (Cricketer files, bake/verify scripts, tests) | Passed, 0 warnings |
+| Scene sample at contact | 359 draw calls / 220,036 triangles (was 777 / 363,092) |
+| Character asset verification | `cricketer-player.glb` and `PLAYER-LICENSE.txt` hashes match the manifest; no embedded textures; credit present |
+
+Gameplay frame sequences across two deliveries confirmed the batter going relaxed → get set → high backlift → downswing → contact → follow-through → walk-off without pops, plus the bowling action and follow-through. This found and fixed one defect: AnimationMixer skipped re-writing unchanged values, which left stale corrections in the stance. The cover was refreshed from gameplay (`CRICKETER_CAPTURE_COVER=1`). Physical-phone acceptance remains pending.
+
+---
+
+## Earlier pass — character remake, 1 November 2026
 
 The supplied skinned player and retained cricket motion now replace the earlier jointed player shapes in Future Games Web at `/play/cricketer`. The user explicitly authorized the GitHub Pages release; no Flutter import or cross-project synchronization is included. Original source files in Downloads and the installed Stick Cricket source/runtime were not edited. Earlier source/cover/docs snapshots remain under `.cache/cricketer-character-before`.
 

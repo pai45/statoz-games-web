@@ -24,7 +24,7 @@ async function press(frame,selector){
     // Use the actual 90-degree viewport transform for a native touch. Mouse
     // clicking nested rotated frames can otherwise hit the adjacent button.
     const point=await button.evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};});
-    const host=await page.locator('iframe[data-mobile-game-frame]').boundingBox();
+    const host=await page.locator('iframe[data-mobile-game-frame],iframe[data-mobile-platform-frame]').first().boundingBox();
     await page.touchscreen.tap(host.x+host.width-point.y,host.y+point.x);
   }else await button.click();
 }
@@ -50,17 +50,31 @@ async function seed(context,email='pitch-mobile@example.test'){
 }
 async function game(page){
   for(let attempt=0;attempt<120;attempt++){
-    const frame=page.frames().find(f=>f.url()==='about:srcdoc');
-    if(frame&&await frame.evaluate(()=>!!window.__game).catch(()=>false))return frame;
+    for(const frame of page.frames().filter(f=>f.parentFrame())) {
+      if(await frame.evaluate(()=>!!window.__game&&document.documentElement.dataset.artState==='ready').catch(()=>false))return frame;
+    }
     await delay(500);
   }
   throw Error('Game iframe did not become ready');
+}
+async function library(page){
+  for(let attempt=0;attempt<120;attempt++){
+    for(const frame of page.frames()){
+      const card=frame.getByRole('link',{name:'Play PITCH RUSH',exact:true});
+      if(await card.isVisible().catch(()=>false))return {frame,card};
+    }
+    await delay(500);
+  }
+  throw Error('Pitch Rush library card did not become ready');
 }
 try{
   console.log('Testing '+origin);
   const guest=await browser.newPage();await limitDownload(guest.context());guest.setDefaultTimeout(30000);guest.on('pageerror',e=>console.log('Guest error: '+e.message));await guest.goto(origin+'/play/pitch-rush',{waitUntil:'domcontentloaded',timeout:120000});await ready(guest);
   console.log('Guest: '+(await guest.locator('body').innerText()).slice(0,250));
-  await guest.getByRole('heading',{name:'LOG IN TO PLAY'}).waitFor();await guest.close();evidence.push('Guest gate');
+  const guestFrame=await game(guest);await guestFrame.locator('#start').click();
+  await guestFrame.waitForFunction(()=>window.__game.state?.tick>0);
+  await guest.screenshot({path:path.join(out,'guest.png')});
+  await guest.close();evidence.push('Current guest flow launches Pitch Rush without an account gate');
   for(const size of [{width:1280,height:800,mobile:false},{width:844,height:390,mobile:true},{width:740,height:360,mobile:true},{width:393,height:851,mobile:true},{width:1180,height:820,mobile:true}]){
     console.log('Viewport '+size.width+'×'+size.height);
     const context=await browser.newContext({viewport:{width:size.width,height:size.height},hasTouch:size.mobile,isMobile:size.mobile});await seed(context);
@@ -69,10 +83,10 @@ try{
     page.on('request',r=>{if(!r.url().startsWith(origin)&&!r.url().startsWith('data:'))remote.push(r.url());});
     await page.goto(origin+'/games/football');
     await ready(page);
-    const card=page.getByRole('link',{name:'Play PITCH RUSH',exact:true});await card.waitFor();
+    const {frame:libraryFrame,card}=await library(page);
     await card.screenshot({path:path.join(out,`library-card-${size.width}.png`)});
     await page.screenshot({path:path.join(out,`library-${size.width}.png`)});
-    console.log('Opening game');await card.click();console.log('Waiting for engine');const frame=await game(page);console.log('Engine ready');
+    console.log('Opening game');await press(libraryFrame,'a[aria-label="Play PITCH RUSH"]');console.log('Waiting for engine');const frame=await game(page);console.log('Engine ready');
     assert.equal(await frame.locator('[data-mode="online"]').isVisible(),false);
     assert.equal(await frame.locator('#duration').inputValue(),size.mobile?'45':'120');
     await page.screenshot({path:path.join(out,`menu-${size.width}.png`)});
@@ -140,6 +154,7 @@ try{
       await frame.locator('#game').focus();await page.keyboard.press('Escape');
     }
     assert.equal(await frame.evaluate(()=>window.__game.paused),true);
+    await page.screenshot({path:path.join(out,`pause-${size.width}.png`)});
     const tick=await frame.evaluate(()=>window.__game.state.tick);await delay(200);assert.equal(await frame.evaluate(()=>window.__game.state.tick),tick);
     await press(frame,'#resume');await frame.waitForFunction(t=>window.__game.state.tick>t,tick);
     // Simulate an interruption while inputs are held; host resumes only by choice.
@@ -151,6 +166,7 @@ try{
     // A losing result has no initials dialog: it must still have a touch exit.
     await frame.evaluate(()=>{const s=window.__game.state;s.phase='fulltime';s.score=[0,2];});
     await frame.locator('#endActions:not(.hidden)').waitFor();
+    await page.screenshot({path:path.join(out,`results-${size.width}.png`)});
     await press(frame,'#rematch');await frame.waitForFunction(()=>window.__game.state.phase!=='fulltime'&&window.__game.state.tick>0);
     // Winning result retains the source's accessible initials entry.
     await frame.evaluate(()=>{const s=window.__game.state;s.phase='fulltime';s.score=[4,0];});

@@ -1,6 +1,6 @@
 # Cricketer
 
-Cricketer is an editable Three.js batting-chase game in Future Games Web at `/play/cricketer`. Its game simulation and interface are original. Its redesigned players use the supplied **Indian Cricket Player Rigged** model and selected local Stick Cricket character motion, with new Cricketer kits, equipment and contact constraints. The installed Stick Cricket Chase game remains separate.
+Cricketer is an editable Three.js batting-chase game in Future Games Web at `/play/cricketer`. Its game simulation and interface are original. Its players are low-poly remakes built from **Virat Kohli Cricket Batting Animation - Low Poly** (bhagathartworks, CC-BY-4.0), shown unnamed in original Cricketer kits. The installed Stick Cricket Chase game remains separate.
 
 ## Play
 
@@ -8,11 +8,13 @@ Use left/right arrows, A/D or the two touch buttons. Read the delivery line and 
 
 ## Character design
 
-`character.ts` replaces the earlier jointed body shapes with a continuous, 83-bone skinned player: modeled face, hands, clothing and footwear. The supplied mesh/face is attributed to numaan.k99 under CC-BY-4.0. Original national kit textures and sunglasses are not shown. Original Cricketer red/ivory and green kits, deforming shirt numbers, helmet/grille, segmented gloves, strapped pads, bat and iris/pupil details complete the design.
+Every player shares one 49-joint skinned low-poly body (`public/games/cricketer/cricketer-player.glb`), baked by `scripts/build-cricketer-player.mjs` from the downloaded Sketchfab source. The source body texture is photographic and the bat texture carries real brands, so neither ships: the bake reads the body texture only to sort faces into skin, hair, stubble, shirt, collar, sleeve, trousers and shoe regions, and `character.ts` paints Cricketer's own kit colours, back numbers and bat livery from those regions at runtime. Skin, hair and beard vary per player (`kits.ts`). Batters add an original helmet with grille, rolled pads and gloves.
 
-The retained Stick Cricket research has 51 native-curve-derived clips. Ten selected clips (six strokes plus stance, ambient, backlift and victory) are stored in `source-motion.local.glb`, with no native body meshes or textures. Runtime bone mapping preserves the supplied player's proportions. A compact contact pose, analytic two-bone arm IK and a planted-foot crouch keep the hands on the bat across low/high deliveries. Running, bowling and fielding use authored role poses on the shared skin. Static field/ready poses are reused to avoid needless updates.
+The batter plays the model's own 6.9s batting cycle directly on its own skeleton; there is no retargeting. Each delivery runs relaxed → get set → high backlift → downswing → contact (1.14s in the clip) → follow-through → walk-off. Swing progress maps onto the cycle so the bat meets the ball at contact. Different deliveries shift the native swing by the ball's offset from the native contact point: a planted-foot crouch, a spine and lead-shoulder solve, and a wrist pivot, with the top hand re-gripping the handle. The bat snaps exactly onto the ball only in the final instant. A shot-direction lean shapes the follow-through toward the struck side. Poses crossfade when the role changes, so there are no snaps between stance, swing, run and celebration.
 
-This motion is an adaptation of material owned by Stick Sports. The conversion re-solves native curves through Unity2022 and does not reproduce Unity6000 controller/IK exactly. No independent redistribution license has been established for that motion, and the model's CC-BY license does not license it. The user has explicitly authorized this GitHub Pages release; that authorization is recorded separately from the source-license record. `CREDITS.md`, `PLAYER-LICENSE.txt`, `PROVENANCE.json` and `characters-manifest.json` preserve the separate sources, hashes and terms. See `CRICKETER-CHARACTERS.md` for evidence and design acceptance.
+Bowling (run-up, gather, side-on stride, arm over the top, release, follow-through), running, walking back to the mark, fielding crouch and celebration are authored on the same rig, starting from the cycle's upright standing frame. The fielder nearest the landing spot chases the ball. The clip is sampled by direct track evaluation so every frame writes every animated bone.
+
+`CREDITS.md`, `PLAYER-LICENSE.txt`, `PROVENANCE.json` and `characters-manifest.json` record the source, hashes and terms. See `CRICKETER-CHARACTERS.md` for the design record.
 
 ## Simulation and saves
 
@@ -24,7 +26,7 @@ Backgrounding or portrait orientation pauses play and releases input. Explicit l
 
 ## Assets and local checks
 
-The original oval uses a 20.12m pitch. The CC0 pavilion and wicket come from 3DAssets.dev; its training-ground mesh and shortened strip are not used. The Innerscene link remains reference only. Barlow Condensed is locally embedded with its OFL notice. The supplied player source files and original native character are kept unchanged; runtime copies/selected motion are separate files.
+The original oval uses a 20.12m pitch. The CC0 pavilion and wicket come from 3DAssets.dev; its training-ground mesh and shortened strip are not used. The Innerscene link remains reference only. Barlow Condensed is locally embedded with its OFL notice. The downloaded player source is kept unchanged outside the repository; only the baked, texture-free runtime player is committed. Rebuild it with `node scripts/build-cricketer-player.mjs <extracted source folder>`, which also refreshes `characters-manifest.json`.
 
 - `npm.cmd run build:cricketer` verifies character hashes and builds the offline bundle.
 - `npm.cmd run test:cricketer`, `npm.cmd run test:cricketer:characters`, `npm.cmd run test:cricketer:browser`, and `npm.cmd run test:cricketer:app` cover simulation, visual rig, gameplay and product integration.

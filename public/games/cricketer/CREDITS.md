@@ -1,18 +1,18 @@
 # Cricketer credits
 
-The character body and face are adapted from **Indian Cricket Player Rigged** by **numaan.k99**, licensed under CC-BY-4.0.
+All Cricketer players are adapted from **Virat Kohli Cricket Batting Animation - Low Poly** by **bhagathartworks**, licensed under CC-BY-4.0.
 
-- Model: https://sketchfab.com/3d-models/indian-cricket-player-rigged-a1001b602e4f430bb9de68c24d9a4aa7
-- Author: https://sketchfab.com/numaan.k99
+- Model: https://sketchfab.com/3d-models/virat-kohli-cricket-batting-animation-low-poly-a21f5e7ee14f4b6aa5cf6c94a1016932
+- Author: https://sketchfab.com/bhagathartworks
 - License: https://creativecommons.org/licenses/by/4.0/
-- Original supplied credit/license is preserved in PLAYER-LICENSE.txt.
+- The supplied credit/license file is preserved in PLAYER-LICENSE.txt.
 
-Changes: original Cricketer kits and numbers replace national kit textures; new cricket helmet, pads, gloves, bat and eye details; sunglasses removed; shared skinned body animated with a mapped cricket rig, contact correction, planted feet and original role motion.
+Changes: both source textures removed (the photographic body texture and the branded bat texture are not shipped). The body texture was used only at build time to sort faces into skin, hair, shirt, sleeve, trousers and shoe regions; Cricketer's own kit colours, numbers and bat livery are painted at runtime. Faces are flat low-poly, constant animation channels are removed, and the players are unnamed. New helmet, pads, eyes and gloves; the batting cycle is retimed to the game with contact, crouch and top-hand re-grip constraints; original running, bowling, fielding and celebration motion uses the same rig.
 
-Selected batting motion is derived from the retained local Stick Cricket Chase character conversion. Original motion belongs to **Stick Sports**. No independent redistribution license has been established; the user explicitly authorized this GitHub Pages release. It does not reproduce the native Unity controller/IK exactly. No original Stick Cricket body meshes, uniform textures, audio or binaries are bundled into Cricketer. The original Stick Cricket game remains separate.
+No athlete, team or bat-maker endorsement is represented, and the players are not presented as any real person.
 
 Original Cricketer game simulation, original authored role motion, interface, oval, stadium surround and synthesized sound effects were created for this project.
 
 Roofed Cricket Pavilion and Three Stump Wicket: 3DAssets.dev, Cricket Ground and Pavilion pack, CC0 1.0 Universal. PROVENANCE.json records source URLs and hashes. https://creativecommons.org/publicdomain/zero/1.0/
 
-Barlow Condensed: SIL OFL 1.1, preserved in OFL-barlow-condensed.txt. Three.js and React/React DOM: MIT; shared bundle LICENSES.txt preserves notices. No athlete or national-team endorsement is represented.
+Barlow Condensed: SIL OFL 1.1, preserved in OFL-barlow-condensed.txt. Three.js and React/React DOM: MIT; shared bundle LICENSES.txt preserves notices.

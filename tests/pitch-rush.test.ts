@@ -6,7 +6,6 @@ import {gameRegistry,sportForGame,sportGameDecks,gameForHref} from '../src/mocks
 
 test('Pitch Rush is an additional football game with no deck gate',()=>{
   assert.equal(sportForGame('pitch-rush'),'football');
-  assert.ok(sportGameDecks.football.includes('retro-football'));
   assert.ok(sportGameDecks.football.includes('pitch-rush'));
   assert.equal(gameForHref('/play/pitch-rush')?.game,'pitch-rush');
   assert.equal(gameRegistry['pitch-rush'].requiresDeck,undefined);

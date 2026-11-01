@@ -16,6 +16,16 @@ The original MIT vendor source is unchanged and hash checked. Build-time adaptat
 
 Physical iOS/Android, hardware gamepads, audible output, browser-chrome interruptions and long-term match balance still require device testing.
 
+## Kenney artwork
+
+2026-11-01: the game-owned rendering adapter uses the Kenney Sports Pack (CC0),
+with rounded cream menus, blue/red team accents and matching text-free covers.
+The existing landscape sizing, portrait host rotation, rail widths, pointer
+capture and action bindings are retained. Sprites use linear Canvas sampling;
+the atlas has gutters between source regions. All match artwork is embedded and
+decoded before the runtime is initialized. Retry and exit remain available if
+decoding fails.
+
 ## Slower play and manual aim
 
 2026-10-24: gameplay advances at 75% speed. Hold Attack, aim with the joystick, then release. Short holds pass; longer holds shoot. The aiming arrow displays the selected direction while charging. Returning the stick to neutral preserves the last chosen direction; zero horizontal/vertical components remain zero. Charge caps at maximum power and waits for release. No automatic shot at maximum charge. CPU aim behavior is preserved. Match-clock simulation runs at the same reduced pace (the default two 45-second simulation halves take about two real minutes, plus stoppages).

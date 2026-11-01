@@ -1,5 +1,45 @@
 # Pitch Rush validation — 2026-10-24
 
+## Kenney Sports Pack refresh — 2026-11-01
+
+Implemented a feature-owned Canvas art/renderer adapter using Kenney Sports Pack
+(CC0). The selected source images and original license are retained locally;
+35 source files and 41 atlas regions have recorded hashes, sizes, alpha bounds,
+pivots and keeper recolours. Both covers are deterministic compositions of the
+same artwork. The WebSoccer vendor source and its MIT notice remain intact.
+
+The selected Pitch Rush bundle builds as a self-contained HTML file (about
+0.3 MiB). The production application build and typecheck pass. Its offline asset
+catalog has been refreshed with the final bundle hash and byte count. Targeted
+lint and all 19 integration/gameplay/asset checks pass. The stale catalog test
+assertion requiring the separately retired Retro Football game was removed.
+All four upstream simulation, relay, UI and worker suites pass. The final native
+touch aiming check measured 45.97 simulation ticks per wall-clock second against
+the target of 45, with exact rightward pass/shot velocity and no page errors.
+
+Browser checks against the actual production app pass at 1280×800, 844×390,
+740×360, 393×851 (the real rotated host) and 1180×820. Checks include covers,
+guest/account launch, simultaneous native touch input, separate attack/defence,
+cancelled pointers, pause/resume, interrupted input clearing, loss/rematch,
+winning initials, account-scoped saves and exit. No page errors or remote
+requests were recorded. The maintained harness now follows the current platform
+and game frames rather than assuming a login gate or an about:srcdoc frame.
+The existing bounded Windows Chrome cleanup watchdog was required after the
+successful browser checks; their JSON results were written before shutdown.
+
+Art-specific browser checks verify that decoding gates initialization and input,
+a failed decode offers a working retry, and disposal while decoding prevents
+startup. Native-scale evidence covers headings, idle/running strides, kick/slide
+and down poses, goalkeeper kits, both goals, the airborne ball and loading
+failure. Screenshots and JSON reports are in test-results/pitch-rush and its
+kenney/ and aim/ directories. Mobile pause and result overlays were also captured.
+
+The broader device-cache unit suite passes 11/12 checks; its remaining assertion
+still requires retired Tennis Bits native assets. That unrelated test and the
+retirement configuration were left unchanged. Physical devices, hardware
+gamepads and audible output remain unverified. No cross-project synchronization,
+push, pipeline, publication or native Flutter import was performed.
+
 Pinned MIT source: markclausing/websoccer@e3628948208c4c89c781e86068d20320169f9fe5. Every vendor hash and the original notice were checked. All four upstream suites passed, including deterministic matches, rules, local input, UI, network and worker tests.
 
 The final offline game build and three integration tests passed. Product-boundary and mobile-viewport unit checks passed. Full lint passed with unrelated warnings; the owned integration files were also checked separately.

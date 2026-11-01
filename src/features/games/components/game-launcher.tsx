@@ -110,7 +110,7 @@ function GameLauncherContent({ game, entry }: GameLauncherProps) {
 
 function GuestReadyGameLauncher(props: GameLauncherProps) {
   if (props.game === 'open-golf') return <OpenGolf {...props} />;
-  if (props.game === 'archery-test') return <GameSurface {...props} />;
+  if (props.game === 'archery-test' || props.game === 'longbow') return <GameSurface {...props} />;
   return <DeckGameLauncher {...props} />;
 }
 function DeckGameLauncher({ game, entry }: GameLauncherProps) {

@@ -1,0 +1,196 @@
+{
+  "game": "longbow",
+  "version": 1,
+  "policy": "Only CC0 assets, each checked on its original source page. Nothing is fetched at runtime; every file below is served locally from this folder.",
+  "original": [
+    "Game design, levels, rivals, rules, scoring and simulation (src/features/games/longbow).",
+    "Bow, arrows, target faces, straw boss, target stands, swing and slide rigs, wind flags, distance markers, trees, hay bales, mesas and sky (procedural Three.js geometry and canvas textures).",
+    "Draw creak, miss thud and bell chimes (WebAudio synthesis).",
+    "Interface, layout and copy.",
+    "cover.png: rendered from the game itself (Pinewood lane), no external artwork."
+  ],
+  "models": [
+    {
+      "file": "models/rock.glb",
+      "title": "Rock 07",
+      "author": "Jenelle van Heerden",
+      "source": "https://polyhaven.com/a/rock_07",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "sha256": "3bd55cf6cff0474f1c6dc67b93cce94c0230115d5f9d02db8af06144ed0a9d43",
+      "bytes": 105552,
+      "adaptations": "Packed from the 1k glTF into one GLB; mesh simplified with meshoptimizer; colour texture resized to 512 px and normal map to 256 px; roughness/AO map dropped."
+    },
+    {
+      "file": "models/boulder.glb",
+      "title": "Namaqualand Boulder 04",
+      "author": "Jenelle van Heerden",
+      "source": "https://polyhaven.com/a/namaqualand_boulder_04",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "sha256": "402b3b6f7682dd78b46de8e12095e2b7e1ce01b150d6047da92d286c0ebd957d",
+      "bytes": 128688,
+      "adaptations": "Packed from the 1k glTF into one GLB; mesh simplified with meshoptimizer; colour texture resized to 512 px and normal map to 256 px; roughness/AO map dropped."
+    },
+    {
+      "file": "models/stump.glb",
+      "title": "Tree Stump 01",
+      "author": "Rob Tuytel",
+      "source": "https://polyhaven.com/a/tree_stump_01",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "sha256": "3ebfee71e60774c7c9422d31797855cf837c6fb239b7d11edbf3ca4cc984e8e6",
+      "bytes": 148568,
+      "adaptations": "Packed from the 1k glTF into one GLB; mesh simplified with meshoptimizer; colour texture resized to 512 px and normal map to 256 px; roughness/AO map dropped."
+    },
+    {
+      "file": "models/shrub.glb",
+      "title": "Shrub 03",
+      "author": "Rico Cilliers",
+      "source": "https://polyhaven.com/a/shrub_03",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "sha256": "5cafb1639e926324f22a1e585ea966fff67294ca41c4a8981601494b63ee89e9",
+      "bytes": 191200,
+      "adaptations": "Packed from the 1k glTF into one GLB, keeping the first of the four plant variants; Poly Haven alpha map merged into a 512 px PNG colour texture; normal map resized to 256 px; roughness map dropped."
+    },
+    {
+      "file": "models/fern.glb",
+      "title": "Fern 02",
+      "author": "Rob Tuytel, Rico Cilliers",
+      "source": "https://polyhaven.com/a/fern_02",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "sha256": "cb3180f0a2d1d3291a80d2f1fc54374ab31b1e9b191734125a98a7202e14671e",
+      "bytes": 151988,
+      "adaptations": "Packed from the 1k glTF into one GLB, keeping the first of the four plant variants; Poly Haven alpha map merged into a 512 px PNG colour texture; normal map resized to 256 px; roughness map dropped."
+    }
+  ],
+  "textures": [
+    {
+      "file": "textures/meadow-grass-color.jpg",
+      "title": "Grass 004 (Color)",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "https://ambientcg.com/view?id=Grass004",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sha256": "2aae58375d65094f4eea5752310ab6e7dba25dccaad306bf306959b3f637675e",
+      "bytes": 64213,
+      "adaptations": "Color map from the 1K-JPG pack, resized to 512 px and re-encoded as JPEG."
+    },
+    {
+      "file": "textures/meadow-grass-normal.jpg",
+      "title": "Grass 004 (NormalGL)",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "https://ambientcg.com/view?id=Grass004",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sha256": "3521036dd73566a324e697e6f151585d298079c85d3bb932198d7d8b96615cc9",
+      "bytes": 55860,
+      "adaptations": "NormalGL map from the 1K-JPG pack, resized to 512 px and re-encoded as JPEG."
+    },
+    {
+      "file": "textures/forest-floor-color.jpg",
+      "title": "Ground 037 (Color)",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "https://ambientcg.com/view?id=Ground037",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sha256": "646276863c473ca79cdf688b5d29fac3c141b653c34ad3e4459d2662281561ee",
+      "bytes": 63963,
+      "adaptations": "Color map from the 1K-JPG pack, resized to 512 px and re-encoded as JPEG."
+    },
+    {
+      "file": "textures/forest-floor-normal.jpg",
+      "title": "Ground 037 (NormalGL)",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "https://ambientcg.com/view?id=Ground037",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sha256": "5c6dc44b64d8e2b256547a32d0793eebf7bbda6405fca9547745ef675224820a",
+      "bytes": 50228,
+      "adaptations": "NormalGL map from the 1K-JPG pack, resized to 512 px and re-encoded as JPEG."
+    },
+    {
+      "file": "textures/canyon-sand-color.jpg",
+      "title": "Ground 080 (Color)",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "https://ambientcg.com/view?id=Ground080",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sha256": "272667e4ccc26cd3b01d924e647e37ec4ccf3ac2ec4196d1f7a12dd10dceaec1",
+      "bytes": 16224,
+      "adaptations": "Color map from the 1K-JPG pack, resized to 512 px and re-encoded as JPEG."
+    },
+    {
+      "file": "textures/canyon-sand-normal.jpg",
+      "title": "Ground 080 (NormalGL)",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "https://ambientcg.com/view?id=Ground080",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sha256": "9027ad178771267178c286b2ae9cb1c69294cfc8c9c80b9208dd3a4a8a34627f",
+      "bytes": 35791,
+      "adaptations": "NormalGL map from the 1K-JPG pack, resized to 512 px and re-encoded as JPEG."
+    }
+  ],
+  "audio": [
+    {
+      "file": "audio/bow-release.mp3",
+      "title": "Bow Release (Bow and Arrow) 3",
+      "author": "Ali_6868",
+      "source": "https://freesound.org/people/Ali_6868/sounds/384918/",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "f3f0a008f52be6858aa94f0bb046c2e7796baba1a1011cdadf7213edd2a94a08",
+      "bytes": 20611,
+      "adaptations": "Freesound high-quality MP3 preview, unchanged. Played from 0.02 s for 0.55 s."
+    },
+    {
+      "file": "audio/arrow-hit.mp3",
+      "title": "arrow_.hits_target.wav",
+      "author": "cyoung510",
+      "source": "https://freesound.org/people/cyoung510/sounds/521242/",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "c25e935e5b4325c1cd9a2208c0aa0a4aff4971ee529e87090d0d3d0cdca28c40",
+      "bytes": 166368,
+      "adaptations": "Freesound high-quality MP3 preview, unchanged. Three impacts are played as separate slices (2.86 s, 0.28 s, 6.16 s)."
+    },
+    {
+      "file": "audio/arrow-flyby.mp3",
+      "title": "Arrows Fly By.mp3",
+      "author": "DigPro120",
+      "source": "https://freesound.org/people/DigPro120/sounds/394004/",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "bb837ac3777d50829dca4b4787e15fefa3418ca8725c690134f42f4124cc454d",
+      "bytes": 66897,
+      "adaptations": "Freesound high-quality MP3 preview, unchanged. One pass played from 0.12 s for 0.42 s."
+    },
+    {
+      "file": "audio/meadow-ambience.mp3",
+      "title": "SE ATMO birds meadow distant people.wav",
+      "author": "SoundEnsemble",
+      "source": "https://freesound.org/people/SoundEnsemble/sounds/238684/",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "02e35d6c041c6b98a64cc3c6a539fde49b960960bb19265c75b7582269dee0cd",
+      "bytes": 1404624,
+      "adaptations": "Freesound high-quality MP3 preview, unchanged. Looped quietly as range ambience."
+    }
+  ],
+  "fonts": [
+    {
+      "file": "src/features/games/longbow/barlow-condensed.woff2",
+      "title": "Barlow Condensed Bold",
+      "author": "Jeremy Tribby",
+      "license": "OFL-1.1",
+      "licenseFile": "OFL-barlow-condensed.txt",
+      "note": "Same file Cricketer ships; embedded in the bundle."
+    }
+  ],
+  "referencesOnly": [
+    "Genre conventions of draw-aim-release archery games. No code, art, levels, names or audio from any specific game were used."
+  ]
+}

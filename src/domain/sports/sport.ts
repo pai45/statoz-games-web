@@ -55,7 +55,6 @@ export const sportOrder: Sport[] = [
   "football",
   "cricket",
   "basketball",
-  "tennis",
   "motorsport",
 ];
 

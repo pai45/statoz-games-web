@@ -84,3 +84,59 @@ body:has(#menu.hidden) #gameCredits{display:none}
   #iosHint{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){.letter.on{animation:none}.lobbyMore summary::before{transition:none}}
+
+/* Kenney Sports Pack: soft shapes, cream paper and primary team colours.
+   Layout and hit areas above remain the established landscape control contract. */
+html,body,button,input,select{font-family:"Trebuchet MS",Arial,sans-serif}
+html,body{background:#204d3d;color:#254a3e}
+#wrap{background:#204d3d}
+#game{image-rendering:auto;background:#25c969;border-radius:12px;box-shadow:0 0 0 3px #fff8e8,0 12px 32px #12362955}
+#menu{background:linear-gradient(90deg,#174b2620,#174b2648),var(--cover) center/cover no-repeat}
+.overlay{background:#163b2a66;backdrop-filter:blur(2px)}
+.panel,#menu>.panel{color:#254a3e;background:#fff8e8f7;border:2px solid #fffdf2;border-radius:20px;box-shadow:0 8px 0 #163e2c40,0 20px 60px #0c38282b}
+h1,.lobbyHead h1{font-family:"Trebuchet MS",Arial,sans-serif;font-weight:900;font-style:normal;letter-spacing:-1px;color:#247bb4;text-shadow:none}
+h1 span{color:#ca5146;text-shadow:none}
+h2,.lobbyLabel{color:#254a3e;letter-spacing:.5px}
+.lobbyHead .tag{color:#5b7765;font-size:11px;letter-spacing:1px;font-weight:700}
+button,select,input{background:#edf0df;color:#254a3e;border:2px solid #d5dfc9;border-radius:10px;font-weight:700;letter-spacing:.1px;box-shadow:none}
+button:hover,select:hover{background:#e2ead2;color:#234839;border-color:#9bb89c}
+button.active{background:#287fb7;border-color:#287fb7;color:white;box-shadow:0 3px 0 #1d5b8555}
+button.primary,#menu .panelFooter button.primary{color:#fffdf2;background:#287fb7;border-color:#287fb7;border-radius:12px;box-shadow:0 4px 0 #19577f;letter-spacing:1.5px;font-size:16px}
+button.primary:hover{background:#226da0;border-color:#226da0;color:white}
+button:disabled:hover{background:#edf0df;color:#254a3e}
+button:focus-visible,summary:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #d45747;outline-offset:3px}
+.lobbyBack{color:#42644d;border-color:#d5dfc9;border-radius:9px;font-size:12px}
+.lobbyBack:hover{background:#e2ead2;color:#234839}
+.lobbySetup .row label{color:#496954;font-size:13px}
+.lobbyLabel{color:#7c907b;font-size:11px}
+.lobbyMore,.lobbyMore details{border-color:#dce4d0}
+.lobbyMore summary,.lobbyMore details[open]>summary{color:#42644d;font-weight:700;letter-spacing:.1px}
+.lobbyMore summary::before{color:#2780b5}
+.hints,.hints b,.fineprint,.status,.explain,.mobileHelp,.lobbyMore .offlineNote{color:#59735e}
+.lobbyMore .offlineNote{font-size:11px;line-height:1.45}
+.controlKey{gap:7px}
+.controlKey li{color:#59735e;background:#eaf0dd;border:1px solid #d7e2ca;border-radius:9px;font-size:11px;padding:8px}
+.controlKey b{color:#287fb7;font-size:11px;letter-spacing:.5px}
+#menu .panelFooter{background:#fff8e8;box-shadow:none;border-radius:0 0 18px 18px}
+.keys th,.keys td,.scores td{border-color:#dce4d0;color:#42644d}
+.keys button,.bind,.letter{background:#eaf0dd;color:#254a3e;border-color:#d5dfc9}
+.letter.on{color:#287fb7;border-color:#287fb7}
+#gameCredits{color:#fff8e8;font-family:Arial,sans-serif;text-shadow:0 1px 2px #163e2c}
+#stick{border:3px solid #c4d9b7;background:#39705b;box-shadow:inset 0 3px 0 #163e2c33}
+#knob{background:#fff0bb;border:3px solid #fff8e8;box-shadow:0 4px 0 #163e2c44}
+#btnKick,#btnDefend{border:3px solid #fff8e8;border-radius:50%;color:#fffdf2;box-shadow:0 5px 0 #102d2044}
+#btnKick{background:#287fb7}#btnDefend{background:#bf5047}
+#btnKick.pressed,#btnDefend.pressed{filter:brightness(.86);box-shadow:0 2px 0 #102d2044}
+#btnSwap,#btnPause{border-color:#91b7a0;background:#376b56;color:#fff8e8;border-radius:12px;box-shadow:0 3px 0 #163e2c55}
+#touchButtons strong{font-size:12px;letter-spacing:.2px}#touchButtons small{font-size:8px;font-weight:700}
+#mobileHint{color:#d7e5c8;font-family:Arial,sans-serif;font-size:10px;letter-spacing:1px;font-weight:700}
+#artLoading{z-index:30;background:#204d3d}#artLoading .panel{max-width:360px}#artLoading h2{color:#287fb7}
+@media(pointer:coarse) and (orientation:landscape){#wrap{background:#204d3d}#game{border-radius:0}#stick{background:#39705b;border-color:#c4d9b7}}
+@media(max-height:500px){
+  #menu>.panel{border-radius:16px;--pad:20px}
+  .lobbyHead h1{font-size:25px}.lobbyHead .tag{font-size:10px}
+  #menu .panelFooter{background:transparent}
+  #menu .panelFooter button.primary{min-height:46px;font-size:14px}
+  .lobbyMore summary{font-size:12px}
+  .lobbySetup .row label{font-size:12px}
+}

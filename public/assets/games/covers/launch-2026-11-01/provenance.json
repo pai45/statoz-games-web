@@ -3,7 +3,7 @@
   "date": "2026-11-01",
   "kind": "original AI-generated game cover illustrations",
   "approval": "reference; generated at user request, not separately approved for publication",
-  "scope": "Five latest additions and launch refreshes; older and retired games excluded",
+  "scope": "Seven user-requested game covers, including Open Golf and Archery Master",
   "covers": [
     {
       "id": "cricketer",
@@ -39,6 +39,20 @@
       "filename": "tennis-bits.png",
       "sha256": "f0ffa144b34d08c977058f732885b12b2743aa25a961f29010cac3b63bc4a97a",
       "webpBytes": 185636
+    },
+    {
+      "id": "open-golf",
+      "prompt": "Use case: stylized-concept. Asset type: finished landscape 3:2 game-library cover at 1536x1024. One original premium stylized 3D arcade key-art illustration; strong silhouettes, bright confident colors, readable as a small mobile thumbnail. Game-owned visual identity, clean smooth geometric surfaces and carefully lit forms. The only lettering is the exact game title in large attractive readable game-specific display letters, kept inside 10% margins. Full-bleed artwork, no border, controls, scores, tutorials, buttons, badges, sponsor logos, watermarks or StatOz marks. Illustrated key art, not a gameplay screenshot. Title (verbatim): OPEN GOLF. A beautiful original miniature-golf course in a peaceful sunny park. Camera almost at grass height, close to a large white dimpled golf ball in the lower right foreground, a simple silver putter head approaching from the right edge. The immaculate bright-green putting lane runs diagonally into the image toward a clearly visible black cup and upright red triangular pin flag, framed by warm timber edging. A modest geometric ramp and gentle banked bend show this is mini golf rather than a full-scale golf simulation. Geometric pine trees, rolling green hills, blue sky with a few soft clouds, warm afternoon sunshine. Premium low-poly diorama look with tactile grass and crisp soft shadows. Rich emerald green, lime, warm ivory, small red-flag accent, sky blue. Upper left: title OPEN over GOLF in chunky ivory athletic letters with deep forest-green dimensional shading. Keep ball, putter, cup and flag mechanically coherent, uncluttered and readable. No human figures, no fantasy floating islands, no official club branding, no other text.",
+      "filename": "open-golf.png",
+      "sha256": "5d208aff952cc0e69fc9d11451a23cfba6649bbaa6d89beb2962e623b9e39fb8",
+      "webpBytes": 264724
+    },
+    {
+      "id": "archery-test",
+      "prompt": "Use case: stylized-concept. Asset type: finished landscape 3:2 game-library cover at 1536x1024. One original premium stylized 3D arcade key-art illustration; strong silhouettes, bright confident colors, readable as a small mobile thumbnail. Game-owned visual identity, clean smooth geometric surfaces and carefully lit forms. The only lettering is the exact game title in large attractive readable game-specific display letters, kept inside 10% margins. Full-bleed artwork, no border, controls, scores, tutorials, buttons, badges, sponsor logos, watermarks or StatOz marks. Illustrated key art, not a gameplay screenshot. Title (verbatim): ARCHERY MASTER. A vivid stylized 3D archery range on a sunny meadow backed by geometric pine trees and distant mountains. One large beautiful freestanding circular target dominates the right half, with accurate concentric rings from outer white, black, blue, red to yellow bullseye at center, supported by a simple wooden A-frame. A single straight wooden arrow is embedded precisely in the yellow bullseye; visible shaft and feather fletching point diagonally toward the lower-left foreground in strong perspective. At the far lower-left corner, a partial elegantly curved wooden recurve bow suggests the player's viewpoint without hands or people. No compound-bow machinery. Clear depth, energizing accurate sporting action, warm sunlight, textured wood, bright grass and clean blue sky. A smaller second target far in the background reinforces the range without clutter. Upper-left quadrant: large readable condensed italic ivory lettering ARCHERY over MASTER, dark forest-green edge and a warm gold subtle offset. Keep target completely visible inside frame. Correct target circles, straight arrow, plausible angle of entry. No crosshair, no drawn flight trail, no UI, no extra words.",
+      "filename": "archery-test.png",
+      "sha256": "b38f32c0ccbcb1df9e775b95254b1feed13872c00ca572974ebaa3a4b7218078",
+      "webpBytes": 368024
     }
   ]
 }
