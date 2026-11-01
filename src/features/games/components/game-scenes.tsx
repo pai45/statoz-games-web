@@ -47,7 +47,7 @@ export function GameScene(props: GameSceneProps) {
 }
 function CatalogGameScene({ game, opacity = 1, animate = true, locked = false, phase }: GameSceneProps) {
   const root = useRef<HTMLDivElement>(null);
-  const scene = discoveryFamily.games[game === "f1-racing" ? "grand-prix-dash" : game === "football-shooting" ? "penalty-shootout" : game === "retro-football-2" ? "pitch-duel" : ["open-golf","archery-test"].includes(game) ? "tennis-rally" : ["stick-cricket","retro-innings"].includes(game) ? "final-over" : game === "retro-hoops" ? "hoop-duel" : game];
+  const scene = discoveryFamily.games[game === "f1-racing" ? "grand-prix-dash" : game === "football-shooting" ? "penalty-shootout" : game === "retro-football-2" ? "pitch-duel" : ["open-golf","archery-test"].includes(game) ? "tennis-rally" : ["cricketer","stick-cricket","retro-innings"].includes(game) ? "final-over" : game === "retro-hoops" ? "hoop-duel" : game];
 
   useEffect(() => {
     const element = root.current;

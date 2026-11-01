@@ -131,13 +131,15 @@ export function GameCoverflow({ games, label, onViewAll }: { games: GameId[]; la
     </div>
 
     <div ref={stageRef} className={styles.stage} {...stage}>
-      <div ref={trackRef} className={shift ? `${styles.track} ${styles.dragging}` : styles.track}>
-        {games.map((game, i) => {
-          const position = coverflowOffset(i, active - shift, count);
-          if (Math.abs(position) >= visible + 1) return null;
-          const fade = Math.max(0, Math.min(1, visible - Math.abs(position)));
-          return <CoverCard key={game} game={game} centre={i === active} position={position} fade={fade} onSelect={() => go(i)} />;
-        })}
+      <div className={styles.trackView}>
+        <div ref={trackRef} className={shift ? `${styles.track} ${styles.dragging}` : styles.track}>
+          {games.map((game, i) => {
+            const position = coverflowOffset(i, active - shift, count);
+            if (Math.abs(position) >= visible + 1) return null;
+            const fade = Math.max(0, Math.min(1, visible - Math.abs(position)));
+            return <CoverCard key={game} game={game} centre={i === active} position={position} fade={fade} onSelect={() => go(i)} />;
+          })}
+        </div>
       </div>
       {count > 1 ? <>
         <button type="button" className={`${styles.step} ${styles.stepPrev}`} aria-label="Previous game" onClick={() => go(active - 1)}>

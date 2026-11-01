@@ -29,11 +29,9 @@ export type NavRailProps = {
   className?: string;
 };
 
-const slotNumber = (index: number) => String(index + 1).padStart(2, "0");
-
 /**
  * Primary destination switcher, styled as a game loadout. Every destination is
- * a numbered slot; only the current one glows. The same items render as a
+ * an icon slot; only the current one glows. The same items render as a
  * bottom hotbar on small screens or a side rail on large ones, so the
  * navigation identity survives the reflow.
  */
@@ -56,24 +54,14 @@ export function NavRail({
       className={[styles.nav, className ?? ""].filter(Boolean).join(" ")}
       style={{ "--nav-accent": items[Math.max(activeIndex, 0)]?.accent } as CSSProperties}
     >
-      {variant === "rail" && (
-        <div className={styles.header} aria-hidden="true">
-          <span className={styles.headerTitle}><small>SELECT</small>MODE</span>
-          <span className={styles.meter}>
-            {items.map((item, index) => <i key={item.id} data-on={index === activeIndex || undefined} />)}
-          </span>
-          <b className={styles.meterCount}>{activeIndex < 0 ? "--" : slotNumber(activeIndex)}/{slotNumber(items.length - 1)}</b>
-        </div>
-      )}
       <ul className={styles.list}>
-        {items.map((item, index) => {
+        {items.map((item) => {
           const active = item.id === activeId;
           const itemStyle = { "--nav-accent": item.accent } as CSSProperties;
           const content = (
             <>
               <span className={styles.slot}><span className={styles.glyph}>{item.icon}</span></span>
               <span className={styles.label}>{item.label}</span>
-              {variant === "rail" && <span className={styles.key} aria-hidden="true">{slotNumber(index)}</span>}
             </>
           );
           return (

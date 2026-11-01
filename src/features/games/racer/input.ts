@@ -1,6 +1,6 @@
 import {clamp,emptyInput,type Input} from './engine';
-export type Action='left'|'right'|'brake'|'boost'|'gas';
-export const keyMap:Record<string,Action>={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'gas',KeyW:'gas',ArrowDown:'brake',KeyS:'brake',Space:'boost',ShiftLeft:'boost',ShiftRight:'boost'};
+export type Action='left'|'right'|'brake'|'boost'|'gas'|'lookBack';
+export const keyMap:Record<string,Action>={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'gas',KeyW:'gas',ArrowDown:'brake',KeyS:'brake',Space:'boost',ShiftLeft:'boost',ShiftRight:'boost',KeyB:'lookBack'};
 /** Each physical key or pointer owns its hold; releasing one never clears another. */
 export class RacerInput{
  private owners=new Map<string,Action>();

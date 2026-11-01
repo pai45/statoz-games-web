@@ -1,0 +1,62 @@
+/*
+ * The app column's outer edges on wide screens. Once the column stops filling
+ * the screen, its panels dissolve into the page over --shell-feather (read by
+ * the rail, top bar and hub backdrop), and each edge gets a faint lit seam
+ * with a soft glow spilling outward, so the column reads as a lit frame
+ * rather than a cut-out.
+ */
+.frame {
+  --shell-feather: 0px;
+  --nav-rail-feather: var(--shell-feather);
+  position: relative;
+}
+
+@media (min-width: 80rem) {
+  .frame { --shell-feather: 72px; }
+
+  .frame::before,
+  .frame::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 56px;
+    pointer-events: none;
+    /* Fade the seam and its glow out toward the top and bottom. */
+    mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 82%, transparent 100%);
+  }
+
+  .frame::before {
+    right: 100%;
+    background:
+      linear-gradient(
+          to bottom,
+          var(--ds-color-accent-cyan),
+          var(--ds-color-accent-violet)
+        )
+        right / 1px 100% no-repeat,
+      linear-gradient(
+        to left,
+        color-mix(in srgb, var(--ds-color-accent-violet) 9%, transparent),
+        transparent
+      );
+    opacity: 0.45;
+  }
+
+  .frame::after {
+    left: 100%;
+    background:
+      linear-gradient(
+          to bottom,
+          var(--ds-color-accent-violet),
+          var(--ds-color-accent-cyan)
+        )
+        left / 1px 100% no-repeat,
+      linear-gradient(
+        to right,
+        color-mix(in srgb, var(--ds-color-accent-cyan) 8%, transparent),
+        transparent
+      );
+    opacity: 0.45;
+  }
+}

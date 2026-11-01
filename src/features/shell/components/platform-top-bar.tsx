@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { CSSProperties } from "react";
 
 import { accentVar, BrandIcon, FlameIcon, PlusIcon } from "@/design-system";
 import { useEconomy } from "@/features/economy";
 import { currentStreak, useIsStreakHydrated, useStreakSnapshot } from "@/features/streaks";
 import { formatInt } from "@/shared/utils";
+
+import styles from "./platform-top-bar.module.css";
 
 export type PlatformTopBarProps = {
   title?: string;
@@ -33,12 +36,11 @@ export function PlatformTopBar({
         : "StatOz");
   return (
     <header
-      className="flex h-19.5 shrink-0 items-center gap-3 border-b bg-surface-nav px-4 pr-3.5 phone-land:h-12"
+      className={`${styles.bar} flex h-19.5 shrink-0 items-center gap-3 px-4 pr-3.5 phone-land:h-12`}
       style={{
-        background: pathname === "/" ? "color-mix(in srgb, var(--ds-color-background-nav) 84%, transparent)" : undefined,
-        borderColor: `color-mix(in srgb, ${accent} 26%, transparent)`,
-        boxShadow: "var(--ds-shadow-hard-drop)",
-      }}
+        "--bar-bg": pathname === "/" ? "color-mix(in srgb, var(--ds-color-background-nav) 84%, transparent)" : "var(--ds-color-background-nav)",
+        "--bar-line": `color-mix(in srgb, ${accent} 26%, transparent)`,
+      } as CSSProperties}
     >
       <h1
         className="flex-1 truncate font-display text-2xl font-black leading-compact tracking-tight phone-land:text-lg"

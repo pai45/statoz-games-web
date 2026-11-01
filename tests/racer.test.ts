@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {angle,at,clamp,cornerSpeed,damp,DEFAULT_OPTIONS,emptyInput,GRID_SIZE,LAPS,newRace,pedalSpeed,position,project,recover,STEP,step,TRACK_LENGTH} from '../src/features/games/racer/engine';
+import {angle,at,clamp,cornerSpeed,damp,DEFAULT_OPTIONS,emptyInput,GATES_PER_LAP,GRID_SIZE,LAPS,newRace,pedalSpeed,position,project,recover,STEP,step,TRACK_LENGTH} from '../src/features/games/racer/engine';
 import {gameForHref,gameRegistry} from '../src/mocks/games/game-registry';
 import {cornerReferences,REFERENCE_LENGTH_METRES,referencePoints} from '../src/features/games/racer/circuit';
 import {captureCurrent,capturePrevious,createMotion,interpolate} from '../src/features/games/racer/motion';
@@ -64,7 +64,7 @@ test('Countdown holds cars still; boost consumes charge and brake slows the car'
  const speed=r.player.speed;step(r,{...emptyInput(),brake:true,boost:true},STEP);assert.ok(r.player.speed<speed);assert.equal(r.boosting,false);
 });
 test('Recovery preserves earned progress and checkpoints and releases steering',()=>{
- const r=newRace();r.player.progress=74;r.checkpoints=1;r.player.x=900;r.player.z=900;r.player.speed=45;r.player.steer=1;recover(r);assert.equal(r.player.progress,74);assert.equal(r.checkpoints,1);assert.equal(r.player.steer,0);assert.ok(r.player.speed<=8);assert.ok(Math.abs(project(r.player.x,r.player.z).lane)<.01);
+ const r=newRace();r.player.progress=74;r.player.nextGate=96;r.checkpoints=1;r.player.x=900;r.player.z=900;r.player.speed=45;r.player.steer=1;recover(r);assert.equal(r.player.progress,74);assert.equal(r.checkpoints,1);assert.equal(r.player.steer,0);assert.ok(r.player.speed<=8);assert.ok(Math.abs(project(r.player.x,r.player.z).lane)<.01);
 });
 test('Ordinary steering/braking completes a full race and records two real lap times',()=>{
  const r=newRace();
@@ -73,7 +73,7 @@ test('Ordinary steering/braking completes a full race and records two real lap t
   const steer=clamp(-angle(heading-p.heading)*3,-1,1),brake=p.speed>cornerSpeed(p.progress)+1;
   step(r,{steer,brake,gas:true,boost:cornerSpeed(p.progress)>45&&r.boost>35},STEP);
  }
- assert.equal(r.finished,true,JSON.stringify({progress:r.player.progress,time:r.time,hits:r.hits,checkpoints:r.checkpoints,lane:r.player.lane}));assert.equal(r.lapTimes.length,LAPS);assert.equal(r.checkpoints,16);assert.ok(r.lapTimes.every(t=>t>0));assert.ok(position(r)>=1&&position(r)<=GRID_SIZE);const time=r.time;step(r,emptyInput(),STEP);assert.equal(r.time,time);
+ assert.equal(r.finished,true,JSON.stringify({progress:r.player.progress,time:r.time,hits:r.hits,checkpoints:r.checkpoints,lane:r.player.lane}));assert.equal(r.lapTimes.length,LAPS);assert.equal(r.checkpoints,GATES_PER_LAP*2);assert.ok(r.lapTimes.every(t=>t>0));assert.ok(position(r)>=1&&position(r)<=GRID_SIZE);const time=r.time;step(r,emptyInput(),STEP);assert.equal(r.time,time);
 });
 
 for(const mode of ['manual','automatic','manual-coasting'] as const)test(`Full twenty-car race: ${mode} pedal run`,()=>{
@@ -84,5 +84,5 @@ for(const mode of ['manual','automatic','manual-coasting'] as const)test(`Full t
   step(r,{steer:clamp(-angle(heading-p.heading)*3,-1,1),brake,gas,boost:target>45&&r.boost>35},STEP,options);
   if(brake&&p.speed===0)stops++;
  }
- assert.equal(r.finished,true,JSON.stringify({mode,progress:r.player.progress,time:r.time,checkpoints:r.checkpoints}));assert.equal(r.checkpoints,16);assert.equal(r.lapTimes.length,2);assert.ok(stops<120);assert.ok(Number.isFinite(r.player.speed));
+ assert.equal(r.finished,true,JSON.stringify({mode,progress:r.player.progress,time:r.time,checkpoints:r.checkpoints}));assert.equal(r.checkpoints,GATES_PER_LAP*2);assert.equal(r.lapTimes.length,2);assert.ok(stops<120);assert.ok(Number.isFinite(r.player.speed));
 });

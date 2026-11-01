@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "localOnlyNativeMotion": true,
+  "githubPagesReleaseAuthorized": true,
+  "files": [
+    {
+      "path": "player-shared.glb",
+      "bytes": 1325344,
+      "sha256": "b14ca1dd8f7e3fb01f36b04e7dab808fda26566a35f587040bc375317608a341"
+    },
+    {
+      "path": "source-motion.local.glb",
+      "bytes": 1218496,
+      "sha256": "8bb1bd776f9162e9a528f87952ac2d8b608a10accf3b23cefb057acd22b80801"
+    },
+    {
+      "path": "PLAYER-LICENSE.txt",
+      "bytes": 740,
+      "sha256": "e804c547e799db3a3e3cdd1c8a399fa8f2f78b84af209b6097ac0db162062b83"
+    }
+  ]
+}

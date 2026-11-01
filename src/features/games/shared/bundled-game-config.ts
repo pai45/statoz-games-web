@@ -2,7 +2,7 @@ import { gameSportFor } from '@/mocks/games/sport-decks';
 import type { GameId } from '../types';
 
 export const bundledGameIds: readonly GameId[] = [
-  "penalty-cup",
+  "penalty-cup", "cricketer",
   'stick-cricket', 'archery-test',
   'tennis-bits', 'soccer-real', 'f1-racing',
   'pitch-rush',

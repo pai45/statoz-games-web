@@ -1,0 +1,11 @@
+Model Information:
+* title:	Indian Cricket Player Rigged
+* source:	https://sketchfab.com/3d-models/indian-cricket-player-rigged-a1001b602e4f430bb9de68c24d9a4aa7
+* author:	numaan.k99 (https://sketchfab.com/numaan.k99)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Indian Cricket Player Rigged" (https://sketchfab.com/3d-models/indian-cricket-player-rigged-a1001b602e4f430bb9de68c24d9a4aa7) by numaan.k99 (https://sketchfab.com/numaan.k99) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

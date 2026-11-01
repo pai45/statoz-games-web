@@ -6,4 +6,11 @@
   flex: 1;
   flex-direction: column;
 }
-.background { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+/* Dissolves into the page at the app column's right edge on wide screens. */
+.background {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  mask-image: linear-gradient(to left, transparent 0, #000 var(--shell-feather, 0px));
+}

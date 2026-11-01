@@ -40,11 +40,20 @@
    some flex layouts); the defaults only cover the first paint. */
 /* The stage itself is click-through: cards pushed back in 3D sit behind its plane, and it
    would otherwise take their taps. Card events still bubble to its swipe handlers. */
-.stage{--stage-w:100cqw;--stage-h:50dvh;position:relative;flex:1;min-height:160px;perspective:1200px;touch-action:pan-y;container-type:inline-size;user-select:none;pointer-events:none}
+.stage{--stage-w:100cqw;--stage-h:50dvh;position:relative;flex:1;min-height:160px;touch-action:pan-y;container-type:inline-size;user-select:none;pointer-events:none}
+/* Viewport for the cards. It owns the perspective so its mask can feather the
+   side covers into the page at the app column's edges (--shell-feather, 0 on
+   smaller screens) without flattening the 3D track. It overhangs the stage
+   vertically so the centre cover's glow is never clipped. */
+.trackView{
+  --feather:var(--shell-feather,0px);
+  position:absolute;inset:-48px 0;perspective:1200px;pointer-events:none;
+  mask-image:linear-gradient(90deg,transparent 0,#000 var(--feather),#000 calc(100% - var(--feather)),transparent 100%);
+}
 .track{
   --card-w:min(var(--stage-w) * .46,560px,(var(--stage-h) - 12px) * 1.5);
   --spread:.6;
-  position:absolute;inset:0;transform:rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transform-style:preserve-3d;transition:transform 250ms ease-out;
+  position:absolute;inset:48px 0;transform:rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transform-style:preserve-3d;transition:transform 250ms ease-out;
 }
 @container (max-width:640px){
   .track{--card-w:min(var(--stage-w) * .62,(var(--stage-h) - 12px) * 1.5);--spread:.56}

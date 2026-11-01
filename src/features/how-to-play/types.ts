@@ -17,7 +17,7 @@ export type HowToPlayMode =
   | "football-bingo"
   | "football-chess"
   | "hoop-duel"
-  | "stick-cricket" | "archery-test" | "penalty-shooters-2" | "football-shooting"
+  | "cricketer" | "stick-cricket" | "archery-test" | "penalty-shooters-2" | "football-shooting"
   | "tennis-bits" | "soccer-real" | "retro-innings" | "f1-racing";
 
 /**

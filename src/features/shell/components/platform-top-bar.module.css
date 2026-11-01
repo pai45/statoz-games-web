@@ -1,0 +1,34 @@
+/*
+ * Header plate, drawn on layers so it can dissolve into the page at the app
+ * column's right edge on wide screens (--shell-feather, 0 elsewhere). Only
+ * the plate fades; the wordmark, streak and coin controls stay fully opaque.
+ */
+.bar {
+  position: relative;
+  isolation: isolate;
+  --bar-fade: linear-gradient(to left, transparent 0, #000 var(--shell-feather, 0px));
+}
+
+/* Plate plus its 4px hard drop underneath. */
+.bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -4px;
+  z-index: -1;
+  background:
+    linear-gradient(var(--bar-bg), var(--bar-bg)) top / 100% calc(100% - 4px) no-repeat,
+    linear-gradient(rgb(0 0 0 / 20%), rgb(0 0 0 / 20%)) bottom / 100% 4px no-repeat;
+  mask-image: var(--bar-fade);
+  pointer-events: none;
+}
+
+/* Accent underline. */
+.bar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: var(--bar-line);
+  mask-image: var(--bar-fade);
+  pointer-events: none;
+}

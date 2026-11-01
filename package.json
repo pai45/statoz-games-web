@@ -79,7 +79,7 @@
     "build:f1-racing": "node scripts/build-game-bundles.mjs --game=f1-racing",
     "test:f1-racing": "tsx --test tests/f1-racing.test.ts",
     "test:f1-racing:browser": "node tests/racer.browser.mjs",
-    "test:racer": "tsx --test tests/racer.test.ts",
+    "test:racer": "tsx --test tests/racer.test.ts tests/racer-reference.test.ts",
     "test:racer:browser": "node tests/racer.browser.mjs",
     "test:racer:mobile": "node tests/racer-mobile.browser.mjs",
     "test:racer:pedals": "node tests/racer-pedals.browser.mjs",
@@ -95,7 +95,13 @@
     "build:penalty-cup": "node scripts/build-game-bundles.mjs --game=penalty-cup",
     "test:penalty-cup": "tsx --test tests/penalty-cup.test.ts tests/penalty-cup-mobile.test.ts",
     "test:penalty-cup:browser": "node tests/penalty-cup-mobile.browser.mjs",
-    "test:penalty-cup:app": "node tests/penalty-cup.app.browser.mjs"
+    "test:penalty-cup:app": "node tests/penalty-cup.app.browser.mjs",
+    "build:cricketer": "node scripts/build-game-bundles.mjs --game=cricketer",
+    "test:cricketer": "tsx --test tests/cricketer.test.ts",
+    "test:cricketer:browser": "node tests/cricketer.browser.mjs",
+    "preview:cricketer": "node scripts/preview-cricketer.mjs",
+    "test:cricketer:characters": "node tests/cricketer-characters.browser.mjs",
+    "test:cricketer:app": "node tests/cricketer-app.browser.mjs"
   },
   "dependencies": {
     "lottie-react": "^3.1.1",

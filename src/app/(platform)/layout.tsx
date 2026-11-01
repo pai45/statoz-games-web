@@ -5,6 +5,7 @@ import { PlatformLandscape } from "@/features/games/shared/mobile-viewport/mobil
 
 import { AdSlot } from "@/features/ads";
 import { PlatformBreadcrumbs, PlatformNav, PlatformTopBar } from "@/features/shell";
+import frameStyles from "@/features/shell/components/platform-frame.module.css";
 
 /**
  * The platform shell. Navigation sits at the bottom on narrow portrait
@@ -34,7 +35,7 @@ export default function PlatformLayout({ children }: LayoutProps<"/">) {
           </div>
         </div>
 
-        <div className="mx-auto flex min-h-dvh w-full max-w-7xl min-w-0 flex-col lg:flex-row phone-land:flex-row 2xl:mx-0">
+        <div className={`${frameStyles.frame} mx-auto flex min-h-dvh w-full max-w-7xl min-w-0 flex-col lg:flex-row phone-land:flex-row 2xl:mx-0`}>
           <div className="hidden shrink-0 lg:block lg:w-56 phone-land:hidden!">
             <div className="sticky top-0 h-dvh">
               <PlatformNav orientation="rail" />

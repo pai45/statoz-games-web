@@ -1,5 +1,5 @@
 /*
- * Primary navigation as a game loadout. Each destination is a numbered slot;
+ * Primary navigation as a game loadout. Each destination is an icon slot;
  * only the current slot glows. The nav root leaves display, position, height
  * and bottom padding to the layout's utility classes (lg:hidden, sticky,
  * safe-area padding), so it never overrides them.
@@ -70,15 +70,6 @@
 .item[data-active] .glyph { color: var(--ds-color-background-primary); }
 
 .label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.key {
-  margin-left: auto;
-  color: var(--ds-color-text-disabled);
-  font-size: var(--ds-text-micro);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.1em;
-}
-.item[data-active] .key { color: var(--nav-accent); }
-
 @media (hover: hover) {
   .item:not([data-active]):hover { color: var(--ds-color-text-subtle); }
   .item:not([data-active]):hover .slot::before { background: color-mix(in srgb, var(--nav-accent) 50%, var(--ds-color-border-default)); }
@@ -86,7 +77,18 @@
 
 /* ---------- Side rail (wide screens) ---------- */
 
-.nav[data-variant="rail"] { height: 100%; padding: 16px 12px 0; }
+.nav[data-variant="rail"] { position: relative; isolation: isolate; height: 100%; padding: 16px 12px 0; background: none; }
+/* Panel on its own layer so a host can dissolve its outer edge into the page
+   (--nav-rail-feather, 0 by default). Item plates keep their own fills. */
+.nav[data-variant="rail"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background: var(--ds-gradient-nav-bar);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--nav-rail-feather, 0px));
+  pointer-events: none;
+}
 .nav[data-variant="rail"] .list { flex-direction: column; gap: 6px; }
 .nav[data-variant="rail"] .item { gap: 12px; min-height: 54px; padding: 6px 12px 6px 6px; font-size: var(--ds-text-compact); }
 
@@ -118,50 +120,19 @@
   to { background-position: -70% 0, 0 0; }
 }
 
-.header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  row-gap: 8px;
-  padding: 0 4px 14px;
-}
-.headerTitle {
-  color: var(--ds-color-text-subtle);
-  font-family: var(--ds-font-display);
-  font-size: var(--ds-text-sm);
-  font-weight: var(--ds-weight-bold);
-  letter-spacing: 0.18em;
-}
-.headerTitle small {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--nav-accent);
-  font-size: var(--ds-text-nano);
-  letter-spacing: 0.28em;
-}
-.meterCount {
-  grid-row: 1;
-  grid-column: 2;
-  color: var(--ds-color-text-disabled);
-  font-family: var(--ds-font-display);
-  font-size: var(--ds-text-2xs);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-.meter { grid-column: 1 / -1; display: flex; gap: 3px; }
-.meter i {
-  flex: 1;
-  height: 4px;
-  background: var(--ds-color-border-default);
-  clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
-}
-.meter i[data-on] { background: var(--nav-accent); }
-
 /* ---------- Compact rail (phone held sideways) ---------- */
 
-.nav[data-variant="compact"] { height: 100%; padding: 10px 4px 0; }
-.nav[data-variant="compact"] .list { flex-direction: column; gap: 6px; }
-.nav[data-variant="compact"] .item { flex-direction: column; justify-content: center; gap: 4px; min-height: 60px; font-size: var(--ds-text-2xs); letter-spacing: 0.06em; }
+/* Items share the full height equally. */
+.nav[data-variant="compact"] { height: 100%; padding: 10px 4px env(safe-area-inset-bottom); }
+.nav[data-variant="compact"] .list { flex-direction: column; height: 100%; gap: 6px; }
+.nav[data-variant="compact"] .cell { flex: 1; }
+.nav[data-variant="compact"] .item { flex-direction: column; justify-content: center; gap: 4px; height: 100%; min-height: 60px; font-size: var(--ds-text-2xs); letter-spacing: 0.06em; }
+
+/* Mobile: idle icons sit bare; only the current slot draws its plate. */
+.nav[data-variant="compact"] .item:not([data-active]) .slot::before,
+.nav[data-variant="compact"] .item:not([data-active]) .slot::after,
+.nav[data-variant="bar"] .item:not([data-active]) .slot::before,
+.nav[data-variant="bar"] .item:not([data-active]) .slot::after { background: transparent; }
 
 /* ---------- Bottom hotbar (narrow portrait) ---------- */
 

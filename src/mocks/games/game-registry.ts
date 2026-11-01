@@ -42,6 +42,7 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
+  "cricketer": {kind:"hero",title:"CRICKETER",titleLines:["CRICKETER"],subtitle:"READ THE LINE. FIND THE MIDDLE. OWN THE CHASE.",badgeLabel:"ORIGINAL 3D CRICKET // 12 CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/cricketer"},
   "tennis-bits": {kind:"hero",title:"TENNIS BITS",titleLines:["TENNIS","BITS"],subtitle:"MOVE. RALLY. WIN THE POINT.",badgeLabel:"LOCAL // ARCADE TENNIS",ctaLabel:"TAKE THE COURT",accent:"lime",scene:"tennis-rally",href:"/play/tennis-bits"},
   "soccer-real": {kind:"hero",title:"SOCCER REAL",titleLines:["SOCCER","REAL"],subtitle:"TAKE THE PITCH. PLAY THE LOCAL CPU.",badgeLabel:"LOCAL // 3D FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/soccer-real"},
   "penalty-cup": {kind:"hero",title:"PENALTY CUP",titleLines:["PENALTY","CUP"],subtitle:"ONE SHOT. ONE NATION. ONE CUP.",badgeLabel:"48 NATIONS // INTERNATIONAL CUP",ctaLabel:"CHASE THE CUP",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/penalty-cup"},

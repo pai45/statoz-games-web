@@ -1,0 +1,60 @@
+{
+  "game": "cricketer",
+  "version": 2,
+  "original": [
+    "Cricketer helmet, segmented pads and gloves, bat, iris/pupil details, kit surfaces and numbering, retarget mapping and contact/foot IK",
+    "oval, stands, pavilion surround, interface, simulation and synthesized SFX"
+  ],
+  "models": [
+    {
+      "file": "pavilion.glb",
+      "source": "https://cdn.3dassets.dev/assets/31309/v1/model.glb",
+      "license": "CC0-1.0",
+      "sha256": "f20f16756844b9f02207899c08ee8da6faf46b572292dfc7a24a56d7b5558154",
+      "bytes": 149624
+    },
+    {
+      "file": "wicket.glb",
+      "source": "https://cdn.3dassets.dev/assets/31325/v1/model.glb",
+      "license": "CC0-1.0",
+      "sha256": "04df20b32f939b3ebd8c78bf3fd976375019469ba1a414a630822da57cda1bd9",
+      "bytes": 28852
+    }
+  ],
+  "referencesOnly": [
+    "Innerscene cricket-bat-and-stumps-9f5dd29c; unavailable, no files used"
+  ],
+  "ground": "Original match oval and 20.12m pitch; the pack training strip/ground is not used.",
+  "characterDesign": {
+    "sharedPlayer": {
+      "file": "player-shared.glb",
+      "title": "Indian Cricket Player Rigged",
+      "author": "numaan.k99",
+      "source": "https://sketchfab.com/3d-models/indian-cricket-player-rigged-a1001b602e4f430bb9de68c24d9a4aa7",
+      "license": "CC-BY-4.0",
+      "licenseFile": "PLAYER-LICENSE.txt",
+      "sha256": "b14ca1dd8f7e3fb01f36b04e7dab808fda26566a35f587040bc375317608a341",
+      "adaptations": [
+        "original red/ivory and green kits replace original national kit textures",
+        "original helmet, gloves, pads, bat, pupils and numbers",
+        "glasses hidden; batting hair hidden beneath helmet",
+        "83-bone skinned geometry; motion retargeting and planted-foot/hand constraints"
+      ]
+    },
+    "nativeMotion": {
+      "file": "source-motion.local.glb",
+      "owner": "Stick Sports",
+      "source": "Retained local REA conversion of Stick Cricket Chase batsman",
+      "license": "No independent redistribution license supplied; user explicitly authorized the GitHub Pages release",
+      "sha256": "8bb1bd776f9162e9a528f87952ac2d8b608a10accf3b23cefb057acd22b80801",
+      "clipCount": 10,
+      "nativeBodyMeshesIncluded": false,
+      "limitations": "Native-curve-derived Unity2022 Avatar re-solve, not original Unity6000 controller/IK parity."
+    },
+    "REA": [
+      "ev_6c9b61163a7266c131222659ecfa423f28baeeccf69f4b8605f13a88301a8326",
+      "ev_1c0a5087db1c5f5fbefa51101144d2701b466961a6b03e7a2d4e720a6e8f1479"
+    ],
+    "scope": "GitHub Pages release explicitly authorized by the user; no Flutter synchronization."
+  }
+}

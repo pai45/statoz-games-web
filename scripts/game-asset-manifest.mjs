@@ -45,7 +45,7 @@ export async function generateAssetManifest({ root, buildId, basePath = '', expo
     if (/^games\/[^/]+\/(?:dissection|originals)\//.test(file)) continue;
     // This manifest is required runtime character data, not a research index.
     // Self-hosted arcade games need their local core, BIOS, cartridge and cover cached too.
-    if ((file.startsWith('games/penalty-cup/') || file.startsWith('games/retro-hoops/street-hoop/') || file.startsWith('games/retro-football-2/') || file.startsWith('games/stick-cricket/') || file.startsWith('games/f1-racing/') || file.startsWith('games/football-shooting/') || file.startsWith('games/archery-test/') || file.startsWith('games/tennis-bits/') || file.startsWith('games/soccer-real/')) && /\.(?:html|js|css|json|wasm|data|br|gz|zip|7z|png|webp|bundle|bin|glb|jpg|xml|woff2?|ttf|mp3|ogg|wav|webm|m4a)$/i.test(file) && !file.endsWith('assets-manifest.json')) {
+    if ((file.startsWith('games/cricketer/') || file.startsWith('games/penalty-cup/') || file.startsWith('games/retro-hoops/street-hoop/') || file.startsWith('games/retro-football-2/') || file.startsWith('games/stick-cricket/') || file.startsWith('games/f1-racing/') || file.startsWith('games/football-shooting/') || file.startsWith('games/archery-test/') || file.startsWith('games/tennis-bits/') || file.startsWith('games/soccer-real/')) && /\.(?:html|js|css|json|wasm|data|br|gz|zip|7z|png|webp|bundle|bin|glb|jpg|xml|woff2?|ttf|mp3|ogg|wav|webm|m4a)$/i.test(file) && !file.endsWith('assets-manifest.json')) {
       selected.add(file);
       continue;
     }
@@ -55,7 +55,7 @@ export async function generateAssetManifest({ root, buildId, basePath = '', expo
         /^assets\/ads\/ad-space-[\w-]+\.svg$/.test(file) ||
         file === 'games/stadium-cricket/stadium-preview.jpg') selected.add(file);
   }
-  for (const game of ['penalty-cup', 'open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'f1-racing', 'archery-test', 'tennis-bits', 'soccer-real', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball'].filter(id => !removedGames.includes(id))) {
+  for (const game of ['cricketer', 'penalty-cup', 'open-golf', 'pitch-rush', 'final-third', 'retro-hoops', 'retro-football', 'retro-football-2', 'stick-cricket', 'football-shooting', 'f1-racing', 'archery-test', 'tennis-bits', 'soccer-real', 'retro-circuit', 'retro-innings', 'stadium-cricket', 'vibe-basketball'].filter(id => !removedGames.includes(id))) {
     if (!selected.has(`embedded-games/${game}/index.html`)) throw Error('Missing built game: ' + game);
   }
   const records = [];

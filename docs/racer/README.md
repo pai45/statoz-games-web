@@ -1,5 +1,9 @@
 # Racer
 
+The latest gameplay revision is grounded in the original build's extracted RCC controllers and named native race/AI code. See [mechanics evidence and adaptation decisions](crazy-grand-prix-mechanics.md). Player and CPU now share physical motion, gearing and pedal behavior; ordered route gates, finish-time classification, gear/RPM, rival order, minimap competitors and held rear view replace the earlier simplified race model. The source-shaped simulation remains an authored browser adaptation.
+
+[Current validation](reference-validation.json) records 35 passing focused tests, the complete nineteen-CPU pack run, real-browser two-lap completion, pedal/phone/app checks and the matching production build. Earlier validation files remain historical. The timing stripe was shifted along the same Hamilton Straight so all ten starting rows launch on the straight. The preview launcher also waits for complete Next server manifests before starting.
+
 31 October 2026. Local implementation; no release or push requested.
 
 Racer replaces Crazy Grand Prix's active catalogue entry with a stylized arcade circuit racer. Open `/play/racer`; `/play/f1-racing` remains a compatible address. The stable bundle ID is still `f1-racing`, so host integration and account isolation retain their existing contracts.

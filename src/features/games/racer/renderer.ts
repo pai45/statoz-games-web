@@ -43,7 +43,7 @@ export function createRenderer(canvas:HTMLCanvasElement){
  const board=(parent:T.Object3D,y:number,depth=.025)=>{for(const side of [-1,1]){const face=add(bannerGeo,bannerMat,parent);face.position.set(0,y,side*depth);face.rotation.y=side<0?Math.PI:0;}};
  const sign=(distance:number,lane:number)=>{const p=at(distance,lane);if(Math.abs(project(p.x,p.z).lane)<12)return;const node=new T.Group();node.position.set(p.x,0,p.z);node.rotation.y=p.heading+(lane>0?Math.PI/2:-Math.PI/2);scene.add(node);box(-7,1.7,0,.15,3.4,.15,dark,node);box(7,1.7,0,.15,3.4,.15,dark,node);board(node,3.2);};
  for(let d=65;d<TRACK_LENGTH;d+=130)sign(d,Math.floor(d/130)%2?16:-16);
- const gantryAt=at(50),startGantry=new T.Group();startGantry.position.set(gantryAt.x,0,gantryAt.z);startGantry.rotation.y=gantryAt.heading;scene.add(startGantry);box(-10,4,0,.6,8,.6,white,startGantry);box(10,4,0,.6,8,.6,white,startGantry);box(0,7.9,0,21,1.2,1,red,startGantry);board(startGantry,7.7,.56);
+ const gantryAt=at(0),startGantry=new T.Group();startGantry.position.set(gantryAt.x,0,gantryAt.z);startGantry.rotation.y=gantryAt.heading;scene.add(startGantry);box(-10,4,0,.6,8,.6,white,startGantry);box(10,4,0,.6,8,.6,white,startGantry);box(0,7.9,0,21,1.2,1,red,startGantry);board(startGantry,7.7,.56);
  const standGeo=recovered('grandstand').clone();geometries.push(standGeo);standGeo.computeBoundingBox();const bounds=standGeo.boundingBox!,center=bounds.getCenter(new T.Vector3()),extent=bounds.getSize(new T.Vector3());standGeo.translate(-center.x,-bounds.min.y,-center.z);
  for(const [fraction,lane] of [[.01,-28],[.055,-28],[.28,27],[.5,-30],[.76,28],[.92,-30]]){const p=at(fraction*TRACK_LENGTH,lane),stand=add(standGeo,material('#84929c'));stand.scale.setScalar(30/Math.max(extent.x,extent.z));stand.position.set(p.x,0,p.z);stand.rotation.y=p.heading;stand.castShadow=true;}
  const trussGeo=recovered('gantry').clone();geometries.push(trussGeo);trussGeo.computeBoundingBox();trussGeo.translate(0,-trussGeo.boundingBox!.min.y,0);
@@ -62,9 +62,10 @@ export function createRenderer(canvas:HTMLCanvasElement){
  const batches=[body,chassis,front,rear,hubs,helmets,visors,wings,shadows],poses:Pose[]=Array.from({length:GRID_SIZE},()=>({x:0,z:0,heading:0,speed:0,steer:0,acceleration:0})),spin=new Float64Array(GRID_SIZE),pitch=new Float64Array(GRID_SIZE),roll=new Float64Array(GRID_SIZE),painted:string[]=[];
  const rootMatrix=new T.Matrix4(),localMatrix=new T.Matrix4(),resultMatrix=new T.Matrix4(),dummy=new T.Object3D(),euler=new T.Euler(0,0,0,'YXZ'),quaternion=new T.Quaternion(),scale=new T.Vector3(.82,.82,.82),carPosition=new T.Vector3(),color=new T.Color();
  const part=(mesh:T.InstancedMesh,index:number,x:number,y:number,z:number,rx=0,ry=0,sx=1,sy=1,sz=1)=>{dummy.position.set(x,y,z);dummy.rotation.set(rx,ry,0,'YXZ');dummy.scale.set(sx,sy,sz);dummy.updateMatrix();localMatrix.copy(dummy.matrix);resultMatrix.multiplyMatrices(rootMatrix,localMatrix);mesh.setMatrixAt(index,resultMatrix);};
- let initialized=false,view=0,camHeading=0,lastMotion:Motion|null=null;
+ let initialized=false,view=0,camHeading=0,lastMotion:Motion|null=null,rearView=false;
  const look=new T.Vector3(),lookTarget=new T.Vector3(),target=new T.Vector3(),sunPoint=new T.Vector3(),lightOffset=new T.Vector3(-70,110,40);
- function draw(race:Race,motion:Motion,alpha:number,dt:number,preview:boolean,animate:boolean){
+ function draw(race:Race,motion:Motion,alpha:number,dt:number,preview:boolean,animate:boolean,lookBack=false){
+  if(rearView!==lookBack){rearView=lookBack;initialized=false;}
   const reset=lastMotion!==motion;if(reset){initialized=false;lastMotion=motion;spin.fill(0);pitch.fill(0);roll.fill(0);}
   const cars=[race.player,...race.opponents],motionDt=animate?Math.min(dt,.1):0;
   for(let i=0;i<GRID_SIZE;i++){
@@ -78,11 +79,11 @@ export function createRenderer(canvas:HTMLCanvasElement){
   for(const mesh of batches)mesh.instanceMatrix.needsUpdate=true;if(body.instanceColor)body.instanceColor.needsUpdate=true;if(wings.instanceColor)wings.instanceColor.needsUpdate=true;
   const p=poses[0],cameraDt=animate||preview?Math.min(dt,.1):0;
   if(!initialized)camHeading=p.heading;else camHeading=angleLerp(camHeading,p.heading,1-Math.exp(-7*cameraDt));
-  const fx=Math.sin(camHeading),fz=Math.cos(camHeading);
+  const fx=Math.sin(camHeading)*(rearView?-1:1),fz=Math.cos(camHeading)*(rearView?-1:1);
   if(preview){target.set(p.x-fx*27+fz*13,15,p.z-fz*27-fx*13);lookTarget.set(p.x+fx*27,1,p.z+fz*27);}else{const gap=view?14:9.5;target.set(p.x-fx*gap,4.8+(view?2.1:0),p.z-fz*gap);lookTarget.set(p.x+fx*15,1.3,p.z+fz*15);}
   if(!initialized||Math.hypot(camera.position.x-target.x,camera.position.z-target.z)>55){camera.position.copy(target);look.copy(lookTarget);initialized=true;}else{camera.position.lerp(target,1-Math.exp(-7*cameraDt));look.lerp(lookTarget,1-Math.exp(-10*cameraDt));}
   camera.lookAt(look);const fov=damp(camera.fov,58+(race.boosting?5:0),4,cameraDt);if(Math.abs(fov-camera.fov)>.0001){camera.fov=fov;camera.updateProjectionMatrix();}
   sunPoint.set(p.x,0,p.z);sun.target.position.copy(sunPoint);sun.position.copy(sunPoint).add(lightOffset);renderer.render(scene,camera);
  }
- return{draw,resize(width:number,height:number){renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();},camera(){view=1-view;},diagnostics(){return{cars:GRID_SIZE,vehicleBatches:batches.length,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,cameraHeading:angle(camHeading),fov:camera.fov,playerPose:{...poses[0]}};},dispose(){for(const mesh of batches)mesh.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();sun.shadow.map?.dispose();renderer.dispose();}};
+ return{draw,resize(width:number,height:number){renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();},camera(){view=1-view;},diagnostics(){return{cars:GRID_SIZE,vehicleBatches:batches.length,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,cameraHeading:angle(camHeading),rearView,fov:camera.fov,playerPose:{...poses[0]}};},dispose(){for(const mesh of batches)mesh.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();sun.shadow.map?.dispose();renderer.dispose();}};
 }
