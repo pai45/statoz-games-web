@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { Suspense, type CSSProperties } from "react";
 
 import { HomeHubSurface } from "@/features/shell/components/home-hub-surface";
 import { PlatformLandscape } from "@/features/games/shared/mobile-viewport/mobile-game-viewport";
@@ -16,7 +16,7 @@ import frameStyles from "@/features/shell/components/platform-frame.module.css";
  */
 export default function PlatformLayout({ children }: LayoutProps<"/">) {
   return (
-    <PlatformLandscape>
+    <Suspense fallback={<div role="status">Opening StatOz…</div>}><PlatformLandscape>
     {/*
       --platform-nav-height is the bar nav's height, published because it is
       sticky and therefore floats over the page: anything a screen docks above
@@ -65,6 +65,6 @@ export default function PlatformLayout({ children }: LayoutProps<"/">) {
         </div>
       </div>
     </div>
-    </PlatformLandscape>
+    </PlatformLandscape></Suspense>
   );
 }

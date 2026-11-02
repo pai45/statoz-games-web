@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useGameReturn } from "../shared/hooks/use-game-return";
 import { Button } from "@/design-system";
 import { useAuthSession } from "@/features/auth";
 import { publicAsset } from "@/shared/config";
@@ -16,14 +16,14 @@ export function RetroInnings({ entry }: GameLauncherProps) {
 }
 
 function PrivateCricket({ title }: { title: string }) {
-  const router = useRouter();
+  const leave = useGameReturn();
   const [active, setActive] = useState(false);
   const [attempt, setAttempt] = useState(0);
   return <section className={styles.root} aria-label={`${title} private cricket preview`}>
     <header className={styles.header}>
       <p className="ds-type-hud-label">CREASEFIRE SIX / PRIVATE PREVIEW</p>
-      <Button variant="surface" onClick={() => router.push("/games/cricket")}>
-        {active ? "Exit game" : "Back to cricket"}
+      <Button variant="surface" onClick={leave}>
+        {active ? "Exit game" : "Back to Games"}
       </Button>
     </header>
     {active ? <CricketSession key={attempt} onRetry={() => setAttempt(n => n + 1)} /> :

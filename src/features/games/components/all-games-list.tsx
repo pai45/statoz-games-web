@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { accentVar, FilterChips } from "@/design-system";
 import { gameSportModuleFor, gameSportOrder, type GameSport } from "@/domain/game-sports";
 import { gameRegistry, gameSportFor } from "@/mocks/games";
@@ -22,7 +23,15 @@ const sportsWithGames = gameSportOrder.filter((sport) => sportGamesInDeckOrder(s
  */
 export function AllGamesList({ initialSport, onClose }: { initialSport: GameSport | null; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [filter, setFilter] = useState<string>(initialSport ? sportLabel(initialSport) : ALL);
+  const router = useRouter(), query = useSearchParams();
+  const requested = query.get("listSport");
+  const selected = requested === "all" ? null : sportsWithGames.find(sport => sport === requested) ?? initialSport;
+  const filter = selected ? sportLabel(selected) : ALL;
+  const setFilter = (label: string) => {
+    const params = new URLSearchParams(query.toString());
+    params.set("listSport", sportsWithGames.find(sport => sportLabel(sport) === label) ?? "all");
+    router.replace(`/?${params}`, { scroll: false });
+  };
 
   useEffect(() => {
     const element = dialog.current;

@@ -85,7 +85,7 @@
     "build:f1-racing": "node scripts/build-game-bundles.mjs --game=f1-racing",
     "test:f1-racing": "tsx --test tests/f1-racing.test.ts",
     "test:f1-racing:browser": "node tests/racer.browser.mjs",
-    "test:racer": "tsx --test tests/racer.test.ts tests/racer-reference.test.ts",
+    "test:racer": "tsx --test tests/racer.test.ts tests/racer-reference.test.ts tests/racer-race-craft.test.ts",
     "test:racer:browser": "node tests/racer.browser.mjs",
     "test:racer:mobile": "node tests/racer-mobile.browser.mjs",
     "test:racer:pedals": "node tests/racer-pedals.browser.mjs",

@@ -11,8 +11,7 @@ import { usePitchDuelMatch } from "../state/use-pitch-duel-match";
 
 import { ActionPad, TacticTray, useNumberKeys } from "./action-pad";
 import { DuelCard, StatBlock, primaryPosition, sideAccent } from "./card-art";
-import { DuelStage, type Faceoff } from "./duel-stage";
-import { PitchIcon } from "./icons";
+import { DuelStage, promptFor, type Faceoff } from "./duel-stage";
 import { EventLog, EventsBar, MatchMap, PeriodStats, Scoreboard, SquadList, setPieceSpot } from "./match-parts";
 import { pitchScene, type SceneInput } from "./pitch-layout";
 import { SetPieceScene } from "./set-piece-scenes";
@@ -22,9 +21,10 @@ import styles from "./match.module.css";
 type Panel = { kind: "squad"; side: Side; inspect?: string } | { kind: "events" } | { kind: "map" } | null;
 
 /**
- * The portrait match screen, top to bottom: the trapezoid scoreboard, the
- * lineup tabs, the stage (situation, match map, the two cards and VS), the
- * moves in the thumb zone, and the match-events bar.
+ * The landscape match screen. Along the top, the scorebug with the lineup
+ * buttons either side. Below it three columns: the situation, match map and
+ * latest event on the left; the two cards and VS in the middle; your moves
+ * (or CONTINUE) on the right, under the thumb.
  */
 export function MatchScreen({
   initial,
@@ -94,6 +94,9 @@ export function MatchScreen({
   const waiting = Boolean(res) || turn.kind === "continue" || turn.kind === "over";
   useNumberKeys(0, () => {}, waiting && !res?.goal ? advance : undefined);
 
+  const prompt = promptFor(state);
+  const call = callFor(state, turn.kind, Boolean(res), autoHold);
+
   const pickSetPiece = (option: SetPieceOption) => {
     const slot = state.teams.home.tactics.find((t) => t.id === armed && !t.used);
     send({ type: "setPiece", option, tacticId: slot && tacticPlayable(slot, "setPiece") ? slot.id : undefined });
@@ -104,89 +107,96 @@ export function MatchScreen({
 
   return (
     <div className={styles.screen} data-phase={state.phase} data-danger={danger || undefined} aria-label="Pitch Duel match">
-      <Scoreboard state={state} onQuit={() => setQuitOpen(true)} onLog={() => setPanel({ kind: "events" })} />
-
-      <nav className={styles.tabs} aria-label="Lineups">
-        <button type="button" className={styles.tab} data-side="home" onClick={() => setPanel({ kind: "squad", side: "home" })}>
-          <PitchIcon size={16} /> YOUR LINEUP
-        </button>
-        <button type="button" className={styles.tab} data-side="away" onClick={() => setPanel({ kind: "squad", side: "away" })}>
-          <PitchIcon size={16} /> OPP. LINEUP
-        </button>
-      </nav>
+      <Scoreboard
+        state={state}
+        onQuit={() => setQuitOpen(true)}
+        onLog={() => setPanel({ kind: "events" })}
+        onSquad={(side) => setPanel({ kind: "squad", side })}
+      />
 
       <main className={styles.stage}>
-        <div className={styles.stageTop}>
+        <aside className={styles.info} aria-label="Match situation">
           <p className={styles.situation} style={{ "--tone": situation.tone } as CSSProperties}>
-            <span>Current situation:</span> <b key={situation.title}>{situation.title}</b>
+            <span>Current situation</span>
+            <b key={situation.title}>{situation.title}</b>
             <small>{situation.detail}</small>
           </p>
           <MatchMap state={state} scene={scene} danger={danger} onOpen={() => setPanel({ kind: "map" })} />
+          <EventsBar event={lastEvent} onShow={() => setPanel({ kind: "events" })} />
+        </aside>
+
+        <div className={styles.centre}>
+          {setPieceTurn ? (
+            <SetPieceScene state={state} turn={setPieceTurn} onPick={pickSetPiece} />
+          ) : (
+            <DuelStage state={state} faceoff={faceoff} res={res} onInspect={(side, id) => setPanel({ kind: "squad", side, inspect: id })} />
+          )}
         </div>
 
-        {setPieceTurn ? (
-          <SetPieceScene state={state} turn={setPieceTurn} onPick={pickSetPiece} />
-        ) : (
-          <DuelStage state={state} faceoff={faceoff} res={res} onInspect={(side, id) => setPanel({ kind: "squad", side, inspect: id })} />
-        )}
+        <section className={styles.thumb} aria-label="Your call">
+          <header className={styles.callHead}>
+            <b key={call.title ?? prompt.text}>{call.title ?? prompt.text}</b>
+            <small>{call.sub}</small>
+          </header>
+          {waiting ? (
+            res?.goal ? null : (
+              <div className={styles.continueRow}>
+                <Pill tone={state.phase === "fulltime" ? "green" : "blue"} onClick={advance} wide pulse={!res}>
+                  {continueLabel}
+                </Pill>
+                {autoHold ? <i key={state.decisions} className={styles.autoFill} style={{ "--hold": `${autoHold}ms` } as CSSProperties} aria-hidden /> : null}
+              </div>
+            )
+          ) : setPieceTurn ? (
+            state.teams.home.tactics.length ? (
+              <TacticTray
+                tactics={state.teams.home.tactics}
+                titles={tacticTitles}
+                role="setPiece"
+                armed={armed}
+                onArm={(id) => setArmed((a) => (a === id ? null : id))}
+                onMindGame={() => {}}
+              />
+            ) : null
+          ) : (
+            <ActionPad
+              turn={turn}
+              turnKey={`${state.decisions}-${state.phase}-${state.pending.kind}`}
+              tactics={state.teams.home.tactics}
+              tacticTitles={tacticTitles}
+              armed={armed}
+              onArm={setArmed}
+              onSend={sendOrFinish}
+            />
+          )}
+        </section>
       </main>
 
-      <footer className={styles.thumb}>
-        {waiting ? (
-          res?.goal ? null : (
-            <div className={styles.continueRow}>
-              <Pill tone={state.phase === "fulltime" ? "green" : "blue"} onClick={advance} wide pulse={!res}>
-                {continueLabel}
-              </Pill>
-              {autoHold ? <i key={state.decisions} className={styles.autoFill} style={{ "--hold": `${autoHold}ms` } as CSSProperties} aria-hidden /> : null}
-            </div>
-          )
-        ) : setPieceTurn ? (
-          state.teams.home.tactics.length ? (
-            <TacticTray
-              tactics={state.teams.home.tactics}
-              titles={tacticTitles}
-              role="setPiece"
-              armed={armed}
-              onArm={(id) => setArmed((a) => (a === id ? null : id))}
-              onMindGame={() => {}}
-            />
-          ) : null
-        ) : (
-          <ActionPad
-            turn={turn}
-            turnKey={`${state.decisions}-${state.phase}-${state.pending.kind}`}
-            tactics={state.teams.home.tactics}
-            tacticTitles={tacticTitles}
-            armed={armed}
-            onArm={setArmed}
-            onSend={sendOrFinish}
-          />
-        )}
-        <EventsBar event={lastEvent} onShow={() => setPanel({ kind: "events" })} />
-      </footer>
-
-      <Modal open={Boolean(res?.goal)} labelledBy="pd-goal-title" tone={res?.goal === "home" ? "blue" : "red"}>
+      <Modal open={Boolean(res?.goal)} labelledBy="pd-goal-title" tone={res?.goal === "home" ? "blue" : "red"} wide>
         {res?.goal ? (
           <div className={styles.goalModal}>
-            <h2 id="pd-goal-title" className={styles.goalWord}>GOAL!!!</h2>
-            <p>
-              {scorer?.name ?? "A shot"} scores for {res.goal === "home" ? "your team" : state.opponentName}
-            </p>
             {scorer ? (
               <div className={styles.goalCard}>
                 <small>GOAL SCORER</small>
                 <DuelCard card={scorer} size="md" stats={null} />
+              </div>
+            ) : null}
+            <div className={styles.goalText}>
+              <h2 id="pd-goal-title" className={styles.goalWord}>GOAL!!!</h2>
+              <p>
+                {scorer?.name ?? "A shot"} scores for {res.goal === "home" ? "your team" : state.opponentName}
+              </p>
+              {scorer ? (
                 <span className={styles.goalChips}>
-                  <b>{scorer.rating}</b>
+                  <b>{scorer.rating} OVR</b>
                   <b>{primaryPosition(scorer)}</b>
                   <b>{state.score.home}–{state.score.away}</b>
                 </span>
-              </div>
-            ) : null}
-            <Pill tone="blue" onClick={advance} wide>
-              CONTINUE
-            </Pill>
+              ) : null}
+              <Pill tone="blue" onClick={advance} wide>
+                CONTINUE
+              </Pill>
+            </div>
           </div>
         ) : null}
       </Modal>
@@ -209,7 +219,7 @@ export function MatchScreen({
       <Sheet open={panel?.kind === "map"} title="MATCH MAP" onClose={() => setPanel(null)}>
         <MatchMap state={state} scene={scene} danger={danger} big />
         <p className={styles.mapKey}>
-          <i style={{ background: sideAccent.home }} /> You attack up <i style={{ background: sideAccent.away }} /> {state.opponentName}
+          <i style={{ background: sideAccent.home }} /> You attack right → <i style={{ background: sideAccent.away }} /> {state.opponentName}
         </p>
       </Sheet>
 
@@ -225,6 +235,16 @@ export function MatchScreen({
       </Modal>
     </div>
   );
+}
+
+/** The heading over the move column: what this turn asks of you. */
+function callFor(state: MatchState, kind: string, revealing: boolean, autoHold: number | null | undefined): { title?: string; sub: string } {
+  if (revealing) return { title: "DUEL RESULT", sub: autoHold ? "The next duel starts by itself" : "Tap NEXT when you are ready" };
+  if (state.phase !== "choose") return { sub: promptFor(state).hint };
+  if (kind === "setPiece") return { sub: "Tap your pick on the picture" };
+  if (kind === "attack") return { sub: "Your ball · pick a move" };
+  if (kind === "defend") return { sub: "Their ball · pick how you defend" };
+  return { sub: "" };
 }
 
 function situationFor(state: MatchState): { title: string; detail: string; tone: string } {

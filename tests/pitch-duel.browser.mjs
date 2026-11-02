@@ -1,6 +1,7 @@
-// Pitch Duel in a real browser, portrait first: phone sizes and a desktop
-// window, the drag-and-drop lineup, a full eleven-a-side match to the result
-// screen, the v4 save, and a v3 save moving onto eleven a side.
+// Pitch Duel in a real browser, landscape: phones held sideways and upright
+// (the upright phone gets the rotated landscape frame), a desktop window, the
+// drag-and-drop lineup, a full eleven-a-side match to the result screen, the
+// v4 save, and a v3 save moving onto eleven a side.
 //   npm run test:pitch-duel:browser            (starts its own dev server)
 //   npm run test:pitch-duel:browser -- --url=http://localhost:3000
 import assert from 'node:assert/strict';
@@ -46,6 +47,24 @@ async function seeded(options, extra = {}) {
   return { context, page };
 }
 
+/**
+ * Opens Pitch Duel. On a phone the game runs inside the landscape frame, so the
+ * checks run in that frame; on a desktop window they run in the page itself.
+ */
+async function open(page, label) {
+  await page.goto(`${origin}/play/pitch-duel`, { waitUntil: 'domcontentloaded', timeout: 180000 });
+  const mobile = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+  let target = page;
+  if (mobile) {
+    const handle = await page.locator('iframe[data-mobile-game-frame]').elementHandle({ timeout: 180000 });
+    target = await handle.contentFrame();
+  }
+  await target.locator('[data-pitch-duel-screen="home"]').waitFor({ timeout: 180000 });
+  const size = await target.evaluate(() => ({ width: innerWidth, height: innerHeight }));
+  assert.ok(size.width > size.height, `${label}: the game is laid out in landscape (${size.width}x${size.height})`);
+  return { target, size };
+}
+
 const fits = (target) => target.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.documentElement.scrollHeight <= innerHeight + 1);
 
 async function checkTargets(target, label) {
@@ -59,133 +78,144 @@ async function checkTargets(target, label) {
 }
 
 /** Taps through a whole match, then waits for the result screen. */
-async function playMatch(page, label) {
-  await page.locator('[data-pitch-duel-option="play-match"]').click();
-  await page.locator('[data-pitch-duel-screen="prematch"]').waitFor({ timeout: 30000 });
-  assert.ok(await fits(page), `${label}: prematch must not scroll the page`);
-  await page.locator('[data-pitch-duel-option="kick-off"]').click();
-  await page.locator('[data-pitch-duel-screen="match"]').waitFor({ timeout: 30000 });
-  assert.ok(await fits(page), `${label}: match screen must not scroll`);
-  await page.getByRole('button', { name: /^KICK OFF$/ }).click();
-  await checkTargets(page, label);
-  await page.screenshot({ path: path.join(out, `${label}-match.png`) });
+async function playMatch(page, label, target = page) {
+  const shot = (name) => page.screenshot({ path: path.join(out, `${label}-${name}.png`) });
+  await target.locator('[data-pitch-duel-option="play-match"]').click();
+  await target.locator('[data-pitch-duel-screen="prematch"]').waitFor({ timeout: 30000 });
+  assert.ok(await fits(target), `${label}: prematch must not scroll the page`);
+  await target.locator('[data-pitch-duel-option="kick-off"]').click();
+  await target.locator('[data-pitch-duel-screen="match"]').waitFor({ timeout: 30000 });
+  assert.ok(await fits(target), `${label}: match screen must not scroll`);
+  await target.getByRole('button', { name: /^KICK OFF$/ }).click();
+  await checkTargets(target, label);
+  await shot('match');
   let scenes = 0;
   let goals = 0;
   for (let i = 0; i < 400; i += 1) {
-    const finish = page.getByRole('button', { name: /^SEE THE RESULT$/ });
+    const finish = target.getByRole('button', { name: /^SEE THE RESULT$/ });
     if (await finish.count()) {
-      await page.screenshot({ path: path.join(out, `${label}-fulltime.png`) });
+      await shot('fulltime');
       await finish.first().click();
       break;
     }
-    const goal = page.locator('#pd-goal-title');
+    const goal = target.locator('#pd-goal-title');
     if (await goal.count()) {
-      if (!goals) await page.screenshot({ path: path.join(out, `${label}-goal.png`) });
+      if (!goals) await shot('goal');
       goals += 1;
-      await page.locator('[role="dialog"]').getByRole('button', { name: /CONTINUE/ }).click({ timeout: 3000 }).catch(() => {});
+      await target.locator('[role="dialog"]').getByRole('button', { name: /CONTINUE/ }).click({ timeout: 3000 }).catch(() => {});
       continue;
     }
-    const scene = page.locator('[data-kind][data-role]');
+    const scene = target.locator('[data-kind][data-role]');
     if (await scene.count()) {
       if (!scenes) {
-        await checkTargets(page, `${label} set piece`);
-        await page.screenshot({ path: path.join(out, `${label}-set-piece.png`) });
+        await checkTargets(target, `${label} set piece`);
+        await shot('set-piece');
       }
       scenes += 1;
     }
-    const nextButton = page.getByRole('button', { name: /^(NEXT|CONTINUE|START SECOND HALF|KICK OFF)$/ });
+    const nextButton = target.getByRole('button', { name: /^(NEXT|CONTINUE|START SECOND HALF|KICK OFF)$/ });
     // A plain reveal also moves on by itself, so the button can vanish before the tap lands.
     if (await nextButton.count()) { await nextButton.first().click({ timeout: 3000 }).catch(() => {}); continue; }
-    const options = page.locator('[data-pitch-duel-option]');
+    const options = target.locator('[data-pitch-duel-option]');
     const count = await options.count();
     if (count) { await options.nth(i % count).click({ timeout: 5000 }).catch(() => {}); continue; }
-    await page.waitForTimeout(100);
+    await target.waitForTimeout(100);
   }
-  await page.locator('[data-pitch-duel-summary]').waitFor({ timeout: 30000 });
-  await page.screenshot({ path: path.join(out, `${label}-summary.png`) });
+  await target.locator('[data-pitch-duel-summary]').waitFor({ timeout: 30000 });
+  await shot('summary');
   return { scenes, goals };
 }
 
 /** The XI as the lineup editor shows it: place → aria label. */
 const lineupLabels = (page) => page.locator('[data-place]').evaluateAll((els) => Object.fromEntries(els.map((el) => [el.getAttribute('data-place'), el.getAttribute('aria-label')])));
 
-async function editLineup(page, label) {
-  await page.getByRole('button', { name: /^LINEUP$/ }).click();
-  await page.locator('[data-pitch-duel-screen="lineup"]').waitFor({ timeout: 30000 });
-  assert.equal(await page.locator('[data-place]').count(), 11, `${label}: eleven places`);
-  await checkTargets(page, `${label} lineup`);
+async function editLineup(page, label, target = page) {
+  await target.getByRole('button', { name: /^LINEUP$/ }).click();
+  await target.locator('[data-pitch-duel-screen="lineup"]').waitFor({ timeout: 30000 });
+  assert.equal(await target.locator('[data-place]').count(), 11, `${label}: eleven places`);
+  assert.ok(await fits(target), `${label}: lineup must not scroll the page`);
+  await checkTargets(target, `${label} lineup`);
   await page.screenshot({ path: path.join(out, `${label}-lineup.png`) });
 
   // Drag place 0 onto place 1: the two players swap.
-  const before = await lineupLabels(page);
-  const a = await page.locator('[data-place="0"]').boundingBox();
-  const b = await page.locator('[data-place="1"]').boundingBox();
+  const before = await lineupLabels(target);
+  const a = await target.locator('[data-place="0"]').boundingBox();
+  const b = await target.locator('[data-place="1"]').boundingBox();
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
   await page.mouse.down();
   await page.mouse.move(a.x + a.width / 2 + 12, a.y + a.height / 2 + 6, { steps: 3 });
   await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 });
   await page.mouse.up();
-  const swapped = await lineupLabels(page);
+  const swapped = await lineupLabels(target);
   const name = (text) => text.split(': ')[1];
   assert.equal(name(swapped['0']), name(before['1']), `${label}: drag swaps the players`);
   assert.equal(name(swapped['1']), name(before['0']), `${label}: drag swaps both ways`);
 
   // Tap a place, then a squad card: the card comes in.
-  await page.locator('[data-place="9"]').click();
-  const incoming = page.locator('[data-bench] button').first();
+  await target.locator('[data-place="9"]').click();
+  const incoming = target.locator('[data-bench] button').first();
   const incomingName = (await incoming.getAttribute('aria-label')).replace(/^Bring in /, '').split(',')[0];
   await incoming.click();
-  const after = await lineupLabels(page);
+  const after = await lineupLabels(target);
   assert.ok(after['9'].includes(incomingName), `${label}: a squad card replaces the picked place`);
 
-  await page.locator('[data-pitch-duel-option="save-lineup"]').click();
-  await page.locator('[data-pitch-duel-screen="home"]').waitFor({ timeout: 30000 });
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('statoz.games.web.pitch-duel.v4') ?? 'null'));
+  await target.locator('[data-pitch-duel-option="save-lineup"]').click();
+  await target.locator('[data-pitch-duel-screen="home"]').waitFor({ timeout: 30000 });
+  const saved = await target.evaluate(() => JSON.parse(localStorage.getItem('statoz.games.web.pitch-duel.v4') ?? 'null'));
   assert.equal(saved?.club?.outfield?.length, 10, `${label}: the eleven is saved`);
   return incomingName;
 }
 
 try {
-  // 1. Phones, portrait, touch: lineup editing, then a whole match.
-  for (const viewport of [{ width: 390, height: 844 }, { width: 360, height: 740 }]) {
+  // 1. A phone held sideways (the frame is not turned): lineup drag and tap, then a whole match.
+  // 2. A small phone held upright: the frame turns it to 740x360, then a whole match.
+  for (const [viewport, lineup] of [[{ width: 844, height: 390 }, true], [{ width: 360, height: 740 }, false]]) {
     const label = `${viewport.width}x${viewport.height}`;
     const { context, page } = await seeded({ viewport, hasTouch: true, isMobile: true });
-    await page.goto(`${origin}/play/pitch-duel`, { waitUntil: 'domcontentloaded', timeout: 180000 });
-    await page.locator('[data-pitch-duel-screen="home"]').waitFor({ timeout: 180000 });
-    assert.equal(await page.locator('iframe[data-mobile-game-frame]').count(), 0, `${label}: portrait, no rotated frame`);
-    assert.ok(await fits(page), `${label}: home must not scroll the page`);
+    const { target, size } = await open(page, label);
+    assert.ok(await fits(target), `${label}: home must not scroll the page`);
+    await checkTargets(target, `${label} home`);
     await page.screenshot({ path: path.join(out, `${label}-home.png`) });
-    if (viewport.width === 390) await editLineup(page, label);
-    const played = await playMatch(page, label);
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('statoz.games.web.pitch-duel.v4') ?? 'null'));
+    if (lineup) await editLineup(page, label, target);
+    const played = await playMatch(page, label, target);
+    const saved = await target.evaluate(() => JSON.parse(localStorage.getItem('statoz.games.web.pitch-duel.v4') ?? 'null'));
     assert.equal(saved?.played, 1, `${label}: the finished match is saved`);
     assert.ok(saved.history[0].decisions >= 26 && saved.history[0].decisions <= 36, `${label}: about thirty decisions`);
-    console.log(`${label}: ${played.scenes} set-piece screens, ${played.goals} goals`);
+    console.log(`${label} (game ${size.width}x${size.height}): ${played.scenes} set-piece screens, ${played.goals} goals`);
     await context.close();
   }
 
-  // 2. Bigger phone and a desktop window: the column stays centred and usable.
-  for (const viewport of [{ width: 430, height: 932 }, { width: 1280, height: 800 }]) {
+  // 3. A big phone held sideways and a desktop window: every screen fits without scrolling.
+  for (const [viewport, phone] of [[{ width: 932, height: 430 }, true], [{ width: 1280, height: 800 }, false]]) {
     const label = `${viewport.width}x${viewport.height}`;
-    const { context, page } = await seeded({ viewport });
-    await page.goto(`${origin}/play/pitch-duel`, { waitUntil: 'domcontentloaded', timeout: 180000 });
-    await page.locator('[data-pitch-duel-screen="home"]').waitFor({ timeout: 180000 });
-    await page.locator('[data-pitch-duel-option="play-match"]').click();
-    await page.locator('[data-pitch-duel-option="kick-off"]').click();
-    await page.locator('[data-pitch-duel-screen="match"]').waitFor({ timeout: 30000 });
-    await page.getByRole('button', { name: /^KICK OFF$/ }).click();
-    assert.ok(await fits(page), `${label}: match must not scroll`);
-    await checkTargets(page, label);
+    const { context, page } = await seeded(phone ? { viewport, hasTouch: true, isMobile: true } : { viewport });
+    const { target } = await open(page, label);
+    assert.ok(await fits(target), `${label}: home must not scroll`);
+    await page.screenshot({ path: path.join(out, `${label}-home.png`) });
+    await target.getByRole('button', { name: /^LINEUP$/ }).click();
+    await target.locator('[data-pitch-duel-screen="lineup"]').waitFor({ timeout: 30000 });
+    assert.ok(await fits(target), `${label}: lineup must not scroll`);
+    await checkTargets(target, `${label} lineup`);
+    await page.screenshot({ path: path.join(out, `${label}-lineup.png`) });
+    await target.locator('[data-pitch-duel-option="save-lineup"]').click();
+    await target.locator('[data-pitch-duel-option="play-match"]').click();
+    await target.locator('[data-pitch-duel-screen="prematch"]').waitFor({ timeout: 30000 });
+    assert.ok(await fits(target), `${label}: prematch must not scroll`);
+    await page.screenshot({ path: path.join(out, `${label}-prematch.png`) });
+    await target.locator('[data-pitch-duel-option="kick-off"]').click();
+    await target.locator('[data-pitch-duel-screen="match"]').waitFor({ timeout: 30000 });
+    await target.getByRole('button', { name: /^KICK OFF$/ }).click();
+    assert.ok(await fits(target), `${label}: match must not scroll`);
+    await checkTargets(target, label);
     await page.screenshot({ path: path.join(out, `${label}-match.png`) });
     await context.close();
   }
 
-  // 3. A v3 five-a-side save opens as an eleven, with its progress.
+  // 4. A v3 five-a-side save opens as an eleven, with its progress.
   {
     const v3 = { version: 3, club: { formation: '1-2-1', keeperId: 'arg-emiliano-martinez', outfield: ['arg-cristian-romero', 'arg-rodrigo-de-paul', 'arg-lionel-messi', 'arg-lautaro-martinez'], tactics: [] }, points: 12, xp: 480, wins: 4, draws: 0, losses: 1, played: 5, goalsFor: 9, goalsAgainst: 4, currentStreak: 2, bestStreak: 3, tutorialSeen: true, history: [], rewardedDivisions: [2], settings: { haptics: true } };
-    const { context, page } = await seeded({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }, { 'statoz.games.web.pitch-duel.v3': JSON.stringify(v3) });
-    await page.goto(`${origin}/play/pitch-duel`, { waitUntil: 'domcontentloaded', timeout: 180000 });
-    await page.locator('[data-pitch-duel-screen="home"]').waitFor({ timeout: 180000 });
+    const { context, page } = await seeded({ viewport: { width: 1280, height: 800 } }, { 'statoz.games.web.pitch-duel.v3': JSON.stringify(v3) });
+    await open(page, 'v3 save');
     await page.waitForFunction(() => localStorage.getItem('statoz.games.web.pitch-duel.v4'), null, { timeout: 30000 });
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('statoz.games.web.pitch-duel.v4')));
     assert.equal(saved.version, 4);
@@ -198,7 +228,7 @@ try {
   }
 
   assert.deepEqual(errors, []);
-  console.log('Passed: 390x844 lineup drag + full match, 360x740 full match, 430x932 and desktop layouts, v3 → v4 save.');
+  console.log('Passed: 844x390 lineup drag + full match, 360x740 upright (rotated) full match, 932x430 and desktop layouts, v3 → v4 save.');
 } catch (error) {
   console.log('Pitch Duel browser check failed: ' + String(error));
   console.log('Browser errors: ' + JSON.stringify(errors));

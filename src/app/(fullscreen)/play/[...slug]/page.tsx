@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { GameLauncher, gameForHref, playableGameHrefs } from "@/features/games";
 
@@ -41,5 +42,5 @@ export default async function PlayPage({ params }: PageProps<"/play/[...slug]">)
   const found = await resolve(params);
   if (!found) notFound();
 
-  return <GameLauncher game={found.game} entry={found.entry} />;
+  return <Suspense fallback={<div role="status">Opening game…</div>}><GameLauncher game={found.game} entry={found.entry} /></Suspense>;
 }

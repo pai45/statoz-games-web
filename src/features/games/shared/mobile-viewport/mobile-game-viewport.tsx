@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { basePath } from '@/shared/config';
 import { landscapeGeometry, leavesPlatformFrame, phoneQuery } from './policy';
 import styles from './mobile-game-viewport.module.css';
@@ -79,8 +79,9 @@ function LandscapeFrame({ kind, title, allow }: { kind: FrameKind; title: string
   const router = useRouter();
   // This component only renders after hydration. Keep src stable across resize.
   const routePath = usePathname();
+  const query = useSearchParams();
   // Client navigation can render this frame before browser history updates.
-  const [source] = useState(() => new URL(basePath + routePath + window.location.search + window.location.hash, window.location.origin).href);
+  const [source] = useState(() => new URL(basePath + routePath + (query.size ? `?${query}` : '') + window.location.hash, window.location.origin).href);
   /** The page inside the frame moved to `href`. */
   const follow = useCallback((href: string) => {
     let url: URL;
@@ -159,9 +160,10 @@ function LandscapeFrame({ kind, title, allow }: { kind: FrameKind; title: string
  * (games, login) and hands them to the outer page before the frame loads them. */
 export function MobileGameNavigationBridge() {
   const pathname = usePathname();
+  const query = useSearchParams();
   useEffect(() => {
     if (hosted()) window.parent.postMessage({ type: navigationMessage, href: location.href }, location.origin);
-  }, [pathname]);
+  }, [pathname, query]);
   useEffect(() => {
     if (!hostedIn('platform')) return;
     // Registered after React's own document listeners, so a component that cancels a

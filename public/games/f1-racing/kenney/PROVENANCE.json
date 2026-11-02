@@ -1,0 +1,104 @@
+{
+  "game": "f1-racing (Racer)",
+  "version": 1,
+  "policy": "Only CC0 assets by Kenney (www.kenney.nl), checked on the original upload pages. Nothing is fetched at runtime; every file is served locally from this folder.",
+  "author": "Kenney (www.kenney.nl)",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "sources": [
+    {
+      "title": "Racing Kit 1.2",
+      "page": "https://opengameart.org/content/racing-kit",
+      "download": "https://opengameart.org/sites/default/files/Racing%20Kit%20%281.2%29.zip",
+      "uploader": "kenney",
+      "zipSha256": "103acf8a85a04e94e2d3a9933fbcea12e9422c14d5e364eb013019a882af7f48",
+      "used": [
+        "grandStandCovered",
+        "grandStand",
+        "pitsGarage",
+        "pitsGarageCorner",
+        "pitsOffice",
+        "overheadLights",
+        "billboard",
+        "billboardLow",
+        "barrierRed",
+        "barrierWhite",
+        "treeLarge",
+        "treeSmall",
+        "tent",
+        "tentLong",
+        "flagCheckers",
+        "flagGreen",
+        "flagRed",
+        "lightRedDouble",
+        "radarEquipment",
+        "pylon",
+        "fenceStraight",
+        "barrierWall",
+        "rail"
+      ]
+    },
+    {
+      "title": "Car Kit 3.1",
+      "page": "https://opengameart.org/content/car-kit",
+      "download": "https://opengameart.org/sites/default/files/kenney_car-kit_3.1.zip",
+      "uploader": "kenney",
+      "zipSha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "used": [
+        "race.glb",
+        "race-future.glb",
+        "debris-tire.glb",
+        "debris-spoiler-a.glb",
+        "debris-bumper.glb",
+        "debris-plate-a.glb",
+        "debris-plate-small-a.glb",
+        "debris-door.glb",
+        "debris-bolt.glb"
+      ]
+    },
+    {
+      "title": "Starter Kit Racing (audio)",
+      "page": "https://github.com/KenneyNL/Starter-Kit-Racing",
+      "note": "Repository code is MIT; its 3D models and sounds are CC0 per the README.",
+      "used": [
+        "audio/engine.ogg",
+        "audio/skid.ogg",
+        "audio/impact.ogg"
+      ]
+    }
+  ],
+  "adaptations": [
+    "racer-kit.glb merges the listed models into one binary glTF. Geometry, UVs and colours are unchanged.",
+    "Racing Kit root layout offsets are removed; Racer recentres and scales each prop at runtime.",
+    "Kenney's fictional Tankco banner texture is not included; the banner slot is named 'sign' and Racer draws StatOz CIRCUITS signage into it.",
+    "Car body paint is recoloured at runtime per livery (saturated paint texels only)."
+  ],
+  "triangles": 7805,
+  "files": [
+    {
+      "file": "racer-kit.glb",
+      "sha256": "5c909b5df02ba6a8eede6238a8e12e1fc2b96507135348b0eb0a096ae609bc66",
+      "bytes": 851796
+    },
+    {
+      "file": "audio/engine.ogg",
+      "sha256": "6d665dfc961e2d522c866bdcf12fc0ac56c885c0c7117e830df84ba8eecd655c",
+      "bytes": 111411
+    },
+    {
+      "file": "audio/skid.ogg",
+      "sha256": "e62a42c0a4af29ed69b37cfc80d088a6808c59f8f725285ebcc3f409267965a0",
+      "bytes": 42919
+    },
+    {
+      "file": "audio/impact.ogg",
+      "sha256": "964c5fcfb91e7710e2af25c2243c8b7160756b223b0984bacc9eb25bfeea057b",
+      "bytes": 11616
+    },
+    {
+      "file": "License.txt",
+      "sha256": "c33b7f6453d134deae7b1b8493717d9ccfa754c25ab97f6de89b88f8fda19b00",
+      "bytes": 696
+    }
+  ]
+}

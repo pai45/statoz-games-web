@@ -120,17 +120,19 @@ export function DuelStage({
         />
       </div>
 
-      {res ? (
-        <div key={`r${state.decisions}`} className={styles.verdict} role="status" style={{ "--tone": res.goal ? sideAccent[res.goal] : res.userWon ? good : bad } as CSSProperties}>
-          {tag ? <span className={styles.verdictTag} style={{ "--tag": tag.tone } as CSSProperties}>{tag.text}</span> : null}
-          <strong>{res.headline}</strong>
-          <span>{res.detail}</span>
-        </div>
-      ) : (
-        <p key={prompt.hint} className={styles.tip}>
-          <b>Tip:</b> {prompt.hint}
-        </p>
-      )}
+      <div className={styles.callout}>
+        {res ? (
+          <div key={`r${state.decisions}`} className={styles.verdict} role="status" style={{ "--tone": res.goal ? sideAccent[res.goal] : res.userWon ? good : bad } as CSSProperties}>
+            {tag ? <span className={styles.verdictTag} style={{ "--tag": tag.tone } as CSSProperties}>{tag.text}</span> : null}
+            <strong>{res.headline}</strong>
+            <span>{res.detail}</span>
+          </div>
+        ) : (
+          <p key={prompt.hint} className={styles.tip}>
+            <b>Tip:</b> {prompt.hint}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

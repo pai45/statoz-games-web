@@ -50,7 +50,7 @@ test('Damping is frame-rate independent and boost release does not snap to a spe
 test('Racer has a new name and URL, with the original route kept compatible',()=>{
  assert.equal(gameRegistry['f1-racing'].title,'RACER');assert.equal(gameForHref('/play/racer')?.game,'f1-racing');assert.equal(gameForHref('/play/f1-racing')?.game,'f1-racing');assert.ok(!gameRegistry['f1-racing'].requiresDeck);
 });
-test('Racer reuses pinned original geometry and does not modify its source exports',()=>{
+test('Recovered reference geometry stays pinned as history (Racer no longer loads it at runtime)',()=>{
  const provenance=JSON.parse(readFileSync('docs/racer/asset-provenance.json','utf8'));
  assert.equal(provenance.assets.length,6);
  for(const asset of provenance.assets){assert.equal(createHash('sha256').update(readFileSync(asset.source)).digest('hex'),asset.sha256);assert.ok(asset.triangles>0);}

@@ -1,6 +1,6 @@
 "use client";
 import {useEffect, useRef, useState} from "react";
-import {useRouter} from "next/navigation";
+import {useGameReturn} from "../shared/hooks/use-game-return";
 import {publicAsset} from "@/shared/config";
 import {useAuthSession} from "@/features/auth";
 import type {GameLauncherProps} from "../components/game-launcher";
@@ -10,7 +10,7 @@ import styles from "./screen.module.css";
 
 export function RetroFootball({entry}: GameLauncherProps) {
   const account = useAuthSession().email;
-  const frame = useRef<HTMLIFrameElement>(null), router = useRouter();
+  const frame = useRef<HTMLIFrameElement>(null), leave = useGameReturn();
   const [attempt, setAttempt] = useState(0), [error, setError] = useState("");
   const [launch, setLaunch] = useState<{id: string; src: string} | null>(null), [ready, setReady] = useState(false);
   useEffect(() => {
@@ -49,7 +49,7 @@ export function RetroFootball({entry}: GameLauncherProps) {
             completed.add(resultId);archive = {...archive, results: [...archive.results, {id: resultId, completedAt: new Date().toISOString(), result}].slice(-20)};
             writeArchive(storage, archive);
           }
-        } else if (message.type === "exit") router.push("/games/football");
+        } else if (message.type === "exit") leave();
       }
     };
     const background = () => {if(document.hidden)send("pause");};
@@ -57,13 +57,13 @@ export function RetroFootball({entry}: GameLauncherProps) {
     // Listener is installed before the iframe can announce ready.
     setLaunch({id, src: publicAsset(`/games/retro-football/index.html?host=web&session=${encodeURIComponent(id)}`)});
     return () => {active = false;window.clearTimeout(timeout);send("dispose");window.removeEventListener("message", receive);document.removeEventListener("visibilitychange", background);};
-  }, [attempt, router, account]);
+  }, [attempt, leave, account]);
   return <section className={styles.root} aria-label={entry.title}>
     {launch && <iframe key={launch.id} ref={frame} src={launch.src} title="Retro Football exhibition" className={styles.frame} allow="autoplay; fullscreen" allowFullScreen onError={() => setError("Retro Football could not load. Please retry.")} />}
     {(!ready || error) && <div className={styles.notice} role={error ? "alert" : "status"}>
       <p>{error || "LOADING RETRO FOOTBALL…"}</p>
       {error && <button type="button" onClick={() => {setReady(false);setError("");setAttempt(n => n+1);}}>Retry loading</button>}
-      <button type="button" onClick={() => router.push("/games/football")}>Return to football</button>
+      <button type="button" onClick={leave}>Back to Games</button>
     </div>}
   </section>;
 }

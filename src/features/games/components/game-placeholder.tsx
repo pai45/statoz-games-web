@@ -7,6 +7,7 @@ import { sportForGame, type GameEntry } from "@/mocks/games";
 import type { GameId } from "../types";
 
 import { GameScene } from "./game-scenes";
+import { useGameReturn } from "../shared/hooks/use-game-return";
 
 export type GamePlaceholderProps = {
   game: GameId;
@@ -21,6 +22,7 @@ export type GamePlaceholderProps = {
  * replaces.
  */
 export function GamePlaceholder({ game, entry }: GamePlaceholderProps) {
+  const leave = useGameReturn();
   const accent = accentVar(entry.accent);
   const sport = sportForGame(game);
   const label = sportModuleFor(sport).label;
@@ -71,12 +73,12 @@ export function GamePlaceholder({ game, entry }: GamePlaceholderProps) {
 
         <div className="mt-8 w-full max-w-64">
           <Button
-            href={`/games/${sport}`}
+            onClick={leave}
             variant="tonal"
             accent={accent}
             size="lg"
             fullWidth
-            label={`Back to ${label} games`}
+            label="Back to Games"
           >
             BACK TO GAMES
           </Button>

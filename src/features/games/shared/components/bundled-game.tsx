@@ -1,14 +1,13 @@
 "use client";
 
 import {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
+import {useGameReturn} from '../hooks/use-game-return';
 import Link from 'next/link';
 import {Button} from '@/design-system';
 import {publicAsset} from '@/shared/config';
 import {useAuthSession} from '@/features/auth';
 import {guideFor} from '@/features/how-to-play';
 import type {GameLauncherProps} from '../../components/game-launcher';
-import {gameHubHref} from '../bundled-game-config';
 import {defaultPresentation, presentationKey, readPresentation} from '../retro/presentation';
 import styles from './bundled-game.module.css';
 type BootstrapWindow = Window & {__STATOZ_BUNDLE_BOOT__?: (session:string,child:Window)=>string|null};
@@ -19,10 +18,10 @@ export function BundledGame(props: GameLauncherProps) {
 }
 
 function AccountGameBundle({game, entry, account}: GameLauncherProps & {account: string | null}) {
-  const frame = useRef<HTMLIFrameElement>(null), router = useRouter();
+  const frame = useRef<HTMLIFrameElement>(null), leave = useGameReturn();
   const [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [ready, setReady] = useState(false), [attempt, setAttempt] = useState(0);
-  const hub = gameHubHref(game), guide = guideFor(game);
+  const guide = guideFor(game);
 
   useEffect(() => {
     let active = true;
@@ -47,7 +46,7 @@ function AccountGameBundle({game, entry, account}: GameLauncherProps & {account:
       const value = event.data;
       if (!active || event.source !== element?.contentWindow || event.origin !== location.origin || value?.protocolVersion !== 1 || value.gameId !== game || value.sessionId !== sessionId) return;
       if (value.type === 'ready') setReady(true);
-      if (value.type === 'exit') router.push(hub);
+      if (value.type === 'exit') leave();
       if (value.type === 'presentation') {
         const next = readPresentation(value.payload);
         if (next) { if(bootText)bootText=JSON.stringify({...JSON.parse(bootText),presentation:next});try { localStorage.setItem(displayKey, JSON.stringify(next)); } catch { setNotice('Display preferences could not be saved on this device.'); } }
@@ -87,7 +86,7 @@ function AccountGameBundle({game, entry, account}: GameLauncherProps & {account:
       if(hostWindow.__STATOZ_BUNDLE_BOOT__===provideBoot)delete hostWindow.__STATOZ_BUNDLE_BOOT__;
       if (element) element.srcdoc = '';
     };
-  }, [game, account, router, hub, attempt]);
+  }, [game, account, leave, attempt]);
 
   const retry = () => { setError(''); setReady(false); setAttempt(value => value + 1); };
   return <section className={styles.root} data-bundled-game={game}>
@@ -96,7 +95,7 @@ function AccountGameBundle({game, entry, account}: GameLauncherProps & {account:
       <h1>{entry.title}</h1><p>{error || 'Opening your game…'}</p>
       <div className={styles.actions}>
         {error && <Button onClick={retry}>Try again</Button>}
-        <Button variant="surface" onClick={() => router.push(hub)}>Back to Games</Button>
+        <Button variant="surface" onClick={leave}>Back to Games</Button>
         {guide && <Link href={`/how-to-play/${guide.id}`}>How to play</Link>}
       </div>
     </div>}

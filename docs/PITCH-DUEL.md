@@ -1,6 +1,6 @@
 # Pitch Duel (Future Web Games)
 
-Pitch Duel is a portrait-first, eleven-a-side football card game at `/play/pitch-duel`. Its gameplay follows the card-football structure of [Ballers](https://github.com/kiellzz/ballers-game): a zone ladder, one duel per decision, tap-to-pick set pieces, and a match screen built around two cards facing off. It adds one thing Ballers lacks: the CPU commits a hidden counter every turn.
+Pitch Duel is a landscape, eleven-a-side football card game at `/play/pitch-duel`. Its gameplay follows the card-football structure of [Ballers](https://github.com/kiellzz/ballers-game): a zone ladder, one duel per decision, tap-to-pick set pieces, and a match screen built around two cards facing off. It adds one thing Ballers lacks: the CPU commits a hidden counter every turn.
 
 The game has its own look, separate from the StatOz design system: dark violet night-stadium panels, pink and cyan accents, player cards in the StatOz collectible layout with a stat panel added, condensed type. The host app around it keeps StatOz styling.
 
@@ -17,7 +17,7 @@ All code is in `src/features/games/pitch-duel`:
 
 Mechanics and art direction are inspired by Ballers (kiellzz/ballers-game). **That repository has no licence and ships real player photos, sponsor imagery and music, so none of its code, CSS, images or audio is copied.**
 
-The look was studied from the public demo. REA browser captures (Welcome, mode select, Freestyle home) and Playwright measurements (lineup, opponent select, match, goal modal) were taken at 390×844, along with the repository's own README screenshots. Everything in this folder is redrawn from scratch:
+The look was studied from the public demo. REA browser captures (Welcome, mode select, Freestyle home) and Playwright measurements (lineup, opponent select, match, goal modal) were taken at 390×844, along with the repository's own README screenshots. Those were portrait; the November 2026 revamp re-lays every screen out for landscape (see [Landscape layout](#landscape-layout)). Everything in this folder is redrawn from scratch:
 - the cards, pitch, goal, net, wall and stadium are CSS gradients and inline SVG;
 - the wordmark is our own;
 - portraits come from the existing StatOz card catalogue.
@@ -36,11 +36,11 @@ The look was studied from the public demo. REA browser captures (Welcome, mode s
 | Scoreboard | dark `rgba(3,3,5,.96)→rgba(30,30,36,.9)`, trapezoid, 2px violet→pink→cyan shimmer | `Scoreboard`, `.scoreTrap`, `.shimmer` (3.2s) |
 | Lineup tabs | 999px pills, green→blue tint, 1px violet border | `.tab` |
 | Situation box | black 82%, 4px left border coloured by situation, 8px radius | `.situation` (neutral `#bfff00`, attack `#4ade80`, defend `#f87171`, chance `#fbbf24`) |
-| Match map | 78×102, 2px `#22c55e` border, 5px radius, ball 16px | `MatchMap` (red when they are near your goal) |
+| Match map | 78×102 portrait, 2px `#22c55e` border, 5px radius, ball 16px | `MatchMap`, drawn sideways (home attacks right), red when they are near your goal |
 | VS | gradient `#fff → #ff6aaa → #ff0055 → #cc0044 → #6b001f`, pink glow | `.vs` |
 | Possession | 16px triangle, blue for you, red for them | `.possession` |
-| Move buttons | violet pills in two columns; the picked one turns white | `.move` |
-| Events bar | `rgba(31,19,47,.65)→rgba(8,8,16,.82)`, "Show" toggle | `EventsBar`, events sheet |
+| Move buttons | violet pills in two columns; the picked one turns white | `.move`, two columns in the right-hand move panel |
+| Events bar | `rgba(31,19,47,.65)→rgba(8,8,16,.82)`, "Show" toggle | `EventsBar`, a card under the map, and the events drawer |
 | Goal modal | `#0a0015→#1a0033`, 20px radius, blue edge, scorer card, CONTINUE | `Modal` + `.goalModal` |
 | Player card | shield card, rating/position/flag top left, 2×3 stats | `DuelCard`, on the StatOz collectible layout instead (see below) |
 
@@ -56,7 +56,7 @@ The look was studied from the public demo. REA browser captures (Welcome, mode s
 - **Sizes:**
   - `lg` is used on the duel stage, which passes live match stats.
   - `md` is the plain face (`stats={null}`) in the goal modal and player sheet. The sheet lists the stats with bars beside it.
-  - `mini` is the lineup token: portrait, OVR, position and nation, with no stats.
+  - `mini` is the squad-tray card in the lineup editor: portrait, OVR, position and nation, with no stats. On the lineup pitch itself each place is a rarity shield (OVR and place) with the short name under it, so eleven fit on a sideways pitch 360px tall.
 
 ## Match loop
 
@@ -115,7 +115,7 @@ Each zone sends the same option id as before. The odds are in `engine/set-pieces
 | 4-2-3-1 | Control | +2 defending in midfield, +1 attacking centrally near goal |
 | 5-3-2 | Park the Bus | +3 defending near goal, −3 attacking near goal |
 
-Each formation has ten places. Each place has a line, the lanes it covers, a shirt position, and an `at` spot (across, depth) that the lineup editor and match map use.
+Each formation has ten places. Each place has a line, the lanes it covers, a shirt position, and an `at` spot (across, depth) that the lineup editor and match map use. `placeSpot` (`components/pitch-layout.ts`) turns a spot into a point on the sideways club pitch: depth runs left to right, across runs top to bottom.
 
 ## CPU
 
@@ -132,12 +132,12 @@ Each formation has ten places. Each place has a line, the lanes it covers, a shi
 - They are never sold in packs and never count as owned cards.
 
 **Lineup editor** (`components/lineup-editor.tsx`):
-- **Drag:** drag a card onto another place to swap, or drag one up from the squad tray. This works with touch and with the mouse.
+- **Drag:** drag a token onto another place to swap, or drag a card across from the squad tray. This works with touch and with the mouse.
 - **Tap:** tap a place, then another place or a squad card.
-- **Keyboard:** Enter picks a place, the arrow keys move between places, Enter places the card.
+- **Keyboard:** Enter picks a place, the arrow keys move between places (right is up the field), Enter places the card.
 - Changing formation re-seats the eleven where they fit best.
 - Auto Pick fields the best eleven for the shape.
-- Each position badge shows how well the player fits: green for natural, amber for near, red for out of position. The badge sits on the token's bottom edge, and tokens are spaced so that no badge or card covers another card's OVR in any of the five shapes from 360px wide.
+- Each name tag shows how well the player fits by its border: green for natural, amber for near, red for out of position. Tokens scale with the pitch, so no tag covers another token's shield in any of the five shapes from a 740×360 screen.
 
 **League:** 3 points for a win, 1 for a draw, promotion every 9 points up to division 5. Each promotion grants an original fictional `pd2-*` card. Coins are 120, 75 or 45.
 
@@ -149,41 +149,46 @@ Each formation has ten places. Each place has a line, the lanes it covers, a shi
 
 Real-athlete cards come from the existing catalogue; their presence does not imply endorsement.
 
-## Mobile (portrait first)
+## Landscape layout
 
-Pitch Duel opts out of the landscape `MobileGameViewport` (`shared/mobile-viewport/policy.ts`). It is a single column, at most 30rem wide and 100dvh tall, centred on desktop.
+Pitch Duel is played sideways. On a phone it uses the shared landscape `MobileGameViewport` (`shared/mobile-viewport/policy.ts`), so a phone held upright gets the rotated landscape frame, like the other landscape games. The game fills the screen up to 90rem wide, centred on a wide desktop. Every screen has a slim top bar, then columns side by side, sized to fit a 740×360 phone without scrolling the page. The guide and the league may scroll; they are reading screens.
 
-**Match screen**, top to bottom:
-1. The trapezoid scoreboard, with back and events buttons.
-2. YOUR LINEUP and OPP. LINEUP tabs, which open bottom sheets.
-3. The stage:
-   - the situation box and the match map, which opens a big map sheet;
-   - the two player cards around the VS, with their live match stats;
-   - the pick tags ("LOCKED IN" until the reveal);
-   - the tip or the verdict.
-4. The moves as violet pills in the thumb zone, with a scrolling tactic row.
-5. The match-events bar.
+**Match screen:**
+1. The top bar: back, YOUR XI, the trapezoid scorebug (your score, the clock and theirs on one row), OPP. XI, and the events button. Below 47rem wide the lineup buttons shrink to icons.
+2. Three columns under it:
+   - **Left:** the situation box, the sideways match map (home attacks right; tap it for the big map), and the latest event (tap it for the log).
+   - **Centre:** the two player cards around the VS with their live stats and pick tags. The verdict or the tip sits in a fixed slot below them, so the cards do not jump. Set pieces replace the cards with the tap scene.
+   - **Right:** the move panel. It shows what the turn asks of you, then the moves as violet buttons in two columns and the tactic chips, or the CONTINUE button between turns.
+
+**Club house:** the wordmark, division badge, PLAY MATCH, LINEUP, LEAGUE and the guide link on the left. On the right, a strip with the promotion track and form, and your eleven on a sideways pitch.
+
+**Lineup editor:** the sideways pitch on the left. On the right: the formation and OVR, the shape blurb, the status line, a SQUAD/TACTICS switch with the position filters, the squad tray, and AUTO PICK, RESET and SAVE SQUAD.
+
+**Matchday:** your team sheet, the matchup (division, OVR against OVR, the rival, REROLL, KICK OFF) and their team sheet, side by side.
+
+**Full-time:** the result card with CLUB HOUSE and NEXT MATCH, the player of the match, and the ratings list.
 
 **Overlays:**
-- Goals open the GOAL!!! modal.
-- Set pieces replace the cards with the tap scene.
+- Lineups, events and the big map open in a drawer from the right edge.
+- Goals open the GOAL!!! modal, with the scorer's card beside the text.
 - Leaving asks for confirmation.
 
 **Motion:**
 - Cards deal in, then clash; the winner lifts and the loser dims.
 - The map dots glide.
 - The score pops on a goal.
-- The CONTINUE pill fills while a reveal auto-advances.
+- The CONTINUE button fills while a reveal auto-advances.
 - Reduced motion cuts every animation to an instant change.
 
-**Fit and touch:** every tappable option is at least 44px and on screen from 360×740 up. Short phones (≤780px tall) tighten the scoreboard, map and pills.
+**Fit and touch:** every tappable option is at least 44px and on screen from 740×360 up. Screens up to 25rem tall tighten the scorebug, the tags and the verdict. A tall, narrow desktop window stacks the columns and scrolls.
 
 ## Verification
 
 - `npm run test:pitch-duel`: engine, CPU and career tests. These cover formations, academy fill, v3 → v4 migration, and calibration bands for match length, goals and draws.
 - `npm run test:pitch-duel:browser` (or `node tests/pitch-duel.browser.mjs --url=http://127.0.0.1:PORT` against a running dev server):
-  - 390×844: a lineup drag swap and a squad swap, then a full match;
-  - 360×740: a full match;
-  - 430×932 and 1280×800: the match screen lays out without scrolling;
+  - a phone held sideways at 844×390: a lineup drag swap and a squad swap, then a full match;
+  - a phone held upright at 360×740, which the landscape frame turns to 740×360: a full match;
+  - 932×430 (phone) and 1280×800 (desktop): home, lineup, matchday and the match screen lay out without scrolling;
   - a v3 save loads as an eleven.
+- The shared `tests/mobile-game-viewport.browser.mjs` also expects `/play/pitch-duel` in the landscape frame.
 - `npm run typecheck`, `npm run lint` and `npm run build`.

@@ -4,8 +4,8 @@ import type { Lane, MatchState, Side } from "../engine/types";
 /**
  * Where all twenty-two players stand. Pure, so it can be tested.
  * Coordinates are 0–1: x runs from the home goal (0) to the away goal (1),
- * y from the left touchline (0) to the right (1). Home attacks to the right.
- * `toPortrait` turns a point into the phone layout, where home attacks up.
+ * y from the left touchline (0) to the right (1). Home attacks to the right,
+ * which is also how the landscape screen draws it.
  */
 export type Token = {
   side: Side;
@@ -130,7 +130,14 @@ function spread(tokens: Token[]) {
   }
 }
 
-/** A landscape scene point in the portrait phone layout: x across, y down, home goal at the bottom. */
-export function toPortrait(point: { x: number; y: number }): { x: number; y: number } {
-  return { x: point.y, y: 1 - point.x };
+/**
+ * Where a formation place sits on the landscape club pitch (home attacking
+ * right): depth (own goal 0 … about 0.56) runs left to right, across (left
+ * touchline 0 … right 1) runs top to bottom. Margins keep a token on the grass.
+ */
+export function placeSpot(at: { across: number; depth: number }): { x: number; y: number } {
+  return { x: 0.11 + ((at.depth - 0.04) / 0.52) * 0.78, y: 0.1 + at.across * 0.8 };
 }
+
+/** The keeper's place on that pitch. */
+export const keeperAt = { across: 0.5, depth: 0.04 };

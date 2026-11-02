@@ -1,30 +1,50 @@
-/* The Pitch Duel club house, portrait first. */
+/*
+ * The Pitch Duel club house, landscape: the lobby (wordmark and calls to
+ * action) on the left, the promotion track and your XI on the right.
+ */
 
 .home {
   display: grid;
-  gap: 0.9rem;
-  padding-bottom: 1rem;
+  grid-template-columns: minmax(15rem, 0.85fr) minmax(0, 1.4fr);
+  gap: clamp(0.75rem, 2.5vw, 1.75rem);
+  height: 100%;
+  min-height: 0;
+}
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 2.2vh, 1rem);
+  justify-content: center;
+  min-height: 0;
+}
+
+.clubSide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 0;
 }
 
 /* ---- Hero -------------------------------------------------------------------- */
 
 .hero {
   display: grid;
-  gap: 0.55rem;
+  gap: clamp(0.25rem, 1.4vh, 0.6rem);
   justify-items: center;
-  padding: 0.4rem 0 0.2rem;
 }
 
 .badge {
   display: inline-flex;
   gap: 0.6rem;
   align-items: center;
-  min-height: 2.6rem;
-  padding: 0 1.6rem;
-  font: 800 0.95rem/1 var(--pd-font-labels), sans-serif;
+  min-height: 2.1rem;
+  padding: 0 1.4rem;
+  font: 800 0.82rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.14em;
   color: #fff;
-  clip-path: polygon(0 50%, 1rem 0, calc(100% - 1rem) 0, 100% 50%, calc(100% - 1rem) 100%, 1rem 100%);
+  clip-path: polygon(0 50%, 0.9rem 0, calc(100% - 0.9rem) 0, 100% 50%, calc(100% - 0.9rem) 100%, 0.9rem 100%);
   background: linear-gradient(135deg, #7c3aed, #5b21b6);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -41,9 +61,10 @@
   display: flex;
   gap: 0.35rem;
   align-items: center;
-  margin: 0.2rem 0 0;
-  font: 950 italic clamp(2.6rem, 13vw, 3.6rem) / 0.9 var(--pd-font-display), sans-serif;
+  margin: 0;
+  font: 950 italic clamp(2.2rem, min(6vw, 11vh), 4.4rem) / 0.9 var(--pd-font-display), sans-serif;
   letter-spacing: -0.04em;
+  white-space: nowrap;
   color: #fff;
   text-shadow: 0 3px 0 #2e1065, 0 0 24px rgba(168, 85, 247, 0.65);
 }
@@ -64,6 +85,11 @@
   animation: spin 9s linear infinite;
 }
 
+.wordBall svg {
+  width: 0.8em;
+  height: 0.8em;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -73,7 +99,7 @@
 .tagline {
   margin: 0;
   color: var(--pd-label);
-  font: 700 0.85rem/1 var(--pd-font-labels), sans-serif;
+  font: 700 0.78rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -82,19 +108,32 @@
 
 .ctaStack {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
 .ctaRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  gap: 0.45rem;
+}
+
+/* The pills come from the shared stylesheet; here they run a size smaller so LINEUP fits. */
+.ctaRow > button {
+  gap: 0.4rem;
+  min-height: 2.9rem;
+  padding-right: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.ctaRow > button > span:first-child {
+  width: 2.1rem;
+  height: 2.1rem;
 }
 
 .stakes {
   margin: 0;
   color: var(--pd-sub);
-  font: 700 0.85rem/1 var(--pd-font-labels), sans-serif;
+  font: 700 0.8rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.1em;
   text-align: center;
 }
@@ -112,7 +151,7 @@
   min-height: 2.75rem;
   padding: 0 1rem;
   color: var(--pd-lavender);
-  font: 700 0.95rem/1 var(--pd-font-labels), sans-serif;
+  font: 700 0.9rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.06em;
   background: none;
   border: 0;
@@ -126,12 +165,15 @@
   color: #fde68a;
 }
 
-/* ---- Promotion and form ----------------------------------------------------- */
+/* ---- Promotion and form (one strip) --------------------------------------- */
 
 .panel {
   display: grid;
-  gap: 0.6rem;
-  padding: 0.85rem;
+  flex: none;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem 1rem;
+  align-items: center;
+  padding: 0.55rem 0.8rem;
   background: rgba(4, 3, 9, 0.66);
   border: 1px solid var(--pd-line-soft);
   border-radius: var(--pd-radius);
@@ -140,19 +182,20 @@
 .panelHead {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  grid-column: 1;
+  gap: 0.3rem 0.8rem;
   align-items: center;
   justify-content: space-between;
 }
 
 .panelHead small {
   color: var(--pd-label);
-  font: 800 0.72rem/1 var(--pd-font-display), sans-serif;
+  font: 800 0.66rem/1 var(--pd-font-display), sans-serif;
   letter-spacing: 0.14em;
 }
 
 .reward {
-  font: 700 0.85rem/1 var(--pd-font-labels), sans-serif;
+  font: 700 0.8rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.06em;
   color: var(--pd-gold);
 }
@@ -163,12 +206,13 @@
 
 .pips {
   display: grid;
+  grid-column: 1;
   grid-template-columns: repeat(9, 1fr);
   gap: 0.25rem;
 }
 
 .pips i {
-  height: 0.55rem;
+  height: 0.5rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
 }
@@ -187,11 +231,11 @@
 }
 
 .formRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  gap: 0.35rem;
+  justify-items: end;
 }
 
 .form {
@@ -205,10 +249,10 @@
 .form li {
   display: grid;
   place-items: center;
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.5rem;
+  height: 1.5rem;
   color: #0b0716;
-  font: 900 0.85rem/1 var(--pd-font-display), sans-serif;
+  font: 900 0.78rem/1 var(--pd-font-display), sans-serif;
   background: var(--tone);
   border-radius: 6px;
 }
@@ -220,22 +264,26 @@
 
 .record {
   color: var(--pd-sub);
-  font: 600 0.92rem/1 var(--pd-font-labels), sans-serif;
+  font: 600 0.82rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .record b {
   color: #fff;
-  font: 400 1.1rem/1 var(--pd-font-numbers), sans-serif;
+  font: 400 1rem/1 var(--pd-font-numbers), sans-serif;
 }
 
 /* ---- Your XI ----------------------------------------------------------------- */
 
 .club {
-  display: grid;
-  gap: 0.6rem;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.45rem;
   width: 100%;
-  padding: 0.85rem;
+  min-height: 0;
+  padding: 0.6rem 0.8rem;
   color: var(--pd-text);
   text-align: left;
   background: rgba(4, 3, 9, 0.66);
@@ -250,16 +298,17 @@
 
 .clubHead {
   display: flex;
+  flex: none;
   gap: 0.6rem;
   align-items: center;
   justify-content: space-between;
-  font: 800 1rem/1 var(--pd-font-display), sans-serif;
+  font: 800 0.92rem/1 var(--pd-font-display), sans-serif;
   letter-spacing: 0.14em;
 }
 
 .formation {
   color: var(--pd-lavender);
-  font: 700 0.9rem/1 var(--pd-font-labels), sans-serif;
+  font: 700 0.85rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.06em;
 }
 
@@ -272,8 +321,8 @@
   display: inline-flex;
   gap: 0.3rem;
   align-items: center;
-  padding: 0.3rem 0.55rem;
-  font: 400 1.15rem/1 var(--pd-font-numbers), sans-serif;
+  padding: 0.25rem 0.5rem;
+  font: 400 1.05rem/1 var(--pd-font-numbers), sans-serif;
   background: linear-gradient(135deg, #7c3aed, #5b21b6);
   border-radius: 8px;
 }
@@ -283,15 +332,18 @@
   font: 500 1rem/1.3 var(--pd-font-labels), sans-serif;
 }
 
+/* A sideways pitch, home attacking right. It fills what the strip above leaves. */
 .miniPitch {
   position: relative;
   display: block;
+  flex: 1;
   width: 100%;
-  aspect-ratio: 4 / 4.2;
+  min-height: 7rem;
   overflow: hidden;
+  container-type: size;
   background:
-    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0 10%, transparent 10% 20%),
-    radial-gradient(80% 60% at 50% 45%, #1d4a32 0%, #12301f 70%, #0b1f15 100%);
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 10%, transparent 10% 20%),
+    radial-gradient(70% 80% at 50% 50%, #1d4a32 0%, #12301f 70%, #0b1f15 100%);
   border-radius: 12px;
 }
 
@@ -305,12 +357,14 @@
   stroke-width: 0.5;
 }
 
+/* A token: the rating shield with the short name beside it. */
 .token {
   --chip: linear-gradient(160deg, #fff6b0, #f7cf2a 50%, #c99708);
+  --h: clamp(1.35rem, 13cqh, 2.4rem);
   position: absolute;
-  display: grid;
-  justify-items: center;
-  gap: 0.15rem;
+  display: flex;
+  gap: 0.2rem;
+  align-items: center;
   transform: translate(-50%, -50%);
   animation: tokenIn 380ms cubic-bezier(0.2, 1.3, 0.4, 1) both;
   animation-delay: calc(var(--i) * 30ms);
@@ -319,7 +373,7 @@
 @keyframes tokenIn {
   from {
     opacity: 0;
-    transform: translate(-50%, -30%) scale(0.6);
+    transform: translate(-30%, -50%) scale(0.6);
   }
 }
 
@@ -337,11 +391,12 @@
 
 .token b {
   display: grid;
+  flex: none;
   place-items: center;
-  width: 2.1rem;
-  height: 2.4rem;
+  width: calc(var(--h) * 0.88);
+  height: var(--h);
   color: #1d1406;
-  font: 400 1.15rem/1 var(--pd-font-numbers), sans-serif;
+  font: 400 calc(var(--h) * 0.5) / 1 var(--pd-font-numbers), sans-serif;
   clip-path: polygon(12% 0, 88% 0, 100% 10%, 100% 72%, 50% 100%, 0 72%, 0 10%);
   background: var(--chip);
 }
@@ -351,10 +406,10 @@
 }
 
 .token small {
-  max-width: 4.6rem;
+  max-width: clamp(2.8rem, 11cqw, 6rem);
   overflow: hidden;
-  padding: 0.08rem 0.3rem;
-  font: 700 0.62rem/1.1 var(--pd-font-labels), sans-serif;
+  padding: 0.1rem 0.3rem;
+  font: 700 clamp(0.56rem, 5cqh, 0.8rem) / 1.1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.04em;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -364,8 +419,23 @@
 
 .clubFoot {
   display: flex;
+  flex: none;
   justify-content: space-between;
   color: var(--pd-label);
-  font: 700 0.8rem/1 var(--pd-font-labels), sans-serif;
+  font: 700 0.75rem/1 var(--pd-font-labels), sans-serif;
   letter-spacing: 0.1em;
+}
+
+/* ---- A tall, narrow window: one column ------------------------------------- */
+
+@media (orientation: portrait) {
+  .home {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .miniPitch {
+    flex: none;
+    aspect-ratio: 3 / 2;
+  }
 }

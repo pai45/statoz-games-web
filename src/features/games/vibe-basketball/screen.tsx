@@ -1,11 +1,11 @@
 "use client";
 import {useEffect,useRef,useState} from 'react';
-import {useRouter} from 'next/navigation';
+import {useGameReturn} from '../shared/hooks/use-game-return';
 import {publicAsset} from '@/shared/config';
 import styles from './screen.module.css';
 
 export function VibeBasketball(){
- const router=useRouter();
+ const leave=useGameReturn();
  const frame=useRef<HTMLIFrameElement>(null),viewportRoot=useRef<HTMLElement>(null);
  useEffect(()=>{const viewport=window.visualViewport;const sync=()=>{if(viewport&&viewport.scale===1){const node=viewportRoot.current;node?.style.setProperty("--vibe-viewport-height",viewport.height+"px");}};sync();viewport?.addEventListener("resize",sync);window.addEventListener("resize",sync);return()=>{viewport?.removeEventListener("resize",sync);window.removeEventListener("resize",sync);};},[]);
  const [attempt,setAttempt]=useState(0);
@@ -22,16 +22,16 @@ export function VibeBasketball(){
    if(data.type==='loading'){setReady(false);clearTimeout(timer);timer=setTimeout(()=>setFailure('The park is taking too long to load. Retry or return to basketball.'),60000);}
    if(data.type==='ready'){clearTimeout(timer);setReady(true);setFailure('');if(document.hidden)command('pause');}
    if(data.type==='error'){clearTimeout(timer);setFailure('The game could not start. Check WebGL support, then retry.');}
-   if(data.type==='exit')router.push('/games/basketball');
+   if(data.type==='exit')leave();
   };
   const hide=()=>{if(document.hidden)command('pause');};
   window.addEventListener('message',receive);document.addEventListener('visibilitychange',hide);
   timer=setTimeout(()=>setFailure('The local game bundle could not load. Retry or return to basketball.'),60000);
   element.src=publicAsset('/embedded-games/vibe-basketball/index.html')+'?session='+session+'&assetBuild='+encodeURIComponent(process.env.NEXT_PUBLIC_ASSET_BUILD_ID || '');
   return()=>{clearTimeout(timer);command('dispose');window.removeEventListener('message',receive);document.removeEventListener('visibilitychange',hide);element.src='about:blank';};
- },[attempt,router]);
+ },[attempt,leave]);
  return <main ref={viewportRoot} className={styles.root}>
   <iframe ref={frame} title="Vibe Basketball — 1v1 and 3-Point Contest" className={styles.frame} allow="autoplay; fullscreen; gamepad" allowFullScreen/>
-  {(!ready||failure)&&<div className={styles.status} role={failure?'alert':'status'}><h1>Vibe Basketball</h1><p>{failure||'Building the park…'}</p>{failure&&<button onClick={()=>{setFailure('');setReady(false);setAttempt(n=>n+1);}}>Retry</button>}<button onClick={()=>router.push('/games/basketball')}>Back to basketball</button></div>}
+  {(!ready||failure)&&<div className={styles.status} role={failure?'alert':'status'}><h1>Vibe Basketball</h1><p>{failure||'Building the park…'}</p>{failure&&<button onClick={()=>{setFailure('');setReady(false);setAttempt(n=>n+1);}}>Retry</button>}<button onClick={leave}>Back to Games</button></div>}
  </main>;
 }

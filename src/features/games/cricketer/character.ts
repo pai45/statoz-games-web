@@ -7,7 +7,11 @@ import type {GLTF} from 'three/examples/jsm/loaders/GLTFLoader.js';
  * cycle, Cricketer kits painted from baked face regions, original helmet/pads, and authored
  * running, bowling and fielding poses on the same 49-joint rig.
  */
-export type PlayerPose = 'ready' | 'swing' | 'recover' | 'wait' | 'run' | 'walk' | 'bowl' | 'field' | 'celebrate';
+export type PlayerPose = 'ready' | 'swing' | 'recover' | 'wait' | 'run' | 'walk' | 'bowl' | 'field' | 'keep' | 'catch' | 'stand' | 'celebrate';
+/** Per-frame extras. `lateral`: ball line minus the stance line at contact (m). `step`: a sideways footwork shuffle of `shift` metres, `u` 0..1 through it. `stride`: metres travelled, so leg cadence matches ground speed. */
+export type PoseExtras = {lateral?: number; step?: {shift: number; u: number}; stride?: number};
+/** Ground covered per footstep, by role. The renderer uses the same values to time footstep sounds. */
+export const STEP_LENGTH: Partial<Record<PlayerPose, number>> = {run: 1.85, walk: .78, bowl: 1.7};
 export type Kit = {shirt: string; trim: string; trousers: string; skin: string; hair: string; sleeve?: string; hand?: string; accent?: string; beard?: boolean};
 type Snapshot = Map<T.Object3D, {p: T.Vector3; q: T.Quaternion}>;
 
@@ -70,14 +74,14 @@ function kitMaterial(kit: Kit, number: T.Texture, batting: boolean) {
     shader.uniforms.uPalette = {value: palette}; shader.uniforms.uNumber = {value: number};
     shader.vertexShader = 'attribute float _region; attribute vec2 _kituv; varying float vRegion; varying vec2 vKitUV;\n'+shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvRegion=_region; vKitUV=_kituv;');
     shader.fragmentShader = `uniform vec3 uPalette[${REGIONS}]; uniform sampler2D uNumber; varying float vRegion; varying vec2 vKitUV;\n`+shader.fragmentShader.replace('#include <map_fragment>',
-      '#include <map_fragment>\ndiffuseColor.rgb=uPalette[int(clamp(vRegion+.5,0.,10.))];\nif(vKitUV.x>=0.&&vKitUV.x<=1.&&vKitUV.y>=0.&&vKitUV.y<=1.){vec4 lettering=texture2D(uNumber,vKitUV);diffuseColor.rgb=mix(diffuseColor.rgb,lettering.rgb,lettering.a);}');
+      '#include <map_fragment>\ndiffuseColor.rgb=uPalette[int(clamp(vRegion+.5,0.,10.))];\nif(vKitUV.x>=0.&&vKitUV.x<=1.&&vKitUV.y>=0.&&vKitUV.y<=1.){vec4 lettering=texture2D(uNumber,vec2(1.-vKitUV.x,vKitUV.y));diffuseColor.rgb=mix(diffuseColor.rgb,lettering.rgb,lettering.a);}');
   };
-  material.customProgramCacheKey = () => 'cricketer-kit-regions-v1';
+  material.customProgramCacheKey = () => 'cricketer-kit-regions-v2';
   material.addEventListener('dispose', () => number.dispose());
   return material;
 }
 
-export type PlayerOptions = {batting: boolean; kit: Kit; number: string};
+export type PlayerOptions = {batting: boolean; kit: Kit; number: string; keeper?: boolean};
 export class CricketerPlayer {
   root = new T.Group(); model: T.Object3D; head: T.Bone; readonly batting: boolean;
   /** Native sweet-spot position at contact, in root space. The renderer aligns the ball line with it. */
@@ -90,9 +94,12 @@ export class CricketerPlayer {
   private body!: T.SkinnedMesh; private batNode!: T.Object3D; private batMesh!: T.Mesh; private carry!: {p: T.Vector3; q: T.Quaternion};
   private kind: PlayerPose | null = null; private staticKey = ''; private blendFrom: Snapshot | null = null; private blendStart = 0; private blendTime = .24; private lastClip = -1;
   private gripError = 0; private bladeError = 0; private blade = V(); private target: T.Vector3 | null = null;
+  /** Offsets each player's idle stride so a field of players never moves in lock-step. */
+  private phaseOffset: number;
 
   constructor(gltf: GLTF, readonly options: PlayerOptions) {
     this.batting = options.batting;
+    this.phaseOffset = (parseInt(options.number, 10) || 0)*2.399;
     this.orient.rotation.y = Math.PI; this.root.add(this.orient);
     this.model = clone(gltf.scene); this.model.scale.setScalar(SCALE); this.orient.add(this.model);
     this.model.traverse(o => {
@@ -137,14 +144,14 @@ export class CricketerPlayer {
   private dir(x: number, y: number, z: number) {return V(x, y, z).normalize().applyQuaternion(worldQuat(this.root));}
 
   /** Pose for this frame. `progress` is the delivery age (ready), swing progress (swing: .5 = contact), seconds since contact (recover) or role progress (bowl). */
-  pose(time: number, kind: PlayerPose, progress = 0, aim = 1, shot = 'drive', contactHeight = .6) {
+  pose(time: number, kind: PlayerPose, progress = 0, aim = 1, shot = 'drive', contactHeight = .6, extras: PoseExtras = {}) {
     const blending = this.blendFrom && time-this.blendStart < this.blendTime;
-    const staticKey = kind === 'field' || kind === 'wait' ? kind : '';
+    const staticKey = kind === 'field' || kind === 'wait' || kind === 'keep' || kind === 'stand' || kind === 'catch' ? kind : '';
     if (staticKey && staticKey === this.staticKey && !blending && kind === this.kind) return;
     if (this.kind !== null && kind !== this.kind) {this.blendFrom = this.snapshot(); this.blendStart = time; this.blendTime = kind === 'swing' ? .12 : .26;}
     this.kind = kind; this.target = null;
-    if (kind === 'ready' || kind === 'swing' || kind === 'recover' || kind === 'wait') this.clipPose(time, kind, progress, aim, shot, contactHeight);
-    else this.authored(time, kind, progress);
+    if (kind === 'ready' || kind === 'swing' || kind === 'recover' || kind === 'wait') this.clipPose(time, kind, progress, aim, shot, contactHeight, extras);
+    else this.authored(time, kind, progress, extras.stride);
     if (this.blendFrom) {
       const w = smooth(0, 1, (time-this.blendStart)/this.blendTime);
       if (w >= 1) this.blendFrom = null;
@@ -157,7 +164,7 @@ export class CricketerPlayer {
     this.root.updateMatrixWorld(true);
   }
 
-  private clipPose(time: number, kind: PlayerPose, progress: number, aim: number, shot: string, contactHeight: number) {
+  private clipPose(time: number, kind: PlayerPose, progress: number, aim: number, shot: string, contactHeight: number, extras: PoseExtras) {
     this.reset();
     const length = this.duration;
     let t: number;
@@ -172,6 +179,7 @@ export class CricketerPlayer {
     else t = Math.min(CYCLE.settle-.2, CYCLE.finish+Math.max(0, progress-.42)*.95);
     if (t > length) t -= length;
     this.sample(t);
+    if (extras.step) this.footwork(extras.step.shift, extras.step.u);
     if (kind === 'swing' || kind === 'recover') {
       // Shot direction: lead the follow-through toward the side the ball is struck.
       const follow = kind === 'swing' ? smooth(.45, .9, progress) : 1-smooth(.2, .9, progress);
@@ -183,10 +191,27 @@ export class CricketerPlayer {
         const near = Math.exp(-Math.pow((progress-.5)/.2, 2)), snap = Math.exp(-Math.pow((progress-.5)/.05, 2));
         const low = clamp((this.contactLocal.y-contactHeight)*.62, 0, .3)+(shot === 'sweep' || shot === 'scoop' ? .06 : 0);
         this.crouch(low*near);
-        const ball = this.root.localToWorld(V(this.contactLocal.x, contactHeight, this.contactLocal.z));
+        const ball = this.root.localToWorld(V(this.contactLocal.x+(extras.lateral || 0), contactHeight, this.contactLocal.z));
         const offset = ball.clone().sub(this.root.localToWorld(this.contactLocal.clone())).add(this.dir(0, 1, 0).multiplyScalar(low));
         this.target = this.sweetSpot().addScaledVector(offset, near).lerp(ball, snap);
       }
+    }
+  }
+
+  /**
+   * Sideways footwork. The renderer moves the root by `shift` along an eased body curve; here the lead foot
+   * steps first and the trail foot follows, each lifted off the turf, so the feet step rather than slide.
+   */
+  private footwork(shift: number, u: number) {
+    if (Math.abs(shift) < .005 || u <= 0 || u >= 1) return;
+    const body = smooth(.15, .85, u), across = this.dir(1, 0, 0), up = this.dir(0, 1, 0);
+    const local = (side: string) => this.root.worldToLocal(worldPos(this.bone(side+'Foot'))).x;
+    const lead = (shift > 0) === (local('Left') > local('Right')) ? 'Left' : 'Right';
+    for (const side of ['Left', 'Right']) {
+      const first = side === lead, k = first ? smooth(0, .55, u) : smooth(.45, 1, u), lift = .08*Math.sin(Math.PI*clamp(first ? u/.55 : (u-.45)/.55));
+      const foot = this.bone(side+'Foot'), turn = worldQuat(foot);
+      this.solveChain(side+'UpLeg', side+'Leg', side+'Foot', worldPos(foot).addScaledVector(across, shift*(k-body)).addScaledVector(up, lift));
+      setWorldQuaternion(foot, turn);
     }
   }
 
@@ -238,13 +263,15 @@ export class CricketerPlayer {
   }
 
   /** Authored role motion on the shared rig. Body frame: +Z forward, +X the player's left. */
-  private authored(time: number, kind: PlayerPose, progress: number) {
+  private authored(time: number, kind: PlayerPose, progress: number, stride?: number) {
     // Start from the cycle's upright standing frame so head and limb twist stay natural.
     this.reset(); this.sample(CYCLE.carry);
     const q = kind === 'bowl' ? clamp((progress-.7)/.42, 0, 1.6) : 0;
     const striding = kind === 'run' || kind === 'walk' || kind === 'bowl' && progress < .7;
-    const speed = kind === 'walk' ? 7.5 : 12.5, phase = time*speed, swing = kind === 'walk' ? .42 : .78;
-    let lean = kind === 'field' ? .62 : striding ? (kind === 'walk' ? .06 : .2) : 0;
+    // Leg cadence follows ground actually covered (one footstep per STEP_LENGTH), so feet don't skate or blur.
+    const stepLength = STEP_LENGTH[kind] ?? 1.8, swing = kind === 'walk' ? .42 : .82;
+    const phase = stride !== undefined ? stride*Math.PI/stepLength : time*(kind === 'walk' ? 5.6 : 9.5)+this.phaseOffset;
+    let lean = kind === 'field' ? .62 : kind === 'keep' ? .5 : striding ? (kind === 'walk' ? .06 : .24) : 0;
     if (kind === 'bowl' && !striding) lean = q < .45 ? -.18+q*.2 : -.09+smooth(.45, .85, q)*.75+smooth(.85, 1.3, q)*.25;
     // Pelvis faces forward, upright or leaning.
     const hips = this.bone('Hips'), spine = this.bone('Spine1');
@@ -262,6 +289,8 @@ export class CricketerPlayer {
       const s = Math.sin(phase+(sign > 0 ? 0 : Math.PI)), thigh = striding ? s*swing : 0, knee = striding ? .25+Math.max(0, -Math.sin(phase+(sign > 0 ? 0 : Math.PI)-.9))*(kind === 'walk' ? .55 : 1.25) : 0;
       let upper = V(sign*.06, -Math.cos(thigh), Math.sin(thigh)), lower = V(sign*.03, -Math.cos(thigh-knee), Math.sin(thigh-knee));
       if (kind === 'field') {upper = V(sign*.28, -1, .85); lower = V(sign*.06, -1, -.35);}
+      if (kind === 'keep') {upper = V(sign*.55, -.55, .9); lower = V(sign*.1, -1, -.5);}
+      if (kind === 'catch') {upper = V(sign*.12, -1, .12); lower = V(sign*.06, -1, -.08);}
       if (kind === 'celebrate') {upper = V(sign*.08, -1, sign*.05); lower = V(sign*.05, -1, 0);}
       if (kind === 'bowl' && !striding) {
         if (side === 'Left') {const lift = q < .4 ? smooth(0, .3, q) : 1-smooth(.4, .6, q); upper = V(.06, -Math.cos(.35+lift*.9), Math.sin(.35+lift*.9)); lower = V(.03, -1, lift*.6);}
@@ -273,6 +302,8 @@ export class CricketerPlayer {
       let shoulder = V(sign*.2, -Math.cos(arm), Math.sin(arm)), elbow = V(sign*.02, -Math.cos(arm+1.45), Math.sin(arm+1.45));
       if (!striding && kind !== 'bowl') {shoulder = V(sign*.22, -1, .08); elbow = V(sign*.05, -.8, .55);}
       if (kind === 'field') {shoulder = V(sign*.12, -.85, .55); elbow = V(-sign*.05, -.85, .5);}
+      if (kind === 'keep') {shoulder = V(sign*.1, -.7, .7); elbow = V(-sign*.12, -.5, .85);}
+      if (kind === 'catch') {shoulder = V(sign*.12, .25, 1); elbow = V(-sign*.18, .75, .65);}
       if (kind === 'celebrate') {const pump = Math.sin(time*7)*.2; shoulder = V(sign*.5, 1, .1+pump); elbow = V(sign*.18, 1, .05);}
       if (kind === 'bowl' && !striding) {
         if (side === 'Right') {const a = -2.6+smooth(.1, .71, q)*2.95+smooth(.71, 1.3, q)*2.6; shoulder = V(-.12, Math.cos(a), Math.sin(a)); elbow = V(-.06, Math.cos(a+.1), Math.sin(a+.1));}
@@ -280,7 +311,8 @@ export class CricketerPlayer {
       }
       this.aim(side+'Arm', side+'ForeArm', shoulder); this.aim(side+'ForeArm', side+'Hand', elbow);
     }
-    this.aim('Neck', 'Head', V(0, 1, kind === 'field' ? .25 : .08)); this.aim('Head', 'HeadTop_End', V(0, 1, kind === 'field' ? .62 : kind === 'bowl' ? .5 : .4));
+    const low = kind === 'field' || kind === 'keep';
+    this.aim('Neck', 'Head', V(0, 1, low ? .25 : .08)); this.aim('Head', 'HeadTop_End', V(0, 1, low ? .62 : kind === 'bowl' ? .5 : kind === 'catch' ? .1 : .4));
     // Plant on the ground: lowest foot point touches the turf, with a light running bob.
     const lowest = Math.min(...['LeftFoot', 'RightFoot'].map(n => this.root.worldToLocal(worldPos(this.bone(n))).y-.075), ...['LeftToe_End', 'RightToe_End'].map(n => this.root.worldToLocal(worldPos(this.bone(n))).y-.015));
     const bob = kind === 'celebrate' ? Math.abs(Math.sin(time*7))*.07 : 0;
@@ -311,6 +343,7 @@ export class CricketerPlayer {
     const eyes = new T.Group(); eyes.name = 'Cricketer_eyes';
     for (const s of [-1, 1]) {const eye = addMesh(eyes, new T.SphereGeometry(.011, 6, 4), dark, V(s*.034, 0, 0)); eye.scale.set(1, .8, .45); eye.castShadow = false; const brow = addMesh(eyes, new T.BoxGeometry(.03, .006, .008), flatMaterial(kit.hair, .9), V(s*.035, .022, -.002)); brow.rotation.z = -s*.12; brow.castShadow = false;}
     attach(eyes, head, nose.clone().addScaledVector(up, size*.1).addScaledVector(forward, -.026), frame);
+    if (this.batting || this.options.keeper) this.makePads();
     if (!this.batting) return;
     const shell = flatMaterial(kit.shirt, .45), trim = flatMaterial(kit.trim, .5), grille = flatMaterial('#1a1f1d', .4);
     const helmet = new T.Group(); helmet.name = 'Cricketer_helmet'; const r = size*.68;
@@ -321,6 +354,12 @@ export class CricketerPlayer {
     for (const x of [-.45, 0, .45]) rod(helmet, grille, V(x*r, -r*.12, r*(1.12-Math.abs(x)*.3)), V(x*r, -r*1.12, r*(1.12-Math.abs(x)*.25)), .005, 4);
     addMesh(helmet, new T.CylinderGeometry(r*.75, r*.82, r*.32, 10, 1, true, Math.PI*.55, Math.PI*.9), shell, V(0, -r*.5, -r*.18));
     attach(helmet, head, h.clone().addScaledVector(up, size*.5).addScaledVector(forward, -size*.06), frame);
+  }
+
+  /** Rolled batting pads; batters and the wicketkeeper wear them. */
+  private makePads() {
+    const kit = this.options.kit;
+    const attach = (gear: T.Object3D, bone: T.Object3D, position: T.Vector3, quaternion: T.Quaternion) => {this.root.add(gear); gear.position.copy(this.root.worldToLocal(position.clone())); gear.quaternion.copy(worldQuat(this.root).invert().multiply(quaternion)); this.root.updateMatrixWorld(true); bone.attach(gear);};
     const padMaterial = flatMaterial('#f6f2e8', .62), rib = flatMaterial('#e3ddcf', .7), strap = flatMaterial(kit.trim, .55);
     for (const s of ['Left', 'Right']) {
       const knee = worldPos(this.bone(s+'Leg')), ankle = worldPos(this.bone(s+'Foot')), toe = worldPos(this.bone(s+'ToeBase'));

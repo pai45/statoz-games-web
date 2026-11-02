@@ -80,7 +80,7 @@ function useEscape(open: boolean, onClose: () => void) {
   }, [open]);
 }
 
-/** A sheet that slides up from the bottom of the game column. */
+/** A drawer that slides in from the right edge of the landscape screen. */
 export function Sheet({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: ReactNode }) {
   const id = useId();
   useEscape(open, onClose);
@@ -105,12 +105,15 @@ export function Modal({
   open,
   labelledBy,
   tone = "violet",
+  wide,
   onClose,
   children,
 }: {
   open: boolean;
   labelledBy: string;
   tone?: "violet" | "blue" | "red";
+  /** Room for a card beside the text, as on the goal modal. */
+  wide?: boolean;
   onClose?: () => void;
   children: ReactNode;
 }) {
@@ -118,7 +121,7 @@ export function Modal({
   if (!open) return null;
   return (
     <div className={styles.overlay} data-center onClick={onClose}>
-      <section className={styles.modal} data-tone={tone} role="dialog" aria-modal="true" aria-labelledby={labelledBy} onClick={(e) => e.stopPropagation()}>
+      <section className={styles.modal} data-tone={tone} data-wide={wide || undefined} role="dialog" aria-modal="true" aria-labelledby={labelledBy} onClick={(e) => e.stopPropagation()}>
         {children}
       </section>
     </div>

@@ -6,6 +6,49 @@ The latest gameplay revision is grounded in the original build's extracted RCC c
 
 31 October 2026. Local implementation; no release or push requested.
 
+## Circuit boundaries, collisions and crashes (1 November 2026)
+
+**Boundaries.** `engine.ts` builds a continuous barrier line on both sides of the lap, every 2 m, and the physics and renderer share it (`walls`, `wallLane`, `wallKind`):
+
+| Where | Barrier | Kenney model | Offset from centreline |
+| --- | --- | --- | --- |
+| Start/finish straight | Painted concrete wall with catch fence | `barrierWall` + `fenceStraight` | 12.5 m |
+| Outside slow corners (gravel traps) | Red/white tyre-wall blocks | `barrierRed`, `barrierWhite` | up to 22 m |
+| Everywhere else | Guardrail | `rail` | 14.5 m |
+
+Where two parts of the circuit run close together, the barrier moves to the midline between them. The two tightest hairpin apexes keep a grass island instead, because a wall there would fold back across the road. Tests check that no barrier sits on any tarmac. Marshal posts, flags and billboards stand behind the barriers, and the start gantry spans the concrete walls.
+
+**Barrier physics.** A car is pushed back to the barrier face. The part of its velocity going into the wall is removed with a small bounce (restitution 0.28), and Coulomb friction scrubs the rest. A glancing hit (under 7 m/s into the wall) slides the car along the barrier and loses only a few percent of speed. A hard hit (over 10.5 m/s into the wall) spins the car out: drive and steering cut, the body rotates while the car keeps sliding along its old path, then grip returns. Route gates use the direction of travel, so a car that slides through a gate mid-spin still collects it, and gates count anywhere inside the barriers.
+
+**Car-to-car contact.** Every pair is checked each 120 Hz tick:
+- Overlapping cars side by side are separated.
+- The closing velocity is exchanged along the contact normal (equal masses, restitution 0.35).
+- Off-centre hits add yaw, so a hard hit on a rear quarter can spin a car.
+- Nose-to-tail spacing still uses the existing traffic limiter, which keeps the "blocked travel" test exact.
+
+**Damage.** Impacts add damage (0–100%), costing up to 15% power and 8% top speed for the rest of the race. Cars above 45% trail smoke. The HUD shows a damage bar, and the results screen shows damage and hits.
+
+**Crash presentation.**
+- Spark bursts and smoke puffs.
+- Kenney Car Kit debris (tyre, spoiler, bumper, panels, door, bolt) painted in the crashed car's livery, with gravity, ground bounces and a fade-out.
+- A body hop and rattle on impact, scrape sparks along barriers, and skid smoke and marks while spinning.
+- Camera trauma, plus a 0.3× slow-motion beat for 320 ms on big player crashes.
+- The camera follows the direction of travel during a spin, impact sound is scaled by distance, and barrier scrapes have a synthesised scrape sound.
+- Call-outs: SPUN OUT, BIG HIT · BARRIER, HEAVY CONTACT / CONTACT · rival.
+
+## Kenney kit, race-craft and presentation pass (1 November 2026)
+
+Racer no longer loads the recovered Crazy Grand Prix meshes. Cars, grandstands, pit garages, the start gantry, billboards, tyre barriers, marshal posts, tents and trees come from Kenney's **Car Kit 3.1** and **Racing Kit 1.2**; engine, skid and impact sounds come from Kenney's **Starter Kit Racing**. All are CC0, downloaded from Kenney's own uploads (opengameart.org and github.com/KenneyNL, because kenney.nl refuses automated downloads) and served locally from `public/games/f1-racing/kenney/`. `node scripts/import-racer-kenney.mjs --source <folder>` packs the chosen models into `racer-kit.glb` and writes `PROVENANCE.json` with page URLs, zip hashes and file hashes. `npm run test:racer` checks those hashes. Every banner slot shows newly drawn StatOz CIRCUITS signage, not Kenney's fictional sponsor. `assets.json` and `docs/racer/asset-provenance.json` remain only as history.
+
+See [improvement-plan.md](improvement-plan.md) for the full review, what was built in this pass and what is suggested next. In short:
+
+- **Mechanics:** a five-light start with a perfect-launch window (gas on the fifth light gives +15 boost and a rolling start; holding gas earlier gives wheelspin), boost rewards for overtakes that gain new ground, and kerb and skid state used for feedback.
+- **Opponent AI:** a racing line limited by each corner's radius; side-aware passing with clearance checks; one-move defending on straights; side-by-side spacing so CPUs never squeeze a neighbour; seeded, replayable driver mistakes; CPU boost and slipstream under the player's rules; and Rookie/Pro/Elite rival skill. Pace still never depends on the player's race position (no rubber band).
+- **Graphics:** Kenney cars with per-livery paint recolouring, Classic and Future chassis, brake lights, boost flames, tyre smoke, grass dust and skid marks. The circuit adds mown grass, gravel traps, a rubbered-in racing line, a sky gradient, a horizon tree line, speed-based FOV, a camera lift over cars directly behind, and trauma-based camera shake with a Reduce camera shake option.
+- **UI:** start lights, call-outs (perfect start, positions, laps, final lap), live gaps in the race order, best lap, an RPM bar, boost speed lines, car and rival-skill selection, a sound toggle and a results classification table. Settings persist in `racer.settings.v1`, separate from progress.
+
+Sound uses Ogg Vorbis. Browsers that cannot decode it, such as older iOS Safari, race silently instead of failing.
+
 Racer replaces Crazy Grand Prix's active catalogue entry with a stylized arcade circuit racer. Open `/play/racer`; `/play/f1-racing` remains a compatible address. The stable bundle ID is still `f1-racing`, so host integration and account isolation retain their existing contracts.
 
 ## The requested first game
@@ -40,7 +83,7 @@ This is authored game code using recovered geometry, not a renamed Unity client 
 
 On an 851 x 393 mobile landscape viewport, the enlarged steering pad is 184 x 88 px, Brake is 92 x 80 px, and Boost is 104 x 92 px. Smaller phones keep at least 76 px control height and move telemetry clear of the optional third pedal.
 
-Pause also provides automatic-acceleration, sensitivity and touch-control settings. Sound is not part of this first requested graphics/control pass.
+Pause also provides automatic-acceleration, sensitivity, touch-control, sound and reduced-camera-shake settings. Car, colour and rival skill are chosen on the start screen.
 
 ## Local checks and evidence
 

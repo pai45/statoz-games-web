@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 
 import { AuthProvider } from "@/features/auth";
 import { StreakCelebrationHost } from "@/features/streaks";
@@ -47,7 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${spaceGrotesk.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <MobileGameNavigationBridge />
+        <Suspense fallback={null}><MobileGameNavigationBridge /></Suspense>
         <AuthProvider>
           <DeviceAssets>
             {children}

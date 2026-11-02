@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import Link from 'next/link';
+import {useGameReturn} from '../shared/hooks/use-game-return';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {Button} from '@/design-system';
 import {useAuthSession} from '@/features/auth';
@@ -15,6 +15,7 @@ export function StadiumCricket(){
  return <AccountCricket key={account||'guest'} account={account||''}/>;
 }
 function AccountCricket({account}:{account:string}){
+ const leave=useGameReturn();
  const [launch,setLaunch]=useState<CricketLaunch|null>(null);
  const exit=useCallback(()=>setLaunch(null),[]);
  if(launch&&account)return <CricketFrame account={account} launch={launch} onExit={exit}/>;
@@ -22,7 +23,7 @@ function AccountCricket({account}:{account:string}){
   <div className={styles.backdrop} aria-hidden="true"><Image src={publicAsset('/games/stadium-cricket/stadium-preview.jpg')} alt="" fill priority sizes="100vw" unoptimized style={{objectFit:'cover',objectPosition:'65% center'}}/></div>
   <div className={styles.shade} aria-hidden="true"/>
   <header className={styles.navigation}>
-   <Link href="/games/cricket" aria-label="Back to Cricket" className={styles.back}>‹</Link>
+   <button type="button" onClick={leave} aria-label="Back to Games" className={styles.back}>‹</button>
    <div className={styles.brand}>STADIUM<small>CRICKET / STATOZ</small></div>
    <span className={styles.matchday}>MATCHDAY / 3D</span>
   </header>

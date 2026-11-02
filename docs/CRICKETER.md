@@ -4,7 +4,7 @@ Cricketer is an editable Three.js batting-chase game in Future Games Web at `/pl
 
 ## Play
 
-Use left/right arrows, A/D or the two touch buttons. Read the delivery line and tap just before arrival. Direction, length and timing select drives, cuts, pulls, hooks, sweeps and scoops. One press commits one swing. Running and fielding are automatic; misses/catches consume a delivery. Three academy lessons lead into twelve ball-limited chases across three tiers, starting at five runs from five balls. Win to unlock the next challenge; completed challenges can be replayed.
+Use left/right arrows, A/D or the two touch buttons. Read the delivery line and tap just before arrival. Direction, length and timing select drives, cuts, pulls, hooks, sweeps and scoops. One press commits one swing. Running and fielding are automatic; misses/catches consume a delivery. Batters set off once the swing finishes and take 2.4s per run, so running overlaps the ball's flight; an odd number of runs rotates the strike. Runs and boundary highlights can be skipped without changing the result. Sweeps and scoops go behind square; a catch carries to the fielder on that side nearest the shot's angle. Three academy lessons lead into twelve ball-limited chases across three tiers, starting at five runs from five balls. Win to unlock the next challenge; completed challenges can be replayed.
 
 ## Character design
 
@@ -12,9 +12,15 @@ Every player shares one 49-joint skinned low-poly body (`public/games/cricketer/
 
 The batter plays the model's own 6.9s batting cycle directly on its own skeleton; there is no retargeting. Each delivery runs relaxed → get set → high backlift → downswing → contact (1.14s in the clip) → follow-through → walk-off. Swing progress maps onto the cycle so the bat meets the ball at contact. Different deliveries shift the native swing by the ball's offset from the native contact point: a planted-foot crouch, a spine and lead-shoulder solve, and a wrist pivot, with the top hand re-gripping the handle. The bat snaps exactly onto the ball only in the final instant. A shot-direction lean shapes the follow-through toward the struck side. Poses crossfade when the role changes, so there are no snaps between stance, swing, run and celebration.
 
-Bowling (run-up, gather, side-on stride, arm over the top, release, follow-through), running, walking back to the mark, fielding crouch and celebration are authored on the same rig, starting from the cycle's upright standing frame. The fielder nearest the landing spot chases the ball. The clip is sampled by direct track evaluation so every frame writes every animated bone.
+The striker takes the same guard every ball, so the stance never gives away the line. After release the batter steps across toward the line: the lead foot lifts and plants first, the back foot follows. The swing reaches the last few centimetres only for off-side balls at a comfortable height; low and leg-side balls are reached entirely by footwork, because reaching for them pulls the top hand off the handle. Players walk to their marks between deliveries instead of jumping there.
+
+Bowling (run-up, gather, side-on stride, arm over the top, release, follow-through), running, walking, standing, fielding crouch, the wicketkeeper's crouch, catching and celebration are authored on the same rig, starting from the cycle's upright standing frame. Leg cadence follows the ground actually covered (one footstep per stride length), with per-player offsets so no two players move in step. Ground speeds are capped at believable values: batters about 8 m/s between the creases, a chasing fielder 7 m/s, the bowler's jog back 5 m/s and walking 2.2 m/s. The fielder nearest where the ball comes down chases it, picks it up and throws it to the wicketkeeper, who also takes every ball the batter misses. The wicketkeeper crouches outside off stump in pads and pale gloves, clear of the batting camera's view. The clip is sampled by direct track evaluation so every frame writes every animated bone.
 
 `CREDITS.md`, `PLAYER-LICENSE.txt`, `PROVENANCE.json` and `characters-manifest.json` record the source, hashes and terms. See `CRICKETER-CHARACTERS.md` for the design record.
+
+## Sound
+
+All sound is synthesised at runtime with Web Audio (`audio.ts`), so no recorded audio ships and no third-party sound licence applies. Three buses (effects, crowd, interface) feed a limiter. Cues: footsteps for every moving player (timed to the stride and attenuated by distance and stereo position), the bowler's release, the ball pitching, the bat swing, bat on ball (a deep, round sound for a well-timed shot, a thin click for an edge), a chime for a middle-of-the-bat hit, the keeper's gloves, the ball landing in the outfield, a fielder's pick-up and throw, a catch, applause for runs, crowd roars for fours and sixes, an "ooh" when the batter is beaten or caught, a win or lose phrase, and interface clicks. A low crowd murmur plays throughout, softer behind menus. Small random pitch and level changes stop repeats sounding identical. The sound setting and pause suspend the audio context. Sound randomness never touches the simulation's seeded RNG.
 
 ## Simulation and saves
 
@@ -22,7 +28,7 @@ The simulation runs at 120 fixed steps per second with seeded deliveries; the re
 
 The existing bundled-game host supplies session validation, account isolation, local saves and result deduplication. The version-1 Cricketer save records lessons, unlocks, best scores, preferences, result identity and completed-delivery checkpoints/RNG continuity. An unfinished delivery is replayed on Continue. Incompatible saves remain preserved while temporary play is allowed.
 
-Backgrounding or portrait orientation pauses play and releases input. Explicit landscape resume is required. Reduced camera motion keeps the batting camera during flight. Assets are bundled locally; there is no remote fallback. WebGL/load failure has a retry screen. The three tiers share an original oval with sky variations.
+Backgrounding or portrait orientation pauses play and releases input. Explicit landscape resume is required. Reduced camera motion keeps the batting camera during flight and turns off the small camera kick on a struck ball. Assets are bundled locally; there is no remote fallback. WebGL/load failure has a retry screen. The three tiers share an original oval with sky variations.
 
 ## Assets and local checks
 

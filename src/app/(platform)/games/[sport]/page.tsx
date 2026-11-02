@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { gameSportModules, gameSportOrder, type GameSport } from "@/domain/game-sports";
-import { AdSlot } from "@/features/ads";
-import { SportGameDeck, SportGamesHub } from "@/features/games";
+import { gameCatalogHref } from "@/features/games/shared/navigation";
 
 /** Every sport is known up front, so all five decks prerender. */
 export function generateStaticParams() {
@@ -31,10 +30,5 @@ export default async function SportGamesPage({ params }: PageProps<"/games/[spor
   const sport = resolve((await params).sport);
   if (!sport) notFound();
 
-  return (
-    <SportGamesHub sport={sport}>
-      <AdSlot placement="games-catalog" />
-      <SportGameDeck sport={sport} />
-    </SportGamesHub>
-  );
+  redirect(gameCatalogHref(sport));
 }

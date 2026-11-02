@@ -1,8 +1,9 @@
 import * as T from 'three';
-import {CricketerPlayer, type PlayerPose} from './character';
+import {CricketerPlayer, STEP_LENGTH, type PlayerPose} from './character';
+import type {CueName, CueOptions} from './audio';
 import {KITS} from './kits';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {ballPosition, contactAt, PITCH, RELEASE, type Match} from './engine';
+import {ballPosition, contactAt, FIELD, PITCH, RELEASE, RUN, runningTime, type Match, type Vec} from './engine';
 
 type Rig = CricketerPlayer;
 const Y=new T.Vector3(0,1,0), v=(x=0,y=0,z=0)=>new T.Vector3(x,y,z);
@@ -13,19 +14,47 @@ function rod(parent:T.Object3D,m:T.Material,a:T.Vector3,b:T.Vector3,r:number,r2=
 function segment(o:T.Object3D,a:T.Vector3,b:T.Vector3){o.position.copy(a).add(b).multiplyScalar(.5);const delta=b.clone().sub(a);o.scale.y=delta.length();o.quaternion.setFromUnitVectors(Y,delta.normalize());}
 function sphere(parent:T.Object3D,m:T.Material,x:number,y:number,z:number,r:number,sx=1,sy=1,sz=1){const o=mesh(new T.SphereGeometry(r,12,10),m,v(x,y,z),parent);o.scale.set(sx,sy,sz);return o;}
 const smoothstep=(a:number,b:number,x:number)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
-/** Seconds since bat-on-ball (or since the ball passed), and the length of the whole post-delivery window. */
-function afterContact(s:Match){
-  const flown=!!s.outcome&&(s.outcome.runs>0||s.outcome.caught), runs=s.outcome?.runs||0, ran=runs>0&&runs<4;
-  const total=(flown?s.trajectory.duration:0)+(ran?runs*.7:0)+1.15;
-  const since=s.phase==='flight'?s.age:s.phase==='running'?s.trajectory.duration+s.age:s.phase==='between'?(flown?s.trajectory.duration:0)+(ran?runs*.7:0)+s.age:total;
-  return {since,total};
+type Cue = (name: CueName, options?: CueOptions) => void;
+/** Ball line that meets the stance's native sweet spot without footwork (m). The batter takes guard here every ball. */
+const GUARD = 0;
+/**
+ * Sideways distance the swing itself reaches; footwork after release covers the rest. Only off-side balls at a
+ * comfortable height get a reach: reaching for low or leg-side balls pulls the top hand off the handle.
+ */
+const reachFor = (contactHeight: number, side: number) => side < 0 ? .18*Math.max(0, Math.min(1, (contactHeight-.3)/.4)) : 0;
+const FOOT_START = RELEASE+.08, FOOT_TIME = .4;
+// The keeper crouches outside off stump, clear of the batting camera's view of the striker.
+const KEEPER = v(-1.35, 0, 2.3), GLOVES = v(-1.2, .62, 1.85);
+const NON_STRIKER = v(1.25, 0, -PITCH+.7), BACKING_UP = 1.2, FAR_Z = -PITCH+.9, NEAR_Z = -.9;
+const BOWLER_X = .38, MARK = -PITCH-7, STOP = -PITCH+1.8;
+/** Metres per second: fielder sprint, walking back to position, the bowler's jog back. */
+const CHASE_SPEED = 7, WALK_SPEED = 2.2, JOG_SPEED = 5;
+/** Batters set off once the swing finishes. */
+const RUN_START = .45;
+const yawTo = (dx: number, dz: number) => Math.atan2(dx, dz);
+/** Eased 0..1 travel with an acceleration and a deceleration phase (fraction `a` each). */
+const trap = (u: number, a = .22) => {const peak = 1/(1-a); return u < a ? .5*peak*u*u/a : u < 1-a ? peak*(u-a/2) : 1-.5*peak*(1-u)**2/a;};
+function walkTo(from: T.Vector3, to: Vec, speed: number, t: number) {
+  const dx = to.x-from.x, dz = to.z-from.z, dist = Math.hypot(dx, dz), m = Math.min(dist, Math.max(0, t)*speed);
+  return {x: from.x+(dist ? dx/dist*m : 0), z: from.z+(dist ? dz/dist*m : 0), moving: t > 0 && m < dist-.01, yaw: yawTo(dx, dz)};
+}
+/** Delivery clock (age until contact, then contact time plus seconds since contact) and the post-contact window. */
+function timeline(s: Match) {
+  const runs = s.outcome?.runs || 0, flown = !!s.outcome && (runs > 0 || s.outcome.caught), ran = runs > 0 && runs < 4;
+  const fly = flown ? s.trajectory.duration : 0, run = ran ? runningTime(s) : 0, total = fly+run+1.15;
+  const since = s.phase === 'delivery' ? -1 : s.phase === 'flight' ? s.age : s.phase === 'running' ? fly+s.age : s.phase === 'between' ? fly+run+s.age : total;
+  return {since, total, runs, ran, flown, clock: s.phase === 'delivery' ? s.age : contactAt(s)+since};
 }
 function blobTexture(){const c=document.createElement('canvas');c.width=c.height=64;const ctx=c.getContext('2d')!;const g=ctx.createRadialGradient(32,32,2,32,32,31);g.addColorStop(0,'rgba(20,34,20,.55)');g.addColorStop(1,'rgba(20,34,20,0)');ctx.fillStyle=g;ctx.fillRect(0,0,64,64);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
 function label(text:string,bg:string,fg:string,w=512,h=128){const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d')!;ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);ctx.font=`900 ${h*.61}px 'Arial Narrow',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=fg;ctx.fillText(text,w/2,h*.53,w*.91);const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;return new T.MeshBasicMaterial({map:tex,side:T.DoubleSide});}
 
 export class CricketView {
   renderer:T.WebGLRenderer; scene=new T.Scene(); camera=new T.PerspectiveCamera(48,16/9,.1,400);
-  batter!:Rig; bowler!:Rig; runner!:Rig; fielders:Rig[]=[]; ball:T.Mesh; shadow:T.Mesh; trail:T.Mesh[]=[]; private blobs=new Map<Rig,T.Mesh>(); private blobMaterial:T.MeshBasicMaterial|null=null;
+  batter!:Rig; bowler!:Rig; runner!:Rig; keeper!:Rig; fielders:Rig[]=[];
+  /** World sound cues (footsteps, bounce, gloves, throws) timed to the animation. */
+  onCue:Cue|null=null;
+  private strides=new Map<Rig,{last:T.Vector3;d:number;steps:number}>(); private cap=new Map<Rig,T.Vector3>();
+  private key=''; private keyTime=0; private prevClock=0; private prevTime=0; private trauma=0; private lastDraw=0; ball:T.Mesh; shadow:T.Mesh; trail:T.Mesh[]=[]; private blobs=new Map<Rig,T.Mesh>(); private blobMaterial:T.MeshBasicMaterial|null=null;
   private observer:ResizeObserver; private disposed=false; private lastTier=-1; private goal=v(); private eye=v(); private resources=new Set<T.Object3D>();
   private wicketTemplate:T.Group|null=null;
   constructor(private canvas:HTMLCanvasElement) {
@@ -90,58 +119,150 @@ export class CricketView {
     this.blobMaterial=new T.MeshBasicMaterial({map:blobTexture(),transparent:true,depthWrite:false});
     const add=(rig:Rig)=>{this.scene.add(rig.root);const blob=mesh(new T.CircleGeometry(.62,20),this.blobMaterial!,v(),this.scene);blob.rotation.x=-Math.PI/2;blob.castShadow=false;blob.receiveShadow=false;this.blobs.set(rig,blob);return rig;};
     this.batter=add(new CricketerPlayer(player,{batting:true,kit:KITS.batting[0],number:'07'}));
-    this.runner=add(new CricketerPlayer(player,{batting:true,kit:KITS.batting[1],number:'11'}));this.runner.root.position.set(1.8,0,-PITCH);
-    this.bowler=add(new CricketerPlayer(player,{batting:false,kit:KITS.fielding[0],number:'23'}));
-    for(let i=0;i<8;i++){const f=add(new CricketerPlayer(player,{batting:false,kit:KITS.fielding[i+1],number:String(i+12)}));f.root.position.copy(this.fieldSpot(i));f.root.rotation.y=Math.atan2(-f.root.position.x,-f.root.position.z);this.fielders.push(f);}
+    this.runner=add(new CricketerPlayer(player,{batting:true,kit:KITS.batting[1],number:'11'}));this.runner.root.position.copy(NON_STRIKER);
+    this.bowler=add(new CricketerPlayer(player,{batting:false,kit:KITS.fielding[0],number:'23'}));this.bowler.root.position.set(BOWLER_X,0,MARK);
+    this.keeper=add(new CricketerPlayer(player,{batting:false,keeper:true,kit:KITS.keeper,number:'01'}));this.keeper.root.position.copy(KEEPER);this.keeper.root.rotation.y=Math.PI;
+    FIELD.forEach((spot,i)=>{const f=add(new CricketerPlayer(player,{batting:false,kit:KITS.fielding[i+1],number:String(i+12)}));f.root.position.set(spot.x,0,spot.z);f.root.rotation.y=yawTo(-spot.x,-spot.z);this.fielders.push(f);});
     const normalize=(object:T.Group,size:number)=>{const b=new T.Box3().setFromObject(object),dim=b.getSize(v()),center=b.getCenter(v());const scale=size/dim.y;object.scale.setScalar(scale);object.position.set(-center.x*scale,-b.min.y*scale,-center.z*scale);const group=new T.Group();group.add(object);return group;};
     const p=normalize(pavilion.scene,6);p.position.set(32,0,-82);p.rotation.y=-.25;this.scene.add(p);this.resources.add(p);
     this.wicketTemplate=normalize(wicket.scene,.711);
     for(const z of [.4,-PITCH]){const w=this.wicketTemplate.clone(true);w.position.set(0,0,z);this.scene.add(w);this.resources.add(w);}
   }
-  private fieldSpot(i:number){const a=(i+.4)/8*Math.PI*2;return v(Math.sin(a)*(i%2?45:32),0,-12+Math.cos(a)*36);}
+  private everyone(){return [this.batter,this.runner,this.bowler,this.keeper,...this.fielders];}
+  /** The strike rotates after an odd number of completed runs. */
+  private strikerFor(s:Match|null){const swapped=!!s&&s.results.reduce((n,r)=>n+(r.runs%2),0)%2===1;return swapped?[this.runner,this.batter]:[this.batter,this.runner];}
+  /** Distance covered drives leg cadence; a footstep sounds each time a stride length is completed. */
+  private stride(rig:Rig,kind:PlayerPose,cue:Cue,level=1){
+    let st=this.strides.get(rig);if(!st){st={last:rig.root.position.clone(),d:0,steps:0};this.strides.set(rig,st);}
+    const p=rig.root.position,moved=Math.hypot(p.x-st.last.x,p.z-st.last.z);st.last.copy(p);
+    if(moved<1.5)st.d+=moved;
+    const length=STEP_LENGTH[kind];
+    if(length){const n=Math.floor(st.d/length);if(n>st.steps&&n-st.steps<3&&moved>0&&moved<1.5)cue('step',{x:p.x,z:p.z,level});st.steps=n;}
+    return st.d;
+  }
+  private place(rig:Rig,x:number,z:number,yaw:number){rig.root.position.set(x,0,z);rig.root.rotation.y=yaw;}
+  /** Camera kick for a struck ball (skipped with reduced motion). */
+  kick(amount:number){this.trauma=Math.min(1,this.trauma+amount);}
   draw(s:Match|null,time:number,reduced=false) {
     const tier=s?.challenge.tier||0;
     if(tier!==this.lastTier){this.lastTier=tier;const color=tier===0?'#badbd3':tier===1?'#e7bda0':'#91aab9';this.scene.background=new T.Color(color);this.scene.fog=new T.Fog(color,105,230);}
-    const phase=s?.phase, after=s&&phase!=='delivery'?afterContact(s):null;
-    const running=phase==='running', runs=s?.outcome?.runs||0, runProgress=running?Math.min(1,s!.age/(runs*.7)):0;
-    const runZ=running?-(Math.sin(runProgress*runs*Math.PI/2)**2)*PITCH:0, towardBowler=running&&Math.sin(runProgress*runs*Math.PI)>0;
-    // The batter stands so the ball line meets the native sweet spot at contact.
-    const contact=this.batter.contactLocal;
-    this.batter.root.position.set((s?s.delivery.line:.16)-contact.x,0,-contact.z+runZ);
-    this.batter.root.rotation.y=running?(towardBowler?Math.PI:0):0;
-    const aim=s?.delivery.side==='left'?-1:1, shot=s?.delivery.shot, height=s?.delivery.contactHeight;
-    let kind:PlayerPose='ready', progress=s&&phase==='delivery'?s.age:9;
-    if(s&&phase==='finished'&&s.won)kind='celebrate';
-    else if(running)kind='run';
-    else if(s?.input&&phase==='delivery'){kind='swing';progress=Math.min(.5,.5*(s.age-s.input.at)/Math.max(1/120,contactAt(s)-s.input.at));}
-    else if(s?.input&&after){if(after.since<.42){kind='swing';progress=.5+after.since/.84;}else{kind='recover';progress=after.since;}}
-    this.batter.pose(time,kind,progress,aim,shot,height);
-    // Non-striker waits with the bat down and runs the opposite way.
-    this.runner.root.position.set(1.8,0,-PITCH-runZ);this.runner.root.rotation.y=running?(towardBowler?0:Math.PI):Math.PI;
-    this.runner.pose(time,running?'run':'wait');
-    // Bowler: run-up, delivery stride and follow-through, then a walk back to the mark.
-    const mark=-PITCH-8, stop=-PITCH+1.8;
-    if(s&&phase==='delivery'){const p=s.age/RELEASE;this.bowler.root.position.set(.38,0,p<1?mark+(-PITCH-mark)*p:-PITCH+(stop+PITCH)*smoothstep(1,1.6,p));this.bowler.root.rotation.y=0;this.bowler.pose(time,'bowl',p);}
-    else if(after&&phase!=='finished'){const u=smoothstep(.12,.95,after.since/after.total);this.bowler.root.position.set(.38,0,stop+(mark-stop)*u);this.bowler.root.rotation.y=u>0&&u<1?Math.PI:0;this.bowler.pose(time,u>0&&u<1?(after.total<3?'run':'walk'):'field');}
-    else{this.bowler.root.position.set(.38,0,s?stop:mark);this.bowler.root.rotation.y=0;this.bowler.pose(time,'field');}
-    const p=s?ballPosition(s):{x:0,y:2,z:-PITCH};this.ball.position.set(p.x,p.y,p.z);this.ball.rotation.x=time*8;this.ball.visible=!!s&&(phase!=='delivery'||s.age>=RELEASE);
-    this.shadow.position.set(p.x,.023,p.z);this.shadow.scale.setScalar(1+p.y*.08);this.shadow.visible=this.ball.visible;
-    for(let i=0;i<this.trail.length;i++){const tr=this.trail[i];tr.visible=!!s&&phase==='flight'&&!reduced;if(tr.visible){const t=Math.max(0,s!.age-i*.016),sample=ballPosition({...s!,age:t});tr.position.set(sample.x,sample.y,sample.z);}}
-    // The fielder nearest the landing spot chases the ball; the rest walk in facing the batter.
-    const landing=s?.trajectory.landing, chasing=!!s&&!!landing&&(phase==='flight'||running);
-    let chaser=-1;if(chasing){let best=Infinity;this.fielders.forEach((_,i)=>{const d=this.fieldSpot(i).distanceTo(v(landing!.x,0,landing!.z));if(d<best){best=d;chaser=i;}});}
+    // A new delivery (or the result screen): remember where everyone stands so they walk, never jump, to their marks.
+    const key=s?`${s.initialSeed}:${s.ball}:${s.phase==='finished'}`:'menu';
+    if(key!==this.key){this.key=key;this.keyTime=time;for(const rig of this.everyone())this.cap.set(rig,rig.root.position.clone());this.prevClock=-1e-6;}
+    if(s&&s.time<this.prevTime)this.prevTime=-1;
+    const advanced=!!s&&s.time>this.prevTime;
+    const cue:Cue=(name,options)=>{if(advanced)this.onCue?.(name,options);};
+    const t=s?timeline(s):null, phase=s?.phase, since=t?t.since:-1, clock=t?t.clock:0, d=s?.delivery;
+    const contactT=s?contactAt(s):0, crossed=(at:number)=>this.prevClock<at&&clock>=at;
+    const walkClock=s?(phase==='finished'?s.age:clock):time-this.keyTime;
+    const [striker,partner]=this.strikerFor(s);
+    const contact=striker.contactLocal, guardX=GUARD-contact.x, homeZ=-contact.z;
+
+    // Striker: a fixed guard. After release the batter steps across toward the line; the swing reaches the rest.
+    const line=d?d.line:GUARD, offset=line-GUARD, reach=d?reachFor(d.contactHeight,Math.sign(offset)):0, shift=s?offset-Math.max(-reach,Math.min(reach,offset)):0;
+    const u=s?(phase==='delivery'?Math.max(0,Math.min(1,(s.age-FOOT_START)/FOOT_TIME)):1):0;
+    const body=shift*smoothstep(.15,.85,u), lateral=line-(GUARD+body);
+    const runs=t?.runs||0, ran=!!t&&t.ran&&since>=RUN_START;
+    // Run path: 0 at the batter's own end, 1 at the other, accelerating away and slowing into each turn.
+    let frac=0, heading=0;
+    if(ran){const k=Math.min(1,(since-RUN_START)/(runs*RUN-RUN_START))*runs, seg=Math.min(runs-1,Math.floor(k)), f=trap(k-seg);frac=seg%2?1-f:f;heading=k>=runs?0:seg%2?-1:1;}
+    let kind:PlayerPose='ready', progress=s&&phase==='delivery'?s.age:9, sx=guardX+body, sz=homeZ, sYaw=0;
+    if(s&&phase==='finished')kind=s.won?'celebrate':'wait';
+    else if(ran){sz=homeZ+(FAR_Z-homeZ)*frac;kind=heading?'run':'wait';sYaw=heading?(heading>0?Math.PI:0):(frac>.5?Math.PI:0);}
+    else if(s?.input&&phase==='delivery'){kind='swing';progress=Math.min(.5,.5*(s.age-s.input.at)/Math.max(1/120,contactT-s.input.at));}
+    else if(s?.input&&since>=0){if(since<.42){kind='swing';progress=.5+since/.84;}else{kind='recover';progress=since;}}
+    const walkIn=this.approach(striker,s,sx,sz);if(walkIn){sx=walkIn.x;sz=walkIn.z;sYaw=walkIn.yaw;kind=walkIn.kind;}
+    if(s&&phase==='finished'&&!walkIn&&!s.won)sYaw=sz<-PITCH/2?Math.PI:0;
+    this.place(striker,sx,sz,sYaw);
+    const aim=d?.side==='left'?-1:1;
+    striker.pose(time,kind,progress,aim,d?.shot,d?.contactHeight,{lateral,step:{shift,u},stride:this.stride(striker,kind,cue)});
+
+    // Non-striker backs up as the ball is bowled and runs the other way.
+    const backing=s&&phase==='delivery'?BACKING_UP*smoothstep(RELEASE-.55,RELEASE+.35,s.age):t&&!t.ran&&since>=0?BACKING_UP*(1-smoothstep(.3,1.2,since)):t?.ran?BACKING_UP:0;
+    const nsZ=NON_STRIKER.z+backing;
+    let px=NON_STRIKER.x, pz=nsZ, pKind:PlayerPose='wait', pYaw=Math.PI;
+    if(s&&phase==='delivery'&&s.age>RELEASE-.55&&s.age<RELEASE+.35){pKind='walk';pYaw=0;}
+    else if(t&&!t.ran&&since>.3&&since<1.2){pKind='walk';pYaw=Math.PI;}
+    if(ran){pz=nsZ+(NEAR_Z-nsZ)*frac;pKind=heading?'run':'wait';pYaw=heading?(heading>0?0:Math.PI):(frac>.5?0:Math.PI);}
+    const partnerIn=this.approach(partner,s,px,pz);if(partnerIn){px=partnerIn.x;pz=partnerIn.z;pYaw=partnerIn.yaw;pKind=partnerIn.kind;}
+    this.place(partner,px,pz,pYaw);partner.pose(time,pKind,0,1,'drive',.6,{stride:this.stride(partner,pKind,cue)});
+
+    // Bowler: run-up from wherever the walk back reached, delivery stride, follow-through, then a jog back to the mark.
+    let bz=MARK, bKind:PlayerPose='stand', bYaw=0, bProgress=0;
+    if(s&&phase==='delivery'){const p=s.age/RELEASE, start=Math.min(this.cap.get(this.bowler)?.z??MARK,-PITCH-1.2);bz=p<1?start+(-PITCH-start)*p:-PITCH+(STOP+PITCH)*smoothstep(1,1.6,p);bKind='bowl';bProgress=p;}
+    else if(s&&phase!=='finished'){const end=-PITCH+(STOP+PITCH)*smoothstep(1,1.6,contactT/RELEASE),room=Math.max(0,end-MARK),back=Math.min(room,Math.max(0,since-.35)*JOG_SPEED);bz=end-back;const moving=since>.35&&back<room;bKind=moving?'run':'stand';bYaw=moving?Math.PI:0;}
+    else if(s)bz=this.cap.get(this.bowler)?.z??MARK;
+    if(s&&phase==='finished'&&!s.won)bKind='celebrate';
+    this.place(this.bowler,BOWLER_X,bz,bYaw);this.bowler.pose(time,bKind,bProgress,1,'drive',.6,{stride:this.stride(this.bowler,bKind,cue,1.1)});
+    this.place(this.keeper,KEEPER.x,KEEPER.z,Math.PI);this.keeper.pose(time,s&&phase==='finished'&&!s.won?'celebrate':'keep');
+
+    // Ball: the simulation path, then the keeper's gloves, a fielder's hands or a throw back in.
+    let p:Vec=s?ballPosition(s):{x:0,y:2,z:-PITCH};
+    if(s&&d&&t&&!t.flown&&since>=0){const w=Math.min(1,since/.16);p={x:d.line+(GLOVES.x-d.line)*w,y:d.contactHeight+(GLOVES.y-d.contactHeight)*w,z:GLOVES.z*w};}
+    // Fielders walk back to their spots; the one nearest where the ball comes down chases it at a realistic pace.
+    const home=(i:number)=>{const from=this.cap.get(this.fielders[i])??v(FIELD[i].x,0,FIELD[i].z);return walkTo(from,FIELD[i],WALK_SPEED,walkClock);};
+    let chaser=-1;
+    const end=s&&t?.flown?{x:d!.line+s.trajectory.vx*s.trajectory.duration,z:s.trajectory.vz*s.trajectory.duration}:null;
+    if(s&&end){let best=Infinity;this.fielders.forEach((_,i)=>{const from=this.cap.get(this.fielders[i])??v(FIELD[i].x,0,FIELD[i].z),at=walkTo(from,FIELD[i],WALK_SPEED,contactT),dist=Math.hypot(at.x-end.x,at.z-end.z);if(dist<best){best=dist;chaser=i;}});}
+    const lost=!!s&&phase==='finished'&&!s.won;
     this.fielders.forEach((f,i)=>{
-      const origin=this.fieldSpot(i);
-      if(i===chaser){const alpha=Math.min(1,phase==='flight'?s!.age/s!.trajectory.duration:1);const goal=v(landing!.x,0,landing!.z);f.root.position.copy(origin).lerp(goal,smoothstep(0,1,alpha));const d=goal.clone().sub(origin);f.root.rotation.y=alpha>.92?Math.atan2(-f.root.position.x,-f.root.position.z):Math.atan2(d.x,d.z);f.pose(time,alpha>.92?'field':'run');}
-      else{f.root.position.copy(origin);f.root.rotation.y=Math.atan2(-origin.x,-origin.z);f.pose(time,'field');}
+      if(i!==chaser||!s||!t||!end){const at=home(i);this.place(f,at.x,at.z,at.moving?at.yaw:yawTo(-at.x,-at.z));const k:PlayerPose=lost?'celebrate':at.moving?'walk':'field';f.pose(time,k,0,1,'drive',.6,{stride:this.stride(f,k,cue,.7)});return;}
+      const from=this.cap.get(f)??v(FIELD[i].x,0,FIELD[i].z), start=walkTo(from,FIELD[i],WALK_SPEED,contactT);
+      let target={x:end.x,z:end.z};
+      if(runs>=4){const cx=end.x,cz=end.z+10,r=Math.hypot(cx,cz);if(r>61)target={x:cx/r*61,z:cz/r*61-10};}
+      else if(s.outcome?.caught){const r=Math.hypot(end.x,end.z);target={x:end.x+end.x/r*.35,z:end.z+end.z/r*.35};}
+      const dx=target.x-start.x,dz=target.z-start.z,dist=Math.hypot(dx,dz),covered=Math.min(dist,Math.max(0,since-.25)*CHASE_SPEED);
+      const x=start.x+(dist?dx/dist*covered:0),z=start.z+(dist?dz/dist*covered:0),moving=since>.25&&covered<dist-.01;
+      const towardBat=yawTo(-x,-z),towardGloves=yawTo(GLOVES.x-x,GLOVES.z-z);
+      let k:PlayerPose=moving?'run':'field', yaw=moving?yawTo(dx,dz):towardBat, prog=0;
+      const rest=s.trajectory.duration, pick=Math.max(.25+dist/CHASE_SPEED,rest), throwAt=pick+.3, release=throwAt+.18;
+      const hand=v(x,1.9,z), flightT=hand.distanceTo(GLOVES)/24+.2, inGloves=release+flightT;
+      if(s.outcome?.caught){if(!moving)k=since<rest?'catch':'celebrate';if(since>=rest)p={x:x-Math.sin(towardBat)*-.3,y:1.25,z:z-Math.cos(towardBat)*-.3};if(crossed(contactT+rest)){cue('catch',{x,z});this.kick(.15);}}
+      else if(runs>=4){if(!moving)k='stand';}
+      else if(!moving&&since>=pick){
+        if(since<throwAt){k='field';yaw=towardGloves;}
+        else if(since<throwAt+.45){k='bowl';prog=.7+(since-throwAt)/.45*.6;yaw=towardGloves;}
+        else{k='stand';yaw=towardGloves;}
+        if(since<release)p={x,y:.3+1.6*smoothstep(pick,release,since),z};
+        else if(since<inGloves){const w=(since-release)/flightT;p={x:x+(GLOVES.x-x)*w,y:1.9+(GLOVES.y-1.9)*w+hand.distanceTo(GLOVES)*.09*4*w*(1-w),z:z+(GLOVES.z-z)*w};}
+        else p={x:GLOVES.x,y:GLOVES.y,z:GLOVES.z};
+        if(crossed(contactT+pick))cue('pickup',{x,z});
+        if(crossed(contactT+release))cue('throw',{x,z});
+        if(crossed(contactT+inGloves))cue('gloves',{x:GLOVES.x,z:GLOVES.z,level:.8});
+      }
+      if(lost)k='celebrate';
+      this.place(f,x,z,yaw);f.pose(time,k,prog,1,'drive',.6,{stride:this.stride(f,k,cue,.8)});
     });
+    this.ball.position.set(p.x,p.y,p.z);this.ball.rotation.x=time*8;this.ball.visible=!!s&&(phase!=='delivery'||s.age>=RELEASE);
+    this.shadow.position.set(p.x,.023,p.z);this.shadow.scale.setScalar(1+p.y*.08);this.shadow.visible=this.ball.visible;
+    for(let i=0;i<this.trail.length;i++){const tr=this.trail[i];tr.visible=!!s&&phase==='flight'&&!reduced;if(tr.visible){const at=Math.max(0,s!.age-i*.016),sample=ballPosition({...s!,age:at});tr.position.set(sample.x,sample.y,sample.z);}}
     for(const [rig,blob] of this.blobs)blob.position.set(rig.root.position.x,.03,rig.root.position.z);
+
+    // World sound cues, timed to what is on screen.
+    if(s&&d){
+      if(crossed(RELEASE))cue('release',{x:BOWLER_X,z:-PITCH});
+      if(crossed(RELEASE+d.bounce*d.flight))cue('bounce',{x:d.line*d.bounce**2,z:-PITCH*(1-d.bounce),level:Math.min(1.2,d.speed/120)});
+      if(t&&!t.flown&&crossed(contactT+.16))cue('gloves',{x:GLOVES.x,z:GLOVES.z});
+      if(t?.flown&&runs>0&&runs<6&&crossed(contactT+s.trajectory.duration*.6)){const at=ballPosition({...s,phase:'flight',age:s.trajectory.duration*.6});cue('land',{x:at.x,z:at.z,level:.9});}
+      if(t&&crossed(contactT)&&(runs>0||s.outcome?.caught))this.kick(.1+.22*(s.outcome?.quality||0)+(runs===6?.18:0));
+    }
+    this.prevClock=clock;if(s)this.prevTime=s.time;
+    const dt=Math.max(0,Math.min(.1,time-this.lastDraw));this.lastDraw=time;this.trauma=Math.max(0,this.trauma-dt*1.8);
     if(!s){this.eye.set(7,3.4,9);this.goal.set(0,1.0,-6);}
     else if(phase==='flight'&&!reduced){this.eye.set(p.x*.38+4,Math.max(3.6,p.y*.4+3),p.z*.43+7);this.goal.set(p.x,p.y*.6,p.z-4);}
     else {this.eye.set(.95,2.7,6.4);this.goal.set(0,1.0,-7);}
+    if(!reduced&&this.trauma>0){const k=this.trauma*this.trauma;this.eye.x+=Math.sin(time*41)*.08*k;this.eye.y+=Math.sin(time*33+1)*.06*k;this.goal.x+=Math.sin(time*27+2)*.05*k;}
     this.camera.position.copy(this.eye);this.camera.lookAt(this.goal);this.renderer.render(this.scene,this.camera);
   }
-  contactInspection(s:Match){this.batter.root.updateMatrixWorld(true);const blade=this.batter.bladePoint();return {expectedContact:contactAt(s),ball:ballPosition(s),blade:blade.toArray(),phase:s.phase,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,character:this.batter.inspection()};}
+  /** Walk in from where a player stood when the delivery began. Returns null once they are in place. */
+  private approach(rig:Rig,s:Match|null,x:number,z:number):{x:number;z:number;yaw:number;kind:PlayerPose}|null{
+    const from=this.cap.get(rig);if(!s||!from||(s.phase!=='delivery'&&s.phase!=='finished'))return null;
+    const dist=Math.hypot(x-from.x,z-from.z);if(dist<.05||dist>30)return null;
+    const duration=Math.min(1,Math.max(.35,dist/2.4));if(s.age>=duration)return null;
+    const w=smoothstep(0,1,s.age/duration);
+    return {x:from.x+(x-from.x)*w,z:from.z+(z-from.z)*w,yaw:yawTo(x-from.x,z-from.z),kind:dist/duration>3.2?'run':'walk'};
+  }
+  contactInspection(s:Match){const [striker]=this.strikerFor(s);striker.root.updateMatrixWorld(true);const blade=striker.bladePoint();return {expectedContact:contactAt(s),ball:ballPosition(s),blade:blade.toArray(),phase:s.phase,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,character:striker.inspection()};}
   private disposeObject(root:T.Object3D){root.traverse(o=>{if(o instanceof T.Mesh){o.geometry.dispose();const materials=Array.isArray(o.material)?o.material:[o.material];materials.forEach(m=>{for(const value of Object.values(m))if(value instanceof T.Texture)value.dispose();m.dispose();});}});}
   dispose(){this.disposed=true;this.observer.disconnect();this.disposeObject(this.scene);this.blobMaterial?.map?.dispose();if(this.wicketTemplate)this.disposeObject(this.wicketTemplate);this.renderer.dispose();this.renderer.forceContextLoss();}
 }

@@ -22,6 +22,7 @@ import type { FormationId } from "../engine/types";
 
 import { DuelCard, primaryPosition } from "./card-art";
 import { StarIcon } from "./icons";
+import { keeperAt, placeSpot } from "./pitch-layout";
 import { Pill } from "./ui";
 import styles from "./pitch-duel.module.css";
 
@@ -31,12 +32,11 @@ type Drag = { from: Place | { bench: string }; id: string; x: number; y: number;
 
 const groups: ("ALL" | PositionGroup)[] = ["ALL", "GK", "DEF", "MID", "FWD"];
 
-/** Slot depth (0 own goal … ~0.56) to a top offset on the portrait pitch. */
-const topFor = (depth: number) => 0.93 - (depth / 0.56) * 0.83;
-
 /**
- * The eleven-a-side lineup editor. Drag a card onto another place to swap
- * them, or drag one up from the squad tray to bring it in. Tapping works the
+ * The eleven-a-side lineup editor, in landscape: a sideways pitch on the
+ * left (attacking right), the formation, squad and tactics on the right.
+ * Drag a token onto another place to swap them, or drag a card across from
+ * the squad tray to bring it in. Tapping works the
  * same way: tap a place, then tap another place or a squad card. Keyboard:
  * Enter picks a place, the arrow keys move between places, Enter places.
  */
@@ -58,6 +58,7 @@ export function LineupEditor({
   const [club, setClub] = useState<ClubSetup>(initial);
   const [picked, setPicked] = useState<Place | null>(null);
   const [filter, setFilter] = useState<"ALL" | PositionGroup>("ALL");
+  const [tab, setTab] = useState<"squad" | "tactics">("squad");
   const [note, setNote] = useState<string | null>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const placeRefs = useRef(new Map<string, HTMLButtonElement>());
@@ -182,13 +183,14 @@ export function LineupEditor({
   const placeKey = (event: KeyboardEvent, place: Place) => {
     if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) return;
     event.preventDefault();
-    const here = place === "gk" ? { across: 0.5, depth: 0.04 } : shape.slots[place].at;
-    const dir = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[event.key]!;
+    const here = place === "gk" ? keeperAt : shape.slots[place].at;
+    // The pitch is sideways: right is up the field, down is towards the right touchline.
+    const dir = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[event.key]!;
     let best: Place | null = null;
     let bestScore = Infinity;
     for (const p of order) {
       if (p === place) continue;
-      const at = p === "gk" ? { across: 0.5, depth: 0.04 } : shape.slots[p].at;
+      const at = p === "gk" ? keeperAt : shape.slots[p].at;
       const dx = at.across - here.across;
       const dy = at.depth - here.depth;
       const along = dx * dir[0] + dy * dir[1];
@@ -218,7 +220,8 @@ export function LineupEditor({
   };
   const actions = ownedActions.map(actionFor).filter((a): a is ActionCard => Boolean(a)).sort((a, b) => b.power - a.power);
 
-  const placeButton = (place: Place, x: number, y: number, pos: string) => {
+  const placeButton = (place: Place, at: { across: number; depth: number }, pos: string) => {
+    const { x, y } = placeSpot(at);
     const id = idAt(place);
     const card = id ? cardFor(id) : undefined;
     const fit = !card ? 0 : place === "gk" ? 3 : positionFit(card, pos as never);
@@ -247,9 +250,18 @@ export function LineupEditor({
         aria-label={`${pos}: ${card ? `${card.name}, ${card.rating}` : "empty"}${picked === place ? ", picked" : ""}`}
         data-pitch-duel-option={`place-${place}`}
       >
-        {card ? <DuelCard card={card} size="mini" /> : <span className={styles.placeEmpty}>+</span>}
+        {card ? (
+          <span className={styles.placeShield} data-tier={card.tier} data-academy={isAcademyId(card.id) || undefined}>
+            <strong>{card.rating}</strong>
+            <small>{pos}</small>
+          </span>
+        ) : (
+          <span className={styles.placeEmpty}>
+            +<small>{pos}</small>
+          </span>
+        )}
         <span className={styles.placePos} data-fit={fit}>
-          {pos}
+          {card ? card.shortName : "EMPTY"}
         </span>
       </button>
     );
@@ -260,115 +272,123 @@ export function LineupEditor({
   return (
     // Native image drag would cancel the pointer drag, so it is switched off here.
     <div className={styles.lineup} data-dragging={drag?.started || undefined} onDragStart={(e) => e.preventDefault()}>
-      <div className={styles.lineupBar}>
-        <label className={styles.formationSelect}>
-          <span className={styles.srOnly}>Formation</span>
-          <select
-            value={club.formation}
-            onChange={(e) => {
-              setClub(reshapeClub(club, e.target.value as FormationId, ownedPlayers, cardFor));
-              setPicked(null);
-            }}
-          >
-            {formationIds.map((f) => (
-              <option key={f} value={f}>
-                {f} · {formations[f].label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <span className={styles.ovrPill}>
-          <StarIcon size={16} /> {ovr} OVR
-        </span>
-      </div>
-      <p className={styles.shapeBlurb}>{shape.blurb}</p>
-
       <div className={styles.pitch} aria-label={`Pitch, ${club.formation}`}>
-        <svg className={styles.pitchLines} viewBox="0 0 60 90" preserveAspectRatio="none" aria-hidden>
-          <rect x="1.5" y="1.5" width="57" height="87" rx="1.5" />
-          <line x1="1.5" y1="45" x2="58.5" y2="45" />
-          <circle cx="30" cy="45" r="7.5" />
-          <rect x="14" y="1.5" width="32" height="13" />
-          <rect x="14" y="75.5" width="32" height="13" />
-          <rect x="22" y="83" width="16" height="5.5" />
+        <svg className={styles.pitchLines} viewBox="0 0 90 60" preserveAspectRatio="none" aria-hidden>
+          <rect x="1" y="1" width="88" height="58" rx="1" />
+          <line x1="45" y1="1" x2="45" y2="59" />
+          <circle cx="45" cy="30" r="6.5" />
+          <rect x="1" y="15" width="12" height="30" />
+          <rect x="1" y="23" width="4.5" height="14" />
+          <rect x="77" y="15" width="12" height="30" />
+          <rect x="84.5" y="23" width="4.5" height="14" />
         </svg>
-        {placeButton("gk", 0.5, 0.9, "GK")}
-        {shape.slots.map((s, i) => placeButton(i, s.at.across, topFor(s.at.depth), s.pos))}
+        <span className={styles.attackArrow} aria-hidden>
+          ATTACK ▸
+        </span>
+        {placeButton("gk", keeperAt, "GK")}
+        {shape.slots.map((s, i) => placeButton(i, s.at, s.pos))}
       </div>
 
-      <p className={styles.lineupNote} role="status">
-        {note ?? (picked !== null ? `Now tap another place or a squad card for ${pickedPos}.` : "Drag a card onto another place to swap, or tap two places.")}
-      </p>
-
-      <section className={styles.benchPanel} aria-label="Squad">
-        <header className={styles.benchHead}>
-          <span className={styles.benchTitle}>{picked !== null ? `SQUAD FOR ${pickedPos}` : "SQUAD"}</span>
-          {picked === null ? (
-            <span className={styles.chips} role="group" aria-label="Filter by position">
-              {groups.map((g) => (
-                <button key={g} type="button" className={styles.chip} aria-pressed={filter === g} onClick={() => setFilter(g)}>
-                  {g}
-                </button>
-              ))}
-            </span>
-          ) : null}
-        </header>
-        <div className={styles.bench}>
-          {bench.map((card) => (
-            <span
-              key={card.id}
-              className={styles.benchCard}
-              data-bench={card.id}
-              onPointerDown={(e) => startDrag(e, { bench: card.id }, card.id)}
-              onPointerMove={moveDrag}
-              onPointerUp={endDrag}
-              onPointerCancel={() => setDrag(null)}
+      <aside className={styles.lineupSide}>
+        <div className={styles.lineupBar}>
+          <label className={styles.formationSelect}>
+            <span className={styles.srOnly}>Formation</span>
+            <select
+              value={club.formation}
+              onChange={(e) => {
+                setClub(reshapeClub(club, e.target.value as FormationId, ownedPlayers, cardFor));
+                setPicked(null);
+              }}
             >
-              <DuelCard card={card} size="mini" onClick={() => tapBench(card.id)} label={`Bring in ${card.name}, ${primaryPosition(card)}, ${card.rating}`} />
-              {isAcademyId(card.id) ? <small className={styles.academyTag}>ACADEMY</small> : null}
-            </span>
-          ))}
-          {!bench.length ? <p className={styles.muted}>No one else for this place. Open packs to grow your squad.</p> : null}
-        </div>
-      </section>
-
-      <section className={styles.benchPanel} aria-label="Tactic cards">
-        <header className={styles.benchHead}>
-          <span className={styles.benchTitle}>
-            TACTICS {club.tactics.length}/{maxTactics}
+              {formationIds.map((f) => (
+                <option key={f} value={f}>
+                  {f} · {formations[f].label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <span className={styles.ovrPill}>
+            <StarIcon size={16} /> {ovr} OVR
           </span>
-        </header>
-        <div className={styles.tacticList}>
-          {actions.map((a) => {
-            const on = club.tactics.includes(a.id);
-            return (
-              <button
-                key={a.id}
-                type="button"
-                className={styles.tacticPick}
-                aria-pressed={on}
-                disabled={!on && club.tactics.length >= maxTactics}
-                onClick={() => toggleTactic(a.id)}
-              >
-                <b>{a.title}</b>
-                <small>
-                  {a.tier.toUpperCase()} · {effectFor(a).summary}
-                </small>
-              </button>
-            );
-          })}
-          {!actions.length ? <p className={styles.muted}>No tactic cards yet — they come in packs.</p> : null}
         </div>
-      </section>
+        <p className={styles.shapeBlurb}>{shape.blurb}</p>
 
-      {errors.length ? <p className={styles.errors}>{errors[0]}</p> : null}
-      <div className={styles.lineupActions}>
-        <Pill tone="grey" onClick={autoPick}>AUTO PICK</Pill>
-        <Pill tone="red" back onClick={() => { setClub(initial); setPicked(null); setNote("Back to your saved eleven."); }}>RESET</Pill>
-        <Pill tone="green" wide disabled={errors.length > 0} onClick={() => onSave(club)} optionId="save-lineup">
-          SAVE SQUAD
-        </Pill>
-      </div>
+        <p className={styles.lineupNote} role="status">
+          {note ?? (picked !== null ? `Now tap another place or a squad card for ${pickedPos}.` : "Drag a player onto another place to swap, or tap two places.")}
+        </p>
+
+        <section className={styles.benchPanel} aria-label={tab === "squad" ? "Squad" : "Tactic cards"}>
+          <header className={styles.benchHead}>
+            <span className={styles.chips} role="group" aria-label="Squad or tactics">
+              <button type="button" className={styles.chip} aria-pressed={tab === "squad"} onClick={() => setTab("squad")}>
+                {picked !== null ? `SQUAD · ${pickedPos}` : "SQUAD"}
+              </button>
+              <button type="button" className={styles.chip} aria-pressed={tab === "tactics"} onClick={() => setTab("tactics")}>
+                TACTICS {club.tactics.length}/{maxTactics}
+              </button>
+            </span>
+            {tab === "squad" && picked === null ? (
+              <span className={styles.chips} role="group" aria-label="Filter by position">
+                {groups.map((g) => (
+                  <button key={g} type="button" className={styles.chip} data-small aria-pressed={filter === g} onClick={() => setFilter(g)}>
+                    {g}
+                  </button>
+                ))}
+              </span>
+            ) : null}
+          </header>
+          {tab === "squad" ? (
+            <div className={styles.bench}>
+              {bench.map((card) => (
+                <span
+                  key={card.id}
+                  className={styles.benchCard}
+                  data-bench={card.id}
+                  onPointerDown={(e) => startDrag(e, { bench: card.id }, card.id)}
+                  onPointerMove={moveDrag}
+                  onPointerUp={endDrag}
+                  onPointerCancel={() => setDrag(null)}
+                >
+                  <DuelCard card={card} size="mini" onClick={() => tapBench(card.id)} label={`Bring in ${card.name}, ${primaryPosition(card)}, ${card.rating}`} />
+                  {isAcademyId(card.id) ? <small className={styles.academyTag}>ACADEMY</small> : null}
+                </span>
+              ))}
+              {!bench.length ? <p className={styles.muted}>No one else for this place. Open packs to grow your squad.</p> : null}
+            </div>
+          ) : (
+            <div className={styles.tacticList}>
+              {actions.map((a) => {
+                const on = club.tactics.includes(a.id);
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    className={styles.tacticPick}
+                    aria-pressed={on}
+                    disabled={!on && club.tactics.length >= maxTactics}
+                    onClick={() => toggleTactic(a.id)}
+                  >
+                    <b>{a.title}</b>
+                    <small>
+                      {a.tier.toUpperCase()} · {effectFor(a).summary}
+                    </small>
+                  </button>
+                );
+              })}
+              {!actions.length ? <p className={styles.muted}>No tactic cards yet — they come in packs.</p> : null}
+            </div>
+          )}
+        </section>
+
+        {errors.length ? <p className={styles.errors}>{errors[0]}</p> : null}
+        <div className={styles.lineupActions}>
+          <Pill tone="grey" onClick={autoPick} label="Auto pick the best eleven">AUTO</Pill>
+          <Pill tone="red" back onClick={() => { setClub(initial); setPicked(null); setNote("Back to your saved eleven."); }} label="Reset to your saved eleven">RESET</Pill>
+          <Pill tone="green" wide disabled={errors.length > 0} onClick={() => onSave(club)} optionId="save-lineup" label="Save squad">
+            SAVE
+          </Pill>
+        </div>
+      </aside>
 
       {ghost && drag ? (
         <span className={styles.ghost} style={{ left: drag.x, top: drag.y }} aria-hidden>

@@ -4,6 +4,14 @@ export const STEP = 1/120;
 export const RELEASE = 1.25;
 export const WINDUP = .15;
 export const PITCH = 20.12;
+/** Seconds per completed run. Batters set off at contact, so running overlaps the ball's flight. */
+export const RUN = 2.4;
+/** Fixed fielding positions (metres; batter at the origin, bowler toward -z). Shared by the simulation and renderer. */
+export const FIELD: Vec[] = Array.from({length: 8}, (_, i) => {const a = (i+.4)/8*Math.PI*2; return {x: Math.sin(a)*(i%2 ? 45 : 32), y: 0, z: -12+Math.cos(a)*36};});
+/** Base shot angle from straight (radians, before side sign and timing): sweeps and scoops go behind square. */
+const SHOT_ANGLE: Record<string, (length: number) => number> = {
+  drive: l => .35+l*.9, cut: l => 1.2+(l-.62)*.6, pull: l => 1.05+(l-.62)*.8, hook: l => 1.55+(l-.8)*1.2, sweep: l => 1.75+l*1.5, scoop: l => 2.5+l*1.2,
+};
 export type Side = 'left' | 'right';
 export type Shot = 'drive' | 'cut' | 'pull' | 'hook' | 'sweep' | 'scoop';
 export type Vec = {x: number; y: number; z: number};
@@ -53,11 +61,19 @@ function hit(s: Match) {
   const result=s.outcome;
   if(result.runs===0&&!result.caught) {s.phase='between'; s.age=0; return;}
   // Short shots are collected; four crosses after a bounce; six clears the rope in flight.
-  const direction = (s.delivery.side==='left' ? -1 : 1)*(.4+s.delivery.length*.95+(result.offset||0)*1.4);
+  const sign = s.delivery.side==='left' ? -1 : 1;
+  let angle = clamp(SHOT_ANGLE[s.delivery.shot](s.delivery.length)+(result.offset||0)*1.2, .15, 2.95);
+  let catchDistance = 0;
+  if(result.caught) {
+    // A catch carries to the fielder on that side whose position is closest to the shot's angle.
+    let best = Infinity;
+    for(const f of FIELD) {if(Math.sign(f.x)!==sign) continue; const a = Math.atan2(Math.abs(f.x), -f.z), d = Math.abs(a-angle); if(d<best) {best = d; angle = a; catchDistance = Math.hypot(f.x, f.z)-.8;}}
+  }
+  const direction = sign*angle;
   const ropeDistance=10*Math.cos(direction)+Math.sqrt(65*65-100*Math.sin(direction)**2);
-  const distance = result.runs===6 ? ropeDistance+8 : result.runs===4 ? ropeDistance+3 : 12+result.runs*9;
-  const duration = result.runs===6 ? 2.9 : result.runs===4 ? 2.3 : 1.6;
-  const vy = result.runs===6 ? 15 : result.caught ? 8 : 3+result.quality*4;
+  const distance = result.runs===6 ? ropeDistance+8 : result.runs===4 ? ropeDistance+3 : result.caught ? catchDistance : 12+result.runs*9;
+  const duration = result.runs===6 ? 2.9 : result.runs===4 ? 2.3 : result.caught ? 2.3 : 1.6;
+  const vy = result.runs===6 ? 15 : result.caught ? 11 : 3+result.quality*4;
   s.trajectory={vx: Math.sin(direction)*distance/duration, vz:-Math.cos(direction)*distance/duration, vy, duration, landing:{x:Math.sin(direction)*distance,y:0,z:-Math.cos(direction)*distance}};
   s.phase='flight'; s.age=0;
 }
@@ -72,10 +88,13 @@ export function step(s: Match, dt=STEP) {
   s.time+=dt; s.age+=dt;
   if(s.phase==='delivery'&&s.age>=contactAt(s)) hit(s);
   else if(s.phase==='flight'&&s.age>=s.trajectory.duration) {s.phase=s.outcome!.runs>0&&s.outcome!.runs<4?'running':'between';s.age=0;}
-  else if(s.phase==='running'&&s.age>=s.outcome!.runs*.7) {s.phase='between';s.age=0;}
+  else if(s.phase==='running'&&s.age>=runningTime(s)) {s.phase='between';s.age=0;}
   else if(s.phase==='between'&&s.age>=1.15) settle(s);
 }
-export function skipHighlight(s: Match) {if(s.phase==='flight'&&(s.outcome?.runs||0)>=4){s.phase='between';s.age=0;return true;}return false;}
+/** Running that remains after the ball's flight; the batters set off at contact. */
+export const runningTime = (s: Match) => Math.max(.3, (s.outcome?.runs||0)*RUN-s.trajectory.duration);
+/** Skip a boundary highlight or the rest of the running. The earned result never changes. */
+export function skipHighlight(s: Match) {const runs=s.outcome?.runs||0;if((s.phase==='flight'&&runs>0)||s.phase==='running'){s.phase='between';s.age=0;return true;}return false;}
 export function ballPosition(s: Match): Vec {
   const d=s.delivery;
   if(s.phase==='delivery') {
@@ -86,7 +105,7 @@ export function ballPosition(s: Match): Vec {
   }
   if(s.phase==='flight') {
     const t=s.age, tr=s.trajectory, p=clamp(t/tr.duration,0,1);
-    const y = s.outcome?.runs===6 || s.outcome?.caught ? Math.max(.06,d.contactHeight*(1-p)+(s.outcome?.caught ? .75 : 0)*p+Math.sin(p*Math.PI)*tr.vy) : Math.max(.06,p<.6?d.contactHeight*(1-p/.6)+Math.sin(p/.6*Math.PI)*tr.vy:Math.sin((p-.6)/.4*Math.PI)*tr.vy*.2);
+    const y = s.outcome?.runs===6 || s.outcome?.caught ? Math.max(.06,d.contactHeight*(1-p)+(s.outcome?.caught ? 1.15 : 0)*p+Math.sin(p*Math.PI)*tr.vy) : Math.max(.06,p<.6?d.contactHeight*(1-p/.6)+Math.sin(p/.6*Math.PI)*tr.vy:Math.sin((p-.6)/.4*Math.PI)*tr.vy*.2);
     return {x:d.line+tr.vx*t,y,z:tr.vz*t};
   }
   return s.outcome?.runs ? {...s.trajectory.landing, y:.09} : {x:d.line,y:.06,z:2.4};

@@ -6,8 +6,8 @@ import { lineKey, minuteLabel, playerRating } from "../engine/match";
 import type { MatchEvent, MatchState, Side } from "../engine/types";
 
 import { primaryPosition, sideAccent } from "./card-art";
-import { LogIcon } from "./icons";
-import { columnX, laneY, toPortrait, type PitchScene } from "./pitch-layout";
+import { LogIcon, PitchIcon } from "./icons";
+import { columnX, laneY, type PitchScene } from "./pitch-layout";
 import styles from "./match.module.css";
 
 /* ---- Scoreboard ----------------------------------------------------------- */
@@ -16,8 +16,21 @@ export function clockFor(state: MatchState): string {
   return state.phase === "kickoff" ? "0'" : state.phase === "halftime" ? "HT" : state.phase === "fulltime" ? "FT" : minuteLabel(state);
 }
 
-/** The trapezoid scoreboard: YOUR TEAM · GAME TIME · OPP. TEAM, with the shimmer bar under it. */
-export function Scoreboard({ state, onQuit, onLog }: { state: MatchState; onQuit: () => void; onLog: () => void }) {
+/**
+ * The top bar: back, your lineup, the trapezoid scorebug (YOUR TEAM · GAME
+ * TIME · OPP. TEAM on one row, with the shimmer under it), their lineup, events.
+ */
+export function Scoreboard({
+  state,
+  onQuit,
+  onLog,
+  onSquad,
+}: {
+  state: MatchState;
+  onQuit: () => void;
+  onLog: () => void;
+  onSquad: (side: Side) => void;
+}) {
   const clock = clockFor(state);
   return (
     <header className={styles.scoreboard}>
@@ -26,8 +39,11 @@ export function Scoreboard({ state, onQuit, onLog }: { state: MatchState; onQuit
           <path d="M15 5l-7 7 7 7" />
         </svg>
       </button>
+      <button type="button" className={styles.tab} data-side="home" onClick={() => onSquad("home")} aria-label="Your lineup">
+        <PitchIcon size={16} /> <span>YOUR XI</span>
+      </button>
       <div className={styles.scoreTrap} aria-live="polite" aria-label={`You ${state.score.home}, ${state.opponentName} ${state.score.away}, ${clock}`}>
-        <div className={styles.scoreTeam} style={{ "--side": sideAccent.home } as CSSProperties}>
+        <div className={styles.scoreTeam} data-side="home" style={{ "--side": sideAccent.home } as CSSProperties}>
           <small>YOUR TEAM</small>
           <b key={`h${state.score.home}`}>{state.score.home}</b>
         </div>
@@ -35,12 +51,15 @@ export function Scoreboard({ state, onQuit, onLog }: { state: MatchState; onQuit
           <small>GAME TIME</small>
           <b key={clock}>{clock}</b>
         </div>
-        <div className={styles.scoreTeam} style={{ "--side": sideAccent.away } as CSSProperties}>
+        <div className={styles.scoreTeam} data-side="away" style={{ "--side": sideAccent.away } as CSSProperties}>
           <small title={state.opponentName}>{state.opponentName}</small>
           <b key={`a${state.score.away}`}>{state.score.away}</b>
         </div>
         <i className={styles.shimmer} aria-hidden />
       </div>
+      <button type="button" className={styles.tab} data-side="away" onClick={() => onSquad("away")} aria-label="Opponent lineup">
+        <PitchIcon size={16} /> <span>OPP. XI</span>
+      </button>
       <button type="button" className={styles.scoreIcon} onClick={onLog} aria-label="Match events and stats">
         <LogIcon size={16} />
       </button>
@@ -51,8 +70,9 @@ export function Scoreboard({ state, onQuit, onLog }: { state: MatchState; onQuit
 /* ---- Match map ------------------------------------------------------------ */
 
 /**
- * The neon match map: a portrait pitch with all twenty-two players, home
- * attacking up. It turns red when they are near your goal.
+ * The neon match map: a landscape pitch with all twenty-two players, home
+ * attacking to the right (scene coordinates map straight onto it). It turns
+ * red when they are near your goal.
  */
 export function MatchMap({
   state,
@@ -67,35 +87,32 @@ export function MatchMap({
   big?: boolean;
   onOpen?: () => void;
 }) {
-  const ball = toPortrait(scene.ball);
+  const ball = scene.ball;
   const body = (
     <>
       <span className={styles.mapField} aria-hidden>
-        <svg viewBox="0 0 60 90" preserveAspectRatio="none">
-          <rect x="1" y="1" width="58" height="88" rx="1" />
-          <line x1="1" y1="45" x2="59" y2="45" />
-          <circle cx="30" cy="45" r="7" />
-          <rect x="15" y="1" width="30" height="13" />
-          <rect x="23" y="1" width="14" height="5" />
-          <rect x="15" y="76" width="30" height="13" />
-          <rect x="23" y="84" width="14" height="5" />
+        <svg viewBox="0 0 90 60" preserveAspectRatio="none">
+          <rect x="1" y="1" width="88" height="58" rx="1" />
+          <line x1="45" y1="1" x2="45" y2="59" />
+          <circle cx="45" cy="30" r="7" />
+          <rect x="1" y="15" width="13" height="30" />
+          <rect x="1" y="23" width="5" height="14" />
+          <rect x="76" y="15" width="13" height="30" />
+          <rect x="84" y="23" width="5" height="14" />
         </svg>
-        {scene.tokens.map((t) => {
-          const p = toPortrait(t);
-          return (
+        {scene.tokens.map((t) => (
             <i
               key={`${t.side}:${t.id}`}
               className={styles.mapDot}
               data-side={t.side}
               data-duel={t.duel || undefined}
               data-keeper={t.keeper || undefined}
-              style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
+              style={{ left: `${t.x * 100}%`, top: `${t.y * 100}%` }}
               title={big ? state.teams[t.side].cards[t.id]?.shortName : undefined}
             >
               {big && t.duel ? <em>{state.teams[t.side].cards[t.id]?.shortName}</em> : null}
             </i>
-          );
-        })}
+        ))}
         <i className={styles.mapBall} style={{ left: `${ball.x * 100}%`, top: `${ball.y * 100}%` }} />
       </span>
       {big ? null : <span className={styles.mapLabel}>MATCH MAP</span>}
@@ -127,7 +144,7 @@ export function setPieceSpot(state: MatchState): { x: number; y: number } | unde
 
 /* ---- Events --------------------------------------------------------------- */
 
-/** The bar along the bottom: the latest event and a Show button for the full log. */
+/** The latest event under the map, with a Show button for the full log. */
 export function EventsBar({ event, onShow }: { event: MatchEvent | undefined; onShow: () => void }) {
   return (
     <button type="button" className={styles.eventsBar} onClick={onShow} aria-label="Show match events">
