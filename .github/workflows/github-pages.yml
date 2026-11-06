@@ -74,3 +74,7 @@ jobs:
     steps:
       - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
         id: deployment
+        with:
+          # The expanded static game library can exceed the action's 10-minute
+          # default while Pages is syncing files; preserve the same deployment.
+          timeout: 1200000
