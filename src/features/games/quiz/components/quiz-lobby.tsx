@@ -93,7 +93,7 @@ export function QuizLobby({ sport, progress, onPickMode }: QuizLobbyProps) {
         ))}
       </div>
       <div className="mt-4">
-        <GameLeaderboardCta sport={sport} gameId={`${sport}-quiz` as import("../../types").GameId} />
+        <GameLeaderboardCta gameId={`${sport}-quiz` as import("../../types").GameId} />
       </div>
         <DailyDrop sport={sport} />
     </div>

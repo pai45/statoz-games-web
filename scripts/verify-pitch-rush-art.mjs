@@ -32,7 +32,9 @@ try {
   assert.equal(await page.locator('#start').isDisabled(), false);
   evidence.push('Atlas decoding gates input, renderer construction and ready');
   await page.screenshot({path:path.join(output,'lobby-desktop.png')});
+  await page.locator('[data-action="quick"]').click();
   await page.locator('#start').click();
+  await page.locator('[data-action="skip-offer"]').click();
   await page.evaluate(() => {
     const game = window.__game, s = game.state;game.paused = true;s.phase = 'play';s.message = '';s.ball.owner = null;
     Object.assign(s.ball, {x:400,y:580,z:0,vx:0,vy:0,kicker:{team:0,idx:5,ticks:20}});

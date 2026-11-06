@@ -75,7 +75,7 @@ export function TimeZoneCard({ selectedId }: TimeZoneCardProps) {
           <span className="min-w-0 flex-1">
             <span
               className="block font-display font-black leading-none"
-              style={{ fontSize: typography.sizeRem.p11, letterSpacing: "var(--ds-tracking-label)" }}
+              style={{ fontSize: typography.sizeRem.p12, letterSpacing: "var(--ds-tracking-label)" }}
             >
               SET UP YOUR LOCAL TIME ZONE
             </span>

@@ -1,0 +1,8 @@
+{
+  "cover": {
+    "file": "cover.png",
+    "source": "Captured from the imported Holdover campaign renderer by scripts/capture-holdover-cover.mjs; title/crosshair overlay authored locally.",
+    "sha256": "5ec5a173e547841a0acf94259c7684911692d7bc6877fc9522bd363625b9bfe0"
+  },
+  "runtime": "Built from vendor/holdover; see vendor/holdover/NOTICE.md, SOURCE.json and FONT-PROVENANCE.json."
+}

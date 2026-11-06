@@ -2,32 +2,28 @@ import * as THREE from 'three';
 
 export function characterConfig(config){
  const skin=({VOLT:0x825333,NOVA:0xa87351,MIRA:0xc58e69,JETT:0x694a36,REYES:0xa77753})[String(config.name||'').toUpperCase()];
- return {...config,skin:skin??config.skin};
+ const kit=({
+  VOLT:{jersey:0xe5dfce,shorts:0x26362c,shoes:0xdca16d,numberColor:'#27372c'},
+  NOVA:{jersey:0x77566c,shorts:0x27272b,shoes:0xd9c8bd,numberColor:'#f0e4d3'},
+  MIRA:{jersey:0x597b60,shorts:0x24372a,shoes:0xd9dfc9,numberColor:'#f0e4d3'},
+  JETT:{jersey:0xb35442,shorts:0x302725,shoes:0xddc1a2,numberColor:'#f0e4d3'},
+  REYES:{jersey:0xc37b40,shorts:0x282f29,shoes:0xddd6c5,numberColor:'#242d25'},
+ })[String(config.name||'').toUpperCase()];
+ return {...config,...kit,skin:skin??config.skin};
 }
 
-// Original procedural art for the imported game. Skeleton dimensions and contacts stay upstream.
+// Original basketball hair and kit over the licensed CC0 body/face mesh.
 export function buildCharacterHead(config,put,skin,hair,trim,h){
  const {ringLoft,ellipsoid,limbTube,torus,allow}=h;
  const name=String(config.name||'REYES').toUpperCase();
  const style=({VOLT:'curls',NOVA:'bun',MIRA:'braids',JETT:'sweep',REYES:'fade'})[name]||'fade';
  const details={light:[],ink:[],accent:[],style,name};
  const add=(bucket,geo)=>put(bucket,geo,allow);
- // An open, clearly readable face. Hair starts above the brow instead of covering the eyes.
- add(skin,ringLoft([
-  [1.587,.053,.054,.007],[1.613,.067,.070,.014],[1.641,.082,.082,.010],
-  [1.678,.092,.094,.003],[1.718,.094,.097,-.003],
-  [1.755,.088,.092,-.009],[1.790,.064,.068,-.012],[1.807,.025,.030,-.012],
- ],{capBottom:false}));
- for(const s of [-1,1]){
-  add(skin,ellipsoid([s*.093,1.681,-.002],[.014,.025,.020]));
-  add(details.light,ellipsoid([s*.039,1.696,.091],[.018,.006,.005],12));
-  add(details.ink,ellipsoid([s*.037,1.695,.096],[.006,.005,.0025],10));
-  add(details.ink,limbTube([s*.020,1.711,.089],[s*.057,1.715,.081],[[0,.0025],[1,.003]],{N:8,round:true}));
- }
- add(skin,limbTube([0,1.700,.089],[0,1.667,.103],[[0,.006],[1,.009]],{N:10,round:true}));
- add(details.ink,limbTube([-.019,1.640,.090],[.019,1.640,.090],[[0,.002],[.5,.003],[1,.002]],{N:8,round:true}));
+ // Keep the merged accessory bucket valid even on a kit without a dark sleeve.
+ // Facial features now come from the detailed, textured Quaternius mesh.
+ add(details.ink,ellipsoid([0,1.76,0],[.001,.001,.001],6));
  // All five hair silhouettes are solid geometry and follow the head's skin weights.
- add(hair,ringLoft([[1.736,.095,.100,-.006],[1.769,.091,.095,-.010],[1.800,.064,.068,-.013],[1.815,.022,.026,-.012]],{capBottom:false}));
+ add(hair,ringLoft([[1.742,.093,.099,-.006],[1.760,.094,.099,-.009],[1.781,.086,.093,-.011],[1.800,.071,.080,-.012],[1.816,.044,.053,-.012],[1.823,.008,.016,-.012]],{capBottom:false}));
  if(style==='curls'){
   for(let row=0;row<2;row++)for(let i=0;i<10;i++){
    const angle=i*Math.PI/5+row*.25,r=.071-row*.025;
@@ -56,15 +52,12 @@ export function buildCharacterHead(config,put,skin,hair,trim,h){
 }
 
 export function addCharacterKit(config,details,put,h){
- const {ringLoft,limbTube,ellipsoid,torus,allow,J}=h;
+ const {limbTube,ellipsoid,allow,J}=h;
  const {light,ink,accent}=details;
  // Thin collar and hem binding, rather than oversized jewelry/headbands.
- put(accent,torus([0,1.488,.004],.086,.008,[1.03,.55,.88]),allow.torso);
- put(accent,ringLoft([[1.047,.211,.151,.004],[1.065,.203,.145,.004]],{capTop:false,capBottom:false}),allow.torso);
+ // The fitted tank owns its neckline; a separate horizontal collar would float.
  for(const side of ['Left','Right']){
-  const s=side==='Left'?1:-1,leg=allow[side==='Left'?'legL':'legR'],foot=allow[side==='Left'?'footL':'footR'];
-  // Tailored side piping follows the shorts leg instead of crossing the groin.
-  put(accent,limbTube([s*.213,.968,.018],[s*.220,.718,.045],[[0,.010],[1,.009]],{N:8,round:false}),leg);
+  const s=side==='Left'?1:-1,foot=allow[side==='Left'?'footL':'footR'];
   // Three contrasting laces and a small heel counter read in close views.
   for(let i=0;i<3;i++)put(light,limbTube([s*.115-.028,.113-i*.003,.025+i*.023],[s*.115+.028,.113-i*.003,.035+i*.023],[[0,.003],[1,.003]],{N:6,round:false}),foot);
   put(accent,ellipsoid([s*.115,.087,-.075],[.044,.027,.014],12),foot);
@@ -85,9 +78,10 @@ export function makeJerseyMark(number,color,name=''){
  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=320;
  const ctx=canvas.getContext('2d');
  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;
- ctx.font='800 29px Arial';ctx.fillText(String(name).toUpperCase().slice(0,8),128,49,228);
- ctx.font='900 190px Arial';ctx.lineWidth=7;ctx.strokeStyle='#11151bcc';ctx.lineJoin='round';
+ ctx.font='800 29px Arial';ctx.fillText('VIBE',128,45,228);
+ ctx.font='900 176px Arial';ctx.lineWidth=3;ctx.strokeStyle='#11151b55';ctx.lineJoin='round';
  ctx.strokeText(String(number),128,173,230);ctx.fillText(String(number),128,173,230);
- ctx.fillRect(83,279,90,5);
+ ctx.font='700 23px Arial';ctx.fillText(String(name).toUpperCase().slice(0,8),128,278,228);
+ ctx.fillRect(100,306,56,2);
  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;return texture;
 }

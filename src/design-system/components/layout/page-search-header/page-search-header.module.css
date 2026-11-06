@@ -1,0 +1,12 @@
+.header { display: flex; flex: none; align-items: center; justify-content: space-between; gap: var(--ds-space-16); min-width: 0; min-height: var(--ds-size-p44); margin-bottom: var(--ds-space-16); }
+.title { flex: none; margin: 0; font: var(--ds-weight-black) var(--ds-text-2xl)/var(--ds-leading-tight) var(--ds-font-display); }
+.search { display: flex; justify-content: flex-end; flex: 0 1 20rem; min-width: 0; }
+.search > div { height: var(--ds-size-p44); background: var(--ds-color-background-secondary); }
+.search input { font-size: var(--ds-text-sm); }
+@media (max-width: 600px) {
+  .header { gap: var(--ds-space-12); }
+  .title { font-size: var(--ds-text-lg); }
+  .search { flex: 0 0 min(12rem, 52%); }
+  .search input { font-size: var(--ds-text-xs); }
+  .search svg { width: var(--ds-space-16); }
+}

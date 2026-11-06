@@ -3,6 +3,7 @@ import type { RandomSource } from "../../shared/engine/random-source";
 import { attackMenu, attacks, defenseMenu, defenses } from "./actions";
 import { chooseCpuAttack, chooseCpuDefense, chooseCpuSetPiece } from "./cpu";
 import { isWin, rollDuel } from "./duel";
+import { addMomentum, cpuSpendsSurge, momentumGain, surgeBoost, surgeReady } from "./momentum";
 import { Stream } from "./rng";
 import {
   cornerCountered,
@@ -119,6 +120,7 @@ export function createMatch(setup: MatchSetup): MatchState {
     cpuRecent: [],
     stats: { home: emptyStats(), away: emptyStats() },
     players,
+    momentum: { home: 0, away: 0 },
   };
 }
 
@@ -301,13 +303,16 @@ function decide(ctx: Ctx, input: Exclude<MatchInput, { type: "continue" | "mindG
   const before = { x: absoluteX(s.possession.side, s.possession.progress), lane: s.possession.lane };
   let minutes = 1;
 
+  const surge = (input.type === "attack" || input.type === "defend") && input.surge === true;
+  if (surge && (turn.kind === "setPiece" || !surgeReady(s, "home"))) throw new PitchDuelInputError("Your surge is not ready");
+
   if (turn.kind === "attack") {
     if (input.type !== "attack" || !turn.options.includes(input.action)) throw new PitchDuelInputError("That action is not on the menu");
     if (intent?.kind !== "defend") throw new PitchDuelInputError("Turn not prepared");
     const tactic = takeTactic(ctx, input.tacticId, "attack");
     remember(s.tendencies.attack, { band: band(s.possession.progress), key: attacks[input.action].family });
     minutes = attacks[input.action].minutes;
-    resolveOpen(ctx, input.action, intent.action, tactic, null, before);
+    resolveOpen(ctx, input.action, intent.action, tactic, null, before, surge);
   } else if (turn.kind === "defend") {
     if (input.type !== "defend" || !turn.options.includes(input.action)) throw new PitchDuelInputError("That defence is not on the menu");
     if (intent?.kind !== "attack") throw new PitchDuelInputError("Turn not prepared");
@@ -315,7 +320,7 @@ function decide(ctx: Ctx, input: Exclude<MatchInput, { type: "continue" | "mindG
     remember(s.tendencies.defend, { band: band(mirror(s.possession.progress)), key: input.action });
     s.cpuRecent = [attacks[intent.action].family, ...s.cpuRecent].slice(0, 4);
     minutes = attacks[intent.action].minutes;
-    resolveOpen(ctx, intent.action, input.action, null, tactic, before);
+    resolveOpen(ctx, intent.action, input.action, null, tactic, before, surge);
   } else if (turn.kind === "setPiece") {
     if (input.type !== "setPiece" || !turn.options.includes(input.option)) throw new PitchDuelInputError("That option is not available");
     if (intent?.kind !== "setPiece") throw new PitchDuelInputError("Turn not prepared");
@@ -352,6 +357,7 @@ function resolveOpen(
   attackTactic: TacticSlot | null,
   defenseTactic: TacticSlot | null,
   before: { x: number; lane: Lane },
+  userSurge = false,
 ): void {
   const { s, play } = ctx;
   const { side, progress, lane, bonus } = s.possession;
@@ -400,17 +406,38 @@ function resolveOpen(
     const result = foul(ctx, side, odds.defenderId, 0.6, 0.02);
     finishResolution(ctx, "duel", {
       attackingSide: side, attackerId: odds.attackerId, defenderId: odds.defenderId, attackLabel: act.label, defenseLabel: "TACTICAL FOUL",
-      relation: null, outcome: "fail", userWon: true, before, ...result,
+      relation: null, outcome: "fail", userWon: true, before, margin: null, surges: [], ...result,
     });
     return;
   }
 
-  const { outcome } = rollDuel(k, volatility, play);
+  // Surges: the human spends one by choice, the CPU when the moment comes.
+  const surges: Side[] = [];
+  if (userSurge) {
+    surges.push("home");
+    s.momentum.home = 0;
+    k += userAttacking ? surgeBoost : -surgeBoost;
+    log(ctx, "home", "surge", "SURGE! Your side raise the tempo", []);
+  }
+  if (cpuSpendsSurge(s)) {
+    surges.push("away");
+    s.momentum.away = 0;
+    k += userAttacking ? -surgeBoost : surgeBoost;
+    log(ctx, "away", "surge", `${s.opponentName} surge forward`, []);
+  }
+
+  const { outcome, swing } = rollDuel(k, volatility, play);
+  const margin = Math.round(k + swing);
   const won = isWin(outcome);
   attLine[won ? "duelsWon" : "duelsLost"] += 1;
   defLine[won ? "duelsLost" : "duelsWon"] += 1;
   s.stats[won ? side : defSide].duelsWon += 1;
   if (!won && relation !== "wrong") s.stats[defSide].readsWon += 1;
+
+  // Momentum: the duel's winner gains, more for a big win or a read; the loser cools.
+  const big = outcome === "success_high" || outcome === "fail_high";
+  addMomentum(s, won ? side : defSide, momentumGain.duelWin + (big ? momentumGain.bigWin : 0) + (!won && relation === "full" ? momentumGain.read : 0));
+  addMomentum(s, won ? defSide : side, momentumGain.duelLoss);
   log(ctx, side, "duel", `${attacker.shortName} ${act.label.toLowerCase()} vs ${defender.shortName}`, [odds.attackerId, odds.defenderId]);
 
   let result: OpenResult;
@@ -443,7 +470,7 @@ function resolveOpen(
 
   finishResolution(ctx, "duel", {
     attackingSide: side, attackerId: odds.attackerId, defenderId: odds.defenderId, attackLabel: act.label, defenseLabel: dfn.label,
-    relation, outcome, userWon: userAttacking ? won : !won, before, ...result,
+    relation, outcome, userWon: userAttacking ? won : !won, before, margin, surges, ...result,
   });
 }
 
@@ -565,6 +592,7 @@ function keeperStage(
   if (onTarget) {
     s.stats[side].onTarget += 1;
     s.players[lineKey(defSide, keeperId)].saves += 1;
+    addMomentum(s, defSide, momentumGain.save);
     if (play() < 0.3) {
       log(ctx, defSide, "save", `${keeperName} tips it over`, [keeperId]);
       return corner(ctx, side, s.possession.lane, `${keeperName} saves from ${name}`);
@@ -591,6 +619,8 @@ function goal(ctx: Ctx, side: Side, scorerId: string, text: string): OpenResult 
   s.halfIncidents += 1;
   s.players[lineKey(side, scorerId)].goals += 1;
   s.players[lineKey(defSide, s.teams[defSide].keeperId)].conceded += 1;
+  addMomentum(s, side, momentumGain.goalFor);
+  addMomentum(s, defSide, momentumGain.goalAgainst);
   s.minute += 1;
   log(ctx, side, "goal", `GOAL! ${text}`, [scorerId]);
   s.possession = { side: defSide, progress: 4, lane: "center", bonus: 0 };
@@ -697,6 +727,7 @@ function resolveSetPiece(
     else if (guessed) {
       s.stats[side].onTarget += 1;
       s.players[lineKey(defSide, sp.keeperId)].saves += 1;
+      addMomentum(s, defSide, momentumGain.save);
       log(ctx, defSide, "save", `${keeperName} saves the penalty!`, [sp.keeperId]);
       restart(ctx, defSide);
       result = { headline: "PENALTY SAVED", detail: `${keeperName} guessed right`, goal: null };
@@ -718,6 +749,7 @@ function resolveSetPiece(
       else if (play() < 0.3) {
         s.players[lineKey(defSide, sp.keeperId)].saves += 1;
         s.stats[side].onTarget += 1;
+        addMomentum(s, defSide, momentumGain.save);
         result = corner(ctx, side, "left", `${keeperName} tips the free kick over`);
       } else {
         log(ctx, defSide, "block", `The wall holds firm`, []);
@@ -758,6 +790,7 @@ function resolveSetPiece(
     } else {
       s.stats[side].onTarget += 1;
       s.players[lineKey(defSide, sp.keeperId)].saves += 1;
+      addMomentum(s, defSide, momentumGain.save);
       if (play() < 0.25) result = corner(ctx, side, "right", `${keeperName} denies ${takerName}`);
       else {
         log(ctx, defSide, "save", `${keeperName} denies ${takerName}!`, [sp.keeperId]);
@@ -770,7 +803,7 @@ function resolveSetPiece(
   finishResolution(ctx, "setPiece", {
     attackingSide: side, attackerId: sp.takerId, defenderId: sp.keeperId,
     attackLabel: `${setPieceTitles[sp.kind]} · ${takerLabel}`, defenseLabel: defenderLabel,
-    relation: null, outcome: null,
+    relation: null, outcome: null, margin: null, surges: [],
     userWon: userTakes ? result.goal === side || result.headline === "LAID OFF" || result.headline === "SHORT CORNER" || result.headline === "PENALTY!" : result.goal !== side,
     before, ...result,
   });
@@ -784,6 +817,7 @@ function finishResolution(
   r: OpenResult & {
     attackingSide: Side; attackerId: string; defenderId: string; attackLabel: string; defenseLabel: string;
     relation: Resolution["relation"]; outcome: Resolution["outcome"]; userWon: boolean; before: { x: number; lane: Lane };
+    margin: number | null; surges: Side[];
   },
 ): void {
   const { s } = ctx;
@@ -803,6 +837,8 @@ function finishResolution(
     from: r.before,
     to: { x: absoluteX(s.possession.side, s.possession.progress), lane: s.possession.lane },
     events: ctx.events.slice(),
+    margin: r.margin,
+    surges: r.surges,
   };
 }
 

@@ -1,23 +1,44 @@
 // Kenney Sports Pack (CC0). Sources, transforms and regions: sports-art.json.
 import {manifest, atlasUrl} from 'pitch-rush-art';
 import {FIELD, FIELD_W, FIELD_H, WORLD_W, WORLD_H, GOAL_W, GOAL_DEPTH, PEN_W, PEN_D, SIX_W, SIX_D, PEN_SPOT, CENTER_R, ARC_R, CORNER_R} from '../../../../vendor/websoccer/src/constants.js';
+import {KITS} from './career.mjs';
 
 let atlas;
+const kitAtlases=new Map();
 export async function prepareSportsArt() {
   const image = new Image();
   image.src = atlasUrl;
   await image.decode();
   if (image.naturalWidth !== manifest.atlas.size[0] || image.naturalHeight !== manifest.atlas.size[1]) throw Error('Invalid sports atlas');
   atlas = image;
+  kitAtlases.clear();
+  // Cache cloth-only recolours. Skin, hair, ball and the retained source atlas
+  // remain unchanged; never filter/recolour a complete player silhouette.
+  for(const kit of KITS.slice(1)){
+    const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+    const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);
+    const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
+    for(const [key,region] of Object.entries(manifest.regions)){
+      if(!key.startsWith('blue'))continue;
+      const [x,y,w,h]=region.rect;
+      for(let row=y;row<y+h;row++)for(let col=x;col<x+w;col++){
+        const i=(row*canvas.width+col)*4,d=pixels.data,r=d[i],g=d[i+1],b=d[i+2];
+        if(d[i+3]&&b>r+24&&b>g*1.05){
+          const shade=b/224;for(let channel=0;channel<3;channel++)d[i+channel]=Math.min(255,Math.round(kit.rgb[channel]*shade));
+        }
+      }
+    }
+    ctx.putImageData(pixels,0,0);kitAtlases.set(kit.id,canvas);
+  }
 }
 
-export function stamp(ctx, key, x, y, w, h) {
+export function stamp(ctx, key, x, y, w, h, kit='blue') {
   if (!atlas) throw Error('Sports artwork is not ready');
   const [sx, sy, sw, sh] = manifest.regions[key].rect;
-  ctx.drawImage(atlas, sx, sy, sw, sh, x, y, w ?? sw, h ?? sh);
+  ctx.drawImage(key.startsWith('blue')?(kitAtlases.get(kit)||atlas):atlas, sx, sy, sw, sh, x, y, w ?? sw, h ?? sh);
 }
 
-export function drawFigure(ctx, {team, tone, x, y, heading = -Math.PI / 2, stride = 0, speed = 0, kick = 0, slide = false, down = false, scale = 1}) {
+export function drawFigure(ctx, {team, tone, x, y, heading = -Math.PI / 2, stride = 0, speed = 0, kick = 0, slide = false, down = false, scale = 1,kit='blue'}) {
   ctx.save();ctx.translate(x, y);ctx.rotate(heading + Math.PI / 2);ctx.scale(scale, scale);
   const dark = Number(tone === 2 || tone === 3);
   const swing = Math.sin(stride / 4) * Math.min(1, speed / 80);
@@ -27,9 +48,9 @@ export function drawFigure(ctx, {team, tone, x, y, heading = -Math.PI / 2, strid
   }
   stamp(ctx, `foot${dark}`, -7, 9 + swing * 4 - kick * 27, 8, 5);
   stamp(ctx, `foot${dark}`, 0, 9 - swing * 4, 8, 5);
-  stamp(ctx, `${team}Arm${dark}`, -12, -3 - swing * 3, 9, 6);
-  ctx.save();ctx.scale(-1, 1);stamp(ctx, `${team}Arm${dark}`, -12, -3 + swing * 3, 9, 6);ctx.restore();
-  stamp(ctx, `${team}${tone}`, -7.45, -11, 14.9, 22);
+  stamp(ctx, `${team}Arm${dark}`, -12, -3 - swing * 3, 9, 6,kit);
+  ctx.save();ctx.scale(-1, 1);stamp(ctx, `${team}Arm${dark}`, -12, -3 + swing * 3, 9, 6,kit);ctx.restore();
+  stamp(ctx, `${team}${tone}`, -7.45, -11, 14.9, 22,kit);
   ctx.restore();
 }
 

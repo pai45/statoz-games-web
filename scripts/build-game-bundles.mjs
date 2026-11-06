@@ -9,11 +9,14 @@ import { buildPitchRush } from './build-pitch-rush.mjs';
 import { buildFinalThird } from './build-final-third.mjs';
 import { buildPenaltyCup } from './build-penalty-cup.mjs';
 import {verifyCricketerCharacters} from './verify-cricketer-characters.mjs';
+import {buildHoldover} from './build-holdover.mjs';
+import {buildHoopLegacy} from './build-hoop-legacy.mjs';
+import {buildPortfolioFormula} from './build-portfolio-formula.mjs';
 
 const root=process.cwd();
 const output=path.join(root,'public','embedded-games');
 const removedGames=JSON.parse(await fs.readFile(path.join(root,'src/domain/removed-games.json'),'utf8'));
-const ids=['cricketer','penalty-cup','open-golf','pitch-rush','final-third','retro-hoops','retro-football-2','stick-cricket','football-shooting','f1-racing','archery-test','longbow','tennis-bits','soccer-real','penalty-shooters-2','retro-circuit','retro-football','retro-innings','stadium-cricket'].filter(id=>!removedGames.includes(id));
+const ids=['hoop-legacy','holdover','cricketer','yorker','penalty-cup','open-golf','pitch-rush','final-third','retro-hoops','retro-football-2','stick-cricket','football-shooting','f1-racing','portfolio-formula','archery-test','longbow','rim-rush','tennis-bits','soccer-real','penalty-shooters-2','retro-circuit','retro-football','retro-innings','stadium-cricket'].filter(id=>!removedGames.includes(id));
 const customRoot=path.join(root,'public/assets/games/designer');
 for(const entry of await fs.readdir(customRoot,{withFileTypes:true}).catch(()=>[])) if(entry.isDirectory()&&/^[a-f0-9-]{36}$/.test(entry.name)) ids.push('designer-'+entry.name);
 const selected=process.argv.find(arg=>arg.startsWith('--game='))?.slice(7);
@@ -52,12 +55,14 @@ const boot=String.raw`
 })();`;
 if(ids.includes('retro-circuit')&&(!selected||selected==='retro-circuit'))execFileSync(process.execPath,['scripts/build-retro-circuit-assets.mjs'],{cwd:root,stdio:'inherit'});
 const fontStyle=`@font-face{font-family:'Space Grotesk';src:url(data:font/ttf;base64,${(await fs.readFile(path.join(root,'src/app/fonts/space-grotesk-variable.ttf'))).toString('base64')}) format('truetype');font-weight:300 700;font-display:swap}@font-face{font-family:Orbitron;src:url(data:font/woff2;base64,${(await fs.readFile(path.join(root,'src/app/fonts/orbitron-latin-variable.woff2'))).toString('base64')}) format('woff2');font-weight:400 900;font-display:swap}:root{--font-space-grotesk:'Space Grotesk';--font-orbitron:Orbitron}body,button,input{font-family:'Space Grotesk',sans-serif}`;
-const prelude=gameId=>`${['cricketer','penalty-cup','pitch-rush','final-third','retro-football','retro-football-2','stick-cricket','football-shooting','archery-test','longbow','retro-innings','stadium-cricket'].includes(gameId)?'':'<style>'+fontStyle+'</style>'}<script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
+const prelude=gameId=>`${['holdover','portfolio-formula','cricketer','yorker','penalty-cup','pitch-rush','final-third','retro-football','retro-football-2','stick-cricket','football-shooting','archery-test','longbow','rim-rush','retro-innings','stadium-cricket','open-golf'].includes(gameId)?'':'<style>'+fontStyle+'</style>'}<script>/*__STATOZ_BOOT__*/</script><script>${boot.replaceAll('</script','<\\/script')}</script>`;
 const style='html,body,#root{margin:0;width:100%;height:100%;background:#0d111a;color:white;overflow:hidden}*{box-sizing:border-box}button{touch-action:manipulation}canvas{image-rendering:pixelated}';
 const nativeShellEntry=(id,component)=>`import React from 'react';import{createRoot}from'react-dom/client';import{${component} as Game}from'./src/features/games/${id}/game';const host=window.__STATOZ_HOST__;let commandId=0,disposed=false;const root=createRoot(document.getElementById('root'));const render=command=>root.render(<Game onExit={()=>host.emit('exit')} hostCommand={command?{id:++commandId,type:command}:undefined} onEvent={event=>{if(event.type==='result')host.result(event.payload);else host.emit(event.type,event.payload);}}/>);host.command=command=>{if(disposed)return;if(command==='dispose'){disposed=true;root.unmount();}else render(command);};render();`;
 const entries={
  'cricketer':nativeShellEntry('cricketer','CricketerGame'),
  'longbow':nativeShellEntry('longbow','LongbowGame'),
+ 'rim-rush':nativeShellEntry('rim-rush','RimRushGame'),
+ 'yorker':nativeShellEntry('yorker','YorkerGame'),
  'penalty-shooters-2':nativeShellEntry('penalty-shooters-2','PenaltyShooters2Game'),
  'tennis-bits':nativeShellEntry('tennis-bits','TennisBitsGame'),
  'soccer-real':nativeShellEntry('soccer-real','SoccerRealGame'),
@@ -73,6 +78,8 @@ async function assetShim(directory){
  const map={};const hoopsAtlases=path.basename(directory)==='retro-hoops'?new Set(JSON.parse(await fs.readFile(path.join(directory,'authored-v28/manifest.json'),'utf8')).atlases):null;
  for(const file of await walk(directory).catch(error=>{if(error.code==='ENOENT')return [];throw error;})){
   if(path.relative(directory,file).split(path.sep).includes('dissection'))continue;
+  // Yorker's hub cover is used by the host app only; keep it out of the offline game.
+  if(path.basename(directory)==='yorker'&&path.basename(file)==='cover.png')continue;
   if(!/\.(?:png|webp|jpg|jpeg|svg|json|wav|mp3|ogg|woff2?|ttf|glb)$/.test(file)||/provenance/i.test(file))continue;
   if(hoopsAtlases&&file.includes(path.sep+'authored-v28'+path.sep)&&file.endsWith('.png')&&!hoopsAtlases.has(path.basename(file)))continue;
   if(path.basename(directory)==='retro-hoops'&&/\.(png|webp|jpe?g)$/.test(file)&&!file.includes(path.sep+'authored-v28'+path.sep))continue;
@@ -97,7 +104,13 @@ for(const gameId of selected?[selected]:ids){
  if(gameId==='retro-innings')execFileSync(process.execPath,['scripts/build-retro-innings.mjs'],{cwd:root,stdio:'inherit'});
  if(gameId==='archery-test')execFileSync(process.execPath,['scripts/install-archery-test-assets.mjs','--verify'],{cwd:root,stdio:'inherit'});
  const dir=path.join(output,gameId);await fs.mkdir(dir,{recursive:true});let html;
- if(gameId==='penalty-cup'){
+ if(gameId==='hoop-legacy'){
+  html=await buildHoopLegacy({prelude:prelude(gameId)});
+ }else if(gameId==='holdover'){
+  html=await buildHoldover({prelude:prelude(gameId)});
+ }else if(gameId==='portfolio-formula'){
+  html=await buildPortfolioFormula({prelude:prelude(gameId)});
+ }else if(gameId==='penalty-cup'){
   html=await buildPenaltyCup({prelude:prelude(gameId)});
  }else if(gameId==='open-golf'){
   html=await buildOpenGolf({prelude:prelude(gameId)});
@@ -108,7 +121,7 @@ for(const gameId of selected?[selected]:ids){
  }else if(gameId==='stadium-cricket'){
   html=await buildStadiumCricket({prelude:prelude(gameId)});
  }else if(entries[gameId]){
-  const result=await build({stdin:{contents:(['cricketer','football-shooting','longbow'].includes(gameId)?'':"import './src/design-system/styles/tokens.css';import './src/design-system/styles/typography.css';")+entries[gameId],resolveDir:root,loader:'tsx'},bundle:true,write:false,outdir:'bundle',format:'iife',platform:'browser',target:'es2020',minify:true,jsx:'automatic',loader:{'.png':'dataurl','.svg':'dataurl','.woff2':'dataurl','.ttf':'dataurl'},tsconfig:path.join(root,'tsconfig.json')});
+  const result=await build({stdin:{contents:(['cricketer','yorker','football-shooting','longbow','rim-rush'].includes(gameId)?'':"import './src/design-system/styles/tokens.css';import './src/design-system/styles/typography.css';")+entries[gameId],resolveDir:root,loader:'tsx'},bundle:true,write:false,outdir:'bundle',format:'iife',platform:'browser',target:'es2020',minify:true,jsx:'automatic',loader:{'.png':'dataurl','.svg':'dataurl','.woff2':'dataurl','.ttf':'dataurl'},tsconfig:path.join(root,'tsconfig.json')});
   const js=result.outputFiles.find(f=>f.path.endsWith('.js')).text,css=result.outputFiles.find(f=>f.path.endsWith('.css'))?.text||'';
   html=`<!doctype html><html lang="en" data-game="${gameId}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>${gameId}</title><style>${style}\n${css}</style></head><body><div id="root"></div>${prelude(gameId)}${['retro-hoops','retro-football-2','stick-cricket','football-shooting','f1-racing','archery-test','penalty-shooters-2','tennis-bits','soccer-real'].includes(gameId)?'':await assetShim(path.join(root,'public','games',gameId))}<script>${js.replaceAll('</script','<\\/script')}</script></body></html>`;
  }else{
@@ -129,10 +142,10 @@ for(const gameId of selected?[selected]:ids){
   const relative='../../assets/games/identity/'+id+'.svg';
   if(html.includes(relative))html=html.replaceAll(relative,'data:image/svg+xml;base64,'+(await fs.readFile(path.join(root,'public/assets/games/identity',id+'.svg'))).toString('base64'));
  }
- const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:({'retro-hoops':'STREET HOOP','stick-cricket':'STICK CRICKET CHASE','archery-test':'ARCHERY MASTER','longbow':'LONGBOW','f1-racing':'RACER','retro-innings':'CREASEFIRE SIX'})[gameId]||gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'cricketer':'cricket','penalty-cup':'football','open-golf':'golf','pitch-rush':'football','final-third':'football','retro-hoops':'basketball','retro-football-2':'football','stick-cricket':'cricket','f1-racing':'motorsport','football-shooting':'football','archery-test':'archery','longbow':'archery','penalty-shooters-2':'football','soccer-real':'football','tennis-bits':'tennis','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket','stadium-cricket':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:gameId==='penalty-cup'?'landscape':gameId==='archery-test'?'portrait':gameId==='football-shooting'?'adaptive':'landscape',saveSchemaVersion:1});
+ const file=path.join(dir,'index.html');await fs.writeFile(file,html);manifest.games.push({id:gameId,title:({'retro-hoops':'STREET HOOP','stick-cricket':'STICK CRICKET CHASE','archery-test':'ARCHERY MASTER','longbow':'LONGBOW','yorker':'YORKER','rim-rush':'RIM RUSH','portfolio-formula':'FORMULA','f1-racing':'RACER','retro-innings':'CREASEFIRE SIX'})[gameId]||gameId.replaceAll('-',' ').toUpperCase().slice(0,120),sport:({'hoop-legacy':'basketball','holdover':'archery','cricketer':'cricket','yorker':'cricket','penalty-cup':'football','open-golf':'golf','pitch-rush':'football','final-third':'football','retro-hoops':'basketball','retro-football-2':'football','stick-cricket':'cricket','portfolio-formula':'motorsport','f1-racing':'motorsport','football-shooting':'football','archery-test':'archery','longbow':'archery','rim-rush':'basketball','penalty-shooters-2':'football','soccer-real':'football','tennis-bits':'tennis','retro-circuit':'motorsport','retro-football':'football','retro-innings':'cricket','stadium-cricket':'cricket'})[gameId],path:`${gameId}/index.html`,sha256:digest(html),bytes:Buffer.byteLength(html),orientation:gameId==='penalty-cup'?'landscape':gameId==='archery-test'?'portrait':gameId==='football-shooting'?'adaptive':'landscape',saveSchemaVersion:1});
  console.log(`${gameId}: ${(Buffer.byteLength(html)/1048576).toFixed(1)} MiB ${['retro-hoops','retro-football-2','stick-cricket','football-shooting','f1-racing','archery-test','penalty-shooters-2','tennis-bits','soccer-real'].includes(gameId)?'web bundle + local arcade assets':'offline bundle'}`);
 }
 await fs.writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-const notices=[];for(const file of ['public/games/cricketer/PLAYER-LICENSE.txt','public/games/cricketer/CREDITS.md','public/games/longbow/CREDITS.md','public/games/f1-racing/kenney/License.txt','public/games/longbow/OFL-barlow-condensed.txt','vendor/open-golf/LICENSE','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/websoccer/LICENSE','vendor/final-third/ASSETS.md','vendor/final-third/OFL-barlow-condensed.txt','node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt','public/games/retro-circuit/reference/NOTICE.txt','vendor/cricketv2/CREDITS.md','vendor/cricketv2/assets/THREE-LICENSE.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
+const notices=[];notices.push('Hoop Legacy\n\n'+await fs.readFile(path.join(root,'public/embedded-games/hoop-legacy/LICENSES.txt'),'utf8').catch(error=>{if(error.code==='ENOENT')return 'See vendor/hoop-legacy/NOTICE.md';throw error;}));for(const file of ['vendor/holdover/NOTICE.md','vendor/holdover/src/fonts/OFL-barlow.txt','vendor/holdover/src/fonts/OFL-barlow-condensed.txt','vendor/holdover/src/fonts/JetBrainsMono-OFL.txt','public/games/cricketer/PLAYER-LICENSE.txt','public/games/cricketer/CREDITS.md','public/games/longbow/CREDITS.md','public/games/yorker/CREDITS.md','public/games/yorker/PLAYER-LICENSE.txt','public/games/f1-racing/kenney/License.txt','public/games/longbow/OFL-barlow-condensed.txt','src/features/games/rim-rush/fonts/OFL-lilita-one.txt','public/games/rim-rush/CREDITS.md','vendor/open-golf/LICENSE','src/features/games/open-golf/fonts/OFL-rubik.txt','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/open-golf/THIRD-PARTY-NOTICES.txt','vendor/websoccer/LICENSE','vendor/final-third/ASSETS.md','vendor/final-third/OFL-barlow-condensed.txt','vendor/portfolio-formula/NOTICE.md','vendor/portfolio-formula/THIRD-PARTY-NOTICES.txt','vendor/portfolio-formula/src/assets/fonts/Archivo-OFL.txt','vendor/portfolio-formula/src/assets/fonts/JetBrainsMono-OFL.txt','node_modules/react/LICENSE','node_modules/react-dom/LICENSE','node_modules/three/LICENSE','src/app/fonts/space-grotesk-OFL.txt','public/games/retro-football/THIRD-PARTY-LICENSES.txt','public/games/retro-circuit/reference/NOTICE.txt','vendor/cricketv2/CREDITS.md','vendor/cricketv2/assets/THREE-LICENSE.txt'])notices.push(file+'\n\n'+await fs.readFile(path.join(root,file),'utf8'));
 notices.push('Pitch Rush artwork — Kenney Sports Pack\n\n'+await fs.readFile(path.join(root,'public/games/pitch-rush/KENNEY-LICENSE.txt'),'utf8'));
 await fs.writeFile(path.join(output,'LICENSES.txt'),notices.join('\n\n---\n\n'));

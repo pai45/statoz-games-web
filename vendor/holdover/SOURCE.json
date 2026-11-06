@@ -1,0 +1,178 @@
+{
+  "source": "C:\\Users\\priya\\Downloads\\Create a 3D Cat",
+  "imported": "2026-11-06",
+  "files": [
+    {
+      "path": "src/App.tsx",
+      "sha256": "c6ddccae7d4061d1f0cbd7ed6d10f6ac73fc7af8a52c53df1e916f880f870b7b"
+    },
+    {
+      "path": "src/game/actors.ts",
+      "sha256": "1c4b43332c14d74fa55f885c2d4dabff70e7b82fed9dc147c18450c1638cf927"
+    },
+    {
+      "path": "src/game/audio.ts",
+      "sha256": "70340d4295d1a286eb16973e0c4d471e480e2bd4d6962c9169463c88e08030d9"
+    },
+    {
+      "path": "src/game/ballistics.ts",
+      "sha256": "b2faad900f296f2236adc07a8f9708a24de44a28114f6fbe61ba35fee00dd70d"
+    },
+    {
+      "path": "src/game/builder.ts",
+      "sha256": "8b98edb35d7d598b0a98ace0b4e20aecae934969863d17d2bf2b783dba5a6c60"
+    },
+    {
+      "path": "src/game/collision.ts",
+      "sha256": "b8077be31125d680d3880a4130226d1e9596cbaeefd2951a584a6599fbd3ac14"
+    },
+    {
+      "path": "src/game/data.ts",
+      "sha256": "260d46fbb0cb2a2139b0f1661ab17073214ce4cbd84a10f5e7a8bc24519fba9a"
+    },
+    {
+      "path": "src/game/duel.ts",
+      "sha256": "0ea9ac23acab104629745c7a3a8a96eb171d8c18ba4202a05c22aaef78a859ae"
+    },
+    {
+      "path": "src/game/effects.ts",
+      "sha256": "be7e6305fed617b6579607e2fa6ce597d3790af545b40b3b522ebe868a549cb0"
+    },
+    {
+      "path": "src/game/engine.ts",
+      "sha256": "cc67483ee16e2b24613169f6a7423c16a481b655f703af16b8ab094f2a1bb285"
+    },
+    {
+      "path": "src/game/layout.ts",
+      "sha256": "abd3d9b75216785224ac02da8b7daa78e55105ba1e5e2e02d9e45020a1eb8cef"
+    },
+    {
+      "path": "src/game/mission.ts",
+      "sha256": "f6bc65998b23ec2278077b0adbd260067c0e73e388a86b2a5715af7acd7a37ec"
+    },
+    {
+      "path": "src/game/noise.ts",
+      "sha256": "5f0cf92370457ef19fdd7cadb1d4294a382abf035cdbbb86b59a6fb66a9a915e"
+    },
+    {
+      "path": "src/game/overlay.ts",
+      "sha256": "d2e0c87316c078f88f446ab8b1034b8e3a0c4a75953f1b1c6e4826d6474353bf"
+    },
+    {
+      "path": "src/game/post.ts",
+      "sha256": "db14d5dc92f3e5d8b214d38a183830e401563aff229438e342f6d8ccc7a06c13"
+    },
+    {
+      "path": "src/game/progression.ts",
+      "sha256": "2259fcd9c932a07238ab5eceb2edac6c4cd0adf390bfdee8803cfc5c4757374f"
+    },
+    {
+      "path": "src/game/rifle.ts",
+      "sha256": "c420ddfbb018dba1c813747869165ddde87f1772c2f95681e548961880abcaad"
+    },
+    {
+      "path": "src/game/sky.ts",
+      "sha256": "6d7a6062896d0308b2f7a9999af136771eedeebee54454a9b063481fb4b923e3"
+    },
+    {
+      "path": "src/game/sniper.ts",
+      "sha256": "ba01bd20e4308002c393f3ba1495abab9533a9ebbbabaac51478a2c19bb83908"
+    },
+    {
+      "path": "src/game/structures.ts",
+      "sha256": "332dffeb19d96f33b525b38076e4c5de365acd6961791b18e0ac848f51b27958"
+    },
+    {
+      "path": "src/game/terrain.ts",
+      "sha256": "5bce5d5e8fb841c3c9527a25f311b9afab37675f02f25dd751f32f2fb07b7e50"
+    },
+    {
+      "path": "src/game/types.ts",
+      "sha256": "673b726e60c19c8fcd9b4314ef2ba09d5a3ef4e0133614f393401220717f639a"
+    },
+    {
+      "path": "src/game/vegetation.ts",
+      "sha256": "6581913fbedc0846618e82292520dc1f282ea25b4df8f1b300d00a4e30b602bd"
+    },
+    {
+      "path": "src/game/world.ts",
+      "sha256": "f64c868b80a02508809ae6582947ef41f8a156a35a9117866637db32525d53c9"
+    },
+    {
+      "path": "src/game/worldgen.ts",
+      "sha256": "e7d0f4b556ae8408bcce0f3b124665b7b39bd1b9960b25999965759b4da6149c"
+    },
+    {
+      "path": "src/index.css",
+      "sha256": "794e724f4e5a428a49be9c2ee98dee378b473ab4d8dc6825ed421b5a056ba359"
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "5f49dce6e6cc4b5d678cf529ef892af0ab7dfa6afb300b11ad559224019b8b05"
+    },
+    {
+      "path": "src/ui/common.tsx",
+      "sha256": "e4bc8fb9532e18eb10601c0a71c359e83157b4474d872d505fc0bec820948a75"
+    },
+    {
+      "path": "src/ui/hud/Hud.tsx",
+      "sha256": "f607ca191303b98b29e31d58f0191966771a887e3e3e94d982f6d77a589f5506"
+    },
+    {
+      "path": "src/ui/hud/PauseMenu.tsx",
+      "sha256": "dda3fd60e69edd3d02c9b5b430c55799e8996ff6dedd705734f68050d968335d"
+    },
+    {
+      "path": "src/ui/icons.tsx",
+      "sha256": "4daa426186fb9b611ac0ce47908e1758917d834f8a04d21fd243e007788ba41e"
+    },
+    {
+      "path": "src/ui/loadout.tsx",
+      "sha256": "4720ec7cc561b6edba9a1b9f41791ee9de8e8dda984af8d0c6caddee6ead0029"
+    },
+    {
+      "path": "src/ui/RiflePreview.tsx",
+      "sha256": "bd79828aca3879e114c0182a9fd3c7fa2251c4f3c9537a786a18aedd0064e290"
+    },
+    {
+      "path": "src/ui/screens/Armory.tsx",
+      "sha256": "fcf48ee96061da83036f7a41509d79f8c9bd6ec1a0ba7d09aee3a5c3dc9cb944"
+    },
+    {
+      "path": "src/ui/screens/Campaign.tsx",
+      "sha256": "73e29ff8cee6141f8f4e66624e0b697d8691a0cce617ec758cbd0b71827b2346"
+    },
+    {
+      "path": "src/ui/screens/Career.tsx",
+      "sha256": "5374536d0bf343f35bda3f1a91f20d2777393ae8db40fc818d34aafab724d6fb"
+    },
+    {
+      "path": "src/ui/screens/DuelSetup.tsx",
+      "sha256": "ecafb7a641a5638f5838e76ef21eed91b123f0e86f282eda8b4b8b7250d29765"
+    },
+    {
+      "path": "src/ui/screens/MainMenu.tsx",
+      "sha256": "8dd1da3b6acd02a9b0e3904b6097c019f08b4c918f2fe96c5e240ded8cad2b87"
+    },
+    {
+      "path": "src/ui/screens/Results.tsx",
+      "sha256": "7be06748f3380c05e26e5b3ea53a299d136ac92b53dacc4ad9eb342b2c36a7ed"
+    },
+    {
+      "path": "src/ui/screens/SettingsScreen.tsx",
+      "sha256": "cf5a5d7e0d095866e19d14985e44f52fb32a819b7ef120028244fc20e64e4d6e"
+    },
+    {
+      "path": "src/ui/screens/shared.tsx",
+      "sha256": "38b1e529596e182b6e592b84114c8f2bedd81dcd1f598318ca039e4edc20bc09"
+    },
+    {
+      "path": "src/ui/ValleyMap.tsx",
+      "sha256": "ea2ef1f7a63c45bf608154f82a89c1009a87d7379d3f43cc22a32d039a730561"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    }
+  ]
+}

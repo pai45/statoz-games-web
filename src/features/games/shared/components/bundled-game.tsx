@@ -11,14 +11,18 @@ import type {GameLauncherProps} from '../../components/game-launcher';
 import {defaultPresentation, presentationKey, readPresentation} from '../retro/presentation';
 import styles from './bundled-game.module.css';
 type BootstrapWindow = Window & {__STATOZ_BUNDLE_BOOT__?: (session:string,child:Window)=>string|null};
+/** launch is passed to the bundle as boot data; onExit replaces the default return to Games. */
+type BundledGameProps = GameLauncherProps & {launch?: Readonly<Record<string, unknown>>; onExit?: () => void};
 
-export function BundledGame(props: GameLauncherProps) {
+export function BundledGame(props: BundledGameProps) {
   const account = useAuthSession().email;
   return <AccountGameBundle key={`${props.game}.${account || 'guest'}`} {...props} account={account}/>;
 }
 
-function AccountGameBundle({game, entry, account}: GameLauncherProps & {account: string | null}) {
-  const frame = useRef<HTMLIFrameElement>(null), leave = useGameReturn();
+function AccountGameBundle({game, entry, account, launch, onExit}: BundledGameProps & {account: string | null}) {
+  const frame = useRef<HTMLIFrameElement>(null), gameReturn = useGameReturn();
+  const leave = onExit ?? gameReturn;
+  const launchData = useRef(launch);
   const [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [ready, setReady] = useState(false), [attempt, setAttempt] = useState(0);
   const guide = guideFor(game);
@@ -66,7 +70,7 @@ function AccountGameBundle({game, entry, account}: GameLauncherProps & {account:
     }).then(async html => {
       const storageScope = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(account || 'guest')))).map(value => value.toString(16).padStart(2, '0')).join('').slice(0, 24);
       if (invalidSave) { if (active) setError('Saved progress needs a compatible game version. It has been preserved.'); return; }
-      bootText=JSON.stringify({...save,presentation,sessionId,origin:location.origin,assetRoot:publicAsset('/games/'+game+'/'),storageScope,assetBuild:process.env.NEXT_PUBLIC_ASSET_BUILD_ID});
+      bootText=JSON.stringify({...save,presentation,sessionId,origin:location.origin,assetRoot:publicAsset('/games/'+game+'/'),storageScope,assetBuild:process.env.NEXT_PUBLIC_ASSET_BUILD_ID,...(launchData.current?{launch:launchData.current}:{})});
       if(active&&element){
         if(html.includes('parent.__STATOZ_BUNDLE_BOOT__')){
           const url=new URL(publicAsset('/embedded-games/'+game+'/index.html'),location.href);

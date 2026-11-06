@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, MouseEventHandler, ReactNode } from "react";
 
 import { withAlpha } from "../../../tokens/elevation";
 
@@ -22,7 +24,9 @@ export type ButtonProps = {
   fullWidth?: boolean;
   /** Renders a link that looks like a button. */
   href?: string;
-  onClick?: () => void;
+  /** Controls Next.js route prefetching when the button renders as a link. */
+  prefetch?: boolean;
+  onClick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   /** Shows a spinner in place of the trailing icon and blocks input. */
@@ -80,6 +84,7 @@ export function Button({
   size = "md",
   fullWidth = false,
   href,
+  prefetch,
   onClick,
   type = "button",
   disabled = false,
@@ -118,7 +123,7 @@ export function Button({
       {pending ? (
         <span
           aria-hidden
-          className="relative size-3.5 shrink-0 animate-spin rounded-pill border-2 border-current border-t-transparent"
+          className="relative size-3.5 shrink-0 animate-spin motion-reduce:animate-none rounded-pill border-2 border-current border-t-transparent"
         />
       ) : trailingIcon ? (
         <span aria-hidden className="relative grid shrink-0 place-items-center">
@@ -137,7 +142,10 @@ export function Button({
 
   if (href) {
     return (
-      <Link href={href} aria-label={label} className={chrome} style={style}>
+      <Link href={href} prefetch={prefetch} onClick={event => {
+        if (blocked) { event.preventDefault(); return; }
+        onClick?.(event);
+      }} aria-label={label} aria-disabled={blocked || undefined} aria-busy={pending || undefined} className={chrome} style={style}>
         {content}
       </Link>
     );

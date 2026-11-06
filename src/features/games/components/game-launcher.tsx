@@ -4,7 +4,7 @@ import { MobileGameViewport } from "../shared/mobile-viewport/mobile-game-viewpo
 import { usesMobileLandscape } from "../shared/mobile-viewport/policy";
 
 import { isGameEnabled } from "@/domain/demo-product";
-import { OpenGolf } from '../open-golf/screen';
+import { GameAssetGate } from "@/features/device-assets";
 import { BundledGame } from '../shared/components/bundled-game';
 import { isBundledGame } from '../shared/bundled-game-config';
 import type { ComponentType } from "react";
@@ -24,21 +24,23 @@ import {
 } from "@/features/packs";
 import type { Sport } from "@/domain/sports";
 
-import { HoopDuel } from "../basketball";
-import { StadiumCricket } from "../stadium-cricket/screen";
-import { FootballBingo } from "../football-bingo";
-import { FootballChess } from "../football-chess";
-const GrandPrix = dynamic(() => import("../grand-prix/rebuild/screen").then(m => m.GrandPrix), { ssr: false, loading: () => <div role="status">Loading Grand Prix Dash…</div> });
-import { GuessPlayer } from "../guess-player";
+// Rally Dash: the rally remake of Grand Prix Dash. The game id stays "grand-prix-dash" for the host.
+const RallyDash = dynamic(() => import("../rally-dash/game").then(m => m.RallyDash), { ssr: false, loading: () => <div role="status">Loading Rally Dash…</div> });
 const PenaltyShootout = dynamic(() => import("../penalty-shootout").then(m => m.PenaltyShootout), { ssr: false, loading: () => <div role="status">PREPARING THE PITCH…</div> });
 const PitchDuel = dynamic(() => import("../pitch-duel").then(m => m.PitchDuel), { ssr: false, loading: () => <div role="status" className="grid min-h-dvh place-content-center">PREPARING THE PITCH…</div> });
-import { SportQuiz } from "../quiz";
-import { TennisRally } from "../tennis";
+const OpenGolf = dynamic(() => import("../open-golf/screen").then(m => m.OpenGolf), { ssr: false, loading: () => <div role="status">Loading Open Golf…</div> });
+const FootballChess = dynamic(() => import("../football-chess").then(m => m.FootballChess), { ssr: false, loading: () => <div role="status">Preparing Football Chess…</div> });
+const FootballBingo = dynamic(() => import("../football-bingo").then(m => m.FootballBingo), { ssr: false });
+const GuessPlayer = dynamic(() => import("../guess-player").then(m => m.GuessPlayer), { ssr: false });
+const HoopDuel = dynamic(() => import("../basketball").then(m => m.HoopDuel), { ssr: false });
+const SportQuiz = dynamic(() => import("../quiz").then(m => m.SportQuiz), { ssr: false });
+const TennisRally = dynamic(() => import("../tennis").then(m => m.TennisRally), { ssr: false });
 import { sportForGame, type GameEntry } from "@/mocks/games";
 import type { GameId } from "../types";
 import { GameLandingAdProvider } from "../shared/components/game-landing-ad";
 
 import { GamePlaceholder } from "./game-placeholder";
+import { GameVisitTracker } from "./game-visit-tracker";
 
 export type GameLauncherProps = {
   game: GameId;
@@ -53,7 +55,6 @@ const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
   "vibe-basketball": dynamic(() => import("../vibe-basketball/screen").then(m=>m.VibeBasketball), {ssr:false,loading:()=> <div role="status">Loading Vibe Basketball…</div>}),
   "penalty-shootout": PenaltyShootout,
   "pitch-duel": PitchDuel,
-  "stadium-cricket": StadiumCricket,
   "football-chess": FootballChess,
   "football-bingo": FootballBingo,
   // One screen serves all three: the sport it was launched as picks the route
@@ -62,7 +63,7 @@ const renderers: Partial<Record<GameId, ComponentType<GameLauncherProps>>> = {
   "cricket-guess-player": GuessPlayer,
   "basketball-guess-player": GuessPlayer,
   "hoop-duel": HoopDuel,
-  "grand-prix-dash": GrandPrix,
+  "grand-prix-dash": RallyDash,
   "tennis-rally": TennisRally,
   // One screen serves all five: it reads its sport from the game it was
   // launched as, exactly as the ladder data is keyed.
@@ -88,6 +89,10 @@ function GameSurface({ game, entry }: GameLauncherProps) {
  * than a bloc.
  */
 export function GameLauncher(props: GameLauncherProps) {
+  return <GameAssetGate game={props.game} title={props.entry.title}><ReadyGameLauncher {...props} /></GameAssetGate>;
+}
+
+function ReadyGameLauncher(props: GameLauncherProps) {
   if (isGameEnabled(props.game) && usesMobileLandscape(props.game)) return <MobileGameViewport key={props.game} title={props.entry.title}><GameLauncherContent {...props} /></MobileGameViewport>;
   return <GameLauncherContent {...props} />;
 }
@@ -102,6 +107,7 @@ function GameLauncherContent({ game, entry }: GameLauncherProps) {
       fullScreen
     >
       <GameLandingAdProvider>
+        <GameVisitTracker game={game} />
         <GuestReadyGameLauncher game={game} entry={entry} />
       </GameLandingAdProvider>
     </AuthBoundary>
@@ -110,7 +116,7 @@ function GameLauncherContent({ game, entry }: GameLauncherProps) {
 
 function GuestReadyGameLauncher(props: GameLauncherProps) {
   if (props.game === 'open-golf') return <OpenGolf {...props} />;
-  if (props.game === 'archery-test' || props.game === 'longbow') return <GameSurface {...props} />;
+  if (props.game === 'archery-test' || props.game === 'longbow' || props.game === 'holdover' || props.game === 'rim-rush') return <GameSurface {...props} />;
   return <DeckGameLauncher {...props} />;
 }
 function DeckGameLauncher({ game, entry }: GameLauncherProps) {
@@ -128,7 +134,8 @@ function DeckGameLauncher({ game, entry }: GameLauncherProps) {
     return <StarterPackGate game={game} entry={entry} sport={sport} />;
   }
 
-  if (game !== "pitch-duel" && entry.requiresDeck && !isLoadoutComplete(activeLoadout(decks, sport))) {
+  // Pitch Duel and Football Chess field their own academy players when a deck is short.
+  if (game !== "pitch-duel" && game !== "football-chess" && entry.requiresDeck && !isLoadoutComplete(activeLoadout(decks, sport))) {
     return <DeckRequired sport={sport} entry={entry} />;
   }
 
@@ -158,6 +165,14 @@ function StarterPackGate({
   return (
     <StarterPackReveal
       reveal={reveal}
+      compactSummary={game === "pitch-duel" || game === "football-chess"}
+      contextLabel={
+        game === "pitch-duel"
+          ? "PITCH DUEL / DEBUT XI"
+          : game === "football-chess"
+            ? "FOOTBALL CHESS / MATCH SQUAD"
+            : undefined
+      }
       onComplete={() => {
         claimPack(sport, reveal);
         setOpened(true);

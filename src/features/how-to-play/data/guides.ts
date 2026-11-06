@@ -124,10 +124,10 @@ const allGuides: ModeGuide[] = [
     ],
   },
 
-  // ── Pitch Duel ───────────────────────────────────────────────────────────
+  // ── Fot Duel ───────────────────────────────────────────────────────────
   {
     id: "pitch-duel",
-    title: "PITCH DUEL",
+    title: "FOT DUEL",
     tagline: "Card football mind games",
     subtitle: "// READ THE PLAY · WIN THE DUEL",
     purpose: "Field an eleven-a-side club and play a full 90 minutes in about thirty decisions. Every duel is your move against a counter the CPU has already locked in.",
@@ -269,44 +269,44 @@ const allGuides: ModeGuide[] = [
   {
     id: "football-chess",
     title: "FOOTBALL CHESS",
-    tagline: "Tactical 5v5 Grid Duel",
+    tagline: "Five a side on a chessboard pitch",
     subtitle: "// TURN-BASED MATCH",
     purpose:
-      "Chess on a pitch. Take turns to move, pass, dribble, or shoot. Defend using press, tackle, or slide to win back possession and score from the opponent's half.",
+      "Five a side on a 7 by 5 chessboard pitch, one action a turn. Every player moves like a chess piece by position, every risky action shows its odds before you commit, and a rival manager plays back.",
     icon: "grid_view",
     accent: "cyan",
     stats: [
-      { icon: "grid_on", label: "3X4 GRID", sub: "tight tactical pitch", accent: "cyan" },
-      { icon: "groups", label: "5V5 SQUAD", sub: "4 outfield + 1 keeper", accent: "lime" },
-      { icon: "timer", label: "COOLDOWNS", sub: "manage your tackles", accent: "orange" },
+      { icon: "grid_on", label: "7X5 PITCH", sub: "goals at each end", accent: "cyan" },
+      { icon: "groups", label: "5 CLASSES", sub: "striker to keeper", accent: "lime" },
+      { icon: "insights", label: "VISIBLE ODDS", sub: "know before you play", accent: "orange" },
     ],
     steps: [
       {
-        title: "Move & Pass",
-        body: "Move a player 1 square in any direction. Pass the ball in a clear straight line to a teammate. Keepers can pass to anyone!",
+        title: "Know your pieces",
+        body: "Strikers shoot from further out, Runners dash two squares and have a once-a-possession skill move, Playmakers loft passes over anyone, and Defenders guard the squares around them. Keepers follow the ball by themselves.",
       },
       {
-        title: "Dribble",
-        body: "Have the ball? Dribble into an adjacent opponent to beat them and keep possession.",
+        title: "Move, pass or shoot",
+        body: "Tap a piece, then a highlighted square. Passes go any distance along a straight lane. Shots aim at the top, middle or bottom of the goal, and the odds show before you commit.",
       },
       {
-        title: "Press & Tackle",
-        body: "Press to move a defender closer to the ball carrier from range. Tackle an adjacent carrier to win the ball back cleanly.",
+        title: "Win it back",
+        body: "Tackle from beside the carrier or slide from two squares away, but never from behind. A missed slide can be a foul, two yellows is a red, and a foul in your box is a penalty.",
       },
       {
-        title: "Slide Tackle",
-        body: "Higher chance to win the ball, but risks a foul or a card! Missed slides have a longer cooldown.",
+        title: "Beat the clock",
+        body: "Keep the ball for six actions without a shot and it goes to the other side for passive play. Blocked shots can win a corner.",
       },
       {
-        title: "Shoot to Score",
-        body: "Once in the opponent's half, you can shoot! Your player's attack is matched against the enemy goalkeeper's defense.",
+        title: "Shot on!",
+        body: "Like check in chess: when the rival can score from where the ball is, you are warned and the shooting lanes are shown.",
       },
     ],
     facts: [
       {
         icon: "workspace_premium",
-        label: "XP Only",
-        body: "This mode rewards XP for progression. Coins stay in the shop.",
+        label: "Coins per match",
+        body: "Every finished match pays coins: 50 for a win, 20 for a draw and 10 for a loss. No deck yet? The Academy five play for you.",
       },
     ],
   },

@@ -1,6 +1,6 @@
 ﻿import * as T from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {angle,angleLerp,at,CAR_HALF_WIDTH,damp,GRID_SIZE,gridSlot,lineAt,project,ROAD_HALF,track,TRACK_LENGTH,WALL_SAMPLES,WALL_STEP,wallLane,walls,type Car,type Chassis,type Race,type RaceEvent} from './engine';
+import {angle,angleLerp,CAR_HALF_WIDTH,damp,defaultCircuit,GRID_SIZE,gridSlot,ROAD_HALF,type Car,type Chassis,type Race,type RaceEvent} from './engine';
 import {interpolate,type Motion,type Pose} from './motion';
 
 /** Kenney CC0 models packed by scripts/import-racer-kenney.mjs (see public/games/f1-racing/kenney/PROVENANCE.json). */
@@ -18,7 +18,7 @@ const PAINT_VALUE:Record<Chassis,number>={race:.83,'race-future':.62};
 const WHEELS=['wheel-front-left','wheel-front-right','wheel-back-left','wheel-back-right'];
 /** GLTFLoader suffixes duplicate node names (body, body_1), so match a car part by prefix within its chassis. */
 const part=(root:T.Object3D,name:string)=>root.children.find(o=>o.name===name||o.name.startsWith(name+'_')) as T.Mesh;
-const curvatureAt=(d:number)=>angle(at(d+4).heading-at(d-4).heading)/8;
+
 
 /** Fullscreen-free particle points with per-particle colour, alpha and size. */
 function particles(count:number,additive:boolean){
@@ -37,8 +37,10 @@ function particles(count:number,additive:boolean){
  };
 }
 
-export function createRenderer(canvas:HTMLCanvasElement,kit:Kit){
- const renderer=new T.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+export function createRenderer(canvas:HTMLCanvasElement,kit:Kit,circuit=defaultCircuit,gridSize=GRID_SIZE,sharedRenderer?:T.WebGLRenderer){
+ const {at,project,track,TRACK_LENGTH,lineAt,wallLane,walls,WALL_SAMPLES,WALL_STEP}=circuit;
+ const curvatureAt=(d:number)=>angle(at(d+4).heading-at(d-4).heading)/8;
+ const renderer=sharedRenderer??new T.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
  const geometries:T.BufferGeometry[]=[],materials:T.Material[]=[],textures:T.Texture[]=[],instanced:T.InstancedMesh[]=[];
@@ -86,13 +88,13 @@ export function createRenderer(canvas:HTMLCanvasElement,kit:Kit){
  // Rubbered-in racing line: a faint darker band that also teaches the line the CPUs drive.
  const rubber=new T.MeshBasicMaterial({color:'#1d2326',transparent:true,opacity:.16,depthWrite:false});materials.push(rubber);
  ribbon(d=>lineAt(d)-1.3,d=>lineAt(d)+1.3,rubber,.024);
- const kerbMat=material('#ffffff',.9);const kerbColor=(d:number)=>Math.floor(d/3)%2?'#efeee2':'#cf4b42';
- ribbon(-8.7,-7.8,kerbMat,.038,kerbColor);ribbon(7.8,8.7,kerbMat.clone(),.038,kerbColor);ribbon(-7.65,-7.55,white,.05);ribbon(7.55,7.65,white,.05);
+ const kerbMat=material('#ffffff',.9),oppositeKerb=kerbMat.clone();materials.push(oppositeKerb);const kerbColor=(d:number)=>Math.floor(d/3)%2?'#efeee2':'#cf4b42';
+ ribbon(-8.7,-7.8,kerbMat,.038,kerbColor);ribbon(7.8,8.7,oppositeKerb,.038,kerbColor);ribbon(-7.65,-7.55,white,.05);ribbon(7.55,7.65,white,.05);
 
  // Grand Prix start/finish and twenty staggered grid boxes on Hamilton Straight.
  const grid=new T.Group(),start=at(0);grid.position.set(start.x,0,start.z);grid.rotation.y=start.heading;scene.add(grid);
  for(let x=-7;x<8;x++)for(let z=0;z<2;z++)box(x+.5,.067,z*.65,1,.02,.65,(x+z+20)%2?white:dark,grid);
- for(let i=0;i<GRID_SIZE;i++){const slot=gridSlot(i),p=at(slot.distance,slot.lane),node=new T.Group();node.position.set(p.x,.065,p.z);node.rotation.y=p.heading;scene.add(node);box(0,0,2.4,2.7,.02,.12,white,node);box(-1.3,0,1.8,.12,.02,1.3,white,node);box(1.3,0,1.8,.12,.02,1.3,white,node);}
+ for(let i=0;i<gridSize;i++){const slot=gridSlot(i),p=at(slot.distance,slot.lane),node=new T.Group();node.position.set(p.x,.065,p.z);node.rotation.y=p.heading;scene.add(node);box(0,0,2.4,2.7,.02,.12,white,node);box(-1.3,0,1.8,.12,.02,1.3,white,node);box(1.3,0,1.8,.12,.02,1.3,white,node);}
 
  // StatOz CIRCUITS signage replaces Kenney's fictional sponsor in every banner slot.
  const signTexture=canvasTexture(512,256,c=>{c.fillStyle='#153244';c.fillRect(0,0,512,256);c.fillStyle='#ef654c';c.fillRect(0,214,512,42);c.fillStyle='#ffca54';c.beginPath();c.moveTo(40,128);c.lineTo(92,76);c.lineTo(118,76);c.lineTo(66,128);c.lineTo(118,180);c.lineTo(92,180);c.closePath();c.fill();c.fillStyle='#ffffff';c.textBaseline='middle';c.font='700 74px "Space Grotesk",Arial,sans-serif';c.fillText('StatOz',138,104);c.font='700 34px "Space Grotesk",Arial,sans-serif';c.fillText('C I R C U I T S',142,162);});
@@ -158,7 +160,7 @@ export function createRenderer(canvas:HTMLCanvasElement,kit:Kit){
  placeKit('treeLarge',large,true);placeKit('treeSmall',small,true);
 
  // Cars: Kenney Car Kit race chassis, one instanced batch per part, paint recoloured per livery.
- const cars=GRID_SIZE,carPaint=new Map<Chassis,T.Material>(),batches:T.InstancedMesh[]=[];
+ const cars=gridSize,carPaint=new Map<Chassis,T.Material>(),batches:T.InstancedMesh[]=[];
  const bodyMaterial=(source:T.Material,chassis:Chassis)=>{const m=(source as T.MeshStandardMaterial).clone();m.metalness=.15;m.roughness=.45;m.onBeforeCompile=shader=>{shader.uniforms.paintValue={value:PAINT_VALUE[chassis]};shader.fragmentShader='uniform float paintValue;\n'+shader.fragmentShader.replace('#include <color_fragment>',`#if defined( USE_COLOR )
   float hiC=max(max(diffuseColor.r,diffuseColor.g),diffuseColor.b),loC=min(min(diffuseColor.r,diffuseColor.g),diffuseColor.b);
   float paint=smoothstep(.55,.7,hiC>0.?(hiC-loC)/hiC:0.);
@@ -294,7 +296,7 @@ export function createRenderer(canvas:HTMLCanvasElement,kit:Kit){
   // Undo the shake offset so smoothing continues from the steady chase position.
   camera.position.x-=Math.sin(shakeTime*1.7)*.32*shake;camera.position.y-=Math.sin(shakeTime*2.3)*.22*shake;
  }
- return{draw,
+ return{draw,circuitId:circuit.definition.id,gridSize,webgl:renderer,
   resize(width:number,height:number){renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();for(const p of [smoke,sparks])p.material.uniforms.scale.value=height*.9;},
   camera(){view=1-view;},
   /** Adds camera trauma (0-1). Shake is trauma squared, so small bumps barely move. */
@@ -312,7 +314,7 @@ export function createRenderer(canvas:HTMLCanvasElement,kit:Kit){
    if(pieces){const crashed=list[event.car]??list[0];throwDebris(x,z,pieces,crashed.color,3+intensity*6);if(event.kind==='car'&&event.other>=0&&heavy)throwDebris(x,z,2,list[event.other].color,4);}
   },
   setShakeScale(value:number){shakeScale=value;},
-  diagnostics(){return{cars:GRID_SIZE,vehicleBatches:batches.length,sceneryBatches:instanced.length,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,cameraHeading:angle(camHeading),rearView,fov:camera.fov,playerPose:{...poses[0]},particles:{trauma}};},
-  dispose(){for(const mesh of [...batches,...instanced,marks,...debris.map(d=>d.mesh)])mesh.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();kit.traverse(n=>{const m=n as T.Mesh;if(m.isMesh){m.geometry.dispose();(m.material as T.MeshStandardMaterial).map?.dispose();(m.material as T.Material).dispose();}});sun.shadow.map?.dispose();renderer.dispose();},
+  diagnostics(){return{cars:gridSize,circuit:circuit.definition.id,vehicleBatches:batches.length,sceneryBatches:instanced.length,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,memory:{...renderer.info.memory},cameraHeading:angle(camHeading),rearView,fov:camera.fov,playerPose:{...poses[0]},particles:{trauma}};},
+  dispose(disposeKit=true){for(const mesh of [...batches,...instanced,marks,...debris.map(d=>d.mesh)])mesh.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();if(disposeKit)kit.traverse(n=>{const m=n as T.Mesh;if(m.isMesh){m.geometry.dispose();(m.material as T.MeshStandardMaterial).map?.dispose();(m.material as T.Material).dispose();}});sun.shadow.map?.dispose();if(disposeKit)renderer.dispose();},
  };
 }

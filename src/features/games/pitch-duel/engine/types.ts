@@ -120,8 +120,8 @@ export type Pending = { kind: "open" } | { kind: "setPiece"; setPiece: SetPiece 
 export type Phase = "kickoff" | "choose" | "halftime" | "fulltime";
 
 export type MatchInput =
-  | { type: "attack"; action: AttackId; tacticId?: string }
-  | { type: "defend"; action: DefenseId; tacticId?: string }
+  | { type: "attack"; action: AttackId; tacticId?: string; surge?: boolean }
+  | { type: "defend"; action: DefenseId; tacticId?: string; surge?: boolean }
   | { type: "setPiece"; option: SetPieceOption; tacticId?: string }
   | { type: "mindGame"; tacticId: string }
   | { type: "continue" };
@@ -150,6 +150,7 @@ export type EventKind =
   | "block"
   | "goal"
   | "tactic"
+  | "surge"
   | "halftime"
   | "fulltime";
 
@@ -181,6 +182,13 @@ export type Resolution = {
   from: { x: number; lane: Lane };
   to: { x: number; lane: Lane };
   events: MatchEvent[];
+  /**
+   * Where an open-play duel landed, from the attacker's side: the edge plus
+   * the swing. The outcome bands start at -12, 0 and +12. Null for set pieces.
+   */
+  margin: number | null;
+  /** The sides that spent a surge on this duel. */
+  surges: Side[];
 };
 
 export type TendencyPick = { band: "build" | "attack"; key: string };
@@ -237,6 +245,8 @@ export type MatchState = {
   cpuRecent: Family[];
   stats: Record<Side, SideStats>;
   players: Record<string, PlayerMatchLine>;
+  /** Momentum per side, 0–100. A full bar is a surge: one boosted duel. */
+  momentum: Record<Side, number>;
 };
 
 export type MatchSetup = {

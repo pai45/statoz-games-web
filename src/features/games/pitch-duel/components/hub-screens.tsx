@@ -1,23 +1,61 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 import type { PlayerCard as PlayerCardData } from "@/domain/cards";
 
+import { usePrefersReducedMotion } from "../../shared/state/use-reduced-motion";
 import { attacks, defenses, families } from "../engine/actions";
 import { formations, type ClubSetup } from "../engine/lineup";
 import { lineKey, mvp, ratings } from "../engine/match";
+import { momentumFull, surgeBoost } from "../engine/momentum";
 import { divisionFor, divisions, type Opponent } from "../engine/setup";
 import type { MatchState } from "../engine/types";
 import type { Career } from "../state/career-schema";
 import type { MatchSettlement } from "../state/progress";
 
+import { useSound } from "./audio";
 import { DuelCard, primaryPosition, sideAccent } from "./card-art";
 import { SwapIcon } from "./icons";
 import { Eyebrow, Pill } from "./ui";
 import styles from "./pitch-duel.module.css";
 
 const resultTone = { Victory: "#4ade80", Draw: "#fbbf24", Defeat: "#f87171" } as const;
+
+/** Counts up to `target`, ticking as it goes; instant with reduced motion. */
+function useCountUp(target: number, delay = 0): number {
+  const sound = useSound();
+  const reduced = usePrefersReducedMotion();
+  const [shown, setShown] = useState(0);
+  const [started, setStarted] = useState(delay === 0);
+  useEffect(() => {
+    if (started) return;
+    const t = setTimeout(() => setStarted(true), delay);
+    return () => clearTimeout(t);
+  }, [started, delay]);
+  useEffect(() => {
+    if (!started || shown >= target) return;
+    const t = setTimeout(
+      () => {
+        const next = reduced ? target : Math.min(target, shown + Math.max(1, Math.ceil((target - shown) / 6)));
+        setShown(next);
+        sound.tick(next);
+      },
+      reduced ? 0 : 55,
+    );
+    return () => clearTimeout(t);
+  }, [started, shown, target, reduced, sound]);
+  return shown;
+}
+
+/** Confetti for a win: thirty pieces in the game's colours. */
+const confetti = Array.from({ length: 30 }, (_, i) => ({
+  x: (i * 41) % 100,
+  delay: ((i * 37) % 30) / 100,
+  spin: ((i * 67) % 360) - 180,
+  drift: ((i * 23) % 24) - 12,
+  colour: ["#4ade80", "#fbbf24", "#ffffff", "#a855f7", "#38bdf8", "#ec4899"][i % 6],
+}));
 
 function teamOvr(ids: string[], cardFor: (id: string) => PlayerCardData | undefined): number {
   const cards = ids.map(cardFor).filter((c): c is PlayerCardData => Boolean(c));
@@ -179,7 +217,7 @@ export function LeagueScreen({ career }: { career: Career }) {
 
 /* ---- Guide ----------------------------------------------------------------- */
 
-export function GuideScreen({ onReady }: { onReady: () => void }) {
+export function GuideScreen({ onReady, onReplayDebut }: { onReady: () => void; onReplayDebut?: () => void }) {
   const defs = Object.values(defenses).filter((d) => d.full.length);
   const cards: [string, string, string[]][] = [
     [
@@ -214,6 +252,14 @@ export function GuideScreen({ onReady }: { onReady: () => void }) {
         "Academy players fill any gap until your collection grows.",
       ],
     ],
+    [
+      "05 · MOMENTUM",
+      "FILL THE BAR, THEN SURGE",
+      [
+        `Winning duels, reading their move, saves and goals fill your momentum bar under the score. At ${momentumFull}% it becomes a surge.`,
+        `Arm the gold SURGE chip and your next pick gets a big edge (+${surgeBoost}). It waits until you use it. They have a surge too, and spend it near your goal.`,
+      ],
+    ],
   ];
   return (
     <div className={styles.guide}>
@@ -227,7 +273,7 @@ export function GuideScreen({ onReady }: { onReady: () => void }) {
         </article>
       ))}
       <article className={styles.panel} data-wide>
-        <small className={styles.kicker}>05 · COUNTERS</small>
+        <small className={styles.kicker}>06 · COUNTERS</small>
         <table className={styles.counterTable}>
           <thead>
             <tr>
@@ -260,6 +306,11 @@ export function GuideScreen({ onReady }: { onReady: () => void }) {
         </p>
       </article>
       <div className={styles.stickyCta}>
+        {onReplayDebut ? (
+          <Pill tone="light" onClick={onReplayDebut} optionId="replay-debut">
+            REPLAY DEBUT XI
+          </Pill>
+        ) : null}
         <Pill tone="green" wide onClick={onReady}>
           GOT IT
         </Pill>
@@ -286,8 +337,27 @@ export function SummaryScreen({
   const bestCard = state.teams[best.side].cards[best.id];
   const list = ratings(state).sort((a, b) => b.rating - a.rating);
   const scorers = state.log.filter((e) => e.kind === "goal");
+  const sound = useSound();
+  const coins = useCountUp(settlement.coins, 700);
+  const points = useCountUp(settlement.result.points, 1300);
+
+  // The full-time sting and the crowd's verdict, once.
+  useEffect(() => {
+    sound.sting(verdict === "Victory" ? "win" : verdict === "Draw" ? "draw" : "loss");
+    if (verdict === "Victory") sound.swell(0.45);
+    sound.crowd(verdict === "Victory" ? 0.4 : 0.18);
+    sound.chant(verdict === "Victory" ? 0.6 : 0);
+  }, [sound, verdict]);
+
   return (
-    <div className={styles.summary} data-pitch-duel-summary>
+    <div className={styles.summary} data-pitch-duel-summary data-verdict={verdict}>
+      {verdict === "Victory" ? (
+        <div className={styles.winConfetti} aria-hidden>
+          {confetti.map((c, i) => (
+            <i key={i} style={{ left: `${c.x}%`, "--delay": `${c.delay}s`, "--spin": `${c.spin}deg`, "--drift": `${c.drift}vw`, background: c.colour } as CSSProperties} />
+          ))}
+        </div>
+      ) : null}
       <div className={styles.resultColumn}>
         <section className={styles.resultCard} style={{ "--tone": resultTone[verdict] } as CSSProperties} aria-label="Result">
           <small className={styles.kicker}>FULL-TIME · DIVISION {state.division}</small>
@@ -309,9 +379,9 @@ export function SummaryScreen({
               ))}
             </ul>
           ) : null}
-          <div className={styles.rewards}>
-            <span>+{settlement.coins} COINS</span>
-            <span>+{settlement.result.points} PTS</span>
+          <div className={styles.rewards} aria-label={`+${settlement.coins} coins, +${settlement.result.points} points`}>
+            <span data-counting={coins < settlement.coins || undefined}>+{coins} COINS</span>
+            <span data-counting={points < settlement.result.points || undefined}>+{points} PTS</span>
             {settlement.promoted ? <span data-tone="green">PROMOTED · {divisions[settlement.promoted - 1]}</span> : null}
             {settlement.prize ? <span data-tone="gold">NEW CARD · {settlement.prize.name} (FICTIONAL)</span> : null}
           </div>

@@ -1,0 +1,24 @@
+    <section id="mode-menu" class="ui-overlay" aria-label="Choose game mode">
+      <header class="lobby-brand">
+        <svg class="lobby-ball-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="2"/><path d="M3 24h42M24 3v42M9 9c18 5 25 12 30 30M9 39c18-5 25-12 30-30" stroke="currentColor" stroke-width="2"/></svg>
+        <div><strong>VIBE</strong><span>BASKETBALL</span></div>
+      </header>
+      <div class="lobby-copy">
+        <h1>YOUR COURT.<br><span>YOUR RULES.</span></h1>
+      </div>
+      <div id="lobby-stage" class="lobby-stage" aria-hidden="true"></div>
+      <div class="mode-cards" role="group" aria-label="Start menu">
+        <p class="lobby-mode-label">PICK YOUR RUN</p>
+        <button id="mode-1v1" class="mode-card selected" data-mode="1v1" data-primary type="button">
+          <span class="mode-copy"><strong>1V1 STREET</strong><small>FIRST TO 11</small></span>
+          <span class="mode-arrow" aria-hidden="true">↗</span>
+        </button>
+        <button id="mode-three-point" class="mode-card" data-mode="three-point" type="button">
+          <span class="mode-copy"><strong>3-POINT CONTEST</strong><small>1–4 LOCAL PLAYERS</small></span>
+          <span class="mode-arrow" aria-hidden="true">↗</span>
+        </button>
+        <button id="mode-how-to" class="mode-card lobby-guide" data-mode="how-to" type="button">
+          <span class="guide-icon" aria-hidden="true">?</span><span><strong>How to play</strong></span><span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>

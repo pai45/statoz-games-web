@@ -37,3 +37,13 @@ export const cornerReferences=[
  {name:'Stowe',point:[400,889]},{name:'Vale',point:[295,769]},
  {name:'Club',point:[267,785]},{name:'Club',point:[239,740]},
 ];
+
+export type CircuitDefinition={readonly id:string;readonly name:string;readonly points:readonly (readonly number[])[];readonly startOffset:number};
+// Original closed layouts. Long opening straights keep the full staggered grid clear of bends.
+export const CIRCUITS:readonly CircuitDefinition[]=[
+ {id:CIRCUIT_ID,name:CIRCUIT_NAME,points:circuitPoints,startOffset:60},
+ {id:'starter-oval',name:'STARTER OVAL',startOffset:90,points:[[0,0],[0,100],[25,150],[85,170],[145,150],[170,100],[170,0],[145,-50],[85,-70],[25,-50]]},
+ {id:'meadow-loop',name:'MEADOW LOOP',startOffset:90,points:[[0,0],[0,120],[40,175],[115,190],[190,160],[230,95],[215,35],[165,5],[135,-65],[65,-90],[10,-60]]},
+ {id:'club-circuit',name:'CLUB CIRCUIT',startOffset:90,points:[[0,0],[0,140],[30,210],[100,235],[165,195],[175,125],[125,90],[135,35],[225,15],[275,-45],[250,-120],[160,-145],[75,-120],[10,-65]]},
+ {id:'ridge-gp',name:'RIDGE GP',startOffset:90,points:[[0,0],[0,150],[45,225],[135,260],[220,220],[260,150],[230,80],[155,60],[145,0],[220,-30],[300,-15],[345,-75],[310,-155],[230,-185],[150,-150],[95,-185],[25,-150],[0,-75]]},
+];

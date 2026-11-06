@@ -544,7 +544,7 @@ var tempI64;
 // end include: runtime_debug.js
 // === Body ===
 var ASM_CONSTS = {
-  17601960: () => {
+  17601576: () => {
     FS.mkdir("/opengolf_persistent_data");
     FS.mount(IDBFS, {}, "/opengolf_persistent_data");
     Module.syncdone = 0;
@@ -553,7 +553,7 @@ var ASM_CONSTS = {
       Module.syncdone = 1;
     });
   },
-  17602141: () => {
+  17601757: () => {
     FS.syncfs(function(err) {
       assert(!err);
       console.log("SAVED");
@@ -6596,6 +6596,38 @@ var wasmExports = createWasm();
 var ___wasm_call_ctors = () => (___wasm_call_ctors = wasmExports["__wasm_call_ctors"])();
 
 var _malloc = a0 => (_malloc = wasmExports["malloc"])(a0);
+
+var _statoz_golf_levels = Module["_statoz_golf_levels"] = () => (_statoz_golf_levels = Module["_statoz_golf_levels"] = wasmExports["statoz_golf_levels"])();
+
+var _statoz_golf_best = Module["_statoz_golf_best"] = a0 => (_statoz_golf_best = Module["_statoz_golf_best"] = wasmExports["statoz_golf_best"])(a0);
+
+var _statoz_golf_state = Module["_statoz_golf_state"] = () => (_statoz_golf_state = Module["_statoz_golf_state"] = wasmExports["statoz_golf_state"])();
+
+var _statoz_golf_game_state = Module["_statoz_golf_game_state"] = () => (_statoz_golf_game_state = Module["_statoz_golf_game_state"] = wasmExports["statoz_golf_game_state"])();
+
+var _statoz_golf_level = Module["_statoz_golf_level"] = () => (_statoz_golf_level = Module["_statoz_golf_level"] = wasmExports["statoz_golf_level"])();
+
+var _statoz_golf_strokes = Module["_statoz_golf_strokes"] = () => (_statoz_golf_strokes = Module["_statoz_golf_strokes"] = wasmExports["statoz_golf_strokes"])();
+
+var _statoz_golf_tutorial = Module["_statoz_golf_tutorial"] = () => (_statoz_golf_tutorial = Module["_statoz_golf_tutorial"] = wasmExports["statoz_golf_tutorial"])();
+
+var _statoz_golf_busy = Module["_statoz_golf_busy"] = () => (_statoz_golf_busy = Module["_statoz_golf_busy"] = wasmExports["statoz_golf_busy"])();
+
+var _statoz_golf_power = Module["_statoz_golf_power"] = () => (_statoz_golf_power = Module["_statoz_golf_power"] = wasmExports["statoz_golf_power"])();
+
+var _statoz_golf_since_out_of_bounds = Module["_statoz_golf_since_out_of_bounds"] = () => (_statoz_golf_since_out_of_bounds = Module["_statoz_golf_since_out_of_bounds"] = wasmExports["statoz_golf_since_out_of_bounds"])();
+
+var _statoz_golf_click = Module["_statoz_golf_click"] = () => (_statoz_golf_click = Module["_statoz_golf_click"] = wasmExports["statoz_golf_click"])();
+
+var _statoz_golf_play = Module["_statoz_golf_play"] = a0 => (_statoz_golf_play = Module["_statoz_golf_play"] = wasmExports["statoz_golf_play"])(a0);
+
+var _statoz_golf_pause = Module["_statoz_golf_pause"] = () => (_statoz_golf_pause = Module["_statoz_golf_pause"] = wasmExports["statoz_golf_pause"])();
+
+var _statoz_golf_resume = Module["_statoz_golf_resume"] = () => (_statoz_golf_resume = Module["_statoz_golf_resume"] = wasmExports["statoz_golf_resume"])();
+
+var _statoz_golf_retry = Module["_statoz_golf_retry"] = () => (_statoz_golf_retry = Module["_statoz_golf_retry"] = wasmExports["statoz_golf_retry"])();
+
+var _statoz_golf_menu = Module["_statoz_golf_menu"] = () => (_statoz_golf_menu = Module["_statoz_golf_menu"] = wasmExports["statoz_golf_menu"])();
 
 var __saudio_emsc_pull = Module["__saudio_emsc_pull"] = a0 => (__saudio_emsc_pull = Module["__saudio_emsc_pull"] = wasmExports["_saudio_emsc_pull"])(a0);
 

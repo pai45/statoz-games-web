@@ -1,548 +1,952 @@
-/**
- * The board's geometry, and the motion around it.
- *
- * Flutter paints all of this into a canvas. Here the grid, the cell markings and
- * the goals are ordinary layout, which is why they live in a stylesheet rather
- * than a renderer: three columns by four rows, an aspect-ratio box, and pieces
- * that slide on a transition instead of a `MoveEffect`.
- *
- * The global `prefers-reduced-motion` damper in `globals.css` stills everything
- * below.
- */
-
-/* ---- The pitch ------------------------------------------------------------ */
-
-.actionBar,
-.timerSlot,
-.pitch {
-  /*
-   * The score bar, the pick timer and the action bar, plus their padding — the
-   * height the board must leave for everything else on the screen.
-   *
-   * This has to account for the action deck at its *tallest*, not its shortest.
-   * Under-reserving it let the page grow past the viewport the moment a piece
-   * was selected, which popped a scrollbar and shifted every centred element
-   * sideways. The deck and the countdown below are fixed slots so this number
-   * stays true for the whole match.
-   */
-  --chess-chrome: 203px;
-
-  /* The action deck, sized to its tallest state: a row of verb chips. */
-  --chess-action-bar: 85px;
-  /* The pick countdown, held open even when it is not the player's turn. */
-  --chess-timer-slot: 11px;
-
-  /*
-   * The turf. Scene art rather than palette — the painted pitch, the way a
-   * team's colours are data — so it is named here and nowhere else. Ported from
-   * the gradient Flutter's `GridComponent` paints behind the board.
-   */
-  --chess-turf-far: #073222;
-  --chess-turf-mid: #061b22;
-  --chess-turf-near: #08111d;
-}
-
-.pitch {
-  display: flex;
-  /*
-   * Four playing rows plus a keeper row at each end, as Flutter's field rect
-   * reserves — hence 3:6.
-   *
-   * The width is chosen so the derived height always leaves the HUD and the
-   * action bar their room: a percentage height would have to resolve against a
-   * flex parent whose own height is still being decided, and it silently
-   * collapses when it cannot. Subtracting the chrome from the viewport is one
-   * calculation the browser can always answer.
-   */
-  width: min(100%, calc((100dvh - var(--chess-chrome)) / 2), 360px);
-  flex-direction: column;
-  margin-inline: auto;
-  aspect-ratio: 3 / 6;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--ds-color-accent-cyan) 22%, transparent);
-  border-radius: 6px;
-  background: linear-gradient(
-    to bottom,
-    var(--chess-turf-far) 0%,
-    var(--chess-turf-mid) 50%,
-    var(--chess-turf-near) 100%
-  );
-}
-
-.goalRow {
-  position: relative;
-  display: grid;
-  flex: 1 1 0;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: center;
-}
-
-.goal {
-  position: absolute;
-  left: 50%;
-  display: block;
-  width: 30%;
-  height: 6px;
-  translate: -50%;
-}
-
 /*
- * Each goal line sits on the *inner* edge of its keeper strip, against the
- * playing grid — Flutter draws the opponent's at `field.top - goalH` and the
- * player's at `field.bottom`. The keeper stands behind its own line. Named for
- * which end it is rather than which screen edge, because the wide layout below
- * moves both of them.
+ * Football Chess — the game's own look: a mown-grass chessboard in a walnut
+ * frame with brass fittings. Nothing here comes from the StatOz design system.
  */
-.goalFar {
-  bottom: 0;
+
+.root {
+  --fc-grass-light: #6f9a4a;
+  --fc-grass-dark: #5a8540;
+  --fc-chalk: #f2efe1;
+  --fc-walnut: #5b3a22;
+  --fc-walnut-deep: #3e2716;
+  --fc-walnut-night: #24170d;
+  --fc-brass: #c9a24a;
+  --fc-brass-light: #e6c877;
+  --fc-brass-dark: #8f6f2a;
+  --fc-warning: #a8322d;
+  --fc-warning-light: #d65a4f;
+  --fc-ivory: #f4ecd6;
+  --fc-ebony: #2a2420;
+  --fc-ink: #1d1a16;
+  --fc-paper: #efe6cf;
+  --fc-muted: #c3ae88;
+  --fc-faint: rgba(239, 230, 207, 0.62);
+  --fc-line: rgba(201, 162, 74, 0.38);
+  --fc-display: var(--fc-font-display), "Georgia", serif;
+  --fc-labels: var(--fc-font-labels), "Arial Narrow", sans-serif;
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  color: var(--fc-paper);
+  font-family: var(--fc-labels);
+  font-size: 14px;
+  line-height: 1.3;
+  background:
+    repeating-linear-gradient(97deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(93deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 23px),
+    radial-gradient(ellipse at 50% -10%, #5a3a21 0%, #33200f 55%, #1c120a 100%);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
-.goalNear {
-  top: 0;
+.root *,
+.root *::before,
+.root *::after {
+  box-sizing: border-box;
 }
 
-/* The keeper's cell, drawn like a square but off the playing grid. */
-.keeperCell {
-  display: grid;
-  margin: 1.5px;
-  grid-column: 2;
-  border: 1px solid color-mix(in srgb, var(--ds-color-accent-cyan) 10%, transparent);
-  place-items: center;
-}
-
-.grid {
-  position: relative;
-  display: grid;
-  flex: 4 1 0;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-}
-
-.halfway,
-.centreCircle {
-  position: absolute;
-  pointer-events: none;
-  border-color: color-mix(in srgb, var(--ds-color-accent-cyan) 22%, transparent);
-}
-
-.halfway {
-  top: 50%;
-  right: 0;
-  left: 0;
-  border-top: 1.5px solid
-    color-mix(in srgb, var(--ds-color-accent-cyan) 22%, transparent);
-}
-
-.centreCircle {
-  top: 50%;
-  left: 50%;
-  width: 28%;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border: 1.5px solid
-    color-mix(in srgb, var(--ds-color-accent-cyan) 22%, transparent);
-  border-radius: 50%;
-}
-
-/* ---- A square ------------------------------------------------------------- */
-
-.square {
-  position: relative;
-  display: grid;
-  grid-column: var(--sq-col);
-  grid-row: var(--sq-row);
-  margin: 1.5px;
-  border: 1px solid color-mix(in srgb, var(--ds-color-accent-cyan) 10%, transparent);
-  background: transparent;
-  place-items: center;
-}
-
-.squareLive {
+/* Zero specificity, so every button class below can set its own colour. */
+:where(.root) :where(button) {
+  font: inherit;
+  color: inherit;
   cursor: pointer;
 }
 
-.square:focus-visible {
-  z-index: 3;
-  outline: 2px solid var(--ds-color-accent-cyan);
-  outline-offset: -2px;
+:where(.root) :where(button:disabled) {
+  cursor: default;
+  opacity: 0.45;
 }
 
-/* Chess.com-style tint on the cells the last action touched. */
-.lastTouched {
+.root :focus-visible {
+  outline: 2px solid var(--fc-brass-light);
+  outline-offset: 2px;
+}
+
+/* ---- Shared pieces ------------------------------------------------------- */
+
+.screen {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--ds-color-accent-gold) 16%, transparent);
-}
-
-.selectedPlate {
-  position: absolute;
-  width: 62%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--ds-color-accent-cyan) 20%, transparent);
-}
-
-.moveDot {
-  position: absolute;
-  width: 17%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--ds-color-accent-cyan) 70%, transparent);
-}
-
-.dangerRing,
-.passRing {
-  position: absolute;
-  width: 60%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.dangerRing {
-  border: 2.5px solid var(--ds-color-danger);
-}
-
-.passRing {
-  border: 2px solid color-mix(in srgb, var(--ds-color-accent-cyan) 85%, transparent);
-}
-
-/* ---- A piece -------------------------------------------------------------- */
-
-.token {
-  position: relative;
   display: flex;
   flex-direction: column;
+  padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  gap: 10px;
+}
+
+.header {
+  display: flex;
   align-items: center;
-  gap: 2px;
-  /* The chip is the piece; the plate and rings sit behind it. */
-  z-index: 2;
-  pointer-events: none;
+  gap: 10px;
+  min-height: 44px;
 }
 
-.chip {
-  position: relative;
-  display: grid;
-  width: clamp(26px, 8.5vw, 44px);
-  aspect-ratio: 1;
-  border-style: solid;
-  border-radius: 50%;
+.headerTitle {
+  flex: 1;
+  margin: 0;
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.01em;
+  color: var(--fc-paper);
+}
+
+.kicker {
+  display: block;
+  font-family: var(--fc-labels);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fc-brass);
+}
+
+.iconButton {
+  display: inline-grid;
   place-items: center;
-  transition: border-color 160ms ease-out;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 1px solid var(--fc-line);
+  border-radius: 10px;
+  background: rgba(36, 23, 13, 0.6);
+  color: var(--fc-paper);
 }
 
-.chipActive {
-  filter: drop-shadow(0 0 10px currentcolor);
+.iconButton:hover {
+  border-color: var(--fc-brass);
 }
 
-.rating {
-  font-family: var(--ds-font-display), sans-serif;
-  font-size: clamp(var(--ds-size-p11), 3.4vw, var(--ds-size-p16));
-  font-weight:var(--ds-weight-bold);
-  line-height: 1;
-}
-
-/* The booking chip, on the shoulder of the piece. */
-.booking {
-  position: absolute;
-  top: 6%;
-  right: -14%;
-  width: 22%;
-  height: 34%;
-  border-radius: 1px;
-}
-
-.name {
-  max-width: 100%;
-  overflow: hidden;
-  color: color-mix(in srgb, var(--ds-color-text-default) 82%, transparent);
-  font-family: var(--ds-font-display), sans-serif;
-  font-size: clamp(var(--ds-size-p7), 2.1vw, var(--ds-size-p11));
-  font-weight:var(--ds-weight-semibold);
-  letter-spacing: 0.5px;
-  line-height: 1;
-  text-overflow: ellipsis;
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid var(--fc-line);
+  background: rgba(36, 23, 13, 0.55);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
-/* ---- The ball ------------------------------------------------------------- */
-
-.ball {
-  position: absolute;
-  top: 8%;
-  right: 12%;
-  width: 16%;
-  aspect-ratio: 1;
-  z-index: 3;
-  border: 2px solid var(--ds-color-accent-gold);
-  border-radius: 50%;
-  background: var(--ds-color-text-default);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--ds-color-accent-gold) 50%, transparent);
+.button:hover:not(:disabled) {
+  border-color: var(--fc-brass);
+  background: rgba(62, 39, 22, 0.8);
 }
 
-/* ---- The last-move arrow --------------------------------------------------- */
-
-.arrow {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 4;
-  pointer-events: none;
+.primary {
+  border-color: #f1d996;
+  color: var(--fc-ink);
+  background: linear-gradient(180deg, #ecd28b 0%, var(--fc-brass) 55%, #a9832f 100%);
+  box-shadow:
+    0 3px 0 var(--fc-brass-dark),
+    0 8px 18px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
-.arrowWide {
-  display: none;
+.primary:hover:not(:disabled) {
+  border-color: #fff0c4;
+  background: linear-gradient(180deg, #f4dea0 0%, #d4ae55 55%, #b08a33 100%);
 }
 
-.arrowBadge {
+.primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 var(--fc-brass-dark),
+    0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.danger {
+  border-color: rgba(214, 90, 79, 0.6);
+  color: #f6d4cf;
+}
+
+.panel {
+  position: relative;
+  border: 1px solid var(--fc-line);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 240, 210, 0.05), transparent 40%),
+    rgba(30, 19, 10, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 190, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.3);
+}
+
+.segmented {
   display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--fc-line);
+  border-radius: 10px;
+  background: rgba(36, 23, 13, 0.55);
+  text-align: center;
+}
+
+.option[aria-pressed="true"] {
+  border-color: var(--fc-brass-light);
+  background: linear-gradient(180deg, rgba(201, 162, 74, 0.32), rgba(201, 162, 74, 0.12));
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 119, 0.4);
+}
+
+.optionLabel {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.optionSub {
+  font-size: 11px;
+  color: var(--fc-faint);
+}
+
+.fieldLabel {
+  margin: 0 0 6px;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fc-brass);
+}
+
+.blurb {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--fc-faint);
+  min-height: 2.6em;
+}
+
+/* ---- Hub ------------------------------------------------------------------ */
+
+.hub {
+  justify-content: center;
+}
+
+.hubTop {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(16px, env(safe-area-inset-left));
+  right: max(16px, env(safe-area-inset-right));
+  display: flex;
+  justify-content: space-between;
+  z-index: 2;
+}
+
+.hubBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(16px, 4vw, 56px);
+  width: min(1060px, 100%);
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--fc-display);
+  font-weight: 900;
+  font-size: clamp(34px, 7.4vh, 76px);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: var(--fc-paper);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+}
+
+.title em {
+  display: block;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--fc-brass-light);
+}
+
+.tagline {
+  margin: clamp(6px, 1.8vh, 14px) 0 clamp(10px, 3vh, 24px);
+  font-size: clamp(13px, 2.3vh, 16px);
+  color: var(--fc-faint);
+  max-width: 32em;
+}
+
+.hubActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hubCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 14px;
+  border: 1px solid var(--fc-line);
+  border-radius: 12px;
+  background: rgba(30, 19, 10, 0.7);
+  text-align: left;
+}
+
+.hubCard:hover {
+  border-color: var(--fc-brass);
+}
+
+.hubCardText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hubCardTitle {
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.hubCardSub {
+  font-size: 12px;
+  color: var(--fc-faint);
+}
+
+.hubStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notice {
+  padding: 8px 12px;
+  border-left: 3px solid var(--fc-brass);
+  border-radius: 6px;
+  background: rgba(201, 162, 74, 0.12);
+  font-size: 12px;
+  color: var(--fc-paper);
+}
+
+.squadStrip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--fc-faint);
+}
+
+/* ---- The miniature board (hub art and formation picker) --------------------- */
+
+.mini {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 8.4 / 5;
+  border-radius: 10px;
+  padding: 3.2%;
+  background: linear-gradient(160deg, #6a4428, var(--fc-walnut-deep));
+  box-shadow:
+    inset 0 0 0 2px rgba(201, 162, 74, 0.45),
+    0 14px 30px rgba(0, 0, 0, 0.45);
+}
+
+.miniGrid {
+  position: relative;
   width: 100%;
   height: 100%;
+  display: grid;
+  grid-template-columns: 0.7fr repeat(7, 1fr) 0.7fr;
+  grid-template-rows: repeat(5, 1fr);
+}
+
+.miniCell {
+  background: var(--fc-grass-light);
+}
+
+.miniCell[data-dark] {
+  background: var(--fc-grass-dark);
+}
+
+.miniGoal {
+  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px 5px), rgba(20, 30, 14, 0.5);
+}
+
+.miniGoalOff {
+  background: transparent;
+}
+
+.miniToken {
+  position: absolute;
+  width: 6.6%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
   border-radius: 50%;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+}
+
+.miniHome {
+  background: radial-gradient(circle at 35% 30%, #fffaf0, var(--fc-ivory) 50%, #cdbb93);
+}
+
+.miniAway {
+  background: radial-gradient(circle at 35% 30%, #6a5f55, var(--fc-ebony) 55%, #120f0c);
+}
+
+.formationGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.formationOption {
+  gap: 4px;
+  padding: 6px;
+}
+
+.formationOption .mini {
+  padding: 4%;
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 74, 0.45);
+  border-radius: 6px;
+}
+
+/* ---- Quick match setup -------------------------------------------------------- */
+
+.setupBody {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(200px, 0.9fr);
+  gap: 12px;
+}
+
+.setupBody[data-customize="false"] {
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 1fr);
+}
+
+.setupBody [data-ui-role="recommended-setup"] {
+  padding: 20px;
+}
+
+.setupColumn {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1.8vh, 14px);
+  min-height: 0;
+}
+
+.squadPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  min-height: 0;
+}
+
+.squadList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.squadRow {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  font-size: 13px;
+}
+
+.squadName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.squadClass {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fc-faint);
+  font-weight: 500;
+}
+
+.rating {
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--fc-brass-light);
+}
+
+.chip {
+  display: inline-grid;
   place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
 }
 
-/* ---- Chrome --------------------------------------------------------------- */
-
-/*
- * A fixed height, not a minimum: the deck swaps a one-line prompt for a row of
- * verb chips, and letting that swap change the page's height moved the board.
- * Content taller than the slot overflows it rather than growing it.
- */
-.actionBar {
-  height: var(--chess-action-bar);
+.chipHome {
+  color: var(--fc-walnut-deep);
+  background: radial-gradient(circle at 35% 30%, #fffaf0, var(--fc-ivory) 50%, #cdbb93);
 }
 
-/* The countdown's reserved row — see `DecisionTimer`. */
-.timerSlot {
-  height: var(--chess-timer-slot);
+.chipAway {
+  color: var(--fc-brass-light);
+  background: radial-gradient(circle at 35% 30%, #6a5f55, var(--fc-ebony) 55%, #120f0c);
 }
 
-.actionChip {
-  transition:
-    border-color 120ms ease-out,
-    background-color 120ms ease-out;
+.spacer {
+  flex: 1;
 }
 
-.actionChip:focus-visible {
-  outline: 2px solid var(--ds-color-accent-cyan);
-  outline-offset: 2px;
+/* ---- Prematch ------------------------------------------------------------------ */
+
+.prematchBody {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(10px, 3vw, 32px);
 }
 
-.enter {
-  animation: enter 220ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+.sheet {
+  padding: 10px 14px;
 }
 
-@keyframes enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
+.sheetName {
+  margin: 0;
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/* The centre flash: up fast, then a long fade, as Flutter's controller does. */
-.flash {
-  animation: flash 1000ms linear both;
+.sheetMeta {
+  margin: 2px 0 8px;
+  font-size: 12px;
+  color: var(--fc-faint);
 }
 
-@keyframes flash {
+.versus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 2vh, 16px);
+  text-align: center;
+  max-width: 220px;
+}
+
+.vs {
+  font-family: var(--fc-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 30px;
+  color: var(--fc-brass-light);
+}
+
+.coin {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--fc-display);
+  font-weight: 900;
+  font-size: 22px;
+  color: #5c4415;
+  background: radial-gradient(circle at 35% 30%, #fff1c2, var(--fc-brass) 55%, #7d5d1e);
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 240, 200, 0.4),
+    0 6px 14px rgba(0, 0, 0, 0.4);
+  animation: coinFlip 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes coinFlip {
   0% {
-    opacity: 0;
-    transform: scale(0.9);
+    transform: rotateY(0) translateY(0);
   }
-  20% {
-    opacity: 1;
-    transform: scale(1);
+  45% {
+    transform: rotateY(900deg) translateY(-26px);
   }
   100% {
-    opacity: 0;
-    transform: scale(1);
+    transform: rotateY(1800deg) translateY(0);
   }
 }
 
-.toast {
-  animation: toast 2200ms linear both;
+.tossText {
+  margin: 0;
+  font-size: 13px;
+  color: var(--fc-paper);
+  animation: fadeIn 0.3s 1s both;
 }
 
-@keyframes toast {
-  0% {
-    opacity: 0;
-  }
-  12% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-/* A goal washes the whole board gold, then clears. */
-.goalFlash {
-  animation: goal-flash 590ms linear both;
-}
-
-@keyframes goal-flash {
+@keyframes fadeIn {
   from {
-    opacity: 0.5;
-  }
-  to {
     opacity: 0;
   }
 }
 
-.lobbyIn {
-  animation: enter 480ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
-  animation-delay: var(--lobby-delay, 0ms);
+/* ---- Result ----------------------------------------------------------------------- */
+
+.resultBody {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(12px, 4vw, 48px);
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.verdict {
+  margin: 0;
+  font-family: var(--fc-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(40px, 11vh, 84px);
+  line-height: 1;
+  color: var(--fc-brass-light);
+}
+
+.verdictLoss {
+  color: #e2b0a6;
+}
+
+.scoreLine {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 8px 0;
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: clamp(20px, 5vh, 32px);
+}
+
+.scoreLine span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(201, 162, 74, 0.16);
+  border: 1px solid var(--fc-line);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--fc-brass-light);
+}
+
+.statTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.statTable th,
+.statTable td {
+  padding: 5px 6px;
+  border-bottom: 1px solid rgba(201, 162, 74, 0.18);
+  text-align: center;
+}
+
+.statTable th {
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fc-brass);
+}
+
+.statTable td:first-child,
+.statTable th:first-child {
+  text-align: left;
+  color: var(--fc-faint);
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---- Record -------------------------------------------------------------------------- */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .tile {
-  transition:
-    background-color 160ms ease-out,
-    border-color 160ms ease-out;
+  padding: 8px 10px;
+  border-radius: 10px;
 }
 
-.tile:hover {
-  border-color: color-mix(in srgb, var(--ds-color-accent-gold) 70%, transparent);
+.tileValue {
+  display: block;
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: clamp(20px, 5vh, 30px);
+  line-height: 1.1;
+  color: var(--fc-paper);
 }
 
-.tile:focus-visible {
-  outline: 2px solid var(--ds-color-accent-gold);
-  outline-offset: 2px;
+.tileLabel {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fc-brass);
 }
 
-.statusDot {
-  box-shadow: 0 0 8px color-mix(in srgb, var(--ds-color-accent-gold) 80%, transparent);
-}
-
-/* ---- Desktop --------------------------------------------------------------- */
-
-/*
- * A phone keeps the board portrait, as the app draws it: the player's goal
- * nearest the reader, attacking away.
- */
-@media (width >= 48rem) {
-  .pitch {
-    width: min(100%, calc((100dvh - var(--chess-chrome)) / 2), 400px);
-  }
-}
-
-/*
- * A wide screen turns the pitch a quarter clockwise. The room on a desktop is
- * horizontal, and a portrait board there is a tall strip in a sea of nothing —
- * so the player's goal moves to the left and they attack rightwards, the way a
- * televised pitch is framed.
- *
- * Nothing about the game changes. The engine still speaks in columns and rows,
- * every square keeps its own coordinates and its spoken label, and all that is
- * swapped is which grid line a cell lands on.
- */
-@media (width >= 64rem) {
-  .pitch {
-    /* Four playing columns plus a keeper column at each end, over three rows. */
-    width: min(100%, calc((100dvh - var(--chess-chrome)) * 2), 1040px);
-    /* Depth follows the rotation: the opponent's end stays the lit one, which
-       is now the right rather than the top. */
-    background: linear-gradient(
-      to left,
-      var(--chess-turf-far) 0%,
-      var(--chess-turf-mid) 50%,
-      var(--chess-turf-near) 100%
-    );
-    /* `reverse` puts the player's end first, so they attack toward the
-       opponent's goal on the right. */
-    flex-direction: row-reverse;
-    aspect-ratio: 6 / 3;
-  }
-
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-  }
-
-  .square {
-    grid-column: var(--sq-wide-col);
-    grid-row: var(--sq-wide-row);
-  }
-
-  /* The keeper strip is a column now: three rows, keeper in the middle. */
-  .goalRow {
-    grid-template-columns: none;
-    grid-template-rows: repeat(3, 1fr);
-    justify-items: center;
-  }
-
-  .keeperCell {
-    width: 100%;
-    grid-row: 2;
-    grid-column: 1;
-  }
-
-  /* The goal line stands upright on the inner edge of its strip. */
-  .goal {
-    top: 50%;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    width: 6px;
-    height: 30%;
-    translate: 0 -50%;
-  }
-
-  .goalFar {
-    left: 0;
-  }
-
-  .goalNear {
-    right: 0;
-  }
-
-  /* Halfway runs down the pitch rather than across it. */
-  .halfway {
-    top: 0;
-    right: auto;
-    bottom: 0;
-    left: 50%;
-    border-top: none;
-    border-left: 1.5px solid
-      color-mix(in srgb, var(--ds-color-accent-cyan) 22%, transparent);
-  }
-
-  .centreCircle {
-    /* Sized off the shorter side, so it still reads as a circle. */
-    width: auto;
-    height: 38%;
-  }
-
-  .arrowTall {
-    display: none;
-  }
-
-  .arrowWide {
-    display: block;
-  }
-}
-
-
-/* ---- The coin -------------------------------------------------------------- */
-
-.coin {
+.recordBody {
+  flex: 1;
+  min-height: 0;
   display: grid;
-  width: 88px;
-  aspect-ratio: 1;
-  border: 3px solid;
-  border-radius: 50%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.history {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  min-height: 0;
+}
+
+.historyList {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.historyRow {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  border-bottom: 1px solid rgba(201, 162, 74, 0.14);
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-grid;
   place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--fc-ink);
 }
 
-.coinSpin {
-  animation: coin-spin 1500ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+.badgeW {
+  background: #b9d48a;
 }
 
-@keyframes coin-spin {
-  from {
-    transform: rotateY(0deg);
+.badgeD {
+  background: var(--fc-muted);
+}
+
+.badgeL {
+  background: #e2a297;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+  font-size: 12px;
+  color: var(--fc-faint);
+}
+
+.empty {
+  margin: auto 0;
+  text-align: center;
+  color: var(--fc-faint);
+  font-size: 13px;
+}
+
+/* ---- Overlays (rules, menu) ------------------------------------------------------------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+  background: rgba(14, 9, 5, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.sheetDialog {
+  display: flex;
+  flex-direction: column;
+  width: min(760px, 100%);
+  max-height: 100%;
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+.dialogHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dialogTitle {
+  flex: 1;
+  margin: 0;
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: 21px;
+}
+
+.rulesPage {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px 14px;
+  align-content: start;
+}
+
+.rule {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.ruleTitle {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--fc-paper);
+}
+
+.ruleBody {
+  margin: 1px 0 0;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--fc-faint);
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(201, 162, 74, 0.3);
+}
+
+.dot[data-on] {
+  background: var(--fc-brass-light);
+}
+
+.menuDialog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(340px, 100%);
+  padding: 14px;
+}
+
+.menuDialog .button {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* ---- Short and narrow screens ------------------------------------------------------------- */
+
+@media (max-height: 430px) {
+  .screen {
+    gap: 6px;
   }
-  to {
-    transform: rotateY(1800deg);
+
+  .header {
+    min-height: 40px;
+  }
+
+  .headerTitle {
+    font-size: 19px;
+  }
+
+  .hubCard {
+    min-height: 46px;
+    padding: 5px 12px;
+  }
+
+  .squadRow {
+    min-height: 24px;
+  }
+
+  .historyRow {
+    min-height: 30px;
+  }
+}
+
+@media (orientation: portrait) {
+  .hubBody,
+  .setupBody,
+  .resultBody,
+  .recordBody {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    overflow: auto;
+  }
+
+  .prematchBody {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    overflow: auto;
+  }
+
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin,
+  .tossText {
+    animation: none;
   }
 }

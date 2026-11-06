@@ -61,7 +61,50 @@ game.
   shake on your own arrows.
 - **Bullseye:** a predicted 10 plays in slow motion behind the arrow. Tapping skips it, and skipping never changes
   the result.
-- **Reduce motion** (pause menu): turns off shake, flashes, slow motion and the arrow trail.
+- **Reduce motion** (pause menu): turns off shake, flashes, slow motion, the arrow trail and cloud drift.
+
+## Graphics
+
+The renderer only draws the engine state and never changes it. `renderer.ts` (`LongbowView`) coordinates the
+modules in `render/`:
+
+| Module | What it draws |
+|---|---|
+| `sky.ts` | Original sky shader: gradient, horizon haze, sun glow and disc, drifting clouds. It also bakes the sky into the environment map that lights every material. |
+| `post.ts` | High tier only: depth of field, the bow overlay, bloom, a per-range colour grade and the final output. Also the low tier's one-quad vignette. |
+| `quality.ts` | The two tiers and the frame-time watch. |
+| `target.ts`, `bow.ts`, `arrows.ts`, `scenery.ts` | Target rig, first-person bow, arrows and range scenery. |
+| `textures.ts` | Canvas-generated textures: target face, straw, distance sign, contact shadows. |
+| `common.ts` | Shared helpers and `LOOKS`, the art direction for each range: sky, sun direction and colour, fog, light and grade. |
+
+**Light per range**
+- **Meadow:** late morning.
+- **Pinewood:** cool mist.
+- **Red Canyon:** warm late-afternoon sun behind the archer, so the canyon walls throw their shadows along the sides
+  and not across the lane.
+
+The sun's shadow map is fitted to the whole field, from the archer to the backstop, in `fitShadow`. Every prop also
+gets a soft contact-shadow decal, so it sits on the ground even without shadow maps.
+
+**Depth of field**
+- **Drawing:** focuses on the target and softens the rest as the bow comes to full draw.
+- **Impact close-up:** blurs the backstop behind the target.
+- **Slow-motion arrow camera:** blurs everything but the arrow.
+
+**Quality tiers**
+
+| | High (desktop) | Low (phones) |
+|---|---|---|
+| Chosen when | Default | Coarse pointer, or a short side under 500 px |
+| Pixel ratio | ≤ 1.6 | ≤ 1.25 |
+| Shadows | 2048 px PCF map fitted to the lane | Contact shadows only |
+| Post-processing | Depth of field, bloom, grade, 4× MSAA | Vignette quad |
+
+- A high-tier session drops to low if frames average over 22 ms for 3 s. This is judged by wall-clock time, not the
+  game's time step.
+- QA can force a tier by setting `window.__LONGBOW_QUALITY__ = 'high' | 'low'` before the game boots. A forced tier
+  never drops.
+- `__LONGBOW_INSPECT__.view()` reports the tier, draw calls and triangles for the whole frame.
 
 ## Simulation and saves
 
@@ -104,8 +147,12 @@ All third-party runtime files are **CC0**, and each was checked on its original 
   about 2,400–3,000 triangles each. Colour textures were cut to 512 px and normal maps to 256 px. For foliage, the
   separate alpha map was merged into a PNG.
 - **Audio:** the freesound previews are unchanged. The game plays measured slices of them.
-- **Everything else is original:** the bow, arrows, target faces, straw boss, stands and rigs, flags, trees, hay
-  bales, mesas, sky and the synthesized creak, thud and chimes.
+- **Everything else is original:**
+  - the bow, arrows, target faces, straw boss, stands and rigs, flags, trees, hay bales and mesas;
+  - the sky and cloud shader, contact shadows and post-processing shaders;
+  - the synthesized creak, thud and chimes.
+
+  The post-processing chain uses three.js's own addons (MIT, covered by the three.js licence notice).
 - **No runtime downloads:** the offline bundle (about 4.7 MB, including the cover) embeds every asset, so nothing is fetched remotely.
 - **Kenney:** its site blocked automated downloads, so no Kenney assets are used.
 
@@ -116,6 +163,8 @@ npm run test:longbow          # engine, levels, AI, saves, registry, asset prove
 npm run build:longbow         # writes public/embedded-games/longbow/index.html
 npm run preview:longbow       # http://127.0.0.1:5256/fixture?account=qa
 npm run test:longbow:browser  # fixture host + Chrome; evidence in test-results/longbow/
+node tests/longbow-gallery.browser.mjs [--out=dir]   # all three ranges, desktop and phone, with draw calls,
+                                                      # frame times and console warnings; default test-results/longbow-gallery/
 npm run build:pages && npm run test:longbow:app   # exported product route; evidence in test-results/longbow-app/
 ```
 

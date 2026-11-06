@@ -20,7 +20,13 @@ const eslintConfig = defineConfig([
     "vendor/vibebasketball/**",
     "vendor/websoccer/**",
     "vendor/open-golf/**",
+    // Isolated supplied portfolio game; checked with its own TypeScript project.
+    "vendor/portfolio-formula/**",
+    "vendor/holdover/**",
+    "vendor/hoop-legacy/**",
     "vendor/final-third/dist/**",
+    // Vendored UI UX Pro Max skill tooling (see .codex/skills/THIRD_PARTY_NOTICES.md).
+    ".codex/skills/{banner-design,brand,design,design-system,slides,ui-styling,ui-ux-pro-max}/**",
     ".cache/vibe-*/**",
     ".cache/vibe-*.mjs",
     ".cache/removed-exports/**",

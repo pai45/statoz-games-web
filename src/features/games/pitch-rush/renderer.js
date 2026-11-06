@@ -13,6 +13,7 @@ export class Renderer extends OriginalRenderer {
   constructor(canvas) {super(canvas);this.pitch = buildPitch();this.poses = new Map();}
 
   drawPlayer(ctx, state, t, i, p) {
+    if(state.training&&p.down>9999)return;
     const key = t * 100 + i;
     let pose = this.poses.get(key);
     if (!pose || pose.player !== p) {pose = {player: p, x: p.x, y: p.y, distance: 0, kickUntil: 0, charging: false, cooldown: 0};this.poses.set(key, pose);}
@@ -28,7 +29,7 @@ export class Renderer extends OriginalRenderer {
     if (controlled) {ctx.strokeStyle = '#fff8e8';ctx.lineWidth = 2;ctx.beginPath();ctx.ellipse(p.x, p.y, 14, 14, 0, 0, Math.PI * 2);ctx.stroke();}
     drawFigure(ctx, {team: i === 0 ? (t ? 'keeperDark' : 'keeperYellow') : (t ? 'red' : 'blue'),
       tone: (i * 3 + t) % 5, x: p.x, y: p.y, heading: Math.atan2(p.dirY, p.dirX),
-      stride: pose.distance, speed: Math.hypot(p.vx, p.vy), kick: clamp((pose.kickUntil - state.tick) / 10, 0, 1), slide: p.slide > 0, down: p.down > 0});
+      stride: pose.distance, speed: Math.hypot(p.vx, p.vy), kick: clamp((pose.kickUntil - state.tick) / 10, 0, 1), slide: p.slide > 0, down: p.down > 0,kit:t===0?state.cosmetics?.kit:'blue'});
     if (controlled) {
       ctx.fillStyle = colours[t];ctx.strokeStyle = '#fff8e8';ctx.lineWidth = 1.5;ctx.beginPath();ctx.moveTo(p.x, p.y - 16);ctx.lineTo(p.x - 4, p.y - 23);ctx.lineTo(p.x + 4, p.y - 23);ctx.closePath();ctx.fill();ctx.stroke();
       if (p.charging && p.charge > 0) {panel(ctx, p.x - 13, p.y + 17, 26, 4, '#234839');panel(ctx, p.x - 13, p.y + 17, 26 * clamp(p.charge / CHARGE_MAX, 0, 1), 4, '#f4c94e');}
@@ -59,7 +60,7 @@ export class Renderer extends OriginalRenderer {
     const sx = w / WORLD_W, sy = h / WORLD_H;
     ctx.strokeStyle = '#d9ecd4';ctx.lineWidth = 1;ctx.strokeRect(x + FIELD.left * sx, y + FIELD.top * sy, (FIELD.right - FIELD.left) * sx, FIELD_H * sy);
     ctx.beginPath();ctx.moveTo(x + FIELD.left * sx, y + FIELD.cy * sy);ctx.lineTo(x + FIELD.right * sx, y + FIELD.cy * sy);ctx.stroke();
-    for (let t = 0; t < 2; t++) for (const p of state.teams[t].players) {ctx.fillStyle = t ? '#ff9d8d' : '#8bd5ff';ctx.beginPath();ctx.arc(x + p.x * sx, y + p.y * sy, 1.8, 0, Math.PI * 2);ctx.fill();}
+    for (let t = 0; t < 2; t++) for (const p of state.teams[t].players) {if(state.training&&p.down>9999)continue;ctx.fillStyle = t ? '#ff9d8d' : '#8bd5ff';ctx.beginPath();ctx.arc(x + p.x * sx, y + p.y * sy, 1.8, 0, Math.PI * 2);ctx.fill();}
     ctx.fillStyle = '#fff8e8';ctx.beginPath();ctx.arc(x + state.ball.x * sx, y + state.ball.y * sy, 2, 0, Math.PI * 2);ctx.fill();
     ctx.strokeStyle = '#ffffff9c';ctx.strokeRect(x + (this.cam.x - this.canvas.width / 2.7) * sx, y + (this.cam.y - this.canvas.height / 2.7) * sy, this.canvas.width / 1.35 * sx, this.canvas.height / 1.35 * sy);
   }

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
 import { accentVar, Button, GridViewIcon } from "@/design-system";
+import { GamePlayFeedback } from "@/features/device-assets";
 import { gameSportModuleFor } from "@/domain/game-sports";
 import { gameRegistry, gameSportFor } from "@/mocks/games";
 import { publicAsset } from "@/shared/config";
@@ -172,7 +173,7 @@ export function GameCoverflow({ games, label, onViewAll }: { games: GameId[]; la
 function PlayButton({ game }: { game: GameId }) {
   const entry = gameRegistry[game];
   const launch = useGameLaunch(entry);
-  return <Button variant="solid" size="md" glow accent={accentVar(entry.accent)} href={launch.href} onClick={launch.onClick} label={`Play ${entry.title}`}>PLAY</Button>;
+  return <div><Button variant="solid" size="md" glow accent={accentVar(entry.accent)} href={launch.href} prefetch={false} onClick={launch.onClick} pending={launch.pending} label={launch.state ? `${launch.label} — ${entry.title}` : `Play ${entry.title}`}><span aria-live="polite">{launch.state ? launch.label : "PLAY"}</span></Button><GamePlayFeedback game={game} /></div>;
 }
 
 /** `position` is the card's place in slots from the centre (fractional mid-drag); `fade` hides the outermost cards. */
@@ -193,6 +194,6 @@ function CoverCard({ game, centre, position, fade, onSelect }: { game: GameId; c
   </>;
   if (!centre) return <button type="button" className={className} style={style} aria-label={`Show ${entry.title}`} tabIndex={-1} onClick={onSelect}>{body}</button>;
   return launch.href
-    ? <Link href={launch.href} className={className} style={style} aria-label={`Play ${entry.title}`} draggable={false} data-centre="">{body}</Link>
-    : <button type="button" className={className} style={style} aria-label={`Play ${entry.title}`} onClick={launch.onClick} data-centre="">{body}</button>;
+    ? <Link href={launch.href} prefetch={false} onClick={launch.onClick} className={className} style={style} aria-label={launch.state ? `${launch.label} — ${entry.title}` : `Play ${entry.title}`} aria-busy={launch.pending || undefined} aria-disabled={launch.pending || undefined} draggable={false} data-centre="">{body}</Link>
+    : <button type="button" className={className} style={style} aria-label={launch.state ? `${launch.label} — ${entry.title}` : `Play ${entry.title}`} disabled={launch.pending} onClick={launch.onClick} data-centre="">{body}</button>;
 }

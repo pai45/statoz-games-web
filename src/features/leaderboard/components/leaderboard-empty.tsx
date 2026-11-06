@@ -37,9 +37,9 @@ function configFor(type: LeaderboardType): EmptyConfig {
     case "games":
       return {
         icon: <GameIcon size={48} />,
-        title: "NO GAME SCORES YET",
-        body: "Play a game mode to claim your first rank.",
-        cta: "PLAY GAME",
+        title: "NO HIGH SCORES YET",
+        body: "Nobody has played this cabinet yet. Set the score to beat.",
+        cta: "▶ PRESS START",
         href: "/",
       };
   }
@@ -48,11 +48,14 @@ function configFor(type: LeaderboardType): EmptyConfig {
 export function LeaderboardEmpty({
   type,
   accent,
+  href,
 }: {
   type: LeaderboardType;
   accent: string;
+  /** Where the call to action leads, when the board knows its game. */
+  href?: string;
 }) {
-  const config = configFor(type);
+  const config = { ...configFor(type), ...(href ? { href } : {}) };
 
   return (
     <div className="flex flex-col items-center px-8 py-8 text-center">

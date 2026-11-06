@@ -20,6 +20,8 @@ import { loginHref, signOut, useAuthSession } from "@/features/auth";
 
 import { ProfileOverlay } from "./profile-overlay";
 import styles from "./profile.module.css";
+import { TimeZoneCard } from "./time-zone-card";
+import { useProfileIdentity } from "../state/profile-identity";
 
 /**
  * The utility rows that close the dossier, and the settings sheet behind the
@@ -126,8 +128,9 @@ function NavRow({
 
 /* ---- Settings -------------------------------------------------------------- */
 
-function SettingsSheet({ onClose }: { onClose: () => void }) {
+export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const session = useAuthSession();
+  const identity = useProfileIdentity();
   const [confirming, setConfirming] = useState(false);
 
   if (confirming) {
@@ -140,6 +143,7 @@ function SettingsSheet({ onClose }: { onClose: () => void }) {
       icon={<SettingsIcon size={17} />}
       onClose={onClose}
     >
+      <div className="p-4"><TimeZoneCard selectedId={identity.timeZoneId} /></div>
       {session.status === "guest" ? (
         <div className="p-4"><NavLink icon={<SettingsIcon size={20} />} label="Save progress â€” Log in / Create account" href={loginHref("/profile")} /></div>
       ) : <button

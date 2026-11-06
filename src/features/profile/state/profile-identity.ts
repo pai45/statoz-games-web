@@ -6,6 +6,7 @@ import type { Sport } from "@/domain/sports";
 import { randomPlayerTag } from "@/shared/utils";
 
 import type { ProfileIdentity } from "../types";
+import { parseProfilePreferences, type ProfilePreferences } from "./profile-preferences";
 
 /**
  * Who the player is, kept in this browser.
@@ -69,6 +70,7 @@ function parse(raw: string): ProfileIdentity {
   }
 
   return {
+    ...parseProfilePreferences(record),
     displayName: typeof record.displayName === "string" ? record.displayName.trim() : "",
     avatarId: typeof record.avatarId === "string" ? record.avatarId : "",
     bannerId: typeof record.bannerId === "string" ? record.bannerId : "",
@@ -124,14 +126,15 @@ function subscribe(onChange: () => void): () => void {
   };
 }
 
-function write(next: ProfileIdentity): void {
+function write(next: ProfileIdentity): boolean {
   try {
     window.localStorage.setItem(storageKey, JSON.stringify(next));
   } catch {
-    // Storage may be full or blocked; the edit is lost, the session is not.
+    return false;
   }
   cachedRaw = null;
   for (const listener of listeners) listener();
+  return true;
 }
 
 /** Merges a partial edit into what is already stored. */
@@ -189,6 +192,11 @@ export function saveAvatar(avatarId: string): void {
 
 export function saveBanner(bannerId: string): void {
   patch({ bannerId });
+}
+
+/** One identity write for the Locker, without touching XP or game saves. */
+export function saveHubPreferences(changes: ProfilePreferences & Partial<Pick<ProfileIdentity, "avatarId" | "bannerId">>): boolean {
+  return write({ ...getSnapshot(), ...changes });
 }
 
 export function saveTimeZone(timeZoneId: string): void {

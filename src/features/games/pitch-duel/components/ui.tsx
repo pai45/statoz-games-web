@@ -2,8 +2,36 @@
 
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
-import { ChevronsIcon, CloseIcon } from "./icons";
+import { setSound, usePitchDuelCareer } from "../state/progress";
+
+import { useSound } from "./audio";
+import { ChevronsIcon, CloseIcon, SpeakerIcon } from "./icons";
 import styles from "./pitch-duel.module.css";
+
+/** Sound on or off, saved with the career. */
+export function SoundToggle({ className }: { className?: string }) {
+  const on = usePitchDuelCareer().settings.sound;
+  const sound = useSound();
+  return (
+    <button
+      type="button"
+      className={className ?? styles.soundButton}
+      aria-pressed={on}
+      aria-label={on ? "Sound on. Mute" : "Sound off. Unmute"}
+      onClick={() => {
+        setSound(!on);
+        sound.setEnabled(!on);
+        // Unmuting is itself a tap, so sound can start right here.
+        if (!on) {
+          sound.unlock();
+          sound.tap();
+        }
+      }}
+    >
+      <SpeakerIcon off={!on} />
+    </button>
+  );
+}
 
 export type PillTone = "violet" | "green" | "red" | "blue" | "grey" | "light";
 

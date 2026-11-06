@@ -159,7 +159,7 @@ export function BingoHome({
               <Glyph name="chevron_right" size={22} />
             </span>
           </button>
-          <div className="mt-3.5"><GameLeaderboardCta sport="football" gameId="football-bingo" /></div>
+          <div className="mt-3.5"><GameLeaderboardCta gameId="football-bingo" /></div>
         </div>
       </div>
         <DailyDrop sport="football" />

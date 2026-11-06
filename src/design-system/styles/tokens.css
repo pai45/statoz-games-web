@@ -3,6 +3,14 @@
 :root {
   color-scheme: dark;
 
+  /* Shared console dashboard composition; paired with tokens/dashboard.ts. */
+  --ds-dashboard-max-width: 100rem;
+  --ds-dashboard-header-height: 4rem;
+  --ds-dashboard-compact-header-height: 3rem;
+  --ds-dashboard-gutter: clamp(1rem, 4vw, 4rem);
+  --ds-dashboard-cover-width: clamp(9rem, 14vw, 13rem);
+  --ds-dashboard-transition: 220ms;
+
   /* Backgrounds */
   --ds-color-background-primary: #0d111a;
   --ds-color-background-secondary: #0f172b;

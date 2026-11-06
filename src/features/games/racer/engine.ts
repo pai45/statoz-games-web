@@ -1,55 +1,10 @@
 ﻿/** Authored arcade simulation. Positive steering always means screen-right. */
-import {circuitPoints} from './circuit';
 import {REFERENCE,steeringAuthority,torqueAtRpm,transmission} from './reference';
 export const LAPS=2,GRID_SIZE=20,ROAD_HALF=7.8,STEP=1/120;
-const TAU=Math.PI*2;
-export const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
-const wrap=(n:number,m:number)=>(n%m+m)%m;
-export const angle=(n:number)=>wrap(n+Math.PI,TAU)-Math.PI;
-export const angleLerp=(a:number,b:number,t:number)=>a+angle(b-a)*t;
-export const damp=(a:number,b:number,rate:number,dt:number)=>a+(b-a)*(1-Math.exp(-rate*dt));
-const points=circuitPoints;
-type Vec={x:number;z:number};
-function spline(t:number):Vec{
- const index=Math.floor(t),u=t-index,p0=points[wrap(index-1,points.length)],p1=points[wrap(index,points.length)],p2=points[wrap(index+1,points.length)],p3=points[wrap(index+2,points.length)];
- const value=(axis:number)=>.5*((2*p1[axis])+(-p0[axis]+p2[axis])*u+(2*p0[axis]-5*p1[axis]+4*p2[axis]-p3[axis])*u*u+(-p0[axis]+3*p1[axis]-3*p2[axis]+p3[axis])*u*u*u);
- return{x:value(0),z:value(1)};
-}
-const SAMPLES=2400;
-const sampled=Array.from({length:SAMPLES+1},(_,i)=>{const t=i/SAMPLES*points.length,p=spline(t),before=spline(t-.0001),after=spline(t+.0001);return{...p,distance:0,heading:Math.atan2(after.x-before.x,after.z-before.z)};});
-for(let i=1;i<sampled.length;i++)sampled[i].distance=sampled[i-1].distance+Math.hypot(sampled[i].x-sampled[i-1].x,sampled[i].z-sampled[i-1].z);
-// Move the timing stripe along Hamilton Straight so all ten grid rows sit on
-// the straight, rather than wrapping the rear rows into the preceding bend.
-const first=sampled.findIndex(p=>p.distance>=60);
-export const track=[...sampled.slice(first,-1),...sampled.slice(0,first+1)].map(p=>({...p,distance:0}));
-for(let i=1;i<track.length;i++)track[i].distance=track[i-1].distance+Math.hypot(track[i].x-track[i-1].x,track[i].z-track[i-1].z);
-export const TRACK_LENGTH=track.at(-1)!.distance;
-export function at(distance:number,lane=0){
- const d=wrap(distance,TRACK_LENGTH);let lo=0,hi=track.length-1;
- while(hi-lo>1){const mid=(hi+lo)>>1;if(track[mid].distance<=d)lo=mid;else hi=mid;}
- const a=track[lo],b=track[hi],t=(d-a.distance)/(b.distance-a.distance),heading=angleLerp(a.heading,b.heading,t),nx=-Math.cos(heading),nz=Math.sin(heading);
- return{x:a.x+(b.x-a.x)*t+nx*lane,z:a.z+(b.z-a.z)*t+nz*lane,nx,nz,heading};
-}
-export function cornerSpeed(progress:number){
- let curvature=.001;
- for(let d=0;d<=42;d+=6)curvature=Math.max(curvature,Math.abs(angle(at(progress+d+10).heading-at(progress+d).heading))/10);
- return clamp(1.05/curvature,10,49);
-}
-export function project(x:number,z:number,hint?:number){
- let best=Infinity,index=0,fraction=0;
- let centre=0;
- if(hint!==undefined){const distance=wrap(hint,TRACK_LENGTH);let lo=0,hi=SAMPLES;while(hi-lo>1){const mid=(hi+lo)>>1;if(track[mid].distance<=distance)lo=mid;else hi=mid;}centre=lo;}
- const radius=hint===undefined?SAMPLES:40;
- for(let n=hint===undefined?0:-radius;n<(hint===undefined?SAMPLES:radius+1);n++){
-  const i=hint===undefined?n:wrap(centre+n,SAMPLES);
-  if(hint!==undefined&&Math.abs(angle((track[i].distance-hint)/TRACK_LENGTH*TAU))*TRACK_LENGTH/TAU>8)continue;
-  const a=track[i],b=track[i+1],dx=b.x-a.x,dz=b.z-a.z,len2=dx*dx+dz*dz,t=clamp(((x-a.x)*dx+(z-a.z)*dz)/len2,0,1),px=a.x+dx*t,pz=a.z+dz*t,dist=(x-px)**2+(z-pz)**2;
-  if(dist<best){best=dist;index=i;fraction=t;}
- }
- if(hint!==undefined&&best>400)return project(x,z);
- const a=track[index],b=track[index+1],dx=b.x-a.x,dz=b.z-a.z,px=a.x+dx*fraction,pz=a.z+dz*fraction,length=Math.hypot(dx,dz);
- return{distance:a.distance+(b.distance-a.distance)*fraction,lane:((z-pz)*dx-(x-px)*dz)/length,heading:angleLerp(a.heading,b.heading,fraction),x:px,z:pz};
-}
+import {angle,angleLerp,clamp,damp,wrap,TAU} from './math';
+import {CAR_HALF_WIDTH,circuitFor,defaultCircuit,type CircuitRuntime} from './geometry';
+export {angle,angleLerp,clamp,damp} from './math';
+export * from './geometry';
 export type Input={steer:number;brake:boolean;boost:boolean;gas:boolean;lookBack?:boolean};
 export const emptyInput=():Input=>({steer:0,brake:false,boost:false,gas:false});
 export type Chassis='race'|'race-future';
@@ -64,69 +19,7 @@ export type RaceEvent=
  |{type:'lap';lap:number;time:number;best:boolean}
  |{type:'final-lap'}
  |{type:'reset'};
-export type Race={player:Car;opponents:Car[];time:number;countdown:number;boost:number;boosting:boolean;slipstream:boolean;finished:boolean;finishTime:number;hits:number;contactCooldown:number;checkpoints:number;nextCheckpoint:number;lastDistance:number;lapStart:number;lapTimes:number[];offroad:boolean;recovery:number;overtakes:number;previousPosition:number;lap:number;wrongWay:boolean;wrongWayTime:number;difficulty:Difficulty;events:RaceEvent[];launch:'none'|'perfect'|'jumped';launchHeld:number;wheelspin:number;kerb:boolean;skid:number;bestLap:number|null;bestPosition:number};
-export const GATES_PER_LAP=Math.ceil(TRACK_LENGTH/24),GATE_SPACING=TRACK_LENGTH/GATES_PER_LAP;
-export const waypoints=Array.from({length:GATES_PER_LAP},(_,i)=>({distance:i*GATE_SPACING,...at(i*GATE_SPACING),targetSpeed:cornerSpeed(i*GATE_SPACING)}));
-/** Racing line: lateral offset from the centreline, sampled every 2 m. A centred "Mexican hat" filter over
- * signed curvature puts cars on the outside before a corner, the inside at the apex and back out on exit. */
-const LINE_STEP=2,LINE_SAMPLES=Math.ceil(TRACK_LENGTH/LINE_STEP),LINE_LIMIT=5.4;
-const lineCurvature=Array.from({length:LINE_SAMPLES},(_,i)=>angle(at(i*LINE_STEP+4).heading-at(i*LINE_STEP-4).heading)/8);
-/** Strongest signed curvature within +/-8 m of each sample (used to keep lanes drivable). */
-const peakCurvature=lineCurvature.map((_,i)=>{let k=0;for(let j=-4;j<=4;j++){const c=lineCurvature[wrap(i+j,LINE_SAMPLES)];if(Math.abs(c)>Math.abs(k))k=c;}return k;});
-/** Never aim further inside a bend than its radius allows (keeps a turning radius of at least ~9 m). */
-export function drivableLane(distance:number,lane:number){
- const k=peakCurvature[Math.round(wrap(distance,TRACK_LENGTH)/LINE_STEP)%LINE_SAMPLES];
- return lane*k<0?Math.sign(lane)*Math.min(Math.abs(lane),Math.max(0,1/Math.max(Math.abs(k),1e-4)-9)):lane;
-}
-export const racingLine=(()=>{
- const sigma=15,reach=26,raw=lineCurvature.map((_,i)=>{let sum=0;for(let j=-reach;j<=reach;j++){const s=j*LINE_STEP/sigma;sum+=lineCurvature[wrap(i+j,LINE_SAMPLES)]*(1-s*s)*Math.exp(-s*s/2);}return-sum;});
- const sorted=raw.map(Math.abs).sort((a,b)=>a-b),scale=LINE_LIMIT/(sorted[Math.floor(sorted.length*.95)]||1);
- const line=raw.map(v=>clamp(v*scale,-LINE_LIMIT,LINE_LIMIT));
- // Light smoothing removes kinks where neighbouring corners overlap.
- return line.map((_,i)=>{let sum=0;for(let j=-3;j<=3;j++)sum+=line[wrap(i+j,LINE_SAMPLES)];return drivableLane(i*LINE_STEP,sum/7);});
-})();
-export function lineAt(distance:number){const d=wrap(distance,TRACK_LENGTH)/LINE_STEP,i=Math.floor(d),t=d-i;return racingLine[i%LINE_SAMPLES]*(1-t)+racingLine[(i+1)%LINE_SAMPLES]*t;}
-/** Circuit boundary: a continuous barrier line on each side, sampled every 2 m and shared by the
- * physics and the renderer. Concrete wall and catch fence on the start/finish straight, a tyre wall
- * behind the gravel on the outside of slow corners, guardrail everywhere else. Where two parts of the
- * circuit run close together the wall moves to the midline between them. */
-export type WallKind='rail'|'tyres'|'concrete'|'none';
-/** Barrier-free lane used where a hairpin apex has a grass island instead of a wall. */
-const NO_WALL=40;
-export const CAR_HALF_WIDTH=1.05,WALL_STEP=2,WALL_SAMPLES=LINE_SAMPLES;
-const curvatureAt=(d:number)=>lineCurvature[Math.round(wrap(d,TRACK_LENGTH)/LINE_STEP)%LINE_SAMPLES];
-export const outsideBend=(d:number,side:number)=>{let k=0;for(let s=-24;s<=24;s+=8)k=Math.max(k,-curvatureAt(d+s)*side);return k>.045;};
-const onMainStraight=(d:number)=>wrap(d+125,TRACK_LENGTH)<150;
-export const walls=(()=>{
- const CELL=12,cells=new Map<string,number[]>();
- for(let i=0;i<track.length-1;i+=2){const p=track[i],key=Math.floor(p.x/CELL)+','+Math.floor(p.z/CELL);if(!cells.has(key))cells.set(key,[]);cells.get(key)!.push(i);}
- const nearestDistance=(x:number,z:number)=>{let best=Infinity,distance=NaN;const cx=Math.floor(x/CELL),cz=Math.floor(z/CELL);for(let a=-3;a<=3;a++)for(let b=-3;b<=3;b++)for(const i of cells.get((cx+a)+','+(cz+b))??[]){const d2=(track[i].x-x)**2+(track[i].z-z)**2;if(d2<best){best=d2;distance=track[i].distance;}}return distance;};
- const build=(side:number)=>{
-  const kind:WallKind[]=[],base:number[]=[];
-  for(let i=0;i<WALL_SAMPLES;i++){const d=i*WALL_STEP;kind.push(onMainStraight(d)?'concrete':outsideBend(d,side)?'tyres':'rail');base.push(kind[i]==='concrete'?12.5:kind[i]==='tyres'?22:14.5);}
-  const eased=base.map((_,i)=>{let sum=0;for(let j=-6;j<=6;j++)sum+=base[wrap(i+j,WALL_SAMPLES)];return sum/13;});
-  const lanes=eased.map((target,i)=>{
-   const d=i*WALL_STEP,k=peakCurvature[i];let lane=target;
-   // Inside a bend the wall cannot sit beyond the bend's own centre.
-   if(side*k<0)lane=Math.min(lane,Math.max(9.6,.8/Math.max(Math.abs(k),1e-4)));
-   // Stop short of the midline to any other part of the circuit.
-   for(let l=9.5;l<=lane;l+=.5){const p=at(d,side*l),other=nearestDistance(p.x,p.z);if(Number.isNaN(other))continue;const gap=Math.abs(wrap(other-d+TRACK_LENGTH/2,TRACK_LENGTH)-TRACK_LENGTH/2);if(gap>35){lane=Math.max(9.6,l-1.5);break;}}
-   return lane;
-  });
-  // Remove single-sample notches, then soften the joins.
-  const opened=lanes.map((_,i)=>{let m=Infinity;for(let j=-2;j<=2;j++)m=Math.min(m,lanes[wrap(i+j,WALL_SAMPLES)]);return m;});
-  const smooth=opened.map((_,i)=>{let sum=0;for(let j=-2;j<=2;j++)sum+=opened[wrap(i+j,WALL_SAMPLES)];return Math.max(9.6,sum/5);});
-  // Hairpin apexes tighter than the minimum wall offset would fold the barrier across the road:
-  // leave a grass island there (no barrier), widened by one sample either side.
-  const fold=smooth.map((lane,i)=>{const p=at(i*WALL_STEP,side*lane),q=project(p.x,p.z);return Math.abs(q.lane)<9.2&&Math.abs(wrap(q.distance-i*WALL_STEP+TRACK_LENGTH/2,TRACK_LENGTH)-TRACK_LENGTH/2)>4;});
-  fold.forEach((f,i)=>{if(f||fold[wrap(i-1,WALL_SAMPLES)]||fold[wrap(i+1,WALL_SAMPLES)]){kind[i]='none';}});
-  return{kind,lanes:smooth.map((lane,i)=>kind[i]==='none'?NO_WALL:lane)};
- };
- return{left:build(-1),right:build(1)};
-})();
-/** Distance from the centreline to the barrier face on one side (positive), interpolated. */
-export function wallLane(distance:number,side:number){const w=(side>0?walls.right:walls.left).lanes,d=wrap(distance,TRACK_LENGTH)/WALL_STEP,i=Math.floor(d),t=d-i;return w[i%WALL_SAMPLES]*(1-t)+w[(i+1)%WALL_SAMPLES]*t;}
-export function wallKind(distance:number,side:number){return(side>0?walls.right:walls.left).kind[Math.round(wrap(distance,TRACK_LENGTH)/WALL_STEP)%WALL_SAMPLES];}
+export type Race={circuit:CircuitRuntime;gridSize:number;laps:number;careerStageId:string|null;player:Car;opponents:Car[];time:number;countdown:number;boost:number;boosting:boolean;slipstream:boolean;finished:boolean;finishTime:number;hits:number;contactCooldown:number;checkpoints:number;nextCheckpoint:number;lastDistance:number;lapStart:number;lapTimes:number[];offroad:boolean;recovery:number;overtakes:number;previousPosition:number;lap:number;wrongWay:boolean;wrongWayTime:number;difficulty:Difficulty;events:RaceEvent[];launch:'none'|'perfect'|'jumped';launchHeld:number;wheelspin:number;kerb:boolean;skid:number;bestLap:number|null;bestPosition:number};
 const liveries=['#ffc63b','#ff5860','#7c6bf5','#f4f0df','#76bf63','#4b96d8','#ec8e39','#d77cb2','#a9bbcd','#d5d250'];
 const names=['SOL','NOVA','ACE','RIO','JET','FINN','ASH','KAI','REMY','BLAKE','SKYE','JULES','MAX','ELI','ALEX','DREW','SAGE','ARI','JAMIE'];
 export const DIFFICULTIES:Record<Difficulty,{label:string;pace:number;torque:number;consistency:number;boost:number}>={
@@ -135,30 +28,36 @@ export const DIFFICULTIES:Record<Difficulty,{label:string;pace:number;torque:num
  elite:{label:'Elite',pace:.978,torque:1.05,consistency:.9,boost:1},
 };
 /** Deterministic per-slot character. Faster drivers start nearer the front, as if after qualifying. */
-export function profileFor(index:number,difficulty:Difficulty='pro'):Profile{
- const d=DIFFICULTIES[difficulty],hash=(n:number)=>{const v=Math.sin((index+1)*n)*43758.5453;return v-Math.floor(v);};
- return{pace:d.pace+(1-index/(GRID_SIZE-2))*.032+hash(12.9898)*.012,torque:d.torque,aggression:hash(78.233),consistency:clamp(d.consistency+hash(39.425)*.1,0,1),boostUse:d.boost*(.55+hash(9.173)*.45),line:.78+hash(3.31)*.22};
+export function profileFor(index:number,difficulty:Difficulty='pro',opponents=GRID_SIZE-1,tuning?:RivalTuning):Profile{
+ const d=tuning??DIFFICULTIES[difficulty],hash=(n:number)=>{const v=Math.sin((index+1)*n)*43758.5453;return v-Math.floor(v);};
+ return{pace:d.pace+(1-index/Math.max(1,opponents-1))*.032+hash(12.9898)*.012,torque:d.torque,aggression:hash(78.233),consistency:clamp(d.consistency+hash(39.425)*.1,0,1),boostUse:d.boost*(.55+hash(9.173)*.45),line:.78+hash(3.31)*.22};
 }
 export function gridSlot(index:number){return{distance:-8-Math.floor(index/2)*8-(index%2)*2,lane:index%2?2.6:-2.6};}
-export type RaceSetup={difficulty?:Difficulty;chassis?:Chassis};
+export type RivalTuning={pace:number;torque:number;consistency:number;boost:number};
+export type RaceSetup={difficulty?:Difficulty;chassis?:Chassis;circuit?:string;opponentCount?:number;laps?:number;rivalTuning?:RivalTuning;careerStageId?:string};
 export function newRace(color='#20bfd0',setup:RaceSetup={}):Race{
- const difficulty=setup.difficulty??'pro';
- const make=(index:number,name:string,color:string,chassis:Chassis):Car=>{const slot=gridSlot(index);return{...at(slot.distance,slot.lane),speed:0,progress:slot.distance,lane:slot.lane,steer:0,color,name,finishTime:null,acceleration:0,impact:0,sideVelocity:0,gear:1,rpm:REFERENCE.idleRpm,throttle:0,brake:0,waypointsPassed:-1,nextGate:0,validatedProgress:slot.distance,lapTimes:[],lapStart:0,stuckTime:0,reversing:false,targetLane:slot.lane,targetSpeed:0,chassis,profile:profileFor(index,difficulty),boostCharge:60,boostActive:false,passLane:slot.lane,passTimer:0,mistake:0,lastGate:-1,rng:(index+1)*2654435761>>>0,progressMark:slot.distance,progressTimer:0,yaw:0,spin:0,slide:0,damage:0,scrape:0,impactCooldown:0};};
- const player=make(GRID_SIZE-1,'YOU',color,setup.chassis??'race'),opponents=Array.from({length:GRID_SIZE-1},(_,i)=>make(i,names[i],liveries[i%liveries.length],i%3===1?'race-future':'race'));
- return{player,opponents,time:0,countdown:3,boost:75,boosting:false,slipstream:false,finished:false,finishTime:0,hits:0,contactCooldown:0,checkpoints:0,nextCheckpoint:0,lastDistance:wrap(player.progress,TRACK_LENGTH),lapStart:0,lapTimes:player.lapTimes,offroad:false,recovery:0,overtakes:0,previousPosition:GRID_SIZE,lap:1,wrongWay:false,wrongWayTime:0,difficulty,events:[],launch:'none',launchHeld:0,wheelspin:0,kerb:false,skid:0,bestLap:null,bestPosition:GRID_SIZE};
+ const difficulty=setup.difficulty??'pro',circuit=circuitFor(setup.circuit),{at,TRACK_LENGTH}=circuit;
+ const count=setup.opponentCount??GRID_SIZE-1,laps=setup.laps??LAPS;
+ if(!Number.isInteger(count)||count<1||count>19||!Number.isInteger(laps)||laps<1||laps>3)throw new Error('Invalid Racer race setup');
+ const gridSize=count+1;
+ const make=(index:number,name:string,color:string,chassis:Chassis):Car=>{const slot=gridSlot(index);return{...at(slot.distance,slot.lane),speed:0,progress:slot.distance,lane:slot.lane,steer:0,color,name,finishTime:null,acceleration:0,impact:0,sideVelocity:0,gear:1,rpm:REFERENCE.idleRpm,throttle:0,brake:0,waypointsPassed:-1,nextGate:0,validatedProgress:slot.distance,lapTimes:[],lapStart:0,stuckTime:0,reversing:false,targetLane:slot.lane,targetSpeed:0,chassis,profile:profileFor(index,difficulty,count,setup.rivalTuning),boostCharge:60,boostActive:false,passLane:slot.lane,passTimer:0,mistake:0,lastGate:-1,rng:(index+1)*2654435761>>>0,progressMark:slot.distance,progressTimer:0,yaw:0,spin:0,slide:0,damage:0,scrape:0,impactCooldown:0};};
+ const player=make(count,'YOU',color,setup.chassis??'race'),opponents=Array.from({length:count},(_,i)=>make(i,names[i],liveries[i%liveries.length],i%3===1?'race-future':'race'));
+ return{circuit,gridSize,laps,careerStageId:setup.careerStageId??null,player,opponents,time:0,countdown:3,boost:75,boosting:false,slipstream:false,finished:false,finishTime:0,hits:0,contactCooldown:0,checkpoints:0,nextCheckpoint:0,lastDistance:wrap(player.progress,TRACK_LENGTH),lapStart:0,lapTimes:player.lapTimes,offroad:false,recovery:0,overtakes:0,previousPosition:gridSize,lap:1,wrongWay:false,wrongWayTime:0,difficulty,events:[],launch:'none',launchHeld:0,wheelspin:0,kerb:false,skid:0,bestLap:null,bestPosition:gridSize};
 }
 /** Small seeded generator stored on the car, so CPU mistakes replay identically. */
 function random(c:Car){c.rng=(c.rng+0x6D2B79F5)>>>0;let t=c.rng;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}
 function emit(race:Race,event:RaceEvent){if(race.events.length<48)race.events.push(event);}
 export function standings(race:Race){return[race.player,...race.opponents].sort((a,b)=>a.finishTime!==null&&b.finishTime!==null?a.finishTime-b.finishTime:a.finishTime!==null?-1:b.finishTime!==null?1:b.validatedProgress-a.validatedProgress);}
 export function position(race:Race){return standings(race).indexOf(race.player)+1;}
-function resetCar(p:Car){
+function resetCar(p:Car,circuit:CircuitRuntime){
+ const {at}=circuit;
  // A reset never bypasses an unvisited waypoint or awards forward distance.
  const distance=Math.min(p.progress,p.nextGate-.5),point=at(distance);
  p.progress=distance;p.x=point.x;p.z=point.z;p.heading=point.heading;p.lane=0;p.speed=Math.min(Math.max(0,p.speed),8);p.steer=0;p.impact=0;p.sideVelocity=0;p.stuckTime=0;p.reversing=false;p.targetLane=0;p.passTimer=0;p.mistake=0;p.boostActive=false;p.progressMark=p.progress;p.progressTimer=0;p.yaw=0;p.spin=0;p.slide=p.heading;p.scrape=0;
 }
 export function recover(race:Race){
- const p=race.player;resetCar(p);race.lastDistance=wrap(p.progress,TRACK_LENGTH);race.recovery=1.5;race.boosting=false;race.wrongWay=false;race.wrongWayTime=0;
+ const {TRACK_LENGTH}=race.circuit;
+ const p=race.player;resetCar(p,race.circuit);race.lastDistance=wrap(p.progress,TRACK_LENGTH);race.recovery=1.5;race.boosting=false;race.wrongWay=false;race.wrongWayTime=0;
 }
 export type Options={autoAccelerate:boolean;sensitivity:number};
 export const DEFAULT_OPTIONS:Options={autoAccelerate:false,sensitivity:1};
@@ -173,7 +72,8 @@ export function pedalSpeed(speed:number,input:Input,dt:number,autoAccelerate:boo
  return next;
 }
 /** Ordered route gates are shared by the player and every CPU. */
-export function updateRoute(c:Car,previous:number,time:number,dt=STEP){
+export function updateRoute(c:Car,previous:number,time:number,dt=STEP,circuit=defaultCircuit,laps=LAPS){
+ const {at,wallLane,GATE_SPACING,GATES_PER_LAP}=circuit;
  // Direction of travel, so a car sliding forward through a spin still collects its gate.
  const forward=c.progress>previous&&Math.cos(angle(travelHeading(c)-at(c.progress).heading))>0;
  if(forward&&previous<=c.nextGate&&c.progress>=c.nextGate&&Math.abs(c.lane)<Math.min(ROAD_HALF+14,wallLane(c.progress,c.lane>=0?1:-1)+.5)){
@@ -181,7 +81,7 @@ export function updateRoute(c:Car,previous:number,time:number,dt=STEP){
   c.waypointsPassed++;c.nextGate+=GATE_SPACING;
   if(c.waypointsPassed>0&&c.waypointsPassed%GATES_PER_LAP===0){
    c.lapTimes.push(crossedAt-c.lapStart);c.lapStart=crossedAt;
-   if(c.lapTimes.length===LAPS)c.finishTime=crossedAt;
+   if(c.lapTimes.length===laps)c.finishTime=crossedAt;
   }
  }
  c.validatedProgress=Math.min(c.progress,c.nextGate);
@@ -190,6 +90,7 @@ export function updateRoute(c:Car,previous:number,time:number,dt=STEP){
 const travelHeading=(c:Car)=>c.spin>0?c.slide:c.heading;
 /** All drivers use world motion and the same pedals, grip, gearing, barriers and contact. */
 function driveCar(c:Car,input:Input,dt:number,cars:Car[],auto:boolean,boosting:boolean,torque:number,race:Race,index:number){
+ const {project,TRACK_LENGTH}=race.circuit;
  const near=project(c.x,c.z,c.progress),oldSpeed=c.speed,oldProgress=c.progress;
  const offroad=Math.abs(near.lane)>ROAD_HALF;
  c.impact=damp(c.impact,0,5,dt);c.impactCooldown=Math.max(0,c.impactCooldown-dt);c.scrape=Math.max(0,c.scrape-dt*5);
@@ -236,6 +137,7 @@ function driveCar(c:Car,input:Input,dt:number,cars:Car[],auto:boolean,boosting:b
 /** Barrier contact: push the car back to the barrier face, remove the velocity into the wall with a
  * little bounce, scrub speed with friction and turn the car parallel. Hard hits spin the car out. */
 function hitBarrier(c:Car,point:{lane:number;distance:number;heading:number},trackHeading:number,race:Race,index:number){
+ const {wallLane}=race.circuit;
  const side=point.lane>=0?1:-1,limit=wallLane(point.distance,side)-CAR_HALF_WIDTH;
  if(Math.abs(point.lane)<=limit)return;
  const nx=-Math.cos(point.heading)*side,nz=Math.sin(point.heading)*side,penetration=Math.abs(point.lane)-limit;
@@ -260,6 +162,7 @@ function hitBarrier(c:Car,point:{lane:number;distance:number;heading:number},tra
  * along the contact normal (equal masses, restitution 0.35) and off-centre hits add yaw. A hard hit
  * on a rear quarter spins the car out. Nose-to-tail spacing stays with the traffic limiter above. */
 function resolveContacts(race:Race,cars:Car[]){
+ const {at}=race.circuit;
  for(let i=0;i<cars.length;i++)for(let j=i+1;j<cars.length;j++){
   const a=cars[i],b=cars[j];if(a.finishTime!==null&&b.finishTime!==null)continue;
   const dx=b.x-a.x,dz=b.z-a.z;if(dx*dx+dz*dz>30)continue;
@@ -291,7 +194,8 @@ function resolveContacts(race:Race,cars:Car[]){
 }
 /** Waypoint target-speed/brake-zone adapter. No player-position or catch-up multiplier:
  * pace comes only from the car's fixed profile and the cars physically around it. */
-export function navigation(c:Car,index:number,cars:Car[],dt:number):Input{
+export function navigation(c:Car,index:number,cars:Car[],dt:number,circuit=defaultCircuit):Input{
+ const {at,TRACK_LENGTH,lineAt,drivableLane,GATE_SPACING,GATES_PER_LAP,waypoints}=circuit;
  const gapTo=(o:Car)=>wrap(o.progress-c.progress,TRACK_LENGTH),pr=c.profile;
  c.passTimer=Math.max(0,c.passTimer-dt);c.mistake=Math.max(0,c.mistake-dt);
  const aimDistance=clamp(Math.abs(c.speed)*.28,5.5,13),line=lineAt(c.progress+aimDistance)*pr.line;
@@ -351,6 +255,7 @@ export function navigation(c:Car,index:number,cars:Car[],dt:number):Input{
 export const LAUNCH_WINDOW=.5;
 export function step(race:Race,input:Input,dt:number,options:Options=DEFAULT_OPTIONS){
  if(race.finished||dt<=0)return;
+ const {project,TRACK_LENGTH,GATE_SPACING}=race.circuit;
  dt=Math.min(dt,.05);
  if(race.countdown>0){
   race.launchHeld=(input.gas||input.boost)&&!input.brake?race.launchHeld+dt:0;
@@ -371,13 +276,13 @@ export function step(race:Race,input:Input,dt:number,options:Options=DEFAULT_OPT
  race.boost=clamp(race.boost+(race.boosting?-24:race.slipstream?13:3.8)*dt,0,100);
  p.boostActive=race.boosting;p.boostCharge=race.boost;
  const cars=[p,...race.opponents],snapshot=cars.map(c=>({...c}));
- const decisions=race.opponents.map((c,i)=>navigation(c,i,snapshot,dt));
+ const decisions=race.opponents.map((c,i)=>navigation(c,i,snapshot,dt,race.circuit));
  const laps=p.lapTimes.length;
  const previous=driveCar(p,{...input,steer:input.steer*options.sensitivity},dt,snapshot,options.autoAccelerate,race.boosting,race.wheelspin>0?.4:1,race,0);
- updateRoute(p,previous,race.time,dt);
+ updateRoute(p,previous,race.time,dt,race.circuit,race.laps);
  if(p.lapTimes.length>laps){
   const time=p.lapTimes.at(-1)!,best=race.bestLap===null||time<race.bestLap;if(best)race.bestLap=time;
-  emit(race,{type:'lap',lap:p.lapTimes.length,time,best});if(p.lapTimes.length===LAPS-1)emit(race,{type:'final-lap'});
+  emit(race,{type:'lap',lap:p.lapTimes.length,time,best});if(p.lapTimes.length===race.laps-1)emit(race,{type:'final-lap'});
  }
  race.wrongWayTime=p.speed>3&&Math.cos(angle(p.heading-near.heading))<-.2?race.wrongWayTime+dt:0;
  race.wrongWay=race.wrongWayTime>.5;
@@ -394,10 +299,10 @@ export function step(race:Race,input:Input,dt:number,options:Options=DEFAULT_OPT
   const decision=decisions[i],cpuSlip=snapshot.some(o=>o.name!==c.name&&wrap(o.progress-c.progress,TRACK_LENGTH)<25&&wrap(o.progress-c.progress,TRACK_LENGTH)>0&&Math.abs(o.lane-c.lane)<2.2);
   c.boostActive=decision.boost&&c.boostCharge>0&&!decision.brake&&Math.abs(c.lane)<=ROAD_HALF;
   c.boostCharge=clamp(c.boostCharge+(c.boostActive?-24:cpuSlip?13:3.8)*dt,0,100);
-  const old=driveCar(c,decision,dt,snapshot,false,c.boostActive,REFERENCE.aiTorque/REFERENCE.playerTorque*c.profile.torque,race,i+1);updateRoute(c,old,race.time,dt);
+  const old=driveCar(c,decision,dt,snapshot,false,c.boostActive,REFERENCE.aiTorque/REFERENCE.playerTorque*c.profile.torque,race,i+1);updateRoute(c,old,race.time,dt,race.circuit,race.laps);
   // A CPU that keeps moving without gaining ground (spun, or orbiting a hairpin) is put back on the road.
   if(c.progress>c.progressMark+3){c.progressMark=c.progress;c.progressTimer=0;}else if(!c.reversing&&c.speed>3)c.progressTimer+=dt;
-  if(Math.abs(c.lane)>ROAD_HALF+14||c.progress>c.nextGate+GATE_SPACING*1.5||c.progressTimer>4)resetCar(c);
+  if(Math.abs(c.lane)>ROAD_HALF+14||c.progress>c.nextGate+GATE_SPACING*1.5||c.progressTimer>4)resetCar(c,race.circuit);
  }
  resolveContacts(race,cars);
  const pos=position(race);

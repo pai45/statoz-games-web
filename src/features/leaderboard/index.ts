@@ -18,3 +18,4 @@ export {
 } from "./roster";
 
 export type { LeaderboardEntry, RivalSeed } from "./types";
+export type { LeaderboardLadder, LeaderboardPeriod, LeaderboardSelection, LeaderboardStanding } from "./types";

@@ -8,6 +8,7 @@ import type { MatchEvent, MatchState, Side } from "../engine/types";
 import { primaryPosition, sideAccent } from "./card-art";
 import { LogIcon, PitchIcon } from "./icons";
 import { columnX, laneY, type PitchScene } from "./pitch-layout";
+import { SoundToggle } from "./ui";
 import styles from "./match.module.css";
 
 /* ---- Scoreboard ----------------------------------------------------------- */
@@ -32,6 +33,7 @@ export function Scoreboard({
   onSquad: (side: Side) => void;
 }) {
   const clock = clockFor(state);
+  const { home: mHome, away: mAway } = state.momentum;
   return (
     <header className={styles.scoreboard}>
       <button type="button" className={styles.scoreIcon} onClick={onQuit} aria-label="Leave match">
@@ -42,7 +44,9 @@ export function Scoreboard({
       <button type="button" className={styles.tab} data-side="home" onClick={() => onSquad("home")} aria-label="Your lineup">
         <PitchIcon size={16} /> <span>YOUR XI</span>
       </button>
-      <div className={styles.scoreTrap} aria-live="polite" aria-label={`You ${state.score.home}, ${state.opponentName} ${state.score.away}, ${clock}`}>
+      <div className={styles.scoreTrap} aria-live="polite" aria-label={`You ${state.score.home}, ${state.opponentName} ${state.score.away}, ${clock}. Momentum ${mHome} to ${mAway}`}>
+        <i className={styles.mom} data-side="home" data-full={mHome >= 100 || undefined} style={{ "--m": `${mHome}%` } as CSSProperties} aria-hidden />
+        <i className={styles.mom} data-side="away" data-full={mAway >= 100 || undefined} style={{ "--m": `${mAway}%` } as CSSProperties} aria-hidden />
         <div className={styles.scoreTeam} data-side="home" style={{ "--side": sideAccent.home } as CSSProperties}>
           <small>YOUR TEAM</small>
           <b key={`h${state.score.home}`}>{state.score.home}</b>
@@ -63,6 +67,7 @@ export function Scoreboard({
       <button type="button" className={styles.scoreIcon} onClick={onLog} aria-label="Match events and stats">
         <LogIcon size={16} />
       </button>
+      <SoundToggle className={styles.scoreIcon} />
     </header>
   );
 }

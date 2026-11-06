@@ -26,6 +26,10 @@ export type ProfileIdentity = {
   playerTag: string | null;
   /** IANA zone id, or `device` to follow the browser. Null until chosen. */
   timeZoneId: string | null;
+  featuredGameId?: string | null;
+  equippedTitleAchievementId?: string | null;
+  /** Undefined uses the earned-trophy preview; an empty list is deliberately empty. */
+  pinnedAchievementIds?: string[];
 };
 
 /** A career line derived from every mode this browser has played. */

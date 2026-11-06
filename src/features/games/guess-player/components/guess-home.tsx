@@ -175,7 +175,7 @@ export function GuessHome({
               <Glyph name="chevron_right" size={22} />
             </span>
           </button>
-          <div className="mt-3.5"><GameLeaderboardCta sport={sport} gameId={leaderboardMode} /></div>
+          <div className="mt-3.5"><GameLeaderboardCta gameId={leaderboardMode} /></div>
         </div>
       </div>
         <DailyDrop sport={sport} />

@@ -60,6 +60,10 @@ export type StarterPackRevealProps = {
   reveal: PackRevealData;
   /** Runs when the player leaves the summary. */
   onComplete: () => void;
+  /** Replaces the multi-step opening with one first-launch squad summary. */
+  compactSummary?: boolean;
+  /** Names the game context without baking a sport or title into shared copy. */
+  contextLabel?: string;
 };
 
 /**
@@ -72,6 +76,8 @@ export type StarterPackRevealProps = {
 export function StarterPackReveal({
   reveal,
   onComplete,
+  compactSummary = false,
+  contextLabel,
 }: StarterPackRevealProps) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [cardIndex, setCardIndex] = useState(0);
@@ -86,6 +92,16 @@ export function StarterPackReveal({
   const afterCards = useCallback(() => {
     setPhase(hasGroupedActions ? "actions" : "summary");
   }, [hasGroupedActions]);
+
+  if (compactSummary) {
+    return (
+      <CompactStarterSummary
+        reveal={reveal}
+        contextLabel={contextLabel}
+        onComplete={onComplete}
+      />
+    );
+  }
 
   function nextCard() {
     if (cardIndex < animated.length - 1) {
@@ -134,6 +150,90 @@ export function StarterPackReveal({
   }
 
   return <SummaryStep reveal={reveal} onComplete={onComplete} />;
+}
+
+function CompactStarterSummary({
+  reveal,
+  contextLabel,
+  onComplete,
+}: {
+  reveal: PackRevealData;
+  contextLabel?: string;
+  onComplete: () => void;
+}) {
+  const players = reveal.playerCards.slice(0, 5);
+  const remainingPlayers = Math.max(0, reveal.playerCards.length - players.length);
+
+  return (
+    <div
+      className="relative flex min-h-dvh flex-col overflow-hidden"
+      data-ui-role="starter-summary"
+    >
+      <PackRevealBackdrop tier="gold" showRays={false} />
+
+      <main className="relative flex flex-1 items-center px-6 pb-20 pt-5">
+        <div className="mx-auto w-full max-w-4xl text-center">
+          <p
+            className="font-display font-black text-cyan"
+            style={{
+              fontSize: "var(--ds-text-2xs)",
+              letterSpacing: "var(--ds-tracking-ultra)",
+            }}
+          >
+            {contextLabel ?? reveal.brandLabel}
+          </p>
+          <h1
+            className="mt-2 font-display font-black"
+            style={{
+              color: "var(--ds-color-accent-lime)",
+              fontSize: "clamp(1.75rem, 7vw, 3rem)",
+              letterSpacing: "var(--ds-tracking-display)",
+            }}
+          >
+            YOUR STARTER SQUAD
+          </h1>
+          <p className="mt-1.5 text-xs font-bold text-muted">
+            {reveal.playerCards.length} players and {reveal.actionCards.length} actions are ready.
+          </p>
+
+          <div
+            className="mt-5 flex justify-center gap-2 overflow-hidden"
+            aria-label={`${reveal.playerCards.length} starter players`}
+          >
+            {players.map((card, index) => (
+              <span
+                key={card.id}
+                className={`${styles.pop} flex h-20 w-24 flex-col items-center justify-center border border-cyan/30 bg-surface-elevated/80 px-2`}
+                style={
+                  {
+                    "--pop-delay": `${index * 70}ms`,
+                  } as CSSProperties
+                }
+              >
+                <b className="font-display text-lg text-gold">{card.rating}</b>
+                <span className="mt-1 max-w-full truncate text-2xs font-black text-default">{card.shortName}</span>
+                <small className="mt-0.5 text-2xs font-bold text-muted">{card.position}</small>
+              </span>
+            ))}
+          </div>
+
+          {remainingPlayers > 0 ? (
+            <p className="mt-2 text-2xs font-bold text-muted">
+              +{remainingPlayers} more players in your squad
+            </p>
+          ) : null}
+
+          <div className="mx-auto mt-5 w-full max-w-sm">
+            <Button fullWidth size="lg" onClick={onComplete}>
+              {reveal.ctaLabel}
+            </Button>
+          </div>
+        </div>
+      </main>
+
+      <PackSkipButton onClick={onComplete} label="SKIP REVEAL" />
+    </div>
+  );
 }
 
 /* ---- Intro ------------------------------------------------------------- */

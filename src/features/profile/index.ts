@@ -43,5 +43,6 @@ export {
   saveProfileSetup,
   useProfileIdentity,
 } from "./state/profile-identity";
+export { saveAvatar, saveBanner } from "./identity";
 
 export type { ProfileIdentity } from "./types";

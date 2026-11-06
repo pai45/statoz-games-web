@@ -1,4 +1,4 @@
-import type { RivalSeed } from "@/features/leaderboard/types";
+import type { RivalSeed } from "@/domain/leaderboard";
 
 /**
  * The fabricated field the boards rank.

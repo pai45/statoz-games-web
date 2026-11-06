@@ -33,6 +33,16 @@ try {
     page.on('pageerror', error => errors.push(error.message));
     const hub = () => mobile ? page.frameLocator('iframe[data-mobile-platform-frame]') : page;
     const game = () => mobile ? page.frameLocator('iframe[data-mobile-game-frame]') : page;
+    const leavePitchDuel = async () => {
+      const screen = game();
+      await screen.locator('[data-pitch-duel-screen="home"], [data-pitch-duel-screen="debut"]').first().waitFor({ timeout: 90000 });
+      if (await screen.locator('[data-pitch-duel-option="debut-open"]').count()) {
+        await screen.locator('[data-pitch-duel-option="debut-open"]').click();
+        await screen.locator('[data-pitch-duel-option="debut-skip"]').click();
+        await screen.locator('[data-pitch-duel-option="debut-club"]').click();
+      }
+      await screen.getByRole('button', { name: 'Leave Fot Duel', exact: true }).click({ timeout: 60000 });
+    };
     for (const surface of mobile ? [page, hub(), game()] : [page]) {
       await page.addLocatorHandler(surface.getByRole('button', { name: 'Play online', exact: true }), async button => button.click());
     }
@@ -40,51 +50,55 @@ try {
       console.log('List round trip:', sport ?? 'all');
       const home = sport ? '/?sport=football' : '/';
       await page.goto(origin + home);
-      await hub().getByRole('button', { name: 'View all games', exact: true }).click();
-      const list = hub().getByRole('dialog', { name: 'ALL GAMES' });
-      await list.getByRole('tab', { name: 'FOOTBALL', exact: true }).click();
-      await hub().getByRole('dialog', { name: 'ALL GAMES' }).getByRole('tab', { name: 'FOOTBALL', exact: true }).and(hub().locator('[aria-selected="true"]')).waitFor();
-      const play = list.getByRole('link', { name: /^Play Pitch Duel$/i });
+      await hub().getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Library', exact: true }).click();
+      const list = hub().getByRole('dialog', { name: 'Game Library' });
+      await list.getByRole('tab', { name: 'Football', exact: true }).click();
+      await list.getByRole('tab', { name: 'Football', exact: true }).and(hub().locator('[aria-selected="true"]')).waitFor();
+      const play = list.getByRole('link', { name: /^Play Fot Duel$/i });
       await play.waitFor();
       const launch = new URL(await play.getAttribute('href'), origin);
       const destination = launch.searchParams.get('returnTo');
-      assert.equal(destination, `${sport ? '/?sport=football&' : '/?'}view=all&listSport=football`);
+      const returnParams = new URL(destination, origin).searchParams;
+      assert.equal(returnParams.get('sport'), sport);
+      assert.equal(returnParams.get('view'), 'all');
+      assert.equal(returnParams.get('listSport'), 'football');
+      assert.equal(returnParams.get('game'), 'pitch-duel');
       await play.click();
+      await page.waitForURL(url => url.pathname === '/play/pitch-duel', { timeout: 60000 });
       console.log('Opened:', page.url());
-      await game().getByRole('button', { name: 'Leave Pitch Duel', exact: true }).click({ timeout: 60000 });
+      await leavePitchDuel();
       console.log('Exit clicked:', page.url());
       await page.waitForURL(url => url.pathname === '/' && url.search === new URL(destination, origin).search);
-      await hub().getByRole('heading', { name: 'ALL GAMES', exact: true }).click();
-      assert.equal(await hub().getByRole('tab', { name: 'FOOTBALL', exact: true }).last().getAttribute('aria-selected'), 'true');
+      await hub().getByRole('dialog', { name: 'Game Library' }).waitFor();
+      assert.equal(await hub().getByRole('tab', { name: 'Football', exact: true }).last().getAttribute('aria-selected'), 'true');
       await hub().getByRole('button', { name: 'Close all games', exact: true }).click();
-      await page.waitForURL(origin + home);
-      await hub().locator('section[aria-roledescription="carousel"]').waitFor();
+      await page.waitForURL(url => !url.searchParams.has('view') && url.searchParams.get('sport') === sport && url.searchParams.get('game') === 'pitch-duel');
+      await hub().locator('[data-shelf-id="lineup"]:visible').waitFor();
     }
-    // Coverflow launch and native browser Back preserve the selected tab.
-    console.log('Coverflow and browser Back');
+    // Cover launches and native browser Back preserve the selected sport.
+    console.log('Game strip and browser Back');
     await page.goto(origin + '/?sport=football');
     // An action lets the online-mode handlers dismiss the download screen.
-    await hub().getByRole('button', { name: 'View all games', exact: true }).click();
+    await hub().getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Library', exact: true }).click();
     await hub().getByRole('button', { name: 'Close all games', exact: true }).click();
-    const carousel = hub().locator('section[aria-roledescription="carousel"]');
-    for (let index = 0; index < 20 && !(await carousel.getByRole('link', { name: /^Play Pitch Duel$/i }).count()); index++) {
-      await carousel.getByRole('button', { name: 'Next game', exact: true }).click();
-    }
-    const launch = carousel.getByRole('link', { name: /^Play / }).first();
-    assert.equal(new URL(await launch.getAttribute('href'), origin).searchParams.get('returnTo'), '/?sport=football');
+    const lineup = hub().locator('[data-shelf-id="lineup"]:visible');
+    const launch = lineup.getByRole('link', { name: /^Play Fot Duel$/i });
+    const launchReturn = new URL(new URL(await launch.getAttribute('href'), origin).searchParams.get('returnTo'), origin);
+    assert.equal(launchReturn.searchParams.get('sport'), 'football');
+    assert.equal(launchReturn.searchParams.get('game'), 'pitch-duel');
     await launch.click();
     await page.waitForURL(url => url.pathname.startsWith('/play/'));
     await page.goBack();
-    await page.waitForURL(origin + '/?sport=football');
-    await hub().getByRole('button', { name: 'Next game', exact: true }).click();
+    await page.waitForURL(url => url.pathname === '/' && url.searchParams.get('sport') === 'football');
+    await hub().locator('[data-shelf-id="lineup"]:visible').waitFor();
     // Direct visits have a useful fallback even without launch history.
     console.log('Direct visit and legacy catalog');
     await page.goto(origin + '/play/pitch-duel');
-    await game().getByRole('button', { name: 'Leave Pitch Duel', exact: true }).click({ timeout: 60000 });
+    await leavePitchDuel();
     await page.waitForURL(origin + '/');
-    await hub().getByRole('button', { name: 'Next game', exact: true }).click();
+    await hub().locator('[data-shelf-id="lineup"]:visible').waitFor();
     await page.goto(origin + '/games/cricket');
-    await hub().getByRole('button', { name: 'Next game', exact: true }).click();
+    await hub().locator('[data-shelf-id="cricket"]:visible').waitFor();
     await page.waitForURL(origin + '/?sport=cricket');
     console.log(`${mobile ? 'phone' : 'desktop'} return journeys passed`);
     await context.close();

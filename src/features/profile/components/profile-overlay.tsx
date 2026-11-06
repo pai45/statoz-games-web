@@ -64,11 +64,25 @@ export function ProfileOverlay({
   const hydrated = useIsHydrated();
 
   useEffect(() => {
+    const returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const background = [...document.body.children].filter((element): element is HTMLElement => element instanceof HTMLElement && !element.contains(panel.current));
+    const previousInert = background.map(element => element.inert);
+    background.forEach(element => { element.inert = true; });
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      // Only the topmost sheet handles focus or Escape (Settings can open timezone).
+      const dialogs = document.querySelectorAll('[role="dialog"][aria-modal="true"]');
+      if (dialogs[dialogs.length - 1] !== panel.current) return;
+      if (event.key === "Escape") { event.preventDefault(); onClose(); }
+      if (event.key === "Tab") {
+        const targets = panel.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex="0"]');
+        if (!targets?.length) { event.preventDefault(); return; }
+        const first = targets[0], last = targets[targets.length - 1];
+        if (event.shiftKey && (document.activeElement === first || document.activeElement === panel.current)) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && (document.activeElement === last || document.activeElement === panel.current)) { event.preventDefault(); first.focus(); }
+      }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => { document.removeEventListener("keydown", onKeyDown); background.forEach((element, index) => { element.inert = previousInert[index]; }); returnFocus?.focus(); };
   }, [onClose]);
 
   /**
@@ -154,7 +168,7 @@ export function ProfileOverlay({
               id={headingId}
               className="flex-1 font-display font-black leading-none"
               style={{
-                fontSize: typography.sizeRem.p11,
+                fontSize: typography.sizeRem.p14,
                 letterSpacing: "var(--ds-tracking-ultra)",
                 color: accent,
               }}
@@ -165,7 +179,7 @@ export function ProfileOverlay({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="-mr-1.5 grid size-9 cursor-pointer place-items-center text-muted transition-colors hover:text-foreground"
+              className="-mr-1.5 grid size-11 cursor-pointer place-items-center text-muted transition-colors hover:text-foreground"
             >
               <CloseIcon size={20} />
             </button>

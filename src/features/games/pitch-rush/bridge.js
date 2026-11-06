@@ -1,5 +1,7 @@
 // Runs in the upstream main module's lexical scope. The host owns persistence.
 const host=window.__STATOZ_HOST__;
+let journey;
+let padReleaseGuard=[false,false];
 const coarse=matchMedia('(pointer: coarse)');
 const durationSelect=document.getElementById('duration');
 durationSelect.insertAdjacentHTML('afterbegin','<option value="45">Quick (2 × 45 sec)</option><option value="90">Arcade (2 × 90 sec)</option>');
@@ -103,7 +105,7 @@ document.getElementById('rematch').addEventListener('click',()=>{releaseInputs()
 document.getElementById('endMenu').addEventListener('click',toMenu);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Called by the adapted upstream animation loop.
 function hostUpdate(){
-  const finished=game.state?.phase==='fulltime'&&!pending.open&&(game.ended||game.transport?.humanSlots?.length!==1);
+  const finished=journey?.allowArcadeResults&&game.state?.phase==='fulltime'&&!pending.open&&(game.ended||game.transport?.humanSlots?.length!==1);
   endActions.classList.toggle('hidden',!finished);
   if(finished)document.getElementById('endScore').textContent=game.state.score.join(' — ');
   const attacking=ownsControlledBall();
@@ -112,11 +114,24 @@ function hostUpdate(){
   syncTouchAction();
 }
 function releaseInputs(){
+  padReleaseGuard=[0,1].map(slot=>!!(devices.gamepadMask(slot)&BTN.FIRE));
   devices.down.clear();
   attackPointers.clear();defencePointers.clear();
   touch.mask=0;touch.stickPointer=null;
   document.getElementById('knob').style.transform='translate(-50%, -50%)';
   document.querySelectorAll('#touch .pressed').forEach(node=>node.classList.remove('pressed'));
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Called by the adapted upstream fixed-step loop.
+function pollHostInputs(tick){
+  return game.transport.poll(tick).map((mask,slot)=>{
+    if(!padReleaseGuard[slot])return mask;
+    if(!(devices.gamepadMask(slot)&BTN.FIRE))padReleaseGuard[slot]=false;
+    return mask&~BTN.FIRE;
+  });
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Called by the adapted upstream pause function.
+function cancelHumanCharges(){
+  for(const team of game.state?.teams??[])if(team.human){team.prevMask=0;for(const player of team.players){player.charging=false;player.charge=0;}}
 }
 function hostPause(){
   releaseInputs();setPaused(true);music.stop();audio.ctx?.suspend?.();
@@ -125,15 +140,16 @@ host.command=type=>{
   if(type==='pause')hostPause();
   if(type==='resume'&&!document.hidden)setPaused(false);
   if(type==='dispose'){
+    journey?.dispose();
     hostPause();hostDisposed=true;cancelAnimationFrame(hostRaf);
     devices.detach();touch.show(false);game.transport?.dispose();game.signal?.close();audio.ctx?.close?.();
     window.removeEventListener('resize',sizePlayfield);coarse.removeEventListener('change',sizePlayfield);
   }
 };
 const exit=()=>{hostPause();host.emit('exit');};
-lobbyBack.addEventListener('click',exit);
+lobbyBack.addEventListener('click',()=>journey.home());
 {
-  const button=document.createElement('button');button.type='button';button.textContent='Exit to football';
+  const button=document.createElement('button');button.type='button';button.textContent='Exit to games';
   button.addEventListener('click',exit);document.querySelector('#pause .panel').append(button);
 }
 window.addEventListener('blur',hostPause);
@@ -150,5 +166,16 @@ window.addEventListener('pointerdown',()=>{
     audio.wake();if(!game.state)music.start();
   }
 });
+journey=mountJourney({
+  game,renderer,release:releaseInputs,keyLabel,bindings:()=>bindings,coarse:()=>coarse.matches,disposed:()=>hostDisposed,
+  formations:()=>[lineups[0].spots,lineups[1].spots],
+  canQuickStart:()=>Number(mode)!==2||!findConflicts(bindings).length,
+  begin:state=>beginMatch(state,new LocalTransport(devices,[0])),
+  freeze:()=>{game.paused=true;game.acc=0;releaseInputs();},
+  hideTouch:()=>touch.show(false),
+  stop:()=>{releaseInputs();game.transport?.dispose();game.state=null;game.transport=null;game.paused=false;pauseBox.classList.add('hidden');touch.show(false);if(soundOn)music.start();},
+  exit,
+});
+window.__pitchRush=journey;
 host.emit('ready');
 if(document.hidden)hostPause();

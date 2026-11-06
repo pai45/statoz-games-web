@@ -1,0 +1,8 @@
+{
+  "title": "Hoop Legacy — 3D Basketball",
+  "description": "Hoop Legacy is a 3D basketball game with 1v1, 3v3, a three-point contest and a full career mode. Built for mobile, playable on the web.",
+  "language": "en",
+  "customScripts": {
+    "headEnd": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no\" /><meta name=\"theme-color\" content=\"#05070b\" /><meta name=\"mobile-web-app-capable\" content=\"yes\" /><meta name=\"apple-mobile-web-app-capable\" content=\"yes\" /><meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\" />"
+  }
+}

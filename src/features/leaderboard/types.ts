@@ -1,5 +1,20 @@
 import type { SportTeam } from "@/domain/matches";
 import type { GameId } from "@/features/games/types";
+import type { LeaderboardParticipant } from "@/domain/leaderboard";
+
+export type { RivalSeed, TeamSeed } from "@/domain/leaderboard";
+export type LeaderboardLadder = "master" | GameId;
+export type LeaderboardPeriod = "weekly" | "season";
+export type LeaderboardSelection = { ladder: LeaderboardLadder; period: LeaderboardPeriod };
+export type LeaderboardContribution = { gameId: GameId; rp: number };
+export type LeaderboardStanding = LeaderboardParticipant & {
+  rank: number;
+  rp: number;
+  /** Positive means a climb compared with the previous matching period. */
+  movement: number | null;
+  contributions: LeaderboardContribution[];
+  gamesPlayed: number;
+};
 
 /** Which board is on screen. Drives the score unit and the filter row. */
 export type LeaderboardType = "matches" | "games";
@@ -12,29 +27,6 @@ export type TournamentScope = "weekly" | "season" | "allTime";
 
 /** The four modes the GAMES board separates wins by. */
 export type GameMode = GameId;
-
-/**
- * One fabricated rival. There is no backend — a rival is a display name plus a
- * canonical XP (`base`), from which their avatar, level and whole dossier are
- * derived deterministically, so they read identically wherever they appear.
- */
-export type RivalSeed = {
-  name: string;
-  base: number;
-  /** >0 climbed, <0 dropped, 0 held. */
-  movement: number;
-  isNew?: boolean;
-  badge?: string;
-};
-
-/** A national team on the tournament TEAMS board. */
-export type TeamSeed = {
-  team: SportTeam;
-  score: number;
-  movement: number;
-  /** The side the player backs. A team board ranks teams, not players. */
-  isBacked?: boolean;
-};
 
 /**
  * One row on a rank board. `score` is whatever the active board measures; `xp`

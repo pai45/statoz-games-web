@@ -57,21 +57,11 @@ async function game(page){
   }
   throw Error('Game iframe did not become ready');
 }
-async function library(page){
-  for(let attempt=0;attempt<120;attempt++){
-    for(const frame of page.frames()){
-      const card=frame.getByRole('link',{name:'Play PITCH RUSH',exact:true});
-      if(await card.isVisible().catch(()=>false))return {frame,card};
-    }
-    await delay(500);
-  }
-  throw Error('Pitch Rush library card did not become ready');
-}
 try{
   console.log('Testing '+origin);
   const guest=await browser.newPage();await limitDownload(guest.context());guest.setDefaultTimeout(30000);guest.on('pageerror',e=>console.log('Guest error: '+e.message));await guest.goto(origin+'/play/pitch-rush',{waitUntil:'domcontentloaded',timeout:120000});await ready(guest);
   console.log('Guest: '+(await guest.locator('body').innerText()).slice(0,250));
-  const guestFrame=await game(guest);await guestFrame.locator('#start').click();
+  const guestFrame=await game(guest);await guestFrame.locator('[data-action="quick"]').click();await guestFrame.locator('#start').click();await guestFrame.locator('[data-action="skip-offer"]').click();
   await guestFrame.waitForFunction(()=>window.__game.state?.tick>0);
   await guest.screenshot({path:path.join(out,'guest.png')});
   await guest.close();evidence.push('Current guest flow launches Pitch Rush without an account gate');
@@ -81,16 +71,15 @@ try{
     await limitDownload(context);
     const page=await context.newPage();currentPage=page;page.setDefaultTimeout(30000);page.setDefaultNavigationTimeout(120000);page.on('pageerror',e=>{errors.push(e.message);console.log('Page error: '+e.message);});
     page.on('request',r=>{if(!r.url().startsWith(origin)&&!r.url().startsWith('data:'))remote.push(r.url());});
-    await page.goto(origin+'/games/football');
+    await page.goto(origin+'/play/pitch-rush');
     await ready(page);
-    const {frame:libraryFrame,card}=await library(page);
-    await card.screenshot({path:path.join(out,`library-card-${size.width}.png`)});
-    await page.screenshot({path:path.join(out,`library-${size.width}.png`)});
-    console.log('Opening game');await press(libraryFrame,'a[aria-label="Play PITCH RUSH"]');console.log('Waiting for engine');const frame=await game(page);console.log('Engine ready');
+    const frame=await game(page);console.log('Engine ready');
+    await press(frame,'[data-action="quick"]');
     assert.equal(await frame.locator('[data-mode="online"]').isVisible(),false);
     assert.equal(await frame.locator('#duration').inputValue(),size.mobile?'45':'120');
     await page.screenshot({path:path.join(out,`menu-${size.width}.png`)});
     await press(frame,'#start');
+    await press(frame,'[data-action="skip-offer"]');
     await frame.waitForFunction(()=>window.__game.state?.tick>10);
     await frame.waitForFunction(()=>window.__game.state.phase==='play',null,{timeout:10000});
     const field=await frame.locator('#game').boundingBox();
@@ -170,21 +159,22 @@ try{
     await press(frame,'#rematch');await frame.waitForFunction(()=>window.__game.state.phase!=='fulltime'&&window.__game.state.tick>0);
     // Winning result retains the source's accessible initials entry.
     await frame.evaluate(()=>{const s=window.__game.state;s.phase='fulltime';s.score=[4,0];});
-    await frame.locator('#hiscore:not(.hidden)').waitFor();await press(frame,'#hiscoreOk');await frame.locator('#menu:not(.hidden)').waitFor();
+    await frame.locator('#hiscore:not(.hidden)').waitFor();await press(frame,'#hiscoreOk');await frame.locator('#journey:not(.hidden)').waitFor();
     // The iframe posts its save asynchronously to the host document.
     await page.waitForFunction(()=>{const save=JSON.parse(localStorage.getItem('statoz.games.web.bundle.pitch-rush.pitch-mobile%40example.test')||'null');return !!save?.stores?.['websoccer.highscores.v1'];},null,{timeout:10000});
     const save=await page.evaluate(()=>JSON.parse(localStorage.getItem('statoz.games.web.bundle.pitch-rush.pitch-mobile%40example.test')||'null'));
     assert.ok(save?.stores?.['websoccer.highscores.v1'],'Host stores the earned result under this account');
     if(!size.mobile){
+      await press(frame,'[data-action="quick"]');
       await frame.locator('[data-mode="2"]').click();await frame.locator('#start').click();
       assert.deepEqual(await frame.evaluate(()=>window.__game.state.teams.map(t=>t.human)),[true,true]);
       await frame.evaluate(()=>{window.__game.state.phase='fulltime';});
       await frame.locator('#endActions:not(.hidden)').waitFor();await frame.locator('#endMenu').click();
       evidence.push('Local two-player setup and touch-accessible result menu');
     }
-    await press(frame,'#exitGame');
-    await page.waitForURL('**/games/football');
-    evidence.push({size,field,checks:['library cover','launch','pause/resume','input interruption','loss/rematch','win/initials','account save','exit']});
+    await press(frame,'[data-action="exit"]');
+    await page.waitForURL(url=>url.pathname==='/'||url.pathname.endsWith('/games/football')||url.searchParams.get('sport')==='football');
+    evidence.push({size,field,checks:['direct route launch','pause/resume','input interruption','loss/rematch','win/initials','account save','exit']});
     await context.close();
   }
   assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);

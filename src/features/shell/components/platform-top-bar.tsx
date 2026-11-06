@@ -1,99 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { CSSProperties } from "react";
-
-import { accentVar, BrandIcon, FlameIcon, PlusIcon } from "@/design-system";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { Avatar, BrandIcon, FlameIcon, GridViewIcon, NavMarkIcon } from "@/design-system";
 import { useEconomy } from "@/features/economy";
+import { usePlayerStanding } from "@/features/profile/standing";
 import { currentStreak, useIsStreakHydrated, useStreakSnapshot } from "@/features/streaks";
 import { formatInt } from "@/shared/utils";
-
 import styles from "./platform-top-bar.module.css";
 
-export type PlatformTopBarProps = {
-  title?: string;
-  coins?: number;
-  /** Accent for the wordmark glow and the add-coins button. */
-  accent?: string;
-};
+export type PlatformTopBarProps = { title?: string; coins?: number; accent?: string };
+const commands = [
+  { id: "games", label: "Games", href: "/", icon: <NavMarkIcon mark="games" size={20} /> },
+  { id: "library", label: "Library", href: "/?view=all", icon: <GridViewIcon size={19} /> },
+  { id: "shop", label: "Shop", href: "/shop", icon: <NavMarkIcon mark="shop" size={20} /> },
+  { id: "leaderboard", label: "Leaderboard", href: "/leaderboard", icon: <NavMarkIcon mark="top" size={20} /> },
+];
 
-const GOLD = accentVar("gold");
-
-/** The persistent header: wordmark, streak, and coin balance. */
-export function PlatformTopBar({
-  title,
-  coins,
-  accent = accentVar("cyan"),
-}: PlatformTopBarProps) {
-  const pathname = usePathname();
-  const resolvedTitle = title ?? (pathname.startsWith("/shop")
-    ? "Shop"
-    : pathname === "/decks"
-      ? "Deck Locker"
-      : pathname.startsWith("/decks/")
-        ? "Loadout"
-        : "StatOz");
-  return (
-    <header
-      className={`${styles.bar} flex h-19.5 shrink-0 items-center gap-3 px-4 pr-3.5 phone-land:h-12`}
-      style={{
-        "--bar-bg": pathname === "/" ? "color-mix(in srgb, var(--ds-color-background-nav) 84%, transparent)" : "var(--ds-color-background-nav)",
-        "--bar-line": `color-mix(in srgb, ${accent} 26%, transparent)`,
-      } as CSSProperties}
-    >
-      <h1
-        className="flex-1 truncate font-display text-2xl font-black leading-compact tracking-tight phone-land:text-lg"
-        style={{ textShadow: `0 0 12px color-mix(in srgb, ${accent} 30%, transparent)` }}
-      >
-        {resolvedTitle}
-      </h1>
-
-      <AuthenticatedStats coins={coins} accent={accent} />
-    </header>
-  );
-}
-
-function AuthenticatedStats({
-  coins,
-  accent,
-}: {
-  coins?: number;
-  accent: string;
-}) {
-  const economy = useEconomy();
-  const streakSnapshot = useStreakSnapshot();
-  const streakHydrated = useIsStreakHydrated();
+/** One navigation and status surface, shared by every platform destination. */
+export function PlatformTopBar({ coins }: PlatformTopBarProps) {
+  const pathname = usePathname(), query = useSearchParams(), router = useRouter();
+  const player = usePlayerStanding(), economy = useEconomy();
+  const streakSnapshot = useStreakSnapshot(), streakReady = useIsStreakHydrated();
   const streak = currentStreak(streakSnapshot, "overall");
-  const resolvedCoins = coins ?? economy.coins;
+  const library = pathname === "/" && query.get("view") === "all";
+  const libraryParams = new URLSearchParams(pathname === "/" ? query.toString() : "");
+  libraryParams.set("view", "all");
+  const libraryHref = `/?${libraryParams}`;
+  const active = library ? "library" : pathname.startsWith("/shop") ? "shop" : pathname.startsWith("/leaderboard") ? "leaderboard" : pathname === "/" || pathname.startsWith("/games/") ? "games" : "";
+  const coinParams = new URLSearchParams({ tab: "coins" });
+  if (pathname.startsWith("/shop") && query.get("sport")) coinParams.set("sport", query.get("sport")!);
 
-  return (
-    <>
-      <Link
-        href="/streaks"
-        className="flex items-center gap-1.5 px-1 py-2"
-        aria-label={`Daily streak: ${streak} days`}
-      >
-        <FlameIcon size={22} style={{ color: GOLD }} />
-        <span className="ds-tabular font-display text-sm font-black">
-          {streakHydrated ? formatInt(streak) : "—"}
-        </span>
+  useEffect(() => {
+    const shortcut = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if ((event.target as Element | null)?.closest("input, textarea, select, [contenteditable='true']") || document.querySelector("dialog[open]")) return;
+      const command = commands[Number(event.key) - 1];
+      if (!/^[1-4]$/.test(event.key) || !command) return;
+      event.preventDefault(); router.push(command.id === "library" ? libraryHref : command.href, { scroll: command.id !== "library" });
+    };
+    window.addEventListener("keydown", shortcut);
+    return () => window.removeEventListener("keydown", shortcut);
+  }, [router, libraryHref]);
+
+  return <header className={styles.bar} data-platform-command-bar>
+    <Link href="/" className={styles.brand} aria-label="StatOz home"><BrandIcon name="logo" size={30} alt="" /><span>StatOz<small>GAMES</small></span></Link>
+    <nav aria-label="Primary" className={styles.nav}>
+      {commands.map(command => <Link key={command.id} href={command.id === "library" ? libraryHref : command.href} scroll={command.id !== "library"} prefetch={false} aria-label={command.label} title={command.label} aria-current={active === command.id ? "page" : undefined} className={styles.command}>
+        {command.icon}<span>{command.label}</span>
+      </Link>)}
+    </nav>
+    <div className={styles.utilities}>
+      <Link href="/streaks" className={styles.stat} aria-label={`Daily streak: ${streakReady ? streak : 0} days`}><FlameIcon size={20} /><span>{streakReady ? formatInt(streak) : "—"}</span></Link>
+      <Link href={`/shop?${coinParams}`} className={styles.wallet} aria-label={`${formatInt(coins ?? economy.coins)} Oz Coins. Add coins`}>
+        <BrandIcon name="ozCoins" size={18} alt="" /><b data-shop-wallet={coins ?? economy.coins}>{formatInt(coins ?? economy.coins)}</b><span className={styles.plus} aria-hidden="true">+</span>
       </Link>
-
-      <div className="flex items-center gap-2 pl-2">
-        <BrandIcon name="ozCoins" size={18} alt="" />
-        <span className="ds-tabular font-display text-sm font-black">
-          {formatInt(resolvedCoins)}
-        </span>
-        <Link
-          href="/shop?tab=coins"
-          aria-label="Add coins"
-          className="grid size-7 place-items-center text-inverse"
-          style={{ background: accent }}
-        >
-          <PlusIcon size={17} />
-        </Link>
-      </div>
-    </>
-  );
+      <Link href="/profile" className={styles.profile} aria-label={`${player.displayName}, level ${player.level}. Open profile`} aria-current={pathname.startsWith("/profile") ? "page" : undefined}>
+        <Avatar src={player.avatarSrc} alt="" size={32} ring={player.frameColor ?? "var(--ds-color-accent-violet)"} ringWidth={1} />
+      </Link>
+    </div>
+  </header>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, KeyboardEvent } from "react";
+import { useId, type CSSProperties, type KeyboardEvent } from "react";
 
 import styles from "./filter-chips.module.css";
 
@@ -11,6 +11,7 @@ export type FilterChipsProps = {
   accent?: string;
   label: string;
   className?: string;
+  panelId?: string;
 };
 
 /**
@@ -28,7 +29,9 @@ export function FilterChips({
   accent = "var(--ds-color-accent-cyan)",
   label,
   className,
+  panelId,
 }: FilterChipsProps) {
+  const id = useId();
   function moveSelection(
     event: KeyboardEvent<HTMLButtonElement>,
     index: number,
@@ -65,6 +68,8 @@ export function FilterChips({
             type="button"
             role="tab"
             aria-selected={active}
+            id={`${id}-${index}`}
+            aria-controls={active ? panelId : undefined}
             tabIndex={active ? 0 : -1}
             onClick={() => onSelect(option)}
             onKeyDown={(event) => moveSelection(event, index)}

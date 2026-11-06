@@ -1,5 +1,5 @@
-export { GrandPrix } from "./rebuild/screen";
-export type { GrandPrixProps } from "./rebuild/screen";
+// The playable game is now Rally Dash (../rally-dash). This module keeps the legacy
+// Grand Prix progress that the profile still reads.
 
 /**
  * The mode's contribution to the profile, and the demo reset. The field, the

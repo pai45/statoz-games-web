@@ -13,7 +13,8 @@
   "adaptation": "Original national-color palettes applied only through source-authored shirt, shorts and stripe masks; source bodies, faces, frame coordinates and native holds remain unchanged. Masks are RGB coverage fields, not new character artwork.",
   "athletes": "Generic fictional athletes; no real-player likeness",
   "flags": "Original simplified vector flag icons in flag.tsx",
-  "trophy": "Original SVG design in game.tsx",
+  "trophy": "Original SVG design in views.tsx; original CSS stadium presentation and SVG menu symbols in menu.module.css and menu-icons.tsx",
+  "music": "Original procedural 112 BPM stadium composition in src/features/games/penalty-cup/music.ts: synthesized percussion, bass, chords and alternating melodic phrases. No third-party recordings or compositions. Generated locally through WebAudio, no runtime downloads.",
   "font": "Barlow Condensed, SIL OFL 1.1; copied from maintained vendor/final-third",
   "localOnly": true
 }

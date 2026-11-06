@@ -2,7 +2,25 @@
 
 Maintained locally in Future Games Web at /play/penalty-cup. No Flutter changes, publication or deployment. This report supersedes the initial implementation report for the mobile changes.
 
-## Passed checks
+## Match-night presentation and music — 6 November 2026
+
+Local-only menu refresh: trophy-led lobby, football mode cards, shield nation selections, match journey, tournament tables, full-time results and trophy room. Decorative trailing action arrows were removed. Original procedural stadium music uses one gesture-gated music context with persisted volume/master mute, a quieter match mix, background/host/match pause handling and disposal on exit. No third-party music assets were added.
+
+Passed checks for this revision:
+
+- `npm run test:penalty-cup`: all 19 tournament/save/mobile integration tests.
+- `npm run test:shootout`: all 34 existing shared-match regression tests.
+- `tests/penalty-cup-mobile.browser.mjs`: 131 screen-fit checks across seven phone sizes/orientations and 1280×720 desktop, plus all 48 nations, simultaneous touch shooting, goalkeeper animation, completed-penalty reload and account isolation. Settings, results, champion screens, history and paginated panels fit without page scrolling. Zero browser errors.
+- `tests/penalty-cup-music.browser.mjs`: no audio context before interaction; non-silent output with headroom; music volume, zero volume and master mute; host/background/match pause and resume; actual bus attenuation during matches; return to the menu mix; settings persistence; context disposal. The harness captures the music bus through an analyser. This is automated signal verification, not a physical-device listening test.
+- `npm run test:penalty-cup:app`: production play route, landscape and upright-phone rotation, account-scoped v2 save and reload.
+- `npm run typecheck`, `npm run build:penalty-cup` and `npm run build`: production compilation, all 65 generated routes and the device asset manifest. The final Penalty Cup bundle and device hashes were refreshed after the last presentation adjustment.
+- Scoped ESLint for Penalty Cup source and changed browser tests: no errors or warnings. Targeted `git diff --check`: clean.
+
+Repository-wide `npm run lint` reports 18 existing errors and 22 warnings in `.cache/hoop-legacy-athletes/rig.cjs`, `.claude/skills/*` and other unrelated files; none came from Penalty Cup. Those files were left as found.
+
+Evidence is in `test-results/penalty-cup-mobile`: `checks.json`, `music-checks.json`, `app-checks.json`, and current lobby, nation, hub, bracket, result and gameplay screenshots. Earlier `failure.*` files are diagnostic history from the layout iterations. The maintained preview is served locally at `http://127.0.0.1:5240/embedded-games/penalty-cup/index.html`. No push, deployment or cross-project sync was performed.
+
+## Passed checks — 31 October 2026
 
 - 38 unit/integration tests: tournament, mobile checkpoints, viewport policy, discovery and device assets (tests/penalty-cup.test.ts, tests/penalty-cup-mobile.test.ts, tests/mobile-game-viewport.test.ts, tests/home-catalog.test.ts, tests/device-assets.test.mjs).
 - 34 existing Penalty Shootout regression tests: npm run test:shootout. The original game's default physics, animation and match rules remain covered.

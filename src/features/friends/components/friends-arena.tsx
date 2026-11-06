@@ -2,7 +2,6 @@
 import { typography } from "@/design-system/tokens/typography";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import {
@@ -16,6 +15,7 @@ import {
   accentVar,
 } from "@/design-system";
 import { AuthBoundary } from "@/features/auth";
+import { GamePlayFeedback, useGamePlay, useGamePlayState } from "@/features/device-assets";
 import { activeLoadout, isLoadoutComplete, useDecks } from "@/features/cards-decks";
 import {
   isPro,
@@ -77,7 +77,8 @@ type OpenRival = { name: string; rank: number; xp: number; pro: boolean };
 type BoardEntry = { seed: RivalSeed | null; xp: number };
 
 function FriendsArenaBoard() {
-  const router = useRouter();
+  const play = useGamePlay();
+  const download = useGamePlayState("pitch-duel");
   const decks = useDecks();
   const friends = useFriends();
   const identity = useProfileIdentity();
@@ -131,7 +132,7 @@ function FriendsArenaBoard() {
       setToast("Build a match deck to challenge a friend.");
       return;
     }
-    router.push(
+    play("pitch-duel", "PITCH DUEL",
       `/play/pitch-duel?vs=${encodeURIComponent(seed.name)}&level=${rivalLevelFor(seed)}`,
     );
   }
@@ -235,6 +236,8 @@ function FriendsArenaBoard() {
             )}
           </div>
 
+          {download.pending ? <p className={styles.hint} role="status">{download.label}</p> : null}
+          <GamePlayFeedback game="pitch-duel" />
           {friends.friends.length === 0 ? (
             <p className={styles.hint}>
               Search a tag or username above to add your first rival.

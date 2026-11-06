@@ -1,5 +1,44 @@
 # Racer
 
+## Career (2 November 2026)
+
+Career is the main menu's primary mode: twelve races across Rookie, Club and Grand Prix, with 36 stars available.
+The first race is one lap of the original Starter Oval against three opponents. The field grows through 4, 5, 7,
+9, 11, 13, 15, 17 and 19 opponents; the last two races run three laps. Meadow Loop, Club Circuit and Ridge GP are
+original authored layouts, followed by the existing Silverstone GP circuit for races 9–12. Third place earns one
+star, second two and first three. A podium opens the next race, without additional tier star gates; a podium in
+race twelve completes career. Replays retain the best stars, position and time independently.
+
+`career.ts` owns the campaign and defensive save parsing. `geometry.ts` builds and caches immutable per-circuit
+track samples, gates, racing lines, barrier data and minimap geometry. Each race owns its circuit, grid size and
+lap count. Quick Race defaults remain twenty cars and two Silverstone laps with selectable Rookie/Pro/Elite AI.
+Career AI profiles interpolate from a forgiving rookie pace to Elite, without player-position speed boosts.
+The renderer rebuilds for a changed circuit or field size, retaining the loaded Kenney kit and disposing replaced
+scene resources. Motion interpolation, HUD, grids and diagnostics use the active field.
+
+Progress uses `racer.career.progress.v1` through the existing account-owned bundle storage. It saves completed
+attempts and the selected race, and resumes between races; an interrupted race restarts. Corrupt or newer saves
+remain untouched and the session is temporary. Existing Silverstone records and settings retain their keys;
+career never updates Quick Race records. Career host results include `mode: 'career'`, `stageId`, circuit,
+configured laps and earned stars, once per completed race. Quick Race result fields remain compatible.
+
+The three tier tabs show four races per page within a landscape viewport. The results offer Next Race, Retry,
+Replay for Stars and Back to Career. No economy, upgrades, new asset downloads or publication are involved.
+The implementation uses the installed router, level-design, game-ai, game-ui-ux, save-systems and
+threejs-scene-setup skills, while retaining Racer's existing presentation.
+
+Validation commands:
+
+```sh
+npm run test:racer                 # existing physics/reference tests plus all career stages
+npm run test:racer:career          # campaign, save validation, geometry and full-field completion
+npm run build:f1-racing            # local embedded bundle
+npm run test:racer:career:browser  # isolated fixture, accounts, circuits, mobile menus and real-clock opening race
+```
+
+Career browser evidence is written to `test-results/racer-career/`. Browser touch emulation does not replace
+physical iPhone/Android checks. No build or code is pushed by these commands.
+
 The latest gameplay revision is grounded in the original build's extracted RCC controllers and named native race/AI code. See [mechanics evidence and adaptation decisions](crazy-grand-prix-mechanics.md). Player and CPU now share physical motion, gearing and pedal behavior; ordered route gates, finish-time classification, gear/RPM, rival order, minimap competitors and held rear view replace the earlier simplified race model. The source-shaped simulation remains an authored browser adaptation.
 
 [Current validation](reference-validation.json) records 35 passing focused tests, the complete nineteen-CPU pack run, real-browser two-lap completion, pedal/phone/app checks and the matching production build. Earlier validation files remain historical. The timing stripe was shifted along the same Hamilton Straight so all ten starting rows launch on the straight. The preview launcher also waits for complete Next server manifests before starting.

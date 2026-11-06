@@ -11,7 +11,7 @@ import type { GameId } from "@/features/games/types";
  * keeping two lists, so a game can be promoted by editing one field.
  */
 const sourceDecks: Record<GameSport, GameId[]> = {
-  archery: ["longbow", "archery-test"],
+  archery: ["longbow", "archery-test", "holdover"],
   golf: ["open-golf"],
   football: [
     "penalty-cup",
@@ -29,10 +29,10 @@ const sourceDecks: Record<GameSport, GameId[]> = {
     "football-bingo",
     "guess-player",
   ],
-  cricket: ["cricketer", "stick-cricket", "retro-innings", "stadium-cricket", "cricket-quiz", "cricket-guess-player"],
-  basketball: ["retro-hoops", "vibe-basketball", "hoop-duel", "basketball-quiz", "basketball-guess-player"],
+  cricket: ["cricketer", "yorker", "stick-cricket", "retro-innings", "stadium-cricket", "cricket-quiz", "cricket-guess-player"],
+  basketball: ["hoop-legacy", "rim-rush", "retro-hoops", "vibe-basketball", "hoop-duel", "basketball-quiz", "basketball-guess-player"],
   tennis: ["tennis-bits", "tennis-rally", "tennis-quiz", "tennis-guess-winner"],
-  motorsport: ["f1-racing", "retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
+  motorsport: ["f1-racing", "portfolio-formula", "retro-circuit", "grand-prix-dash", "motorsport-quiz", "guess-driver"],
 };
 
 export const sportGameDecks = Object.fromEntries(Object.entries(sourceDecks).map(([sport, games]) => [sport, games.filter(isGameEnabled)])) as Record<GameSport, GameId[]>;

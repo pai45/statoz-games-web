@@ -6,6 +6,7 @@ import { grantCards, settleCoinReward } from "@/features/economy";
 import { promotionCard } from "@/mocks/packs/pitch-duel-fictional";
 import { recordStreakActivity } from "@/features/streaks/activity";
 
+import type { DebutSquad } from "../engine/debut";
 import type { ClubSetup } from "../engine/lineup";
 import { minuteLabel, mvp } from "../engine/match";
 import { divisions } from "../engine/setup";
@@ -115,6 +116,34 @@ export function markTutorialSeen() {
 export function setHaptics(haptics: boolean) {
   const current = read();
   write({ ...current, settings: { ...current.settings, haptics } });
+}
+
+export function setSound(sound: boolean) {
+  const current = read();
+  write({ ...current, settings: { ...current.settings, sound } });
+}
+
+/** The economy grant id for the debut XI: one per account, ever. */
+export const debutGrantId = "pitch-duel-debut-xi";
+
+/** Saves a freshly drawn debut XI before its reveal plays. An existing draw is kept. */
+export function saveDebutDraw(squad: DebutSquad): void {
+  const current = read();
+  if (current.debut) return;
+  write({ ...current, debut: { ...squad, claimed: false } });
+}
+
+/** Signs the debut XI: grants the eleven cards once and makes them the club. Call from a handler. */
+export function claimDebut(tactics: string[]): void {
+  const current = read();
+  const debut = current.debut;
+  if (!debut || debut.claimed) return;
+  grantCards({ id: debutGrantId, playerCardIds: [debut.keeperId, ...debut.outfield], title: "PITCH DUEL DEBUT XI" });
+  write({
+    ...current,
+    debut: { ...debut, claimed: true },
+    club: { formation: debut.formation, keeperId: debut.keeperId, outfield: debut.outfield, tactics },
+  });
 }
 
 export type MatchSettlement = { result: MatchResult; promoted: number | null; coins: number; prize: { id: string; name: string } | null };

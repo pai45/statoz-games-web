@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { publicAsset } from "@/shared/config";
 import { accentVar } from "@/design-system";
+import { GamePlayFeedback } from "@/features/device-assets";
 import type { GameEntry } from "@/mocks/games";
 import { gameCoverPath } from "../home-catalog";
 import type { GameId } from "../types";
@@ -28,7 +29,7 @@ export type DiscoveryGameTileProps = {
 export function DiscoveryGameTile({ game, entry, index, live = false }: DiscoveryGameTileProps) {
   const launch = useGameLaunch(entry), tilt = useCardTilt();
   const style = { "--card-accent": accentVar(entry.accent) } as CSSProperties;
-  const label = `Play ${entry.title}`;
+  const label = launch.state ? `${launch.label} — ${entry.title}` : `Play ${entry.title}`;
   const body: ReactNode = <>
     <span className={styles.edge} aria-hidden="true" />
     <span className={styles.fill}>
@@ -42,7 +43,7 @@ export function DiscoveryGameTile({ game, entry, index, live = false }: Discover
       <span className={`${styles.bracket} ${styles.bracketEnd}`} aria-hidden="true" />
       {index === undefined ? null : <span className={styles.serial} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>}
       <span className={styles.foot}>
-        <span className={styles.name}><i aria-hidden="true" />{entry.title}</span>
+        <span className={styles.name} aria-live="polite"><i aria-hidden="true" />{launch.state ? launch.label : entry.title}</span>
         <span className={styles.plate} aria-hidden="true">
           <span className={styles.plateFill}>
             <svg viewBox="0 0 14 14" width="14" height="14"><path d="M3 1.5v11l9-5.5z" fill="currentColor" /></svg>
@@ -53,7 +54,8 @@ export function DiscoveryGameTile({ game, entry, index, live = false }: Discover
   </>;
   return <div className={live ? `${styles.tile} ${styles.live}` : styles.tile} style={style}>
     {launch.href
-      ? <Link href={launch.href} aria-label={label} className={styles.hit} {...tilt}>{body}</Link>
-      : <button type="button" aria-label={label} className={styles.hit} onClick={launch.onClick} {...tilt}>{body}</button>}
+      ? <Link href={launch.href} prefetch={false} onClick={launch.onClick} aria-label={label} aria-busy={launch.pending || undefined} aria-disabled={launch.pending || undefined} className={styles.hit} {...tilt}>{body}</Link>
+      : <button type="button" aria-label={label} disabled={launch.pending} aria-busy={launch.pending || undefined} className={styles.hit} onClick={launch.onClick} {...tilt}>{body}</button>}
+    <GamePlayFeedback game={game} />
   </div>;
 }

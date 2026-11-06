@@ -16,6 +16,7 @@ import { avatarForName } from "@/features/onboarding";
 import { useCountUp } from "@/shared/hooks";
 import { formatInt } from "@/shared/utils";
 
+import { padScore } from "../arcade";
 import { plateFill, RankPlate } from "./rank-plate";
 
 /**
@@ -150,18 +151,21 @@ export function MovementBadge({
 export function ScoreText({
   value,
   suffix = "",
+  pad,
   className,
   style,
 }: {
   value: number;
   suffix?: string;
+  /** Zero-pads to this many digits (`000071`) instead of grouping thousands. */
+  pad?: number;
   className?: string;
   style?: CSSProperties;
 }) {
   const shown = useCountUp(value);
   return (
     <span className={className} style={style}>
-      {formatInt(shown)}
+      {pad ? padScore(shown, pad) : formatInt(shown)}
       {suffix}
     </span>
   );

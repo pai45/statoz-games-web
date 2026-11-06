@@ -1,9 +1,15 @@
 import { gameSportOrder, type GameSport } from "@/domain/game-sports";
 
-export function gameCatalogHref(sport: GameSport | null, viewAll = false) {
+/** Snapshot catalog view state before Next scrolls the outgoing page. */
+export const homeLaunchEvent = "statoz:home-launch";
+
+export function gameCatalogHref(sport: GameSport | null, viewAll = false, options: { game?: string; q?: string; listSport?: GameSport | "all" } = {}) {
   const params = new URLSearchParams();
   if (sport) params.set("sport", sport);
   if (viewAll) params.set("view", "all");
+  if (options.game) params.set("game", options.game);
+  if (viewAll && options.q) params.set("q", options.q);
+  if (viewAll && options.listSport) params.set("listSport", options.listSport);
   return params.size ? `/?${params}` : "/";
 }
 

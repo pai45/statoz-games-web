@@ -10,27 +10,31 @@ import { CupMatch } from './match';
 import { Home, TeamSelect, CupHub, MatchResultView, History } from './views';
 import { Landscape } from './landscape';
 import { Modal } from './modal';
+import { CupIcon } from './menu-icons';
+import { useCupMusic } from './use-cup-music';
 import { stageNames, type MatchResult } from './types';
-import styles from './screen.module.css';
+import { menuStyles as styles } from './menu-styles';
 
 type HostCommand = {id:number;type:'pause'|'resume'|'dispose'};
 type Props = {onExit:()=>void;onEvent?:(event:{type:string;payload:Record<string,unknown>})=>void;hostCommand?:HostCommand};
 type Exhibition = {team:string;opponent:string;seed:number;id:string};
 const freshSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
 const settingsKey = 'penalty-cup.settings.v1';
-const initialSettings = ():Settings => ({effects:.65,crowd:.45,muted:false,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});
+type CupSettings=Settings&{music:number};
+const initialSettings = ():CupSettings => ({effects:.65,crowd:.45,music:.55,muted:false,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});
 
 export function PenaltyCupGame({onExit,onEvent,hostCommand}:Props) {
   const [screen,setScreen]=useState<'home'|'select'|'hub'|'match'|'result'>('home');
   const [mode,setMode]=useState<'cup'|'random'>('cup'),[selected,setSelected]=useState('ARG');
   const [random,setRandom]=useState<Exhibition|null>(null),[result,setResult]=useState<MatchResult|null>(null);
-  const [dialog,setDialog]=useState<'help'|'history'|'replace'|null>(null),[settings,setSettings]=useState<Settings>(initialSettings);
+  const [dialog,setDialog]=useState<'help'|'history'|'replace'|null>(null),[settings,setSettings]=useState<CupSettings>(initialSettings),[matchPaused,setMatchPaused]=useState(false);
+  const audioState=useCupMusic({volume:settings.music,muted:settings.muted,match:screen==='match',matchPaused,hostCommand});
   const scope=(window as Window&{__STATOZ_BOOT__?:{storageScope?:string}}).__STATOZ_BOOT__?.storageScope??'guest';
   const {save,ready,error,notice,commit,clearError}=useCupSave(scope);
   const sentReady=useRef(false);
   useEffect(()=>{if(ready&&!sentReady.current){sentReady.current=true;onEvent?.({type:'ready',payload:{game:'penalty-cup'}});}},[ready,onEvent]);
-  useEffect(()=>{const timer=setTimeout(()=>{try{const old=JSON.parse(localStorage.getItem(settingsKey)??'null');if(old&&typeof old.muted==='boolean')setSettings({...initialSettings(),muted:old.muted,reducedMotion:!!old.reducedMotion});}catch{}},0);return()=>clearTimeout(timer);},[]);
-  const configure=(value:Settings)=>{setSettings(value);try{localStorage.setItem(settingsKey,JSON.stringify(value));}catch{}};
+  useEffect(()=>{const timer=setTimeout(()=>{try{const old=JSON.parse(localStorage.getItem(settingsKey)??'null');if(old&&typeof old.muted==='boolean')setSettings({...initialSettings(),muted:old.muted,reducedMotion:!!old.reducedMotion,music:typeof old.music==='number'&&Number.isFinite(old.music)?Math.max(0,Math.min(1,old.music)):.55});}catch{}},0);return()=>clearTimeout(timer);},[]);
+  const configure=(value:Settings&{music?:number})=>{const next={...value,music:value.music??settings.music};setSettings(next);try{localStorage.setItem(settingsKey,JSON.stringify(next));}catch{}};
   const cup=save.active,fixture=cup?currentFixture(cup):undefined;
   const choose=(value:typeof mode)=>{setMode(value);setScreen('select');};
   const continueCup=()=>{if(!cup)return;setMode('cup');setSelected(cup.team);setResult(cup.pending);setScreen(cup.pending?'result':'hub');};
@@ -74,15 +78,15 @@ export function PenaltyCupGame({onExit,onEvent,hostCommand}:Props) {
     rules={{responsiveKeeping:true,...(mode==='cup'&&cup!.stage==='group'?{allowDraw:true,earlyClinch:false}:{})}}
     persistent={mode==='cup'} saveNotice={notice} checkpoint={mode==='cup'?cup!.checkpoint?.match:undefined}
     onCheckpoint={value=>{if(mode==='cup')checkpoint(matchId,value);}}
-    settings={settings} onSettings={configure} onComplete={finish}
+    settings={settings} onSettings={configure} onComplete={finish} onPauseChange={setMatchPaused}
     onExit={()=>setScreen(mode==='cup'?'hub':'home')} hostCommand={hostCommand}
   /></Landscape>;
 
-  return <Landscape><section className={styles.game} data-penalty-cup data-screen={screen}>
+  return <Landscape><section className={styles.game} data-penalty-cup data-screen={screen} data-audio={audioState}>
     <header className={styles.header}>
-      <button aria-label={screen==='home'?'Exit to games':'Back'} onClick={()=>screen==='home'?onExit():setScreen('home')}>←</button>
-      <b>PENALTY CUP</b>
-      <div>{notice&&<small role="status">{notice}</small>}<button aria-label={settings.muted?'Unmute audio':'Mute audio'} onClick={()=>configure({...settings,muted:!settings.muted})}>{settings.muted?'♪ off':'♪'}</button><button aria-label="Controls and settings" onClick={()=>setDialog('help')}>?</button></div>
+      <button aria-label={screen==='home'?'Exit to games':'Back'} onClick={()=>screen==='home'?onExit():setScreen('home')}><CupIcon name="back"/></button>
+      <div className={styles.headerBrand}><CupIcon name="cup"/>PENALTY CUP<span className={styles.headerStatus}><i/>MATCH NIGHT</span></div>
+      <div>{notice&&<small role="status">{notice}</small>}<button aria-label={settings.muted?'Unmute audio':'Mute audio'} onClick={()=>configure({...settings,muted:!settings.muted})}><CupIcon name={settings.muted?'mute':'sound'}/></button><button aria-label="Controls and settings" onClick={()=>setDialog('help')}><CupIcon name="settings"/></button></div>
     </header>
     {error?<main className={styles.error} data-screen-content><h2>Saved cup unavailable</h2><p>{error}</p><button onClick={()=>{commit(()=>emptySave());clearError();}}>Reset save</button></main>:<>
       {screen==='home'&&<Home cup={cup} ready={ready} onCup={()=>choose('cup')} onRandom={()=>choose('random')} onContinue={continueCup} onHistory={()=>setDialog('history')}/>}
@@ -92,6 +96,6 @@ export function PenaltyCupGame({onExit,onEvent,hostCommand}:Props) {
     </>}
     {dialog==='replace'&&<Modal title="Replace this cup?" onClose={()=>setDialog(null)}><p>Your unfinished run will be replaced.</p><div className={styles.dialogActions}><button className={styles.primary} onClick={create}>New Cup</button><button onClick={()=>setDialog(null)}>Cancel</button></div></Modal>}
     {dialog==='history'&&<Modal title="Cup history" onClose={()=>setDialog(null)}><History cups={save.history}/><button onClick={()=>setDialog(null)}>Close</button></Modal>}
-    {dialog==='help'&&<Modal title="Controls" onClose={()=>setDialog(null)}><div className={styles.helpGrid}><p><b>SHOOT</b>Aim, hold to charge, release.</p><p><b>SAVE</b>Move left. Tap the right pad to dive.</p><p><b>KEYBOARD</b>WASD · Space · Arrows</p><p><b>GAMEPAD</b>Left stick · B · Right stick</p></div><label><input type="checkbox" checked={settings.reducedMotion} onChange={e=>configure({...settings,reducedMotion:e.target.checked})}/> Reduced motion</label><button className={styles.primary} onClick={()=>setDialog(null)}>Done</button></Modal>}
+    {dialog==='help'&&<Modal title="Match settings" onClose={()=>setDialog(null)}><div className={styles.helpGrid}><p><b>SHOOT</b>Aim, hold to charge, release.</p><p><b>SAVE</b>Move left. Tap the right pad to dive.</p><p><b>KEYBOARD</b>WASD · Space · Arrows</p><p><b>GAMEPAD</b>Left stick · B · Right stick</p></div><div className={styles.soundSettings}><label>Music<input type="range" aria-label="Music volume" min="0" max="1" step=".05" value={settings.music} onChange={e=>configure({...settings,music:Number(e.target.value)})}/><output>{Math.round(settings.music*100)}%</output></label><button onClick={()=>configure({...settings,muted:!settings.muted})}>{settings.muted?'Unmute audio':'Mute audio'}</button></div><label><input type="checkbox" checked={settings.reducedMotion} onChange={e=>configure({...settings,reducedMotion:e.target.checked})}/> Reduced motion</label><button className={styles.primary} onClick={()=>setDialog(null)}>Done</button></Modal>}
   </section></Landscape>;
 }

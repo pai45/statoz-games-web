@@ -1,4 +1,4 @@
-/** Pitch Duel's small line icons. Original drawings, `currentColor` throughout. */
+/** Fot Duel's small line icons. Original drawings, `currentColor` throughout. */
 
 type IconProps = { size?: number };
 
@@ -76,6 +76,23 @@ export function SwapIcon({ size = 18 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M4 8h14l-3-3M20 16H6l3 3" />
+    </svg>
+  );
+}
+
+export function SpeakerIcon({ size = 18, off }: IconProps & { off?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" fillOpacity="0.25" />
+      {off ? <path d="M16 9.5l5 5M21 9.5l-5 5" /> : <path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11" />}
+    </svg>
+  );
+}
+
+export function BoltIcon({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
+      <path d="M13.5 2L4.5 13.5h6L9.5 22l9-11.5h-6z" fill="currentColor" />
     </svg>
   );
 }

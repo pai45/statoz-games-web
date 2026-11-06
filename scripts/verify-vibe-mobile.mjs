@@ -4,7 +4,7 @@ import http from 'node:http';
 import assert from 'node:assert/strict';
 import {chromium} from '@playwright/test';
 const out=path.join(process.cwd(),'test-results/vibe-basketball/mobile-v3');await fs.mkdir(out,{recursive:true});
-const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--enable-unsafe-swiftshader']});
+const browser=await chromium.launch({executablePath:process.env.VIBE_CHROMIUM||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--enable-unsafe-swiftshader']});
 const errors=[],results=[];
 let server;
 if(!process.env.VIBE_GAME_URL){

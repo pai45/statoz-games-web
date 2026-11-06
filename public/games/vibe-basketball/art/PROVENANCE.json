@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "author": "Quaternius",
+  "license": "CC0-1.0",
+  "originalSource": "https://quaternius.com/packs/universalbasecharacters.html",
+  "acquisitionNote": "The original free itch.io download endpoint was unavailable in the environment. Standard CC0 source bytes were acquired from the pinned public mirror below, with the original author’s license preserved.",
+  "mirrorRevision": "54368c0875c5f72be00160fafb040c6ce5c4e760",
+  "acquisitions": [
+    {
+      "file": "License_Standard.txt",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/License_Standard.txt",
+      "sha256": "e08f717c3cfd999f4b44f2be4522b11a3ac3c0e5b6364b3a8788d25d4c90ff94"
+    },
+    {
+      "file": "Superhero_Male_FullBody.gltf",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/Superhero_Male_FullBody.gltf",
+      "sha256": "e7fcea214ecf8855afbf910b50de6f9c7d1decfb71ca28bad8a4481452dafeb4"
+    },
+    {
+      "file": "Superhero_Male_FullBody.bin",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/Superhero_Male_FullBody.bin",
+      "sha256": "459003f9745853ae562a85506a2b94dd56515c1f37728f9fa3d2ce1a3e4cd92f"
+    },
+    {
+      "file": "T_Superhero_Male_Dark.png",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/T_Superhero_Male_Dark.png",
+      "sha256": "df680cbc1967a61e85998bfafb8f7bc0a36dd604bb3266486c4b06b1a184bb45"
+    },
+    {
+      "file": "T_Superhero_Male_Normal.png",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/T_Superhero_Male_Normal.png",
+      "sha256": "9b25cf9200216eb754b79cf4c63b5380c419780788322f3c57cdd2b3e02679a6"
+    },
+    {
+      "file": "Superhero_Female_FullBody.gltf",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/Superhero_Female_FullBody.gltf",
+      "sha256": "adedf28000a0716f689b009a70314506fc62f827498f77ba852acb5610f3f3f4"
+    },
+    {
+      "file": "Superhero_Female_FullBody.bin",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/Superhero_Female_FullBody.bin",
+      "sha256": "3a8220a485b33d05d879115a50697728b45a151781106033afb8b8c243fca208"
+    },
+    {
+      "file": "T_Superhero_Female_Dark_BaseColor.png",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/T_Superhero_Female_Dark_BaseColor.png",
+      "sha256": "d366843ee7d9e9f37ec87a0e1c98c7f2e45573c08eeb80a51a6d9344e68cf288"
+    },
+    {
+      "file": "T_Superhero_Female_Normal.png",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/T_Superhero_Female_Normal.png",
+      "sha256": "cf922460b43ccd31e983e34db05514c9d451dd2f9cdd01a843978e797719f859"
+    },
+    {
+      "file": "T_Eye_Brown.png",
+      "url": "https://raw.githubusercontent.com/BoQsc/gpu-marching-cubes/54368c0875c5f72be00160fafb040c6ce5c4e760/models/entities/player/Universal%20Base%20Characters%5BStandard%5D/Base%20Characters/Godot%20-%20UE/T_Eye_Brown.png",
+      "sha256": "d08e3356a83211bc6ca21fe3a8e39f4b5c1a3b8f85457fc2c0fb57be09935025"
+    }
+  ],
+  "basketball": {
+    "author": "Zer0_Time",
+    "license": "CC-BY-3.0",
+    "source": "https://poly.pizza/m/wNXXIhP0ip",
+    "download": "https://static.poly.pizza/23cf3830-1385-406c-b458-5c42b6eec051.glb",
+    "sourceSha256": "ac712964722ff4c30b00351e3c19adcaf999c3432f93a0198e05b25c07c97b88"
+  },
+  "files": {
+    "QUATERNIUS-LICENSE.txt": "e08f717c3cfd999f4b44f2be4522b11a3ac3c0e5b6364b3a8788d25d4c90ff94",
+    "athlete-female.glb": "df045e2d17337c752d2eacd42906392f80ce03485e0450b681142c070a44cb55",
+    "athlete-male.glb": "2ca0ae44af23dd013ba90b6468b2ae503e7b891c739b93d03125cfc624ee6ca7",
+    "basketball.glb": "ac712964722ff4c30b00351e3c19adcaf999c3432f93a0198e05b25c07c97b88",
+    "eyes.webp": "b23f037171940e24500e1b1964c2db59c761088259ec96181b546045c276e870",
+    "normal-female.webp": "ab87a77cd8e2b1cb8cb8382131b328d3d5514e3797fee64690726af2cc0a2395",
+    "normal-male.webp": "fb2fb30706de5264558dbf9397f0d4d65f53e130deea399d4bea2e7cd616548d",
+    "skin-female.webp": "81ebbe86253dd02c45ec4d9544e4a756d477d8e97034477a8fce92d9c8260684",
+    "skin-male.webp": "952b133390544e0471ef244a57bdf297abf592f11c195223e8c0636d8819ee70",
+    "CREDITS.txt": "146ee6b12331e2c643fa8e22fca0ccf6c16f45e0b499f0f4981101faee5e626b"
+  }
+}

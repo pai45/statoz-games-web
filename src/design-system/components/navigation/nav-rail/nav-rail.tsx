@@ -33,7 +33,8 @@ export type NavRailProps = {
  * Primary destination switcher, styled as a game loadout. Every destination is
  * an icon slot; only the current one glows. The same items render as a
  * bottom hotbar on small screens or a side rail on large ones, so the
- * navigation identity survives the reflow.
+ * navigation identity survives the reflow. A host that paints its own panel
+ * behind the side rail sets `--nav-rail-panel` on it.
  */
 export function NavRail({
   items,
@@ -60,6 +61,7 @@ export function NavRail({
           const itemStyle = { "--nav-accent": item.accent } as CSSProperties;
           const content = (
             <>
+              {variant === "rail" ? <span className={styles.marker} aria-hidden="true" /> : null}
               <span className={styles.slot}><span className={styles.glyph}>{item.icon}</span></span>
               <span className={styles.label}>{item.label}</span>
             </>

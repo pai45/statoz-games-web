@@ -34,14 +34,15 @@ const shoot = async (x = 0, y = 1.3, hold = 1.4) => {
   await waitPhase(s => s.game.checkpoint > before);
 };
 const finishGame = async (x = 0, y = 1.3) => {for (let i = 0; i < 40; i++) {const s = await snapshot(); if (s.mode === 'finished') return s; await shoot(x, y);} throw Error('game did not finish');};
-const startLevel = async name => {await frame.getByRole('button', {name: /^CAREER/}).click(); await frame.getByRole('button', {name: new RegExp(name)}).click();};
+const startLevel = async name => {await frame.getByRole('button', {name: /^BROWSE LANES/}).click(); await frame.getByRole('button', {name: new RegExp(name)}).click();};
 
 try {
   await open(); await page.screenshot({path: path.join(out, '01-menu.png')});
   checks.push('Offline bundle boots with local CC0 assets and reaches the menu');
 
-  await frame.getByRole('button', {name: /^CAREER/}).click();
-  assert.equal(await frame.locator('[role=dialog] button[aria-label*="locked"]').count(), 9);
+  await frame.getByRole('button', {name: /^BROWSE LANES/}).click();
+  assert.equal(await frame.locator('[role=dialog] button[aria-label*="locked"]').count(), 0);
+  assert.ok(await frame.getByText(/9 lanes locked/).isVisible());
   assert.equal(await frame.getByRole('tab', {name: /^Pinewood/}).isDisabled(), true);
   await page.screenshot({path: path.join(out, '02-career.png')});
   await frame.getByRole('button', {name: /First Draw/}).click();
@@ -80,7 +81,7 @@ try {
 
   await frame.getByRole('button', {name: 'Pause game'}).click(); state = await snapshot(); await advance(2);
   assert.equal((await snapshot()).game.time, state.game.time);
-  await frame.getByRole('checkbox', {name: /Reduce motion/}).check(); await frame.getByRole('button', {name: /RESUME/}).click();
+  await frame.getByText('SETTINGS', {exact: true}).click(); await frame.getByRole('checkbox', {name: /Reduce motion/}).check(); await frame.getByRole('button', {name: /RESUME/}).click();
   assert.equal((await snapshot()).save.reducedMotion, true);
   await finishGame();
   checks.push('Pause freezes the range; the reduced-motion preference persists');
@@ -108,8 +109,8 @@ try {
     }
     await page.screenshot({path: path.join(out, `mobile-${size.width}.png`)});
   }
-  await frame.getByRole('button', {name: 'Pause game'}).click(); await frame.getByRole('button', {name: /SAVE AND QUIT/}).click();
-  await frame.getByRole('button', {name: /^CAREER/}).click();
+  await frame.getByRole('button', {name: 'Pause game'}).click(); await frame.getByRole('button', {name: /EXIT TO MENU/}).click();
+  await frame.getByRole('button', {name: /^BROWSE LANES/}).click();
   const dialog = await frame.getByRole('dialog', {name: 'Choose a level'}).boundingBox();
   assert.ok(dialog.y >= 0 && dialog.y + dialog.height <= 375 && dialog.x + dialog.width <= 667, JSON.stringify(dialog));
   await page.screenshot({path: path.join(out, 'mobile-career-667.png')});

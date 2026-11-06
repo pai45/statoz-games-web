@@ -20,7 +20,7 @@ const segmentLabels: Record<string, string> = {
   motorsport: "MOTORSPORT",
   "penalty-shootout": "PENALTY SHOOTOUT",
   pick: "PICK",
-  "pitch-duel": "PITCH DUEL",
+  "pitch-duel": "FOT DUEL",
   predict: "PREDICT",
   shoutout: "SHOUTOUT",
   tennis: "TENNIS",
@@ -59,7 +59,8 @@ export function breadcrumbsForPath(pathname: string): BreadcrumbItem[] {
         ? [HOME, { label: "HOW TO PLAY", href: "/how-to-play" }, { label: labelFor(detail) }]
         : [HOME, { label: "HOW TO PLAY" }];
     case "leaderboard":
-      return [HOME, { label: "LEADERBOARD" }];
+    case "shop":
+      return [];
     case "leagues":
       return leaf === "teams" && item
         ? [HOME, { label: `${labelFor(detail ?? "league")} HUB`, href: `/leagues/${detail}` }, { label: `${labelFor(item)} DETAILS` }]
@@ -79,6 +80,7 @@ export function breadcrumbsForPath(pathname: string): BreadcrumbItem[] {
         ? [HOME, { label: "PICKS", href: "/picks" }, { label: "MARKET DETAILS" }]
         : [HOME, { label: "PICKS" }];
     case "profile":
+      if (!detail) return [];
       if (detail === "history" && leaf) {
         return [
           HOME,
@@ -102,8 +104,6 @@ export function breadcrumbsForPath(pathname: string): BreadcrumbItem[] {
         return [HOME, { label: "PROFILE", href: "/profile" }, { label: "XP PROGRESS" }];
       }
       return [HOME, { label: "PROFILE" }];
-    case "shop":
-      return [HOME, { label: "SHOP" }];
     default:
       return [HOME, { label: labelFor(leaf ?? detail ?? section) }];
   }

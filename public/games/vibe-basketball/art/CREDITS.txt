@@ -1,0 +1,15 @@
+Vibe Basketball — additional art credits
+
+Athlete bodies, faces, eyes and skin textures: Quaternius, Universal Base Characters [Standard].
+CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/
+Original source and license verified at https://quaternius.com/packs/universalbasecharacters.html
+https://quaternius.itch.io/universal-base-characters
+Adaptations: fitted to Vibe’s contact skeleton, articulated fingers, resized textures.
+Basketball uniforms, hair, shoes, lobby staging and basketball animation: original local work.
+
+Basketball by Zer0_Time (https://poly.pizza/m/wNXXIhP0ip)
+CC BY 3.0: https://creativecommons.org/licenses/by/3.0/
+Used as the lobby warmup ball; normalized size, material roughness and original seam overlays.
+Gameplay/contest basketball remains upstream so scoring colours and physics are preserved.
+
+Upstream game and Three.js credits remain in LICENSES.txt.

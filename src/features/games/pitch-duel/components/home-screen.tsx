@@ -8,20 +8,18 @@ import { promotionCard } from "@/mocks/packs/pitch-duel-fictional";
 
 import { formations, type ClubSetup } from "../engine/lineup";
 import { divisionFor, divisions } from "../engine/setup";
-import { coinsFor, type Career } from "../state/career-schema";
+import type { Career } from "../state/career-schema";
 
-import { BallIcon, PitchIcon, StarIcon } from "./icons";
+import { BallIcon, StarIcon } from "./icons";
 import { keeperAt, placeSpot } from "./pitch-layout";
 import { Pill } from "./ui";
 import styles from "./home.module.css";
 
 const pointsPerDivision = 9;
 const topDivision = 5;
-const resultTone = { Victory: "#4ade80", Draw: "#fbbf24", Defeat: "#f87171" } as const;
-const resultLetter = { Victory: "W", Draw: "D", Defeat: "L" } as const;
 
 /**
- * The Pitch Duel club house, in landscape: on the left the wordmark,
+ * The Fot Duel club house, in landscape: on the left the wordmark,
  * division badge and PLAY MATCH; on the right the promotion track and form
  * over your eleven on a sideways mini pitch.
  */
@@ -46,13 +44,11 @@ export function HomeScreen({
   const top = division >= topDivision;
   const earned = top ? pointsPerDivision : career.points % pointsPerDivision;
   const reward = top ? undefined : promotionCard(division + 1);
-  const form = career.history.slice(0, 5);
-  const goalDiff = career.goalsFor - career.goalsAgainst;
 
   return (
     <div className={styles.home}>
       <div className={styles.lobby}>
-        <section className={styles.hero} aria-label="Pitch Duel">
+        <section className={styles.hero} aria-label="Fot Duel">
           <span className={styles.badge}>
             <i aria-hidden />
             DIV {division} · {divisions[division - 1]}
@@ -62,29 +58,18 @@ export function HomeScreen({
             <span className={styles.wordBall} aria-hidden>
               <BallIcon size={44} />
             </span>
-            PITCH <em>DUEL</em>
+            FOT <em>DUEL</em>
           </h1>
-          <p className={styles.tagline}>Eleven a side · one duel at a time</p>
         </section>
 
         <div className={styles.ctaStack}>
           <Pill tone="violet" wide pulse onClick={onPlay} icon={<BallIcon size={22} />} optionId="play-match">
-            PLAY MATCH!
+            NEXT MATCH
           </Pill>
-          <p className={styles.stakes}>
-            WIN <b>+3 PTS</b> · <b className={styles.coin}>+{coinsFor("Victory")}</b> COINS
-          </p>
           <div className={styles.ctaRow}>
-            <Pill tone="light" onClick={onLineup} icon={<PitchIcon />}>
-              LINEUP
-            </Pill>
-            <Pill tone="light" onClick={onLeague}>
-              LEAGUE
-            </Pill>
+            <button type="button" className={styles.guideLink} onClick={onLeague}>League</button>
+            <button type="button" className={styles.guideLink} onClick={onGuide} data-new={!career.tutorialSeen || undefined}>Guide</button>
           </div>
-          <button type="button" className={styles.guideLink} onClick={onGuide} data-new={!career.tutorialSeen || undefined}>
-            {career.tutorialSeen ? "How to play" : "New here? Read how to play ▸"}
-          </button>
         </div>
       </div>
 
@@ -105,29 +90,6 @@ export function HomeScreen({
               <i key={i} data-on={i < earned || undefined} style={{ "--i": i } as CSSProperties} />
             ))}
           </div>
-          <div className={styles.formRow}>
-            <ol className={styles.form} aria-label="Last five results">
-              {Array.from({ length: 5 }, (_, i) => {
-                const r = form[i];
-                return r ? (
-                  <li
-                    key={r.id}
-                    style={{ "--tone": resultTone[r.result] } as CSSProperties}
-                    title={`${r.result} ${r.playerScore}–${r.opponentScore} vs ${r.opponentName}`}
-                  >
-                    {resultLetter[r.result]}
-                  </li>
-                ) : (
-                  <li key={`empty-${i}`} data-empty aria-label="No match yet">
-                    –
-                  </li>
-                );
-              })}
-            </ol>
-            <span className={styles.record}>
-              <b>{career.wins}</b>W <b>{career.draws}</b>D <b>{career.losses}</b>L · GD <b>{goalDiff > 0 ? `+${goalDiff}` : goalDiff}</b>
-            </span>
-          </div>
         </section>
 
         <ClubPitch club={club} cardFor={cardFor} onLineup={onLineup} />
@@ -141,7 +103,7 @@ function ClubPitch({ club, cardFor, onLineup }: { club: ClubSetup | null; cardFo
   if (!club) {
     return (
       <button type="button" className={styles.club} onClick={onLineup}>
-        <span className={styles.clubHead}>YOUR XI</span>
+        <span className={styles.clubHead}>YOUR SQUAD</span>
         <span className={styles.clubEmpty}>Pick a keeper to build your club.</span>
       </button>
     );
@@ -154,9 +116,9 @@ function ClubPitch({ club, cardFor, onLineup }: { club: ClubSetup | null; cardFo
   const academy = club.outfield.filter(isAcademyId).length + Number(isAcademyId(club.keeperId));
 
   return (
-    <button type="button" className={styles.club} onClick={onLineup} aria-label={`Your eleven, ${club.formation} ${shape.label}, overall ${ovr}. Edit lineup`}>
+    <button type="button" className={styles.club} onClick={onLineup} aria-label={`Your squad, ${club.formation} ${shape.label}, overall ${ovr}. Open squad`}>
       <span className={styles.clubHead}>
-        <span>YOUR XI</span>
+        <span>YOUR SQUAD</span>
         <span className={styles.formation}>
           {club.formation} <em>{shape.label}</em>
         </span>
@@ -194,7 +156,7 @@ function ClubPitch({ club, cardFor, onLineup }: { club: ClubSetup | null; cardFo
           {club.tactics.length} TACTIC CARD{club.tactics.length === 1 ? "" : "S"}
           {academy ? ` · ${academy} ACADEMY` : ""}
         </span>
-        <span>EDIT LINEUP ▸</span>
+        <span>OPEN SQUAD ▸</span>
       </span>
     </button>
   );

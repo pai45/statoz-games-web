@@ -22,7 +22,12 @@ async function resolve(params: Promise<{ slug: string[] }>) {
 // Enable native safe-area insets for this game’s full-screen mobile frame.
 export async function generateViewport({ params }: PageProps<"/play/[...slug]">): Promise<Viewport> {
   const found = await resolve(params);
-  if (found && ["cricketer","f1-racing","football-shooting","retro-football-2","stick-cricket","archery-test","longbow"].includes(found.game)) return {viewportFit:"cover",themeColor:"#17201b"};
+  if (found && ["cricketer","yorker","f1-racing","football-shooting","retro-football-2","stick-cricket","archery-test","longbow"].includes(found.game)) return {viewportFit:"cover",themeColor:"#17201b"};
+  if (found?.game === "holdover") return {viewportFit:"cover",themeColor:"#050607"};
+  if (found?.game === "hoop-legacy") return {viewportFit:"cover",themeColor:"#05070b"};
+  if (found?.game === "rim-rush") return {viewportFit:"cover",themeColor:"#14392e"};
+  if (found?.game === "football-chess") return {viewportFit:"cover",themeColor:"#24170d"};
+  if (found?.game === "grand-prix-dash") return {viewportFit:"cover",themeColor:"#1b1714"};
   return found?.game === "vibe-basketball" ? { viewportFit: "cover", themeColor: "#05070c" } : {};
 }
 

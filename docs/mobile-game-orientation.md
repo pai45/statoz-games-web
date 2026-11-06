@@ -1,8 +1,9 @@
 # Mobile game orientation
 
-All enabled games except Football Chess and Tennis Rally open in a landscape
+All enabled games except Tennis Rally and the portrait-first games listed in
+`src/features/games/shared/mobile-viewport/policy.ts` open in a landscape
 viewport on coarse-pointer devices up to 1366 CSS pixels wide. Desktop behavior
-and both exceptions keep their existing layout. No rotate-screen overlay, browser
+and the exceptions keep their existing layout. No rotate-screen overlay, browser
 permission, fullscreen request, or native orientation-lock support is required.
 
 The shared game launcher hosts the same game route in a same-origin iframe. On

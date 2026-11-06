@@ -1,5 +1,17 @@
 # Pitch Rush validation — 2026-10-24
 
+## Lobby, playable tutorial and career — 2026-11-06
+
+Implemented the dedicated lobby, first-kick-off tutorial offer, individual/full Training, and Rush FC's Local → Regional → National → Premier career. Seasons have six clubs/five matches, deterministic off-screen results, top-two promotion, retained cosmetics, division trophies, and repeatable Premier seasons. Equipped kits are cached cloth-only Kenney recolours; badges/trophies are original graphics. Vendor source/provenance hashes remain unchanged.
+
+All 30 integrity, art, gameplay, career, tutorial, checkpoint and download-record tests passed. The pure tests exercise full seasons, second-place promotion, unsuccessful seasons, idempotent results, all four titles, defensive loading/backups, quota failures and deterministic continuation after snapshot restoration. Drill tests use the actual adapted simulation for received passes, slide/recovery and charged goals.
+
+The career browser suite passed native keyboard completion of all three drills, the original intended kick-off, interruption/skip/replay, all four division UI transitions, actual canvas kit recolouring, saved clock/score/RNG restoration, reload after full time, separate account scopes, visible in-match save failure/retry, simulated gamepad menus and held-confirm suppression. Career screens and native simultaneous touch passing passed at 844×390, 740×360, 667×375 and 1180×820. Evidence: `test-results/pitch-rush/career/report.json` and PNGs.
+
+The maintained host suite passed against the actual refreshed download hashes at 1280×800, 844×390, 740×360, 393×851 (the real rotated portrait host), and 1180×820. It covers guest launch, account-scoped high scores, two-player Quick Match, touch action separation, pause/input interruption, results/rematch and exit. The harness follows the current direct launch/host Games exit routes, and limits downloads to Pitch Rush and its cover without substituting hashes. Evidence: `test-results/pitch-rush/report.json`.
+
+Aim checks passed at 44.74 ticks per wall-clock second (target 45), with exact rightward pass/shot direction and full-power release behavior. Artwork gating/retry/disposal checks and targeted ESLint passed. No page errors or remote game requests were recorded. Only Pitch Rush was rebuilt; its build refreshes its own record in current compiled-host download manifests, preserving other records and historical manifests. No push/publication or other repository changes were performed. Physical devices, physical gamepads and audible output remain manual checks. Career browser final scores are controlled test states; gameplay/drill outcomes and deterministic continuation are covered by simulation tests.
+
 ## Kenney Sports Pack refresh — 2026-11-01
 
 Implemented a feature-owned Canvas art/renderer adapter using Kenney Sports Pack

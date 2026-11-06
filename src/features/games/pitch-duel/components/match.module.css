@@ -29,7 +29,7 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr) minmax(15rem, 28rem) minmax(0, 1fr) 2.75rem;
+  grid-template-columns: 2.75rem minmax(0, 1fr) minmax(15rem, 28rem) minmax(0, 1fr) 2.75rem 2.75rem;
   gap: 0.45rem;
   align-items: center;
   padding: 0.35rem max(0.6rem, env(safe-area-inset-right)) 0.3rem max(0.6rem, env(safe-area-inset-left));
@@ -211,7 +211,9 @@
   gap: 0.6rem;
   min-height: 0;
   padding: 0.5rem max(0.6rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.6rem, env(safe-area-inset-left));
+  /* Clip, not hide: the perspective pitch is wider than the stage, and a hidden overflow can still be scrolled sideways by a tap. */
   overflow: hidden;
+  overflow: clip;
   background:
     radial-gradient(30% 34% at 22% 0%, rgba(255, 255, 255, 0.2), transparent 70%),
     radial-gradient(30% 34% at 78% 0%, rgba(255, 255, 255, 0.2), transparent 70%),
@@ -657,6 +659,7 @@
 }
 
 .verdict {
+  position: relative;
   display: grid;
   gap: 0.2rem;
   justify-items: center;
@@ -728,12 +731,25 @@
 
 .callHead {
   display: grid;
-  gap: 0.2rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 0.5rem;
+  align-items: center;
   padding-bottom: 0.45rem;
   border-bottom: 1px solid var(--pd-line);
 }
 
-.callHead b {
+.callHead > b,
+.callHead > small {
+  grid-column: 1;
+}
+
+/* The momentum chip sits beside the heading, so it costs the column no height. */
+.callHead > .surge {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+.callHead > b {
   font: 900 italic 1.05rem/1.05 var(--pd-font-display), sans-serif;
   letter-spacing: 0.02em;
   background: linear-gradient(90deg, #fff, #e9d5ff);
@@ -743,7 +759,7 @@
   animation: slideIn 220ms ease-out;
 }
 
-.callHead small {
+.callHead > small {
   color: var(--pd-sub);
   font: 600 0.8rem/1.2 var(--pd-font-labels), sans-serif;
 }
@@ -1402,13 +1418,608 @@
   font: 500 0.85rem/1 var(--pd-font-display), sans-serif;
 }
 
+/* ---- Momentum: a bar under each side of the scorebug ------------------------------ */
+
+.scoreTrap {
+  padding-bottom: 0.7rem;
+}
+
+.mom {
+  --c: linear-gradient(90deg, #1d4ed8, #60a5fa);
+  position: absolute;
+  bottom: 0.32rem;
+  width: 27%;
+  height: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.mom[data-side="home"] {
+  left: 11%;
+}
+
+.mom[data-side="away"] {
+  --c: linear-gradient(270deg, #b91c1c, #f87171);
+  right: 11%;
+}
+
+.mom::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--m);
+  background: var(--c);
+  border-radius: inherit;
+  transition: width 700ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.mom[data-side="away"]::after {
+  right: 0;
+  left: auto;
+}
+
+.mom[data-full] {
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.9);
+}
+
+.mom[data-full]::after {
+  background: linear-gradient(90deg, #fde68a, #fbbf24);
+  animation: momPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes momPulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* The momentum chip in the tactic row: a meter until full, then a gold SURGE button. */
+.surge {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.6rem;
+  min-height: 2.75rem;
+  padding: 0 0.65rem;
+  overflow: hidden;
+  color: #dbeafe;
+  font: 800 0.74rem/1 var(--pd-font-labels), sans-serif;
+  letter-spacing: 0.06em;
+  background: rgba(30, 58, 138, 0.3);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.surge:disabled {
+  cursor: default;
+}
+
+.surge > i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--m);
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.55), rgba(96, 165, 250, 0.6));
+  transition: width 700ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.surge svg,
+.surge b {
+  position: relative;
+}
+
+.surge[data-ready] {
+  color: #2a1a02;
+  background: linear-gradient(90deg, #fde68a, #fbbf24);
+  border-color: #fde68a;
+  animation: surgeReady 1.1s ease-in-out infinite;
+}
+
+.surge[data-ready] > i {
+  display: none;
+}
+
+.surge[aria-pressed="true"] {
+  color: #92400e;
+  background: #fff;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.9), inset 0 0 0 2px #fbbf24;
+  animation: none;
+}
+
+@keyframes surgeReady {
+  50% {
+    box-shadow: 0 0 18px rgba(251, 191, 36, 0.85);
+  }
+}
+
+/* With a surge armed, the moves glow gold. */
+.pad[data-surging] .move {
+  background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 16px rgba(251, 191, 36, 0.55);
+}
+
+/* ---- The crowd behind the cards: heads and phone flashes, busier as the danger rises --- */
+
+.stage > .crowd {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 34%;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(24, 16, 44, 0.95) 0 4px, transparent 4.5px) 0 0 / 12px 11px,
+    radial-gradient(circle, rgba(34, 22, 58, 0.95) 0 4px, transparent 4.5px) 6px 5px / 12px 11px;
+  -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent);
+  mask-image: linear-gradient(180deg, #000 30%, transparent);
+  opacity: 0.6;
+}
+
+.crowd i {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 1px, transparent 1.6px) 0 0 / 41px 19px,
+    radial-gradient(circle, rgba(255, 236, 200, 0.85) 0 1px, transparent 1.6px) 17px 7px / 67px 29px;
+  opacity: 0.35;
+  animation: crowdFlash 1.8s steps(2) infinite;
+}
+
+.crowd i:nth-child(2) {
+  background-position: 23px 11px, 5px 3px;
+  animation-duration: 1.3s;
+  animation-delay: -0.6s;
+}
+
+@keyframes crowdFlash {
+  50% {
+    background-position: 29px 5px, 41px 17px;
+  }
+}
+
+.screen[data-heat="chance"] .crowd i,
+.screen[data-heat="danger"] .crowd i {
+  opacity: 0.7;
+  animation-duration: 0.7s;
+}
+
+.screen[data-heat="goal"] .crowd i {
+  opacity: 1;
+  animation-duration: 0.22s;
+}
+
+/* A gold (or red) wash across the stage when a surge is spent. */
+.stage > .surgeFlash {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(60% 70% at 50% 45%, rgba(251, 191, 36, 0.4), transparent 70%);
+  animation: surgeFlash 0.8s ease-out both;
+}
+
+.surgeFlash[data-side="away"] {
+  background: radial-gradient(60% 70% at 50% 45%, rgba(248, 113, 113, 0.35), transparent 70%);
+}
+
+@keyframes surgeFlash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ---- The clash: a flash and sparks at the VS, a shake on big moments ---------------- */
+
+.vsWrap {
+  position: relative;
+}
+
+.duel[data-revealing] .vs {
+  animation: vsHit 0.45s ease-out, vsPulse 2.4s 0.45s ease-in-out infinite;
+}
+
+@keyframes vsHit {
+  30% {
+    transform: skewX(-8deg) scale(1.4);
+  }
+}
+
+.impact {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.impact::before {
+  content: "";
+  position: absolute;
+  top: -3rem;
+  left: -3rem;
+  width: 6rem;
+  height: 6rem;
+  background: radial-gradient(circle, #fff 0 10%, color-mix(in srgb, var(--tone) 70%, transparent) 32%, transparent 66%);
+  border-radius: 50%;
+  animation: impactFlash 0.5s ease-out both;
+}
+
+.impact[data-big]::before {
+  animation-duration: 0.75s;
+}
+
+.impact i {
+  position: absolute;
+  width: 0.9rem;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--tone);
+  transform: rotate(var(--a)) translateX(0.4rem);
+  animation: impactSpark 0.5s ease-out both;
+}
+
+.impact i:nth-child(1) {
+  --a: 10deg;
+}
+
+.impact i:nth-child(2) {
+  --a: 70deg;
+}
+
+.impact i:nth-child(3) {
+  --a: 130deg;
+}
+
+.impact i:nth-child(4) {
+  --a: 190deg;
+}
+
+.impact i:nth-child(5) {
+  --a: 250deg;
+}
+
+.impact i:nth-child(6) {
+  --a: 310deg;
+}
+
+@keyframes impactFlash {
+  from {
+    opacity: 1;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+@keyframes impactSpark {
+  to {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(3.4rem);
+  }
+}
+
+.duel[data-big] .cards {
+  animation: bigShake 0.45s 0.1s ease-out;
+}
+
+@keyframes bigShake {
+  20% {
+    transform: translate(-5px, 2px);
+  }
+  40% {
+    transform: translate(4px, -3px);
+  }
+  60% {
+    transform: translate(-3px, 1px);
+  }
+  80% {
+    transform: translate(2px, -1px);
+  }
+}
+
+/* A surge on a card: a gold bolt at its corner (pulsing while theirs waits). */
+.surgeBadge {
+  position: absolute;
+  top: -0.45rem;
+  left: -0.45rem;
+  z-index: 3;
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  color: #2a1a02;
+  background: radial-gradient(circle at 35% 30%, #fff7d6, #fbbf24 60%, #b45309);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.9);
+  animation: pop 0.3s ease-out;
+}
+
+.slot[data-side="away"] .surgeBadge {
+  right: -0.45rem;
+  left: auto;
+}
+
+.surgeBadge[data-waiting] {
+  animation: surgeReady 1s ease-in-out infinite;
+}
+
+/* ---- The duel meter along the verdict's top edge ------------------------------------- */
+
+.meter {
+  position: absolute;
+  top: 0;
+  right: 12%;
+  left: 12%;
+  height: 5px;
+  background: linear-gradient(90deg, transparent calc(var(--lo) - 1px), rgba(255, 255, 255, 0.7) calc(var(--lo) - 1px) calc(var(--lo) + 1px), transparent calc(var(--lo) + 1px)),
+    linear-gradient(90deg, transparent calc(50% - 1px), #fff calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(90deg, transparent calc(var(--hi) - 1px), rgba(255, 255, 255, 0.7) calc(var(--hi) - 1px) calc(var(--hi) + 1px), transparent calc(var(--hi) + 1px)),
+    linear-gradient(90deg, rgba(248, 113, 113, 0.95), rgba(248, 113, 113, 0.3) 50%, rgba(74, 222, 128, 0.3) 50%, rgba(74, 222, 128, 0.95));
+  border-radius: 0 0 4px 4px;
+}
+
+.meterNeedle {
+  position: absolute;
+  top: -2px;
+  left: var(--at);
+  width: 4px;
+  height: 11px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #fff, 0 0 14px var(--tone);
+  translate: -50% 0;
+  animation: needle 0.9s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+@keyframes needle {
+  from {
+    left: 50%;
+  }
+}
+
+.verdictTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.verdictTag[data-word] {
+  color: var(--tag);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tag) 60%, transparent);
+}
+
+/* ---- Kick-off, half-time and full-time panel ------------------------------------------- */
+
+.phasePanel {
+  display: grid;
+  flex: 1;
+  align-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  min-height: 0;
+  padding: 0.4rem;
+  text-align: center;
+  container-type: size;
+  animation: pop 0.4s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+.phaseKicker {
+  color: #bfff00;
+  font: 900 italic 0.9rem/1 var(--pd-font-display), sans-serif;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 14px rgba(191, 255, 0, 0.5);
+}
+
+.phaseTeams {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: center;
+  width: 100%;
+}
+
+.crest {
+  --from: -24px;
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+  min-width: 0;
+  grid-row: 1;
+  grid-column: 1;
+  animation: deal 0.5s cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+
+.crest[data-side="away"] {
+  --from: 24px;
+  grid-column: 3;
+  animation-delay: 0.08s;
+}
+
+.phaseScore {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.crestBadge {
+  display: grid;
+  width: clamp(2.8rem, 18cqh, 4.6rem);
+  aspect-ratio: 5 / 6;
+  place-items: center;
+  color: #fff;
+  font: 950 italic clamp(0.8rem, 5cqh, 1.1rem) / 1 var(--pd-font-display), sans-serif;
+  letter-spacing: 0.02em;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--side) 40%, #fff), var(--side) 45%, color-mix(in srgb, var(--side) 45%, #000));
+  clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%);
+  filter: drop-shadow(0 0 0.8rem color-mix(in srgb, var(--side) 60%, transparent));
+}
+
+.crest b {
+  max-width: 100%;
+  overflow: hidden;
+  font: 900 italic 1rem/1.05 var(--pd-font-display), sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crest small {
+  color: var(--pd-sub);
+  font: 600 0.75rem/1.1 var(--pd-font-labels), sans-serif;
+  letter-spacing: 0.06em;
+}
+
+.crest em {
+  color: #fbbf24;
+  font: 700 0.78rem/1 var(--pd-font-labels), sans-serif;
+  font-style: normal;
+  letter-spacing: 0.06em;
+}
+
+.phaseScore b {
+  font: 950 clamp(2.2rem, 16cqh, 3.6rem) / 1 var(--pd-font-display), sans-serif;
+}
+
+.phaseScore i {
+  color: var(--pd-sub);
+  font-size: 1.6rem;
+  font-style: normal;
+}
+
+.phaseNote {
+  max-width: 26rem;
+  margin: 0;
+  color: var(--pd-sub);
+  font: 500 0.88rem/1.3 var(--pd-font-labels), sans-serif;
+}
+
+.phaseNote b {
+  color: #fbbf24;
+}
+
+.phaseStats {
+  width: min(100%, 24rem);
+}
+
+.phaseStats .periodStats {
+  gap: 0.3rem;
+}
+
+/* ---- Goal celebration ----------------------------------------------------------------- */
+
+.celebration {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.celebrationFlash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.55), rgba(96, 165, 250, 0.35) 35%, transparent 70%);
+  animation: celebrate 0.9s ease-out both;
+}
+
+.celebration[data-side="away"] .celebrationFlash {
+  background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(220, 38, 38, 0.45) 100%);
+  animation: celebrate 1.4s ease-out both;
+}
+
+@keyframes celebrate {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: absolute;
+  top: -5%;
+  width: 0.5rem;
+  height: 0.85rem;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confetti 2.6s var(--delay) cubic-bezier(0.25, 0.4, 0.5, 1) both;
+}
+
+@keyframes confetti {
+  5% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--drift), 110vh) rotate(var(--spin)) rotateX(720deg);
+  }
+}
+
+.goalModal[data-side="away"] .goalWord {
+  background: linear-gradient(180deg, #fff 0%, #fca5a5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(248, 113, 113, 0.6));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crowd i,
+  .mom[data-full]::after,
+  .surge[data-ready],
+  .surgeBadge[data-waiting],
+  .duel[data-big] .cards,
+  .confetti,
+  .impact i {
+    animation: none;
+  }
+
+  .confetti,
+  .impact i {
+    display: none;
+  }
+}
+
 /* ---- Short landscape phones: tighten the top bar and the tags ------------------- */
 
 @media (max-height: 25rem) {
   .scoreTrap {
     min-height: 2.9rem;
     padding-top: 0.25rem;
-    padding-bottom: 0.35rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .mom {
+    bottom: 0.24rem;
+    height: 3px;
+  }
+
+  .phasePanel {
+    gap: 0.4rem;
+  }
+
+  .phaseStats .statRow:nth-child(n + 5),
+  .crest em {
+    display: none;
   }
 
   .scoreTeam b {
@@ -1481,7 +2092,7 @@
   }
 
   .scoreboard {
-    grid-template-columns: 2.75rem 2.75rem minmax(0, 1fr) 2.75rem 2.75rem;
+    grid-template-columns: 2.75rem 2.75rem minmax(0, 1fr) 2.75rem 2.75rem 2.75rem;
   }
 }
 

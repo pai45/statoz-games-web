@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
-import { ConfirmDialog } from "@/design-system";
+import { Button, ConfirmDialog, type RarityName } from "@/design-system";
 import { cardTierRank, type ActionCard, type PlayerCard as PlayerCardData } from "@/domain/cards";
 import type { Sport } from "@/domain/sports";
 import {
@@ -26,8 +27,13 @@ import {
 import type { CoinBundle, ShopPack } from "@/mocks/shop";
 import { formatInt } from "@/shared/utils";
 
-import { CoinTopUpCelebration, ShopAcquireOverlay, type ShopAcquisition } from "../components/shop-acquire-overlay";
+import { CoinCheckout } from "../components/coin-checkout";
+import { CoinRewardCelebration, type CoinReward } from "../components/coin-reward";
+import { ShopAcquireOverlay, type ShopAcquisition } from "../components/shop-acquire-overlay";
+import { ShopEquipCelebration, type EquipCelebration } from "../components/shop-equip-celebration";
 import { cardSport } from "../components/shop-previews";
+import { equipShopItem } from "../lib/equip-shop-item";
+import { loadoutProgress, loadoutSlots, type ShopKind } from "../lib/shop-catalog";
 
 /**
  * Everything the storefront does when a price is tapped: the purchase itself,
@@ -45,18 +51,28 @@ export type BuyRequest = {
   simulatedInr?: boolean;
   /** Percent off, when bought from a daily deal. */
   dealDiscount?: number;
+  tier?: RarityName;
 };
+
+export type EquipRequest = { kind: ShopKind; id: string; label: string; accent: string; tier: RarityName; preview: ReactNode };
 
 type ConfirmState = { title: string; message: string; action: () => void };
 type Notice = { key: number; text: string; visible: boolean; getCoins?: boolean };
 
 const NOTICE_MS = 4000;
 
-export function useShopActions(sport: Sport) {
+const equippedSlots = () => loadoutProgress(readEconomy()).filter((slot) => slot.complete).length;
+
+export function useShopActions(sport: Sport, options: {onGetCoins?: () => void} = {}) {
+  const router = useRouter();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [acquired, setAcquired] = useState<ShopAcquisition | null>(null);
-  const [coinCelebration, setCoinCelebration] = useState<{ key: string; amount: number } | null>(null);
+  const [coinCheckout, setCoinCheckout] = useState<CoinBundle | null>(null);
+  const [coinReward, setCoinReward] = useState<CoinReward | null>(null);
+  const [equipCelebration, setEquipCelebration] = useState<EquipCelebration | null>(null);
+  /** The item the grid should settle once its celebration has finished. */
+  const [lastEquipped, setLastEquipped] = useState<{ kind: ShopKind; id: string; key: string } | null>(null);
   const [reveal, setReveal] = useState<PackRevealItem[] | null>(null);
 
   useEffect(() => {
@@ -64,6 +80,13 @@ export function useShopActions(sport: Sport) {
     const timer = window.setTimeout(() => setNotice(null), NOTICE_MS);
     return () => window.clearTimeout(timer);
   }, [notice]);
+
+  // The settle animation plays once; clearing the marker stops a remounted grid from replaying it.
+  useEffect(() => {
+    if (!lastEquipped) return;
+    const timer = window.setTimeout(() => setLastEquipped(null), 1200);
+    return () => window.clearTimeout(timer);
+  }, [lastEquipped]);
 
   /** Successes are celebrated by an overlay, so their notice is for screen readers only. */
   function announce(text: string, options: { visible?: boolean; getCoins?: boolean } = {}) {
@@ -95,6 +118,8 @@ export function useShopActions(sport: Sport) {
           coinsSpent: request.simulatedInr ? 0 : request.price,
           preview: request.preview,
           badge: request.dealDiscount ? `DEAL −${request.dealDiscount}%` : undefined,
+          tier: request.tier,
+          ...(request.kind !== "playerCard" && request.kind !== "actionCard" ? {kind: request.kind, itemId: request.id} : {}),
         });
         announce(`${request.label} added to your inventory.`, { visible: false });
       } else if (result.reason === "owned") {
@@ -110,17 +135,38 @@ export function useShopActions(sport: Sport) {
     }
   }
 
+  /** Equips an owned cosmetic everywhere it is shown, then plays the equip moment. */
+  function equip(request: EquipRequest): boolean {
+    const before = equippedSlots();
+    if (!equipShopItem(request.kind, request.id)) {
+      announce(`${request.label} is not in your locker yet.`);
+      return false;
+    }
+    const after = equippedSlots();
+    const tracked = (loadoutSlots as readonly string[]).includes(request.kind);
+    setEquipCelebration({
+      key: `${request.kind}-${request.id}-${Date.now()}`,
+      kind: request.kind,
+      id: request.id,
+      name: request.label,
+      accent: request.accent,
+      tier: request.tier,
+      preview: request.preview,
+      loadout: tracked ? { complete: after, total: loadoutSlots.length, gained: after > before } : null,
+    });
+    return true;
+  }
+
   function buyCoins(bundle: CoinBundle) {
-    confirmSimulation(
-      `${bundle.label} coin bundle`,
-      bundle.inr,
-      `${formatInt(bundle.coins)} Oz Coins will be credited locally. No real payment will be taken.`,
-      () => {
-        addCoinTopUp({ id: bundle.id, coins: bundle.coins, title: bundle.label });
-        setCoinCelebration({ key: `${bundle.id}-${Date.now()}`, amount: bundle.coins });
-        announce(`${formatInt(bundle.coins)} Oz Coins added to your balance.`, { visible: false });
-      },
-    );
+    setCoinCheckout(bundle);
+  }
+
+  /** Credits the confirmed demo bundle once, then plays the reward. */
+  function confirmCoins(bundle: CoinBundle) {
+    setCoinCheckout(null);
+    const before = readEconomy().coins;
+    const after = addCoinTopUp({ id: bundle.id, coins: bundle.coins, title: bundle.label }).coins;
+    setCoinReward({ key: `${bundle.id}-${Date.now()}`, bundle, before, after });
   }
 
   function openPack(pack: ShopPack, simulatedInr: boolean) {
@@ -174,13 +220,13 @@ export function useShopActions(sport: Sport) {
         >
           <p className="text-xs text-foreground">{notice.text}</p>
           {notice.getCoins ? (
-            <a
-              href="#coins"
-              onClick={() => setNotice(null)}
+            <Button
+              variant="ghost"
+              onClick={() => {setNotice(null); if (options.onGetCoins) options.onGetCoins(); else router.push(`/shop?tab=coins&sport=${sport}`);}}
               className="flex min-h-11 shrink-0 items-center font-display text-2xs font-black tracking-wide text-cyan"
             >
               GET COINS
-            </a>
+            </Button>
           ) : null}
         </div>
       ) : null}
@@ -198,14 +244,37 @@ export function useShopActions(sport: Sport) {
         onCancel={() => setConfirm(null)}
       />
       {acquired ? (
-        <ShopAcquireOverlay key={acquired.key} acquisition={acquired} onDismissed={() => setAcquired(null)} />
-      ) : null}
-      {coinCelebration ? (
-        <CoinTopUpCelebration
-          key={coinCelebration.key}
-          amount={coinCelebration.amount}
-          onDone={() => setCoinCelebration(null)}
+        <ShopAcquireOverlay
+          key={acquired.key}
+          acquisition={acquired}
+          onDismissed={() => setAcquired(null)}
+          onEquip={acquired.kind && acquired.itemId ? () => {
+            const item = acquired;
+            setAcquired(null);
+            equip({ kind: item.kind!, id: item.itemId!, label: item.name, accent: item.accent, tier: item.tier ?? "silver", preview: item.preview });
+          } : undefined}
         />
+      ) : null}
+      {equipCelebration ? (
+        <ShopEquipCelebration
+          key={equipCelebration.key}
+          celebration={equipCelebration}
+          onDone={() => {
+            setLastEquipped({ kind: equipCelebration.kind, id: equipCelebration.id, key: equipCelebration.key });
+            setEquipCelebration(null);
+          }}
+        />
+      ) : null}
+      {coinCheckout ? (
+        <CoinCheckout
+          key={coinCheckout.id}
+          bundle={coinCheckout}
+          onCancel={() => setCoinCheckout(null)}
+          onConfirm={() => confirmCoins(coinCheckout)}
+        />
+      ) : null}
+      {coinReward ? (
+        <CoinRewardCelebration key={coinReward.key} reward={coinReward} onDone={() => setCoinReward(null)} />
       ) : null}
       {reveal ? (
         <PackRevealSequence
@@ -220,7 +289,7 @@ export function useShopActions(sport: Sport) {
     </>
   );
 
-  return { buy, buyCoins, openPack, overlays };
+  return { buy, buyCoins, equip, lastEquipped, openPack, overlays };
 }
 
 function toReveal(players: PlayerCardData[], actions: ActionCard[]): PackRevealItem[] {

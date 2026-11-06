@@ -3,6 +3,7 @@ import { footballPlayerCards } from "@/mocks/packs/football-cards";
 import { academyCards, academyIds } from "@/mocks/packs/pitch-duel-academy";
 import { fictionalCards } from "@/mocks/packs/pitch-duel-fictional";
 
+import type { DebutSquad } from "../engine/debut";
 import { defaultFormation, fillFormation, isFormationId, maxTactics, outfieldSize, type ClubSetup } from "../engine/lineup";
 import { divisionFor } from "../engine/setup";
 
@@ -52,9 +53,23 @@ export type Career = {
   tutorialSeen: boolean;
   history: MatchResult[];
   rewardedDivisions: number[];
-  settings: { haptics: boolean };
+  settings: { haptics: boolean; sound: boolean };
   migratedFrom?: 2 | 3;
+  /**
+   * The debut XI a first-time player signs in the opening reveal. It is drawn
+   * and saved before the reveal plays, so a reload shows the same eleven, and
+   * `claimed` turns true once the cards are granted.
+   */
+  debut?: DebutSquad & { claimed: boolean };
 };
+
+/**
+ * A first-time player: nothing played, nothing migrated, no debut claimed.
+ * Existing careers never see the debut reveal.
+ */
+export function needsDebut(career: Career): boolean {
+  return career.played === 0 && !career.migratedFrom && !career.debut?.claimed;
+}
 
 export const emptyCareer: Career = {
   version: 4,
@@ -72,7 +87,7 @@ export const emptyCareer: Career = {
   tutorialSeen: false,
   history: [],
   rewardedDivisions: [],
-  settings: { haptics: true },
+  settings: { haptics: true, sound: true },
 };
 
 const count = (value: unknown) => Math.max(0, Math.floor(Number(value) || 0));
@@ -135,6 +150,7 @@ export function sanitizeCareer(value: unknown): Career {
   if (!value || typeof value !== "object") return emptyCareer;
   const c = value as Partial<Career>;
   const history = (Array.isArray(c.history) ? c.history : []).map(sanitizeResult).filter((r): r is MatchResult => r !== null).slice(0, historyLimit);
+  const debut = sanitizeDebut(c.debut);
   return {
     version: 4,
     club: sanitizeClub(c.club),
@@ -151,9 +167,21 @@ export function sanitizeCareer(value: unknown): Career {
     tutorialSeen: c.tutorialSeen === true,
     history,
     rewardedDivisions: (Array.isArray(c.rewardedDivisions) ? c.rewardedDivisions : []).map(count).filter((d) => d >= 2 && d <= 5),
-    settings: { haptics: c.settings?.haptics !== false },
+    settings: { haptics: c.settings?.haptics !== false, sound: c.settings?.sound !== false },
     ...(c.migratedFrom === 2 || c.migratedFrom === 3 ? { migratedFrom: c.migratedFrom } : {}),
+    ...(debut ? { debut } : {}),
   };
+}
+
+/** A saved debut XI, kept only if every id is a known card in a real shape. */
+function sanitizeDebut(value: unknown): Career["debut"] | null {
+  if (!value || typeof value !== "object") return null;
+  const d = value as Partial<NonNullable<Career["debut"]>>;
+  const outfield = strings(d.outfield);
+  if (!isFormationId(d.formation) || typeof d.keeperId !== "string" || typeof d.marqueeId !== "string" || outfield.length !== outfieldSize) return null;
+  const ids = [d.keeperId, ...outfield];
+  if (!ids.every((id) => knownCard(id)) || !ids.includes(d.marqueeId)) return null;
+  return { formation: d.formation, keeperId: d.keeperId, outfield, marqueeId: d.marqueeId, claimed: d.claimed === true };
 }
 
 type LegacyDeck = { attackers?: unknown; defenders?: unknown; keeper?: unknown; tactics?: unknown };

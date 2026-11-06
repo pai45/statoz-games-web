@@ -1,4 +1,4 @@
-// Home page: the centre-stage game coverflow and the VIEW ALL GAMES list, on desktop, tablet and an upright phone.
+// Console home, searchable Library, recent launches and responsive landscape framing.
 // Usage: node tests/home-hub.browser.mjs [--url=http://127.0.0.1:3000 | --pages]
 //   --pages serves the static GitHub Pages export in out/ (run `npm run build:pages` first).
 import assert from 'node:assert/strict';
@@ -6,7 +6,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import http from 'node:http';
 import next from 'next';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 
 const root = process.cwd(), out = path.join(root, 'test-results/home-hub');
 await fs.mkdir(out, { recursive: true });
@@ -39,165 +39,166 @@ async function seed(context) {
     localStorage.setItem('statoz.games.web.accounts.v1', JSON.stringify({ version: 1, accounts: { 'home@example.test': { onboardingComplete: true } } }));
   });
 }
-const carousel = root => root.locator('section[aria-roledescription="carousel"]');
-const centre = root => carousel(root).locator('a[aria-label^="Play "]').first();
-const title = async root => (await carousel(root).locator('h2').textContent()).trim();
-const counter = async root => (await carousel(root).locator('h2 + p span').last().textContent()).trim();
-const pad = value => String(value).padStart(2, '0');
-
-async function open(context, name, { phoneFrame = false } = {}) {
+async function visit(context, name, address = '/') {
   const page = await context.newPage();
-  page.on('pageerror', error => errors.push(`${name}: ${error.message}`));
-  await page.goto(origin + '/', { waitUntil: 'domcontentloaded', timeout: 180000 });
-  const root = phoneFrame ? page.frameLocator('iframe[data-mobile-platform-frame]') : page;
-  await centre(root).waitFor({ timeout: 180000 });
-  // The server-rendered carousel shows before React takes it over; a slow dev compile can leave it inert for a while.
-  const next = carousel(root).getByRole('button', { name: 'Next game' });
-  for (let tries = 0; !(await next.evaluate(button => Object.keys(button).some(key => key.startsWith('__reactProps')))); tries++) {
-    if (tries > 900) throw new Error(`${name}: the carousel never became interactive`);
-    await page.waitForTimeout(200);
-  }
-  await page.evaluate(() => document.fonts.ready);
+  page.on('pageerror', error => errors.push(name + ': ' + error.message));
+  await page.goto(origin + address, { waitUntil: 'domcontentloaded', timeout: 180000 });
+  await page.locator('[data-console-dashboard], iframe[data-mobile-platform-frame]').first().waitFor({timeout:180000});
+  const framed = await page.evaluate(() => matchMedia('(pointer: coarse) and (max-width: 500px), (pointer: coarse) and (max-height: 500px)').matches);
+  if (framed) await page.locator('iframe[data-mobile-platform-frame]').waitFor({timeout:180000});
+  const root = framed ? page.frameLocator('iframe[data-mobile-platform-frame]') : page;
+  await root.locator('[data-console-dashboard] h1:visible').last().waitFor({timeout:180000});
+  await expect.poll(() => root.locator('[data-console-dashboard]:visible a[data-game-cover]').first().evaluate(el => Object.keys(el).some(key => key.startsWith('__reactProps') && typeof el[key].onPointerEnter === 'function')), {timeout:180000}).toBe(true);
+  await root.locator('[data-platform-command-bar]').waitFor();
+  await root.locator('h1:visible').last().evaluate(() => document.fonts.ready);
   return { page, root };
 }
-
-/** Cards fill the stage: a centre game, neighbours on both sides, nothing off the page. */
-async function checkCoverflow(root, name) {
-  const total = Number((await counter(root)).split('/')[1]);
-  assert.ok(total >= 13, `${name}: the coverflow runs through the whole catalog (${total})`);
-  assert.equal(await counter(root), `01 / ${pad(total)}`, `${name}: starts on the first game`);
-  const box = await centre(root).evaluate(card => { const r = card.getBoundingClientRect(); return { x: r.x, width: r.width, height: r.height }; });
-  assert.ok(box.width > 150 && box.height > 100, `${name}: the centre card has a real size (${JSON.stringify(box)})`);
-  const sides = await carousel(root).locator('button[aria-label^="Show "]').evaluateAll(cards => cards.map(card => { const r = card.getBoundingClientRect(); return r.x + r.width / 2; }));
-  const middle = box.x + box.width / 2;
-  assert.ok(sides.some(x => x < middle) && sides.some(x => x > middle), `${name}: games sit on both sides of the centre`);
-  const overflow = await root.locator('html').evaluate(html => html.scrollWidth - html.clientWidth);
-  assert.ok(overflow <= 0, `${name}: no horizontal page scroll (${overflow}px)`);
-  // VIEW ALL is one icon button in the carousel's bottom-right corner, clear of PLAY.
-  const corner = await carousel(root).evaluate(section => {
-    const rect = element => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height }; };
-    const viewAll = section.querySelector('[aria-label="View all games"]');
-    const play = [...section.querySelectorAll('a[aria-label^="Play "]')].at(-1);
-    return { section: rect(section), viewAll: rect(viewAll), play: rect(play), text: viewAll.textContent.trim() };
+async function checkSize(root, name) {
+  const sizes = await root.locator('html').evaluate(html => ({ overflow: html.scrollWidth - html.clientWidth, width: innerWidth, height: innerHeight }));
+  assert.ok(sizes.overflow <= 1, name + ': no page overflow ' + JSON.stringify(sizes));
+  const play = await root.getByRole('link', {name:/^Play /}).first().evaluate(el => {
+    const r = el.getBoundingClientRect(); return { left:r.left, top:r.top, right:r.right, bottom:r.bottom, width:r.width, height:r.height, viewport:innerHeight };
   });
-  assert.equal(corner.text, '', `${name}: VIEW ALL shows only an icon`);
-  assert.ok(Math.abs(corner.viewAll.width - corner.viewAll.height) < 2, `${name}: VIEW ALL is square (${JSON.stringify(corner.viewAll)})`);
-  assert.ok(corner.section.right - corner.viewAll.right <= 24 && corner.section.bottom - corner.viewAll.bottom <= 24, `${name}: VIEW ALL sits in the bottom-right corner`);
-  assert.ok(corner.play.right <= corner.viewAll.left || corner.play.bottom <= corner.viewAll.top, `${name}: VIEW ALL does not cover PLAY`);
-  return total;
+  assert.ok(play.width >= 44 && play.height >= 44, name + ': Play has a touch target');
+  if (sizes.height <= 540) assert.ok(play.bottom <= sizes.height, name + ': Play fits the opening viewport');
+  assert.equal(await root.locator('[data-ad-placement="platform-left-rail"], [data-ad-placement="platform-right-rail"], [data-side-rail]').count(), 0);
+  assert.equal(await root.getByRole('navigation', {name:'Primary'}).count(), 1);
+  return sizes;
 }
-
-/** A real finger drag of `distance` px straight up the upright screen, which is leftwards in the turned shell. */
-async function touchDragUp(page, root, distance) {
-  const box = await centre(root).boundingBox();
+async function swipe(page, root, rotated) {
+  const rail = root.locator('[data-shelf-id="lineup"]');
+  const before = await rail.evaluate(el => el.scrollLeft);
+  const box = await rail.locator('a').nth(2).boundingBox();
   const x = box.x + box.width / 2, y = box.y + box.height / 2;
   const cdp = await page.context().newCDPSession(page);
-  const touch = (type, at) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y: at }] });
-  await touch('touchStart', y);
-  for (let step = 1; step <= 10; step++) { await touch('touchMove', y - (distance * step) / 10); await page.waitForTimeout(16); }
-  await touch('touchEnd');
-}
-
-try {
-  // Desktop: arrows, keyboard, side cards, the full list and the sport tabs.
-  const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  await seed(desktop);
-  let { page, root } = await open(desktop, 'desktop');
-  const total = await checkCoverflow(root, 'desktop');
-  await page.screenshot({ path: path.join(out, 'desktop.png') });
-  const first = await title(root);
-  await page.getByRole('button', { name: 'Next game' }).click();
-  assert.equal(await counter(root), `02 / ${pad(total)}`, 'next arrow moves on');
-  await page.getByRole('button', { name: 'Previous game' }).click();
-  await page.getByRole('button', { name: 'Previous game' }).click();
-  assert.equal(await counter(root), `${pad(total)} / ${pad(total)}`, 'previous wraps around to the last game');
-  await page.getByRole('button', { name: 'Next game' }).focus();
-  await page.keyboard.press('ArrowRight');
-  assert.equal(await title(root), first, 'arrow keys move the coverflow');
-  // The right-hand neighbour: tap its uncovered right half.
-  const side = carousel(page).locator('button[aria-label^="Show "][style*="--d: 1;"]');
-  const sideName = (await side.getAttribute('aria-label')).replace(/^Show /, '');
-  const sideBox = await side.boundingBox();
-  await page.mouse.click(sideBox.x + sideBox.width * 0.85, sideBox.y + sideBox.height / 2);
-  assert.equal((await title(root)).toUpperCase(), sideName.toUpperCase(), 'tapping a side card centres it');
-  assert.ok(!page.url().includes('/play/'), 'tapping a side card does not open it');
-
-  // Dragging: the cards follow the mouse; letting go settles on the nearest game without opening it.
-  const before = Number((await counter(root)).split('/')[0]);
-  const start = await centre(root).boundingBox();
-  const sx = start.x + start.width / 2, sy = start.y + start.height / 2, slot = start.width * 0.6;
-  await page.mouse.move(sx, sy);
-  await page.mouse.down();
-  await page.mouse.move(sx - slot * 0.5, sy, { steps: 6 });
-  const mid = await centre(root).boundingBox();
-  assert.ok(mid.x < start.x - slot * 0.3, `the centre card follows the drag (${Math.round(start.x)} -> ${Math.round(mid.x)})`);
-  await page.mouse.move(sx - slot * 1.2, sy, { steps: 6 });
-  await page.mouse.up();
-  assert.equal(await counter(root), `${pad(before % total + 1)} / ${pad(total)}`, 'dragging left by one card shows the next game');
-  assert.ok(!page.url().includes('/play/'), 'a drag does not open the game');
-  const settled = await counter(root);
-  await page.mouse.move(sx, sy);
-  await page.mouse.down();
-  await page.mouse.move(sx + 20, sy, { steps: 3 });
-  await page.mouse.up();
-  await page.waitForTimeout(300);
-  assert.equal(await counter(root), settled, 'a short drag snaps back to the same game');
-  assert.ok(!page.url().includes('/play/'), 'a short drag does not open the game');
-
-  // VIEW ALL GAMES: every game as a row, a sport filter, Escape closes.
-  await page.getByRole('button', { name: 'View all games', exact: true }).click();
-  await page.waitForURL('**/?view=all');
-  const list = page.getByRole('dialog', { name: 'ALL GAMES' });
-  await list.waitFor();
-  assert.equal(await list.locator('li').count(), total, 'the list has every game');
-  await list.getByRole('tab', { name: 'FOOTBALL' }).click();
-  assert.equal(await list.getByRole('tab', { name: 'FOOTBALL' }).getAttribute('aria-selected'), 'true', 'the football chip is selected');
-  const football = await list.locator('li').count();
-  assert.ok(football > 0 && football < total, `the football filter narrows the list (${football})`);
-  await page.waitForTimeout(400);
-  await page.screenshot({ path: path.join(out, 'desktop-list.png') });
-  await page.keyboard.press('Escape');
-  await list.waitFor({ state: 'hidden' });
-  await page.waitForURL(url => !url.search);
-  assert.equal(await page.locator('[data-ad-placement="home-feed"]').count(), 0, 'landing page has no in-feed ad banner');
-
-  for (const [label, slug] of [['FOOTBALL', 'football'], ['CRICKET', 'cricket'], ['BASKET', 'basketball'], ['TENNIS', 'tennis'], ['MOTORSPORT', 'motorsport'], ['GOLF', 'golf']]) {
-    await page.getByRole('tab', { name: label }).click();
-    await page.waitForURL('**/?sport=' + slug);
-    await page.locator(`section[aria-label="${slug} games"]`).waitFor();
-    assert.equal((await counter(page)).slice(0, 2), '01', label + ' tab starts on its first game');
+  await cdp.send('Input.dispatchTouchEvent', {type:'touchStart',touchPoints:[{x,y}]});
+  for (let i=1;i<=12;i++) {
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x-(rotated?0:160*i/12),y:y-(rotated?160*i/12:0)}]});
+    await page.waitForTimeout(20);
   }
-  await page.getByRole('tab', { name: 'ALL GAMES' }).click();
-  await page.waitForURL(url => !url.search && url.href.replace(/\/$/, '') === origin);
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await page.waitForTimeout(300);
+  assert.ok(await rail.evaluate(el => el.scrollLeft) > before + 30, 'touch swipe advances the game rail');
+  assert.ok(!page.url().includes('/play/'), 'swiping never launches a game');
+}
+try {
+  const desktop = await browser.newContext({viewport:{width:1440,height:900}});
+  await seed(desktop);
+  let {page,root} = await visit(desktop,'desktop');
+  await checkSize(root,'desktop');
+  const lineup = root.getByRole('region',{name:'Your game lineup'});
+  const lineupTotal = await lineup.locator('a[data-game-cover]').count();
+  assert.ok(lineupTotal > 8, 'main strip includes the complete catalog');
+  assert.equal(await root.getByText('Pick a game. Make it yours.',{exact:true}).count(),0);
+  assert.equal(await root.getByText('PICK UP THE PACE',{exact:true}).count(),0);
+  assert.equal(await root.getByText('8 games',{exact:true}).count(),0);
+  assert.equal(await root.getByRole('button',{name:/^(Previous|Next) .* games$/}).count(),0);
+  assert.equal(await root.locator('h1').textContent(),'PENALTY CUP');
+  await lineup.locator('[data-game-cover="hoop-legacy"]').hover();
+  await root.getByRole('heading',{name:'HOOP LEGACY',exact:true}).waitFor();
+  await lineup.locator('[data-game-cover="penalty-cup"]').focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await root.locator('h1').textContent(),'HOOP LEGACY');
+  await lineup.locator('[data-game-cover="penalty-cup"]').hover();
+  await page.evaluate(()=>{ document.activeElement?.blur();window.scrollTo(0,0); });
+  await page.waitForTimeout(400);
+  await page.screenshot({path:path.join(out,'desktop.png')});
+  await page.screenshot({path:path.join(out,'desktop-full.png'),fullPage:true});
+  const catalogGames = await root.locator('[data-shelf-id]:not([data-shelf-id="lineup"]) a[data-game-cover]').evaluateAll(links=>links.map(link=>link.dataset.gameCover));
+  assert.equal(new Set(catalogGames).size,catalogGames.length,'sport shelves cover every game once');
+  assert.equal(lineupTotal,catalogGames.length,'main strip and shelves expose the same full catalog');
+  await root.getByRole('tab',{name:'Football',exact:true}).click();
+  await page.waitForURL(url=>url.searchParams.get('sport')==='football');
+  assert.equal(await root.locator('[data-shelf-id]:not([data-shelf-id="lineup"])').count(),1);
+  await root.getByRole('tab',{name:'All Games',exact:true}).click();
+  await page.waitForURL(url=>!url.searchParams.get('sport'));
+  await root.getByRole('navigation',{name:'Primary'}).getByRole('link',{name:'Library',exact:true}).click();
+  let library=root.getByRole('dialog',{name:'Game Library'});
+  await library.waitFor();
+  assert.equal(await library.locator('li').count(),catalogGames.length,'Library includes every enabled game');
+  await library.getByRole('searchbox',{name:'Search games'}).fill('formula');
+  await page.waitForURL(url=>url.searchParams.get('q')==='formula');
+  assert.equal(await library.locator('li').count(),1);
+  await library.getByRole('tab',{name:'Football',exact:true}).click();
+  await library.getByRole('heading',{name:'No games found'}).waitFor();
+  await library.getByRole('button',{name:'Clear search and filters'}).click();
+  await library.getByRole('link',{name:'Play PENALTY CUP',exact:true}).waitFor();
+  await page.waitForURL(url=>url.searchParams.get('listSport')==='all'&&!url.searchParams.has('q'));
+  await page.screenshot({path:path.join(out,'desktop-library.png')});
+  await page.keyboard.press('Escape');
+  await library.waitFor({state:'hidden'});
+  await root.getByRole('navigation',{name:'Primary'}).getByRole('link',{name:'Library',exact:true}).click();
+  await library.waitFor();
+  await page.goBack();
+  await library.waitFor({state:'hidden'});
+  assert.equal(new URL(page.url()).searchParams.get('view'),null,'browser Back closes Library');
+  await page.goForward();
+  await library.waitFor();
+  await page.keyboard.press('Escape');
+  await library.waitFor({state:'hidden'});
+  await page.evaluate(()=>window.scrollTo(0,650));
+  await page.waitForTimeout(150);
+  const savedTop=await page.evaluate(()=>scrollY);
+  await root.getByRole('navigation',{name:'Primary'}).getByRole('link',{name:'Library',exact:true}).click();
+  library=root.getByRole('dialog',{name:'Game Library'});
+  await library.getByRole('searchbox',{name:'Search games'}).fill('Open Golf');
+  await page.waitForURL(url=>url.searchParams.get('q')==='Open Golf');
+  await library.getByRole('link',{name:'Play OPEN GOLF',exact:true}).click();
+  await page.waitForURL(url=>url.pathname.includes('/play/open-golf'));
+  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('statoz.games.web.home-recents.v1')||'{}').entries?.[0]?.gameId==='open-golf');
+  const returnTo=new URL(page.url()).searchParams.get('returnTo');
+  assert.equal(new URL(returnTo,origin).searchParams.get('game'),'open-golf');
+  await page.goto(origin+returnTo,{waitUntil:'domcontentloaded'});
+  library=page.getByRole('dialog',{name:'Game Library'});
+  await library.waitFor();
+  assert.equal(await library.getByRole('searchbox',{name:'Search games'}).inputValue(),'Open Golf');
+  await page.keyboard.press('Escape');
+  await library.waitFor({state:'hidden'});
+  await page.getByRole('heading',{name:'OPEN GOLF',exact:true}).waitFor();
+  assert.equal(await page.locator('[data-shelf-id="lineup"] a').first().getAttribute('data-game-cover'),'open-golf');
+  assert.equal(await page.locator('[data-shelf-id="lineup"] a').first().getAttribute('data-recent'),'true');
+  await page.waitForTimeout(150);
+  const returnedTop=await page.evaluate(()=>scrollY);
+  assert.ok(Math.abs(returnedTop-savedTop)<10,'game return preserves home scroll');
+  console.log('PASS desktop: catalog, focus preview, search, filtering, browser history, launch history and return state');
   await desktop.close();
 
-  // Portrait tablet: the shell is not rotated, and the cards still size from the stage.
-  const tablet = await browser.newContext({ viewport: { width: 820, height: 1180 }, hasTouch: true, isMobile: true });
-  await seed(tablet);
-  ({ page, root } = await open(tablet, 'tablet'));
-  assert.equal(await page.locator('iframe[data-mobile-platform-frame]').count(), 0, 'tablets keep the normal shell');
-  await checkCoverflow(root, 'tablet');
-  await page.screenshot({ path: path.join(out, 'tablet.png') });
-  await tablet.close();
-
-  // Upright phone: the whole shell is turned to landscape; a finger drag moves on without opening a game.
-  const phone = await browser.newContext({ viewport: { width: 393, height: 851 }, hasTouch: true, isMobile: true });
-  await seed(phone);
-  ({ page, root } = await open(phone, 'phone', { phoneFrame: true }));
-  assert.match(await page.locator('iframe[data-mobile-platform-frame]').evaluate(frame => frame.style.transform), /rotate\(90deg\)/, 'the shell is turned sideways');
-  const inner = await root.locator('html').evaluate(() => ({ width: innerWidth, height: innerHeight }));
-  assert.deepEqual(inner, { width: 851, height: 393 }, 'the shell lays out as landscape');
-  await checkCoverflow(root, 'phone');
-  await touchDragUp(page, root, 220);
-  await root.locator('section[aria-roledescription="carousel"] h2 + p span', { hasText: /^0[2-9] \// }).waitFor({ timeout: 5000 });
-  assert.ok(!page.url().includes('/play/'), 'a drag does not open the game');
-  await page.screenshot({ path: path.join(out, 'phone.png') });
-  await phone.close();
-
-  assert.deepEqual(errors, [], 'no page errors');
-  console.log('home hub browser checks passed; screenshots in', out);
+  for(const [name,width,height,touch] of [
+    ['wide',1920,1080,false],['small-desktop',1280,720,false],['tablet',820,1180,true],
+    ['phone-932',932,430,true],['phone-844',844,390,true],['phone-667',667,375,true],['phone-568',568,280,true],['upright-phone',390,844,true]
+  ]) {
+    const context=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch});
+    await seed(context);
+    ({page,root}=await visit(context,name));
+    await checkSize(root,name);
+    if(name==='upright-phone') {
+      assert.match(await page.locator('iframe[data-mobile-platform-frame]').evaluate(el=>el.style.transform),/rotate\(90deg\)/);
+      assert.deepEqual(await root.locator('html').evaluate(()=>({width:innerWidth,height:innerHeight})),{width:844,height:390});
+    }
+    if(name==='phone-844'||name==='upright-phone') await swipe(page,root,name==='upright-phone');
+    await page.screenshot({path:path.join(out,name+'.png')});
+    if(name==='phone-844'||name==='phone-568') {
+      await root.getByRole('navigation',{name:'Primary'}).getByRole('link',{name:'Library',exact:true}).click();
+      const dialog=root.getByRole('dialog',{name:'Game Library'});await dialog.waitFor();
+      await dialog.getByRole('searchbox',{name:'Search games'}).fill('cup');
+      assert.ok(await dialog.locator('li').count()>0);
+      await page.screenshot({path:path.join(out,name+'-library.png')});
+    }
+    console.log('PASS '+name+' '+width+'x'+height);
+    await context.close();
+  }
+  const reduced=await browser.newContext({viewport:{width:1280,height:720},reducedMotion:'reduce'});
+  ({page,root}=await visit(reduced,'reduced-motion','/?game=not-a-game&sport=unknown'));
+  assert.equal(await root.locator('h1').textContent(),'PENALTY CUP','invalid selections use editorial fallback');
+  assert.ok(await root.locator('[data-game-cover]').first().evaluate(el=>parseFloat(getComputedStyle(el).transitionDuration)<.001),'reduced motion removes perceptible transitions');
+  await reduced.close();
+  assert.deepEqual(errors,[],'no browser errors');
+  console.log('Home dashboard browser checks passed; screenshots in '+out);
+} catch (error) {
+  console.error('Browser errors:', errors);
+  throw error;
 } finally {
-  await browser.close();
-  server?.close();
-  await app?.close?.();
+  // Next's imported runtime can retain idle dev handles in an existing-server run.
+  setTimeout(() => process.exit(process.exitCode || 0), 5000).unref();
+  await browser.close();server?.close();await app?.close?.();
 }

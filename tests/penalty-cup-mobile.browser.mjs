@@ -23,9 +23,9 @@ async function fits(label){
    return b.left<outer.left-2||b.right>outer.right+2||b.top<outer.top-2||b.bottom>outer.bottom+2;
   }).map(el=>el.getAttribute('aria-label')||el.textContent.slice(0,60));
   const content=root.querySelector('[data-screen-content]');
-  return {landscape:surface.clientWidth>=surface.clientHeight,clipped,overflow:content?{x:content.scrollWidth-content.clientWidth,y:content.scrollHeight-content.clientHeight}:null};
+  return {landscape:surface.clientWidth>=surface.clientHeight,clipped,position:{surfaceX:outer.x,rootX:root.getBoundingClientRect().x,scrollX,documentWidth:document.documentElement.scrollWidth,rootScroll:root.scrollLeft,screen:root.dataset.screen},overflow:content?{x:content.scrollWidth-content.clientWidth,y:content.scrollHeight-content.clientHeight}:null};
  });
- assert.equal(result.landscape,true,label+' landscape');assert.deepEqual(result.clipped,[],label+' clipped');if(result.overflow){assert.ok(result.overflow.x<=2,label+' horizontal overflow '+result.overflow.x);assert.ok(result.overflow.y<=2,label+' vertical overflow '+result.overflow.y);}checks.push(label);
+ assert.equal(result.landscape,true,label+' landscape');assert.deepEqual(result.clipped,[],label+' clipped '+JSON.stringify(result.position));if(result.overflow){assert.ok(result.overflow.x<=2,label+' horizontal overflow '+result.overflow.x);assert.ok(result.overflow.y<=2,label+' vertical overflow '+result.overflow.y);}checks.push(label);
 }
 async function loadCup(kind){
  await page.evaluate(kind=>{
@@ -45,9 +45,11 @@ try{
  const origin=`http://127.0.0.1:${server.address().port}`;
  await page.route('**/*',route=>route.request().url().startsWith(origin)||/^(data:|blob:)/.test(route.request().url())?route.continue():route.abort());
  await page.goto(origin);await page.addScriptTag({content:engine});
- for(const [width,height] of [[667,375],[844,390],[852,393],[932,430],[568,280],[844,300],[390,844]]){
-  await page.setViewportSize({width,height});await frame().getByRole('button',{name:'Penalty Cup →',exact:true}).waitFor();await fits(`home-${width}x${height}`);
-  await frame().getByRole('button',{name:'Penalty Cup →',exact:true}).click();
+ for(const [width,height] of [[667,375],[844,390],[852,393],[932,430],[568,280],[844,300],[390,844],[1280,720]]){
+  await page.setViewportSize({width,height});await frame().getByRole('button',{name:'Penalty Cup',exact:true}).waitFor();await fits(`home-${width}x${height}`);
+  await page.waitForTimeout(500);await page.screenshot({path:`${out}/home-${width}x${height}.png`});
+  await frame().getByRole('button',{name:'Controls and settings'}).click();await fits(`settings-${width}x${height}`);await frame().getByRole('button',{name:'Done',exact:true}).click();
+  await frame().getByRole('button',{name:'Penalty Cup',exact:true}).click();
   const seen=new Set();
   // Start at the selected nation's page, then walk all six pages.
   while(await frame().getByRole('button',{name:'Previous page',exact:true}).isEnabled())await frame().getByRole('button',{name:'Previous page',exact:true}).click();
@@ -57,12 +59,13 @@ try{
   }
   assert.equal(seen.size,48);assert.equal(await frame().getByRole('group',{name:'Difficulty'}).count(),0);
   await page.screenshot({path:`${out}/nations-${width}x${height}.png`});await frame().getByRole('button',{name:'Back',exact:true}).click();
-  await loadCup('knockout');await fits(`continued-home-${width}x${height}`);await frame().getByRole('button',{name:/Continue Cup/}).click();await fits(`hub-${width}x${height}`);
-  for(const tab of ['Third place','Results','Bracket']){await frame().getByRole('button',{name:tab,exact:true}).click();await fits(`${tab}-${width}x${height}`);}
+  await loadCup('knockout');await fits(`continued-home-${width}x${height}`);await frame().getByRole('button',{name:/Continue Cup/}).click();await fits(`hub-${width}x${height}`);await page.screenshot({path:`${out}/hub-${width}x${height}.png`});
+  await frame().getByRole('button',{name:'Tournament',exact:true}).click();
+  for(const tab of ['third','results','bracket']){await frame().getByRole('combobox',{name:'Tournament details'}).selectOption(tab);await fits(`${tab}-${width}x${height}`);}
   await page.screenshot({path:`${out}/bracket-${width}x${height}.png`});
   await loadCup('result');await frame().getByRole('button',{name:/Continue Cup/}).click();await fits(`result-${width}x${height}`);await page.screenshot({path:`${out}/result-${width}x${height}.png`});
   await loadCup('champion');await frame().getByRole('button',{name:/Last cup/}).click();await fits(`champion-${width}x${height}`);await frame().getByRole('button',{name:'Back',exact:true}).click();await frame().getByRole('button',{name:'Cup history',exact:true}).click();await fits(`history-${width}x${height}`);await frame().getByRole('button',{name:'Close',exact:true}).click();
-  await page.evaluate(()=>{window.accounts.a={};window.reloadCup();});await frame().getByRole('button',{name:'Penalty Cup →',exact:true}).waitFor();
+  await page.evaluate(()=>{window.accounts.a={};window.reloadCup();});await frame().getByRole('button',{name:'Penalty Cup',exact:true}).waitFor();
  }
  await page.setViewportSize({width:844,height:390});await loadCup('fresh');await frame().getByRole('button',{name:/Continue Cup/}).click();await frame().getByRole('button',{name:/Play match/}).click();await frame().locator('[data-phase="preparation"]').waitFor({timeout:60000});await fits('live-shooting');await page.screenshot({path:out+'/shooting.png'});
  const stick=await frame().getByRole('group',{name:'AIM virtual stick'}).boundingBox(),shoot=await frame().getByRole('button',{name:'Hold to shoot'}).boundingBox();
@@ -75,7 +78,7 @@ try{
  await page.evaluate(()=>window.reloadCup());await frame().getByRole('button',{name:/Continue Cup/}).click();await frame().getByRole('button',{name:/Resume match/}).click();await frame().locator('[data-kicks="1"][data-role="keeping"]').waitFor({timeout:60000});await fits('resumed-goalkeeping');
  await frame().getByRole('button',{name:'Dive right low',exact:true}).tap();await frame().locator('[data-keeper-motion="LowDive"]').waitFor();await page.screenshot({path:out+'/keeper-push.png'});await page.waitForTimeout(420);await page.screenshot({path:out+'/keeper-stretch.png'});await page.waitForTimeout(2500);await page.screenshot({path:out+'/keeper-recovery.png'});
  await page.evaluate(()=>frames[0].postMessage({protocolVersion:1,gameId:'penalty-cup',sessionId:'test',type:'pause'},location.origin));await frame().getByRole('dialog',{name:'Paused'}).waitFor();await fits('pause');await page.screenshot({path:out+'/pause.png'});await frame().getByRole('button',{name:'Save & exit',exact:true}).click();
- await page.evaluate(()=>{window.account='b';window.reloadCup();});await frame().getByRole('button',{name:'Penalty Cup →',exact:true}).waitFor();assert.equal(await frame().getByRole('button',{name:/Continue Cup/}).count(),0);
+ await page.evaluate(()=>{window.account='b';window.reloadCup();});await frame().getByRole('button',{name:'Penalty Cup',exact:true}).waitFor();assert.equal(await frame().getByRole('button',{name:/Continue Cup/}).count(),0);
  assert.deepEqual(errors,[]);await fs.writeFile(out+'/checks.json',JSON.stringify({passed:checks.length,checks,errors,physicalDeviceTested:false,landscapeOnly:true,all48Nations:true,completedPenaltyReload:true,simultaneousTouch:true,accountIsolation:true},null,2));
  console.log(`${checks.length} screen-fit checks passed; touch shooting, goalkeeper animation, checkpoint reload and account isolation passed.`);
  await page.close();await context.close();

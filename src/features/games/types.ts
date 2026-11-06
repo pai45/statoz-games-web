@@ -6,7 +6,7 @@ import type { Sport } from "@/domain/sports";
  * format — five quizzes, four mystery games — so the id names the sport's
  * version rather than the format alone.
  */
-export type GameId = StatozGameId | "cricketer" | "penalty-cup" | "tennis-bits" | "soccer-real" | "penalty-shooters-2" | "f1-racing" | "football-shooting" | "open-golf" | "retro-circuit" | "retro-football" | "archery-test" | "longbow" | "stick-cricket" | "retro-football-2" | "retro-hoops" | "retro-innings" | "stadium-cricket" | "vibe-basketball" | "pitch-rush" | "final-third";
+export type GameId = StatozGameId | "hoop-legacy" | "cricketer" | "yorker" | "penalty-cup" | "tennis-bits" | "soccer-real" | "penalty-shooters-2" | "f1-racing" | "holdover" | "portfolio-formula" | "football-shooting" | "open-golf" | "retro-circuit" | "retro-football" | "archery-test" | "longbow" | "rim-rush" | "stick-cricket" | "retro-football-2" | "retro-hoops" | "retro-innings" | "stadium-cricket" | "vibe-basketball" | "pitch-rush" | "final-third";
 
 /**
  * How a game presents itself. `hero` tiles carry a painted scene and a call to

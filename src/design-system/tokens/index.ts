@@ -4,5 +4,6 @@ export * from "./gradients";
 export * from "./shape";
 export * from "./spacing";
 export * from "./typography";
+export * from "./dashboard";
 
 export * from "./match-discovery.generated";

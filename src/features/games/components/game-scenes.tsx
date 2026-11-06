@@ -35,19 +35,19 @@ export type GameSceneProps = {
 };
 
 export function GameScene(props: GameSceneProps) {
-  if (hasBundledCover(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(gameCoverPath(props.game))} alt="" fill sizes="(min-width:1024px) 270px,70vw" unoptimized style={{objectFit:'cover'}}/></div>;
+  if (hasBundledCover(props.game) || ["grand-prix-dash", "football-chess"].includes(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(gameCoverPath(props.game))} alt="" fill sizes="(min-width:1024px) 270px,70vw" unoptimized style={{objectFit:'cover'}}/></div>;
   if (props.game === "open-golf") return <div className={styles.scene} aria-hidden="true"><Image src={publicAsset(gameCoverPath(props.game))} alt="" fill unoptimized style={{objectFit:'cover'}} /></div>;
   if (props.game === "final-third") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/final-third/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "pitch-rush") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/pitch-rush/cover.webp")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "vibe-basketball") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/vibe-basketball/gameplay.jpg")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (props.game === "stadium-cricket") return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset("/games/stadium-cricket/stadium-preview.jpg")} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized style={{objectFit:"cover"}} /></div>;
   if (["retro-football","retro-hoops","retro-innings","retro-circuit"].includes(props.game)) return <div className={styles.scene} aria-hidden="true" data-discovery-game={props.game} style={{opacity:props.opacity??1}}><Image src={publicAsset(`/assets/games/identity/${props.game}.svg`)} alt="" fill sizes="(min-width: 1024px) 270px, 70vw" unoptimized className={styles.layerImage}/></div>;
-  if (props.game === "grand-prix-dash") return <div className={styles.scene} aria-hidden="true" data-discovery-game="grand-prix-dash" style={{opacity: props.opacity ?? 1}}><Image src={publicAsset("/assets/games/grand-prix-dash.svg")} alt="" fill sizes="(min-width: 1024px) 240px, 50vw" unoptimized className={styles.layerImage} /></div>;
+  if (props.game === "grand-prix-dash") return <div className={styles.scene} aria-hidden="true" data-discovery-game="grand-prix-dash" style={{opacity: props.opacity ?? 1}}><Image src={publicAsset("/assets/games/rally-dash/scene.svg")} alt="" fill sizes="(min-width: 1024px) 240px, 50vw" unoptimized className={styles.layerImage} /></div>;
   return <CatalogGameScene {...props} />;
 }
 function CatalogGameScene({ game, opacity = 1, animate = true, locked = false, phase }: GameSceneProps) {
   const root = useRef<HTMLDivElement>(null);
-  const scene = discoveryFamily.games[game === "f1-racing" ? "grand-prix-dash" : game === "football-shooting" ? "penalty-shootout" : game === "retro-football-2" ? "pitch-duel" : ["open-golf","archery-test","longbow"].includes(game) ? "tennis-rally" : ["cricketer","stick-cricket","retro-innings"].includes(game) ? "final-over" : game === "retro-hoops" ? "hoop-duel" : game];
+  const scene = discoveryFamily.games[game === "f1-racing" ? "grand-prix-dash" : game === "football-shooting" ? "penalty-shootout" : game === "retro-football-2" ? "pitch-duel" : ["open-golf","archery-test","longbow"].includes(game) ? "tennis-rally" : ["cricketer","yorker","stick-cricket","retro-innings"].includes(game) ? "final-over" : ["retro-hoops","rim-rush","hoop-legacy"].includes(game) ? "hoop-duel" : game];
 
   useEffect(() => {
     const element = root.current;

@@ -200,7 +200,7 @@ export function ShootoutLobby({
               onClick={() => setHistoryOpen(true)}
             />
           </div>
-          <div className="mt-3.5"><GameLeaderboardCta sport="football" gameId="penalty-shootout" /></div>
+          <div className="mt-3.5"><GameLeaderboardCta gameId="penalty-shootout" /></div>
         <DailyDrop sport="football" />
         </div>
       </div>

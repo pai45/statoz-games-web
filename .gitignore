@@ -46,6 +46,7 @@ next-env.d.ts
 /.cache/vibe-*
 /vendor/vibebasketball/node_modules/
 /vendor/vibebasketball/dist/
+/vendor/portfolio-formula/node_modules/
 /test-results/vibe-basketball/
 
 # Local validation output
@@ -55,6 +56,12 @@ next-env.d.ts
 /test-results/retro-hoops-*/
 /hoops-console-build-exit.txt
 /test-results/stadium-cricket/
+/test-results/football-chess/
+/test-results/yorker/
+/test-results/yorker-app/
+/test-results/shop/
+/test-results/platform-rail/
+/test-results/portfolio-formula/
 
 # Generated versioned device-download manifests
 /public/_game-assets/
@@ -96,3 +103,14 @@ next-env.d.ts
 # Retired game bytes remain on this workstation only.
 /.cache/removed-games/
 /.cache/removed-exports/
+
+# Python bytecode from vendored skill scripts
+__pycache__/
+*.pyc
+
+/vendor/hoop-legacy/node_modules/
+/vendor/hoop-legacy/dist/
+/test-results/hoop-legacy/
+
+/.cache/hoop-legacy-athletes/
+/test-results/hoop-legacy-athletes/

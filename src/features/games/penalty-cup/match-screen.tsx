@@ -7,7 +7,7 @@ import { Modal } from './modal';
 import type { MatchResult, Nation } from './types';
 import styles from './screen.module.css';
 
-type Props={id:string;player:Nation;opponent:Nation;level:number;seed:number;label:string;rules:MatchRules;persistent:boolean;saveNotice?:string;checkpoint?:MatchCheckpoint;settings:Settings;onSettings:(s:Settings)=>void;onCheckpoint:(value:MatchCheckpoint)=>void;onComplete:(r:MatchResult)=>void;onExit:()=>void;hostCommand?:{id:number;type:'pause'|'resume'|'dispose'}};
+type Props={id:string;player:Nation;opponent:Nation;level:number;seed:number;label:string;rules:MatchRules;persistent:boolean;saveNotice?:string;checkpoint?:MatchCheckpoint;settings:Settings;onSettings:(s:Settings)=>void;onPauseChange?:(paused:boolean)=>void;onCheckpoint:(value:MatchCheckpoint)=>void;onComplete:(r:MatchResult)=>void;onExit:()=>void;hostCommand?:{id:number;type:'pause'|'resume'|'dispose'}};
 const labels={goal:'GOAL',saved:'SAVED',wide:'WIDE',over:'OVER',woodwork:'POST'};
 const toResult=(id:string,s:Snapshot):MatchResult=>({id,score:s.score,outcome:s.outcome!,kicks:s.kicks,suddenDeath:s.suddenDeath});
 
@@ -15,6 +15,8 @@ export function CupMatch(props:Props) {
   const canvas=useRef<HTMLDivElement>(null),rt=useRef<MatchRuntime|null>(null),refs=useRef(props),reported=useRef(false),advance=useRef<()=>void>(()=>{}),requestedPause=useRef(false);
   useLayoutEffect(()=>{refs.current=props;});
   const [snapshot,setSnapshot]=useState<Snapshot|null>(null),[ready,setReady]=useState(false),[paused,setPaused]=useState(false),[error,setError]=useState(''),[retry,setRetry]=useState(0),[help,setHelp]=useState(false);
+  const {onPauseChange}=props;
+  useEffect(()=>{onPauseChange?.(paused||!!error);},[paused,error,onPauseChange]);
   const pause=useCallback(()=>{requestedPause.current=true;if(rt.current)pauseMatch(rt.current);setPaused(true);},[]);
   const resume=useCallback(()=>{requestedPause.current=false;setPaused(false);const r=rt.current;if(!r)return;r.input.setPaused(false);r.audio.unlock();r.accumulator=0;r.paused=false;},[]);
   useEffect(()=>{
@@ -68,7 +70,7 @@ export function CupMatch(props:Props) {
       <small>{s?.suddenDeath?'SUDDEN DEATH':`${Math.min(5,Math.floor((count??0)/2)+1)} / 5`} · {taking?'SHOOT':'SAVE'}</small>
     </div>
     {!paused&&ready&&!error&&s&&<>
-      {inResult?<div className={styles.resultStrip}><b>{s.result?labels[s.result.outcome]:''}</b>{phase!=='replay'&&<button onClick={()=>rt.current?.simulation.replay()}>Replay</button>}<button className={styles.primary} onClick={next}>{phase==='replay'?'Skip replay':s.complete?'Result':'Next'} →</button></div>:<>
+      {inResult?<div className={styles.resultStrip}><b>{s.result?labels[s.result.outcome]:''}</b>{phase!=='replay'&&<button onClick={()=>rt.current?.simulation.replay()}>Replay</button>}<button className={styles.primary} onClick={next}>{phase==='replay'?'Skip replay':s.complete?'Result':'Next'}</button></div>:<>
         <div className={styles.leftControls}>
           {taking&&<div className={styles.shotStyles}>{(['driven','placed','chip'] as Style[]).map(style=><button key={style} disabled={phase!=='preparation'} aria-pressed={s.style===style} onClick={()=>{if(rt.current)rt.current.input.style=style;}}>{style}</button>)}</div>}
           <AimStick onAim={(x,y)=>rt.current?.input.aim(x,y)} disabled={!!taking&&phase!=='preparation'} label={taking?'AIM':'MOVE'}/>

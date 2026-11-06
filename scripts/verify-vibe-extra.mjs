@@ -55,7 +55,6 @@ try{
  const app=await context.newPage(),errors=[];app.on('pageerror',error=>errors.push(error.message));
  await app.goto(base+'/games/basketball/');
  const card=app.getByRole('link',{name:'Play VIBE BASKETBALL',exact:true});await card.waitFor();
- assert.ok(await app.getByRole('link',{name:'Play RIMFORGE 3',exact:true}).count(),'Existing basketball game retained');
  await app.screenshot({path:path.join(out,'app-basketball-library.png')});await card.click();
  const shell=app.frameLocator('iframe[data-mobile-game-frame]'),frame=shell.frameLocator('iframe[title^="Vibe Basketball"]');
  await frame.locator('#mode-menu.show').waitFor({timeout:120000});
@@ -103,14 +102,17 @@ try{
  await retryContext.unroute(blockedScript);await retryShell.getByRole('button',{name:'Retry',exact:true}).click();
  await retryShell.frameLocator('iframe[title^="Vibe Basketball"]').locator('#mode-menu.show').waitFor({timeout:120000});report.errorRetry=true;await retryContext.close();
 
- // The upstream smoke assertions run unchanged; adapt only runner paths and browser launch.
+ // Keep upstream gameplay assertions. The presentation layer now permits only
+ // the explicitly credited local athlete files, never arbitrary model/animation URLs.
  const smoke=await fs.readFile(path.join(root,'vendor/vibebasketball/tools/smoke.mjs'),'utf8');
  const adapted=smoke.replace("from 'playwright'",'from '+JSON.stringify(pathToFileURL(path.join(root,'node_modules/@playwright/test/index.mjs')).href))
   .replace(/const port = 5198;[\s\S]*?(?=const waitForServer)/,'const origin = '+JSON.stringify(base+'/embedded-games/vibe-basketball')+'; const server = {kill(){}};\n')
   .replace('await waitForServer();','')
   .replace('headless: !localMac,','headless: true, executablePath: '+JSON.stringify(chrome)+',')
   .replace("args: localMac ? ['--use-angle=metal'] : [],","args: ['--enable-unsafe-swiftshader'],");
- const smokePath=path.join(root,'.cache/vibe-smoke.mjs');await fs.writeFile(smokePath,adapted);
+ const allowedArt=/\/models\/athletes\/(?:athlete-(?:male|female)\.glb|basketball\.glb|(?:skin|normal)-(?:male|female)\.webp|eyes\.webp)$/;
+ const licensedSmoke=adapted.replace('if (assetRequests.length)','if (assetRequests.some(url=>new URL(url).origin!==new URL(origin).origin||!'+allowedArt.toString()+'.test(new URL(url).pathname)))');
+ const smokePath=path.join(root,'.cache/vibe-smoke.mjs');await fs.writeFile(smokePath,licensedSmoke);
  await new Promise((resolve,reject)=>{const child=spawn(process.execPath,[smokePath],{cwd:root,stdio:['ignore','pipe','pipe']});let log='';child.stdout.on('data',data=>{log+=data;process.stdout.write(data);});child.stderr.on('data',data=>{log+=data;process.stderr.write(data);});child.on('error',reject);child.on('exit',async code=>{await fs.writeFile(path.join(out,'upstream-smoke.log'),log);if(code===0)resolve();else reject(Error('Upstream smoke failed: '+code));});});
  report.sourceSmoke=true;
  await fs.writeFile(path.join(out,'extra-validation.json'),JSON.stringify(report,null,2));

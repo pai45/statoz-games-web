@@ -1,0 +1,213 @@
+{
+  "game": "yorker",
+  "version": 1,
+  "original": [
+    "simulation (ball flight, batter AI, fielding, LBW, ball tracking), rules, interface, kits, stadium bowl, crowd, pavilion, boards, authored bowling/fielding/umpiring motion, synthesised impact sounds",
+    "2026-11 player refinement: original anatomical head topology, modeled facial features, hair and beard variants, continuous skeleton-weighted jerseys and sleeves, fitted collars and headwear, fabric/leather/willow shaders and generated textile/insignia maps, camera-projected character detail levels; original shaded spectator atlas, stadium trusses, pavilion glazing, floodlight arrays and condition-dependent pitch detail"
+  ],
+  "player": {
+    "file": "player.glb",
+    "title": "Virat Kohli Cricket Batting Animation - Low Poly",
+    "author": "bhagathartworks",
+    "source": "https://sketchfab.com/3d-models/virat-kohli-cricket-batting-animation-low-poly-a21f5e7ee14f4b6aa5cf6c94a1016932",
+    "license": "CC-BY-4.0",
+    "licenseFile": "PLAYER-LICENSE.txt",
+    "note": "The unchanged, texture-free licensed source body and rig (same source asset as Cricketer, with no shared game source files). Yorker refines the body at runtime, replaces the original head/hair and fragmented shirt/collar patches with original meshes, fits independently authored facial detail and fictional kits, and uses camera-based detail levels. Source credits and the batting animation are preserved.",
+    "sha256": "048d84139861a7fa5da973c021179118af316630bd692c0e3926200b8d222706",
+    "bytes": 706808
+  },
+  "models": [
+    {
+      "file": "models/wicket.glb",
+      "title": "Three Stump Wicket",
+      "source": "https://cdn.3dassets.dev/assets/31325/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-three-stump-wicket-04721170",
+      "license": "CC0-1.0",
+      "sha256": "04df20b32f939b3ebd8c78bf3fd976375019469ba1a414a630822da57cda1bd9",
+      "bytes": 28852
+    },
+    {
+      "file": "models/bails.glb",
+      "title": "Bail Pair",
+      "source": "https://cdn.3dassets.dev/assets/31326/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-bail-pair-a6381d77",
+      "license": "CC0-1.0",
+      "sha256": "b02beb1afdd95f99965868afa94f4ad7706a0a14427ac2e2435966776f768239",
+      "bytes": 7088
+    },
+    {
+      "file": "models/helmet.glb",
+      "title": "Cricket Helmet",
+      "source": "https://cdn.3dassets.dev/assets/31319/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-cricket-helmet-9c686403",
+      "license": "CC0-1.0",
+      "modified": "Simplified with meshoptimizer via glTF-Transform 4 (weld, simplify, quantize); materials unchanged",
+      "sourceSha256": "cb43f665b1db90656113b3e1f17e4a8c66704f859c75ab332f5c9094a7347b7d",
+      "sha256": "246a7583c30ff278baeafabac6ee9a28b341b460492a4a6dcfe1c096d35e6d9f",
+      "bytes": 51228
+    },
+    {
+      "file": "models/bat.glb",
+      "title": "Cricket Bat",
+      "source": "https://cdn.3dassets.dev/assets/31313/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-cricket-bat-9d4925c4",
+      "license": "CC0-1.0",
+      "modified": "Simplified with meshoptimizer via glTF-Transform 4 (weld, simplify, quantize); materials unchanged",
+      "sourceSha256": "e37206713185ea27cab63f23a208219c45e78bbe93a515d6926c071de5b71959",
+      "sha256": "08f7ac9b06498563fbb30d72f6488899e79017b8f2b58cfc1751260a21c50e3f",
+      "bytes": 42880
+    },
+    {
+      "file": "models/pads.glb",
+      "title": "Batting Pad Pair",
+      "source": "https://cdn.3dassets.dev/assets/31315/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-batting-pad-pair-bdd92362",
+      "license": "CC0-1.0",
+      "modified": "Simplified with meshoptimizer via glTF-Transform 4 (weld, simplify, quantize); materials unchanged",
+      "sourceSha256": "231ad69e1e429d67bf4b9c40399454abe36af7e4db869fb84f16005ddbd6d296",
+      "sha256": "b3a0587515a2df5f39a371832b04a743373e5d458299052afdf0115185305071",
+      "bytes": 58800
+    },
+    {
+      "file": "models/gloves.glb",
+      "title": "Batting Glove Pair",
+      "source": "https://cdn.3dassets.dev/assets/31316/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-batting-glove-pair-bef5b89a",
+      "license": "CC0-1.0",
+      "modified": "Simplified with meshoptimizer via glTF-Transform 4 (weld, simplify, quantize); materials unchanged",
+      "sourceSha256": "d88e191e67b261eefb71a7d4c510b6346d266e51e200196f03724e0c5873b1f9",
+      "sha256": "32a6e7fcca93eb9a9468947a9f4fcf84ae92eed3d5b0e99560597b512ae1bd3a",
+      "bytes": 50708
+    },
+    {
+      "file": "models/keeper-gloves.glb",
+      "title": "Wicketkeeping Glove Pair",
+      "source": "https://cdn.3dassets.dev/assets/31317/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-wicketkeeping-glove-pair-1dbc1664",
+      "license": "CC0-1.0",
+      "modified": "Simplified with meshoptimizer via glTF-Transform 4 (weld, simplify, quantize); materials unchanged",
+      "sourceSha256": "8de73758994714464ed91b01e9c99e909776ad3470b8e229e07e062edc372925",
+      "sha256": "015fca5eaa137ac0bcdf4aa184787358bfd05ac69370c0fb7ff69c1796e0f6b5",
+      "bytes": 57992
+    },
+    {
+      "file": "models/ball.glb",
+      "title": "Seamed Cricket Ball",
+      "source": "https://cdn.3dassets.dev/assets/31314/v1/model.glb",
+      "page": "https://3dassets.dev/assets/cricket-ground-and-pavilion-seamed-cricket-ball-7dfe26fe",
+      "license": "CC0-1.0",
+      "modified": "Simplified with meshoptimizer via glTF-Transform 4 (weld, simplify, quantize); materials unchanged",
+      "sourceSha256": "f4a729c2c9f1990c33aec4de1a33992c1a6dd721613b17416e4f6b9682b82e97",
+      "sha256": "8514ebde15670728faa14007b82ec137323914b9ea7fdb344a1947b31608f849",
+      "bytes": 34196
+    }
+  ],
+  "textures": [
+    {
+      "file": "textures/sky-day.jpg",
+      "title": "Kloofendal 48d Partly Cloudy (Pure Sky)",
+      "author": "Greg Zaal, Jarod Guest",
+      "source": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+      "license": "CC0-1.0",
+      "modified": "Tonemapped JPG downscaled to 2048x1024; below-horizon rows flattened",
+      "sha256": "d16bf21a84089b23e65e5b98e48be3ae83623a514a9f7ecae5b0d2cb5232e7f5",
+      "bytes": 77503
+    },
+    {
+      "file": "textures/sky-dusk.jpg",
+      "title": "Belfast Sunset (Pure Sky)",
+      "source": "https://polyhaven.com/a/belfast_sunset_puresky",
+      "license": "CC0-1.0",
+      "modified": "Tonemapped JPG downscaled to 2048x1024; below-horizon rows flattened",
+      "sha256": "736f0f39b4f9e4544de82020eb0af5f2c9f33702bd6ced63b52e5acc7d01fbd3",
+      "bytes": 45871
+    },
+    {
+      "file": "textures/sky-night.jpg",
+      "title": "Qwantani Night (Pure Sky)",
+      "source": "https://polyhaven.com/a/qwantani_night_puresky",
+      "license": "CC0-1.0",
+      "modified": "Tonemapped JPG downscaled to 2048x1024, darkened and cooled for floodlights; below-horizon rows flattened",
+      "sha256": "3cda0052a723284e7a53906e6d1cb134337e4c36d1fe0fa61092eb8deda86a17",
+      "bytes": 60478
+    },
+    {
+      "file": "textures/grass.jpg",
+      "title": "Grass 005 (colour)",
+      "source": "https://ambientcg.com/view?id=Grass005",
+      "license": "CC0-1.0",
+      "modified": "1K colour map resized to 512px",
+      "sha256": "e286bab6c72a799f1eb821b7073e8e966ac507cb59f61d3208c950401f377b95",
+      "bytes": 46687
+    },
+    {
+      "file": "textures/pitch.jpg",
+      "title": "Ground 102 (colour)",
+      "source": "https://ambientcg.com/view?id=Ground102",
+      "license": "CC0-1.0",
+      "modified": "1K colour map resized to 512px",
+      "sha256": "729e1aa8e1e021479bf3ca634c2dda18cef8be614baeb313cdc7d28d6f556f40",
+      "bytes": 35836
+    }
+  ],
+  "audio": [
+    {
+      "file": "audio/crowd-bed.mp3",
+      "title": "Crowd Talking Quietly Stadium",
+      "author": "FunWithSound",
+      "source": "https://freesound.org/people/FunWithSound/sounds/381373/",
+      "license": "CC0-1.0",
+      "modified": "Preview mixed to mono, loudness-normalised",
+      "sha256": "e7d9782106330b8fedd717d3150d89dd44edfd7df3ee4b6532831838d8666ee6",
+      "bytes": 87605
+    },
+    {
+      "file": "audio/crowd-roar.mp3",
+      "title": "Crowd Cheer",
+      "author": "FoolBoyMedia",
+      "source": "https://freesound.org/people/FoolBoyMedia/sounds/397434/",
+      "license": "CC0-1.0",
+      "modified": "First 8 s, faded, mono, normalised",
+      "sha256": "d986759bdc2d7a92050aa05425543696a5dc95835acddf92174a2314ee898b23",
+      "bytes": 64617
+    },
+    {
+      "file": "audio/crowd-cheer.mp3",
+      "title": "Short Crowd Cheer",
+      "author": "qubodup",
+      "source": "https://freesound.org/people/qubodup/sounds/182571/",
+      "license": "CC0-1.0",
+      "modified": "First 6 s, faded, mono, normalised",
+      "sha256": "585279f75314b10dd7629afc803c46eb4eb52d6011fd4fbfcd6890e8eaabf45a",
+      "bytes": 48526
+    },
+    {
+      "file": "audio/crowd-sigh.mp3",
+      "title": "Crowd Sigh In Disappointment",
+      "author": "ShangusBurger",
+      "source": "https://freesound.org/people/ShangusBurger/sounds/763880/",
+      "license": "CC0-1.0",
+      "modified": "0.85-4.05 s, faded, mono, normalised",
+      "sha256": "b7f9e67313280469dbf6d31f126b5c75d4c073ed2e85a033546f7de9c19a0e64",
+      "bytes": 26165
+    },
+    {
+      "file": "audio/applause.mp3",
+      "title": "Large crowd applause",
+      "author": "Bansemer",
+      "source": "https://freesound.org/people/Bansemer/sounds/160493/",
+      "license": "CC0-1.0",
+      "modified": "10-17 s, faded, mono, normalised",
+      "sha256": "767665425319bf60cbd150a4a0e88149fa7ba130b3446d1f0d86490ccc7cf416",
+      "bytes": 56467
+    }
+  ],
+  "fonts": [
+    {
+      "file": "src/features/games/yorker/barlow-condensed.woff2",
+      "license": "OFL-1.1",
+      "licenseFile": "OFL-barlow-condensed.txt"
+    }
+  ],
+  "scope": "Local build; no remote downloads at runtime."
+}

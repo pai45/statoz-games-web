@@ -1,91 +1,86 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, type CSSProperties } from "react";
-import { accentVar, FilterChips } from "@/design-system";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { ExpandableSearchField, FilterChips, PageSearchHeader, CloseIcon, GridViewIcon } from "@/design-system";
 import { gameSportModuleFor, gameSportOrder, type GameSport } from "@/domain/game-sports";
-import { gameRegistry, gameSportFor } from "@/mocks/games";
-import { publicAsset } from "@/shared/config";
-import { allGamesInFeedOrder, gameCoverPath, sportGamesInDeckOrder } from "../home-catalog";
-import type { GameId } from "../types";
-import { useGameLaunch } from "./use-game-launch";
+import { useAuthSession } from "@/features/auth";
+import { allGamesInFeedOrder, searchHomeGames, sportGamesInDeckOrder } from "../home-catalog";
+import { CatalogGameCover } from "./catalog-game-cover";
+import { homeLaunchEvent } from "../shared/navigation";
+import { useHomeRecents } from "../state/home-recents";
 import styles from "./all-games-list.module.css";
 
-const ALL = "ALL";
-const sportLabel = (sport: GameSport) => gameSportModuleFor(sport).label.toUpperCase();
-const sportsWithGames = gameSportOrder.filter((sport) => sportGamesInDeckOrder(sport).length > 0);
-
-/**
- * Every game as a plain list, over the home tab. A native modal dialog, so
- * focus stays inside it and Escape closes it. Sport chips narrow the list.
- * Mount it to open it; unmount it to close it.
- */
+const sports = gameSportOrder.filter(sport => sportGamesInDeckOrder(sport).length > 0);
+const label = (sport: GameSport) => gameSportModuleFor(sport).label;
 export function AllGamesList({ initialSport, onClose }: { initialSport: GameSport | null; onClose: () => void }) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const router = useRouter(), query = useSearchParams();
+  const dialog = useRef<HTMLDialogElement>(null), grid = useRef<HTMLDivElement>(null);
+  const query = useSearchParams(), session = useAuthSession();
+  const recentIds = new Set(useHomeRecents().map(recent => recent.gameId));
+  const search = query.get("q") ?? "";
   const requested = query.get("listSport");
-  const selected = requested === "all" ? null : sportsWithGames.find(sport => sport === requested) ?? initialSport;
-  const filter = selected ? sportLabel(selected) : ALL;
-  const setFilter = (label: string) => {
-    const params = new URLSearchParams(query.toString());
-    params.set("listSport", sportsWithGames.find(sport => sportLabel(sport) === label) ?? "all");
-    router.replace(`/?${params}`, { scroll: false });
+  const selected = requested === "all" ? null : sports.find(sport => sport === requested) ?? initialSport;
+  const games = searchHomeGames(selected ? sportGamesInDeckOrder(selected) : allGamesInFeedOrder(), search);
+  const update = (key: string, value: string) => {
+    const params = new URLSearchParams(window.location.search);
+    if (value) params.set(key, value); else params.delete(key);
+    // Next's native History integration updates useSearchParams without a server round trip.
+    window.history.replaceState(null, "", window.location.pathname + (params.size ? `?${params}` : "") + window.location.hash);
   };
 
   useEffect(() => {
-    const element = dialog.current;
-    if (!element || element.open) return;
-    element.showModal();
-    return () => element.close();
+    const element = dialog.current, opener = document.activeElement;
+    if (!element) return;
+    // The Library shares the command bar, so it must not make the shell inert.
+    const bar = document.querySelector<HTMLElement>("[data-platform-command-bar]");
+    const align = () => { if (bar) element.style.setProperty("--library-header-height", `${bar.getBoundingClientRect().height}px`); };
+    align();
+    const observer = new ResizeObserver(align);
+    if (bar) observer.observe(bar);
+    const pathname = window.location.pathname;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    element.show();
+    return () => {
+      observer.disconnect();
+      document.body.style.overflow = previousOverflow;
+      element.close();
+      if (window.location.pathname === pathname && opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true });
+    };
   }, []);
+  useEffect(() => {
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented && !document.querySelector("dialog:modal")) { event.preventDefault(); onClose(); }
+    };
+    window.addEventListener("keydown", escape);
+    return () => window.removeEventListener("keydown", escape);
+  }, [onClose]);
+  useEffect(() => {
+    const panel = grid.current;
+    if (!panel || session.status === "hydrating") return;
+    const key = `statoz.games.web.home-library.v1.${encodeURIComponent(session.email ?? "guest")}.${selected ?? "all"}.${search}`;
+    try { panel.scrollTop = Number(sessionStorage.getItem(key)) || 0; } catch { panel.scrollTop = 0; }
+    let leaving = false;
+    const save = () => { if (!leaving) try { sessionStorage.setItem(key, String(panel.scrollTop)); } catch { /* Optional view state. */ } };
+    const freeze = () => { save(); leaving = true; };
+    window.addEventListener(homeLaunchEvent, freeze);
+    panel.addEventListener("scroll", save, { passive: true });
+    return () => { save(); window.removeEventListener(homeLaunchEvent, freeze); panel.removeEventListener("scroll", save); };
+  }, [selected, search, session.status, session.email]);
 
-  const sport = sportsWithGames.find((entry) => sportLabel(entry) === filter) ?? null;
-  const games = sport ? sportGamesInDeckOrder(sport) : allGamesInFeedOrder();
-
-  return <dialog ref={dialog} className={styles.dialog} aria-labelledby="all-games-title"
-    onCancel={(event) => { event.preventDefault(); onClose(); }}>
+  return <dialog ref={dialog} className={styles.dialog} aria-labelledby="all-games-title" onCancel={event => { event.preventDefault(); onClose(); }}>
+    <div className={styles.backdrop} aria-hidden="true"><div className={styles.backdropGrid} /></div>
     <div className={styles.panel}>
-      <header className={styles.head}>
-        <div>
-          <p className={styles.kicker}>{`// GAME LIBRARY · ${games.length} ${games.length === 1 ? "GAME" : "GAMES"}`}</p>
-          <h2 id="all-games-title" className={styles.title}>ALL GAMES</h2>
-        </div>
-        <button type="button" className={styles.close} aria-label="Close all games" onClick={onClose}>
-          <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
-        </button>
-      </header>
-      <FilterChips options={[ALL, ...sportsWithGames.map(sportLabel)]} selected={filter} onSelect={setFilter}
-        accent={accentVar(sport ? gameSportModuleFor(sport).accent : "cyan")} label="Filter games by sport" className={styles.chips} />
-      <ul className={styles.list}>
-        {games.map((game, index) => <li key={game}><GameRow game={game} index={index} /></li>)}
-      </ul>
+      <PageSearchHeader title="Game Library" titleId="all-games-title" heading="h2">
+        <ExpandableSearchField label="Search games" placeholder="Search games…" value={search} onChange={event => update("q", event.target.value)} onClear={() => update("q", "")} enterKeyHint="search" />
+      </PageSearchHeader>
+      <div className={styles.filters}>
+        <FilterChips options={["All Games", ...sports.map(label)]} selected={selected ? label(selected) : "All Games"} label="Filter games by sport" onSelect={value => update("listSport", sports.find(sport => label(sport) === value) ?? "all")} />
+        <button type="button" className={styles.close} aria-label="Close all games" onClick={onClose}><CloseIcon size={20} /></button>
+      </div>
+      <div className={styles.resultBar}><span aria-live="polite" aria-atomic="true">{games.length} {games.length === 1 ? "game" : "games"}{selected ? ` in ${label(selected)}` : " in your library"}</span></div>
+      <div ref={grid} className={styles.results} data-library-results>
+        {games.length ? <ul className={styles.grid}>{games.map(game => <li key={game}><CatalogGameCover game={game} recent={recentIds.has(game)} /></li>)}</ul> : <div className={styles.empty}><GridViewIcon size={36} /><h3>No games found</h3><p>Try another title or browse a different sport.</p><button type="button" onClick={() => { update("q", ""); update("listSport", "all"); }}>Clear search and filters</button></div>}
+      </div>
     </div>
   </dialog>;
-}
-
-function GameRow({ game, index }: { game: GameId; index: number }) {
-  const entry = gameRegistry[game];
-  const launch = useGameLaunch(entry);
-  const sport = gameSportFor(game);
-  const style = { "--row-accent": accentVar(entry.accent) } as CSSProperties;
-  const body = <>
-    <span className={styles.thumb}>
-      <Image src={publicAsset(gameCoverPath(game))} alt="" fill sizes="120px" unoptimized className={styles.cover} />
-    </span>
-    <span className={styles.text}>
-      <strong className={styles.name}>{entry.title}</strong>
-      <small className={styles.sport}>
-        {sport ? <span style={{ color: accentVar(gameSportModuleFor(sport).accent) }}>{sportLabel(sport)}</span> : null}
-        <span>{String(index + 1).padStart(2, "0")}</span>
-      </small>
-    </span>
-    <span className={styles.play} aria-hidden="true">
-      <svg viewBox="0 0 14 14" width="12" height="12"><path d="M3 1.5v11l9-5.5z" fill="currentColor" /></svg>
-      PLAY
-    </span>
-  </>;
-  return launch.href
-    ? <Link href={launch.href} className={styles.row} style={style} aria-label={`Play ${entry.title}`}>{body}</Link>
-    : <button type="button" className={styles.row} style={style} aria-label={`Play ${entry.title}`} onClick={launch.onClick}>{body}</button>;
 }

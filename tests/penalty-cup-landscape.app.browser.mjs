@@ -19,10 +19,10 @@ try{
  });
  page=await context.newPage();page.setDefaultTimeout(20000);page.on('pageerror',e=>errors.push(e.message));
  const game=()=>page.frames().find(f=>f.url().includes('/embedded-games/penalty-cup/'));
- async function open(){await expect.poll(async()=>{for(const f of page.frames()){const online=f.getByRole('button',{name:'Play online',exact:true});if(await online.isVisible())await online.click();}return !!game()&&await game().getByRole('button',{name:'Penalty Cup →',exact:true}).isVisible();},{timeout:60000}).toBe(true);}
+ async function open(){await expect.poll(async()=>{for(const f of page.frames()){const online=f.getByRole('button',{name:'Play online',exact:true});if(await online.isVisible())await online.click();}return !!game()&&await game().getByRole('button',{name:'Penalty Cup',exact:true}).isVisible();},{timeout:60000}).toBe(true);}
  await page.goto(origin+'/play/penalty-cup',{waitUntil:'domcontentloaded',timeout:90000});await open();
  assert.equal(await game().locator('[data-cup-landscape]').evaluate(el=>el.clientWidth>el.clientHeight),true);
- await game().getByRole('button',{name:'Penalty Cup →',exact:true}).click();await game().getByRole('button',{name:/Start Cup/}).click();await game().getByRole('button',{name:/Play match/}).waitFor();
+ await game().getByRole('button',{name:'Penalty Cup',exact:true}).click();await game().getByRole('button',{name:/Start Cup/}).click();await game().getByRole('button',{name:/Play match/}).waitFor();
  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('statoz.games.web.bundle.penalty-cup.penalty-mobile%40example.test')));const main=Object.keys(saved.stores).find(k=>/^penalty-cup\.v1\.[^.]+$/.test(k));assert.equal(JSON.parse(saved.stores[main]).version,2);
  await page.reload();await open();await game().getByRole('button',{name:/Continue Cup/}).click();await game().getByRole('button',{name:/Play match/}).waitFor();
  await page.screenshot({path:out+'/app-landscape-restored.png'});

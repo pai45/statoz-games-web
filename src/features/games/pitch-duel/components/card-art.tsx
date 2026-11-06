@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 
 import type { PlayerCard as PlayerCardData } from "@/domain/cards";
 import { portraitForCard } from "@/features/packs";
+import { publicAsset } from "@/shared/config";
 
 import { attacks } from "../engine/actions";
 import { positionGroup } from "../engine/lineup";
@@ -122,7 +123,7 @@ export function DuelCard({
 
         <span className={styles.plate}>
           {portrait ? (
-            <Image src={portrait} alt="" fill sizes={size === "lg" ? "160px" : mini ? "64px" : "120px"} className={styles.portraitImg} draggable={false} />
+            <Image src={publicAsset(portrait)} alt="" fill sizes={size === "lg" ? "160px" : mini ? "64px" : "120px"} className={styles.portraitImg} draggable={false} />
           ) : (
             <Silhouette />
           )}

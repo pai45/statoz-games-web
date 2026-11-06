@@ -20,7 +20,7 @@ export const xpHistoryEventTemplates: Record<
 > = {
   pitchDuel: {
     source: "match",
-    title: "PITCH DUEL PROGRESS",
+    title: "FOT DUEL PROGRESS",
     details: "Imported match XP",
   },
   shootout: {

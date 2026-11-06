@@ -1,0 +1,29 @@
+{
+  "name": "statoz-portfolio-formula",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.2",
+    "@react-three/postprocessing": "3.2.2",
+    "lucide-react": "1.67.0",
+    "maath": "0.10.8",
+    "motion": "14.9.0",
+    "postprocessing": "6.39.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-router": "8.5.1",
+    "three": "0.187.0",
+    "zustand": "5.0.16"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@types/three": "0.187.0",
+    "typescript": "5.9.3"
+  }
+}

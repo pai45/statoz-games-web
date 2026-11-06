@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { isGameEnabled } from "../src/domain/demo-product";
+import { gameForHref, gameRegistry, sportGameDecks } from "../src/mocks/games";
 import { gameSportOrder as sportOrder } from "../src/domain/game-sports";
 import {
   allGamesInFeedOrder,
@@ -67,4 +68,12 @@ test("desktop bento fills every row for each catalog size", () => {
 test("covers come from the shared folder unless the game bundles its own", () => {
   assert.equal(gameCoverPath("retro-hoops"), "/assets/games/covers/retro-hoops.webp");
   assert.equal(gameCoverPath("stick-cricket"), "/games/stick-cricket/cover.png");
+});
+
+test("Formula is a separate Motorsport game beside the unchanged Racer", () => {
+  assert.ok(sportGameDecks.motorsport.includes("portfolio-formula"));
+  assert.ok(sportGameDecks.motorsport.includes("f1-racing"));
+  assert.equal(gameForHref("/play/portfolio-formula")?.game, "portfolio-formula");
+  assert.equal(gameRegistry["f1-racing"].href, "/play/racer");
+  assert.equal(gameCoverPath("portfolio-formula"), "/assets/games/covers/formula-2026-11-06/formula.webp");
 });

@@ -4,9 +4,8 @@ import fs from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {gameRegistry, sportForGame, sportGameDecks, gameForHref, playableGameHrefs} from '../src/mocks/games';
 
-test('Vibe Basketball is an additional playable basketball game without a deck gate',()=>{
+test('Vibe Basketball remains a playable basketball game without a deck gate',()=>{
  assert.equal(sportForGame('vibe-basketball'),'basketball');
- assert.ok(sportGameDecks.basketball.includes('retro-hoops'));
  assert.ok(sportGameDecks.basketball.includes('vibe-basketball'));
  assert.equal(gameRegistry['vibe-basketball'].requiresDeck,undefined);
  assert.equal(gameForHref('/play/vibe-basketball')?.game,'vibe-basketball');

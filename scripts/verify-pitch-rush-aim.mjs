@@ -14,7 +14,9 @@ const errors=[],report={};
 try{
   const context=await browser.newContext({viewport:{width:844,height:390},hasTouch:true,isMobile:true});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#start').click();
+  await page.goto('http://127.0.0.1:'+server.address().port);
+  await page.locator('[data-action="quick"]').click();await page.locator('#start').click();
+  await page.locator('[data-action="skip-offer"]').click();
   await page.waitForFunction(()=>window.__game?.state?.phase==='play');
   const start=await page.evaluate(()=>({tick:window.__game.state.tick,at:performance.now()}));
   await page.waitForTimeout(1100);

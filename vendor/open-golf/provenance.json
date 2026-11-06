@@ -6,8 +6,8 @@
     "golf.js": "ee0418527fd95ba435d29ccbe270e608722ffea6317dd9f38c1109c6f3e955eb",
     "golf.worker.js": "9b00bd97fa608ca1aa1196817413a2824e42f3cd7513a0eaffde7e9f4d18e633",
     "golf.wasm": "130d95a9aa9fba4010e702050c8b0c1891ef09b1b67e76cfbc2c3c82f1daec27",
-    "golf-mobile.js": "3c7f640617275277a2cd37b83baae25d8c8b73b894364262ff9e6e6288b3ecf8",
-    "golf-mobile.wasm": "a510023669ec4f466d2cd196400fea6fef390983341132d37caf79f0d8bcf0d8"
+    "golf-mobile.js": "1368d0b9c7789487c2b862dd0c3214ad44f20d30c7e6e65e26eb5feb03d2e4a2",
+    "golf-mobile.wasm": "15f288c0dcc17585b9357f126313d0efc294c43bd37779406bea2cb927d7a420"
   },
   "mobileBuild": {
     "sourceRevision": "b9029f1e80c3110ae3d4fc9300854bdaeef96508",
@@ -15,6 +15,18 @@
     "threading": "single; synchronous asset loading and finalization",
     "stackBytes": 5242880,
     "script": "scripts/rebuild-open-golf-mobile.py",
-    "input": "Select touch mode on TOUCHES_BEGAN and mouse mode on MOUSE_DOWN; clear stale input state on mode change."
+    "input": "Select touch mode on TOUCHES_BEGAN and mouse mode on MOUSE_DOWN; clear stale input state on mode change.",
+    "interface": "Engine-drawn menus, HUD text, pause and result panels are disabled; scripts/open-golf/statoz-ui-bridge.c exports statoz_golf_* state and commands for the HTML arcade shell. Aiming, tutorial pointer, fades, courses, physics and saves are unchanged."
+  },
+  "interface": {
+    "shell": "src/features/games/open-golf/shell (original StatOz work)",
+    "fonts": {
+      "src/features/games/open-golf/fonts/rubik-latin-wght-normal.woff2": {
+        "family": "Rubik variable, latin subset",
+        "source": "https://cdn.jsdelivr.net/npm/@fontsource-variable/rubik@5.1.0/files/rubik-latin-wght-normal.woff2",
+        "license": "SIL Open Font License 1.1 (src/features/games/open-golf/fonts/OFL-rubik.txt, from https://github.com/googlefonts/rubik)",
+        "sha256": "47374cb7d373f9a8450e1237c80bc5fe68c61fbf0cdf958df7a298143b7dd445"
+      }
+    }
   }
 }

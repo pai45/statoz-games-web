@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import { Suspense } from "react";
 
 import { AuthProvider } from "@/features/auth";
-import { StreakCelebrationHost } from "@/features/streaks";
+import { StreakCelebrationHost } from "@/features/streaks/components/streak-celebration-host";
 
 import { DeviceAssets } from "@/features/device-assets/device-assets";
 

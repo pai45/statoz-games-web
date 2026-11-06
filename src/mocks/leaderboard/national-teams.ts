@@ -1,4 +1,4 @@
-import type { TeamSeed } from "@/features/leaderboard/types";
+import type { TeamSeed } from "@/domain/leaderboard";
 
 /**
  * The tournament board's TEAMS field: sixteen national sides with the points

@@ -1,0 +1,15 @@
+.root { display: flex; align-items: center; flex: none; width: var(--ds-size-p44); min-width: var(--ds-size-p44); height: var(--ds-size-p44); overflow: hidden; border: 1px solid var(--ds-color-border-subtle); background: var(--ds-color-background-secondary); transition: width 180ms ease, border-color 180ms ease; }
+.expanded { width: 100%; }
+.root:hover { border-color: var(--ds-color-border-default); }
+.root:has(:focus-visible) { outline: 2px solid var(--ds-color-border-strong); outline-offset: var(--ds-space-2); }
+.trigger { display: grid; place-items: center; flex: none; width: var(--ds-size-p44); height: var(--ds-size-p44); margin: -1px; padding: 0; border: 0; background: transparent; color: var(--ds-color-text-muted); cursor: pointer; }
+.trigger:hover { color: var(--ds-color-text-subtle); }
+.trigger:focus-visible { outline: none; }
+.panel { flex: 1; min-width: 0; }
+.panel[hidden] { display: none; }
+.panel .field { height: calc(var(--ds-size-p44) - 2px); padding-inline: 0 var(--ds-space-4); border-width: 0; background: transparent; }
+.field > svg { display: none; }
+.field input { padding-inline: 0; }
+.field input:focus-visible { outline: none; box-shadow: none; }
+.field button:focus-visible { outline-color: var(--ds-color-border-strong); outline-offset: -3px; }
+@media (prefers-reduced-motion: reduce) { .root { transition: none; } }

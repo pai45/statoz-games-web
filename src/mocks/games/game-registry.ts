@@ -42,14 +42,19 @@ export type GameEntry = {
  * few differ from the id: the arcade names a game, the module names a sport.
  */
 export const gameRegistry: Record<GameId, GameEntry> = {
+  "hoop-legacy": {kind:"hero",title:"HOOP LEGACY",titleLines:["HOOP","LEGACY"],subtitle:"BUILD YOUR PLAYER. RULE THE BLACKTOP. LEAVE A LEGACY.",badgeLabel:"3D BASKETBALL // CAREER + 1V1 + 3V3 + 3PT",ctaLabel:"BUILD YOUR LEGACY",accent:"orange",scene:"hoop-duel",href:"/play/hoop-legacy"},
+  "holdover": {kind:"hero",title:"HOLDOVER",titleLines:["HOLDOVER"],subtitle:"READ THE WIND. DIAL THE RANGE. TAKE THE SHOT.",badgeLabel:"3D SNIPER // CAMPAIGN + QUICK DUEL",ctaLabel:"TAKE AIM",accent:"gold",scene:"tennis-rally",href:"/play/holdover"},
   "cricketer": {kind:"hero",title:"CRICKETER",titleLines:["CRICKETER"],subtitle:"READ THE LINE. FIND THE MIDDLE. OWN THE CHASE.",badgeLabel:"ORIGINAL 3D CRICKET // 12 CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/cricketer"},
+  "yorker": {kind:"hero",title:"YORKER",titleLines:["YORKER"],subtitle:"PICK THE DELIVERY. HIT YOUR LENGTH. TAKE THE WICKET.",badgeLabel:"ORIGINAL 3D BOWLING // 12 SPELLS + ACADEMY",ctaLabel:"TAKE THE BALL",accent:"game-final-over",scene:"final-over",href:"/play/yorker"},
   "tennis-bits": {kind:"hero",title:"TENNIS BITS",titleLines:["TENNIS","BITS"],subtitle:"MOVE. RALLY. WIN THE POINT.",badgeLabel:"LOCAL // ARCADE TENNIS",ctaLabel:"TAKE THE COURT",accent:"lime",scene:"tennis-rally",href:"/play/tennis-bits"},
   "soccer-real": {kind:"hero",title:"SOCCER REAL",titleLines:["SOCCER","REAL"],subtitle:"TAKE THE PITCH. PLAY THE LOCAL CPU.",badgeLabel:"LOCAL // 3D FOOTBALL",ctaLabel:"KICK OFF",accent:"game-pitch-duel",scene:"pitch-duel",href:"/play/soccer-real"},
   "penalty-cup": {kind:"hero",title:"PENALTY CUP",titleLines:["PENALTY","CUP"],subtitle:"ONE SHOT. ONE NATION. ONE CUP.",badgeLabel:"48 NATIONS // INTERNATIONAL CUP",ctaLabel:"CHASE THE CUP",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/penalty-cup"},
   "penalty-shooters-2": {kind:"hero",title:"PENALTY SHOOTERS 2",titleLines:["PENALTY","SHOOTERS 2"],subtitle:"PICK YOUR TEAM. CHASE THE CUP.",badgeLabel:"LOCAL // ORIGINAL SHOOTOUT",ctaLabel:"TAKE THE SHOT",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/penalty-shooters-2"},
-  "f1-racing": {kind:"hero",title:"RACER",titleLines:["RACER"],subtitle:"ONE QUICK RACE. CHASE THE LEAD.",badgeLabel:"STATOZ CIRCUITS // ARCADE RACING",ctaLabel:"QUICK RACE",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/racer"},
+  "f1-racing": {kind:"hero",title:"RACER",titleLines:["RACER"],subtitle:"START SMALL. CHASE THE PODIUM. RISE THROUGH THE RANKS.",badgeLabel:"12-RACE CAREER // QUICK RACE",ctaLabel:"START YOUR CAREER",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/racer"},
+  "portfolio-formula": {kind:"hero",title:"FORMULA",titleLines:["FORMULA"],subtitle:"THREE CIRCUITS. FOUR CAREER TIERS. EARN YOUR PLACE ON THE GRID.",badgeLabel:"CAREER // QUICK MATCH",ctaLabel:"ENTER THE GRID",accent:"game-grand-prix-dash",scene:"grand-prix-dash",href:"/play/portfolio-formula"},
   "football-shooting": {kind:"hero",title:"FOOTBALL SHOOTING",titleLines:["FOOTBALL","SHOOTING"],subtitle:"FIND THE CORNER. BEND THE BALL. MAKE THE SAVE.",badgeLabel:"3D FOOTBALL // SHOOTOUT + PRACTICE",ctaLabel:"TAKE THE SHOT",accent:"game-penalty-shootout",scene:"penalty-shootout",href:"/play/football-shooting"},
   "archery-test": {kind:"hero",title:"ARCHERY MASTER",titleLines:["ARCHERY","MASTER"],subtitle:"DRAW. AIM. RELEASE. REACH THE TARGET.",badgeLabel:"3D ARCHERY // ORIGINAL LEVELS",ctaLabel:"TAKE AIM",accent:"gold",scene:"tennis-rally",href:"/play/archery-test"},
+  "rim-rush": {kind:"hero",title:"RIM RUSH",titleLines:["RIM","RUSH"],subtitle:"PULL BACK. LET IT FLY. SWAT IT AWAY.",badgeLabel:"ORIGINAL 3D 1V1 // CUPS + LOCKER",ctaLabel:"HIT THE COURT",accent:"game-hoop-duel",scene:"hoop-duel",href:"/play/rim-rush"},
   "longbow": {kind:"hero",title:"LONGBOW",titleLines:["LONGBOW"],subtitle:"DRAW. READ THE WIND. LET IT FLY.",badgeLabel:"ORIGINAL 3D ARCHERY // 30 LANES + RIVALS",ctaLabel:"TAKE AIM",accent:"gold",scene:"tennis-rally",href:"/play/longbow"},
   "stick-cricket": {kind:"hero",title:"STICK CRICKET CHASE",titleLines:["STICK CRICKET","CHASE"],subtitle:"STICK CRICKET CHASE. TIME YOUR SHOT.",badgeLabel:"3D CRICKET // BATTING CHASES",ctaLabel:"START THE CHASE",accent:"game-final-over",scene:"final-over",href:"/play/stick-cricket"},
   "open-golf": {kind:"hero",title:"OPEN GOLF",titleLines:["OPEN","GOLF"],subtitle:"ORIGINAL COURSES. ONE PERFECT PUTT.",badgeLabel:"3D MINI GOLF",ctaLabel:"TEE OFF",accent:"lime",scene:"tennis-rally",href:"/play/open-golf"},
@@ -69,7 +74,7 @@ export const gameRegistry: Record<GameId, GameEntry> = {
   /* ---- football ------------------------------------------------------- */
   "pitch-duel": {
     kind: "hero",
-    title: "PITCH DUEL",
+    title: "FOT DUEL",
     subtitle: "ELEVEN A SIDE. WIN THE DUEL.",
     badgeLabel: "CARD FOOTBALL // 11 A SIDE",
     ctaLabel: "ENTER THE DUEL",
@@ -94,8 +99,8 @@ export const gameRegistry: Record<GameId, GameEntry> = {
     kind: "hero",
     title: "5V5 FOOTBALL CHESS",
     titleLines: ["5V5 FOOTBALL", "CHESS"],
-    subtitle: "TACTICAL SQUAD DUEL",
-    badgeLabel: "FEATURED // 5V5",
+    subtitle: "FIVE A SIDE. ONE MOVE AT A TIME.",
+    badgeLabel: "TURN-BASED // 5V5",
     ctaLabel: "MAKE YOUR MOVE",
     accent: "game-football-chess",
     scene: "football-chess",
@@ -224,16 +229,17 @@ export const gameRegistry: Record<GameId, GameEntry> = {
   },
 
   /* ---- motorsport ----------------------------------------------------- */
+  // Rally Dash keeps the original "grand-prix-dash" id so saves, history and discovery links stay stable.
   "grand-prix-dash": {
     kind: "hero",
-    title: "GRAND PRIX DASH",
-    titleLines: ["GRAND PRIX", "DASH"],
-    subtitle: "QUICK RACE • TIME TRIAL",
-    badgeLabel: "FEATURED // RACE",
-    ctaLabel: "RACE NOW",
+    title: "RALLY DASH",
+    titleLines: ["RALLY", "DASH"],
+    subtitle: "RALLYCROSS • STAGE ATTACK",
+    badgeLabel: "FEATURED // RALLY",
+    ctaLabel: "HIT THE STAGE",
     accent: "game-grand-prix-dash",
     scene: "grand-prix-dash",
-    href: "/play/grand-prix",
+    href: "/play/rally",
   },
   "motorsport-quiz": {
     kind: "quick",
@@ -270,6 +276,8 @@ const gameByHref: Record<string, GameId> = Object.fromEntries(
 
 // Keep the former entry address compatible; both launch the reviewed Racer bundle.
 if (isGameEnabled('f1-racing')) gameByHref['/play/f1-racing'] = 'f1-racing';
+// Grand Prix Dash became Rally Dash; its old address opens the rally game.
+if (isGameEnabled('grand-prix-dash')) gameByHref['/play/grand-prix'] = 'grand-prix-dash';
 
 export function playableGameHrefs(): string[] {
   return Object.keys(gameByHref);

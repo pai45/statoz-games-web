@@ -1,43 +1,60 @@
 "use client";
-/* eslint-disable react/jsx-no-comment-textnodes */
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
-
-import { AccentPanel, ArrowLeftIcon, NoDataState, PersonSearchIcon, SearchField, SearchIcon, SignalOffIcon } from "@/design-system";
-import { isPro, rivalRoster } from "@/mocks/leaderboard";
-import { RivalDossierOverlay, usePlayerStanding } from "@/features/profile";
-
-type Result = (typeof rivalRoster)[number] & { rank: number };
+import { useRouter } from "next/navigation";
+import { useRef, useState, type CSSProperties } from "react";
+import { accentVar, ArrowLeftIcon, NoDataState, PersonSearchIcon, SearchField } from "@/design-system";
+import { useAuthSession, useRequireAuth } from "@/features/auth";
+import { RivalDossierOverlay } from "@/features/profile";
+import { usePlayerStanding, type PlayerStanding } from "@/features/profile/standing";
+import { gameRegistry } from "@/mocks/games";
+import { ladderTitle } from "../catalog";
+import { searchStandings } from "../ranking";
+import { leaderboardHref } from "../selection";
+import { useLeaderboard } from "../state/use-leaderboard";
+import type { LeaderboardStanding } from "../types";
+import { CompetitiveStandings, StandingsLoading } from "./competitive-standings";
+import { LeaderboardDetails } from "./leaderboard-details";
+import styles from "./competitive.module.css";
 
 export function LeaderboardSearchScreen() {
-  const params = useSearchParams();
-  const back = params.get("returnTo")?.startsWith("/leaderboard") ? params.get("returnTo")! : "/leaderboard";
-  const player = usePlayerStanding();
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState<Result | null>(null);
-  const input = useRef<HTMLInputElement>(null);
-  const normalized = query.trim().toLocaleLowerCase().replace(/\s+/g, " ");
-  const results = useMemo(() => searchRivals(normalized, player.displayName), [normalized, player.displayName]);
-  return <section className="flex min-h-0 flex-1 flex-col">
-    <header className="shrink-0 border-b border-line-muted bg-background/95"><div className="mx-auto flex min-h-16 w-full max-w-4xl items-center px-2 sm:px-4"><Link href={back} aria-label="Back to leaderboard" className="grid size-11 place-items-center text-cyan"><ArrowLeftIcon size={22} /></Link><span className="mr-2 font-display text-xl font-black text-cyan">/</span><div><h1 className="font-display text-lg font-black tracking-wide">PLAYER SEARCH</h1><p className="mt-1 font-display text-2xs font-extrabold tracking-ultra text-muted">// COMPLETE LOCAL FIELD</p></div></div></header>
-    <main className="mx-auto w-full max-w-4xl flex-1 overflow-y-auto px-4 py-4 sm:px-6">
-      <SearchField ref={input} label="Search leaderboard players" value={query} onChange={(event) => setQuery(event.target.value)} onClear={() => { setQuery(""); input.current?.focus(); }} autoFocus enterKeyHint="search" placeholder="Search player name" />
-      <div className="mt-5">
-        {normalized.length < 2 ? <NoDataState icon={PersonSearchIcon} spark={SearchIcon} title={normalized ? "Add one more signal" : "Find a rival"} message="Enter at least two characters. Every word in the query must match the player's name." className="min-h-56" /> : results.length === 0 ? <NoDataState icon={SignalOffIcon} spark={SearchIcon} title="No rival found" message={`No player matches “${query.trim()}”.`} className="min-h-56" /> : <div className="grid gap-2" aria-live="polite">{results.map((result) => <button key={result.name} type="button" onClick={() => setOpen(result)} className="text-left"><AccentPanel accent="var(--ds-color-accent-cyan)"><span className="flex min-h-16 items-center gap-3 px-4"><b className="ds-tabular text-cyan">#{result.rank}</b><span className="min-w-0 flex-1"><strong className="block truncate font-display text-sm font-black">{result.name}</strong><small className="text-muted">{result.base.toLocaleString("en-US")} XP</small></span><small className="font-display text-2xs font-black tracking-wide text-muted">OPEN DOSSIER</small></span></AccentPanel></button>)}</div>}
-      </div>
-    </main>
-    {open ? <RivalDossierOverlay name={open.name} rank={open.rank} xp={open.base} pro={isPro(open)} userRank={open.rank} onClose={() => { setOpen(null); requestAnimationFrame(() => input.current?.focus()); }} /> : null}
-  </section>;
+  const session = useAuthSession();
+  return session.status === "authenticated" ? <PersonalizedSearch /> : <BoardPlayerSearch />;
 }
 
-export function searchRivals(query: string, selfName: string): Result[] {
-  if (query.length < 2) return [];
-  const words = query.split(" ").filter(Boolean);
-  return rivalRoster.map((seed, index) => ({ ...seed, rank: index + 1 })).filter((seed) => seed.name.toLocaleLowerCase() !== selfName.trim().toLocaleLowerCase() && words.every((word) => seed.name.toLocaleLowerCase().includes(word))).sort((left, right) => {
-    const leftName = left.name.toLocaleLowerCase(); const rightName = right.name.toLocaleLowerCase();
-    const score = (name: string) => name === query ? 0 : name.startsWith(query) ? 1 : 2;
-    return score(leftName) - score(rightName) || leftName.localeCompare(rightName);
-  });
+function PersonalizedSearch() {
+  const player = usePlayerStanding();
+  return <BoardPlayerSearch player={player} />;
+}
+
+function BoardPlayerSearch({ player = null }: { player?: PlayerStanding | null }) {
+  const { selection, entries, user, now, periodWindow, session } = useLeaderboard(player);
+  const [query, setQuery] = useState("");
+  const [rival, setRival] = useState<LeaderboardStanding | null>(null);
+  const [contribution, setContribution] = useState<LeaderboardStanding | null>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const requireAuth = useRequireAuth();
+  const router = useRouter();
+  const title = ladderTitle(selection.ladder);
+  const context = `${title} · ${selection.period === "weekly" ? "Weekly" : "Season"}`;
+  const results = searchStandings(entries, query);
+  const accent = selection.ladder === "master" ? accentVar("cyan") : accentVar(gameRegistry[selection.ladder].accent);
+  function open(entry: LeaderboardStanding) {
+    if (session.status !== "authenticated") requireAuth({ intent: "compare profiles", message: "Sign in to compare your standing with other players.", returnTo: leaderboardHref(selection, true) });
+    else if (entry.isUser) router.push("/profile");
+    else { opener.current = document.activeElement as HTMLElement; setRival(entry); }
+  }
+  return <section className={styles.searchPage} style={{ "--leaderboard-accent": accent } as CSSProperties}>
+    <header className={styles.searchHeader}><Link href={leaderboardHref(selection)} aria-label="Back to leaderboard" className={styles.searchBack}><ArrowLeftIcon size={20} /></Link><div><span className={styles.eyebrow}>PLAYER DIRECTORY <span aria-hidden="true">{"//"}</span></span><h1>FIND A PLAYER</h1><p>{context}</p></div></header>
+    <SearchField ref={input} label="Search leaderboard players" placeholder="Search player name" value={query} onChange={(event) => setQuery(event.target.value)} onClear={() => { setQuery(""); input.current?.focus(); }} autoFocus enterKeyHint="search" />
+    <div className={styles.searchResults}>
+      {now === null ? <StandingsLoading /> : query.trim().length < 2 ? <NoDataState icon={PersonSearchIcon} title="Find your rival" message="Enter at least two characters to search this board. Results keep their ladder rank and Rank Points." className="min-h-56" /> : results.length === 0 ? <NoDataState icon={PersonSearchIcon} title="No player found" message={`No ranked player on this board matches “${query.trim()}”.`} className="min-h-56" /> : <>
+        <p className="px-4 py-3 text-xs text-muted" role="status">{results.length} {results.length === 1 ? "player" : "players"} found on {context}</p>
+        <CompetitiveStandings entries={results} period={selection.period} master={selection.ladder === "master"} onOpen={open} onContributions={setContribution} />
+      </>}
+    </div>
+    <LeaderboardDetails open={contribution !== null} participant={contribution} period={selection.period} context={title} periodWindow={periodWindow} onClose={() => setContribution(null)} />
+    {rival && session.status === "authenticated" && <RivalDossierOverlay name={rival.name} rank={rival.rank} xp={rival.xp} pro={rival.badge === "PRO"} userRank={user?.rank ?? null} rankContext={context} onClose={() => { setRival(null); requestAnimationFrame(() => opener.current?.focus()); }} />}
+  </section>;
 }

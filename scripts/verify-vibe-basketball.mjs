@@ -49,7 +49,8 @@ try{
   const right={x:shoot.x+shoot.width/2,y:shoot.y+shoot.height/2,id:2};
   await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[left]});
   await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[left,right]});
-  await page.waitForTimeout(200);
+  // The engine commits a held shot on its next frames; software WebGL can run them at a few frames per second.
+  await page.waitForFunction(()=>window.__input.shootCommitted,null,{timeout:15000}).catch(()=>{});
   const held=await page.evaluate(()=>({move:window.__VIBE_HOST__.move,shoot:window.__input.keys.has('Space'),committed:window.__input.shootCommitted}));
   assert.ok(held.move?.x>0&&held.shoot&&held.committed,'Simultaneous movement and held shot');
   await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
@@ -85,7 +86,8 @@ try{
   await page.screenshot({path:path.join(out,`${width}x${height}-contest.png`)});
   assert.ok(requested.some(url=>url.endsWith('vibe-contest-props.glb')),'Local contest GLB loaded');
   assert.ok(requested.every(url=>url.startsWith(origin)),'No remote runtime dependencies');
-  assert.ok(!requested.some(url=>/character|animation.*\.(glb|fbx)/i.test(url)),'Procedural athletes');
+  assert.ok(requested.some(url=>/\/models\/athletes\/athlete-(male|female)\.glb$/.test(url)),'Verified local athlete GLBs loaded');
+  assert.ok(!requested.some(url=>/\/animations?\//i.test(url)),'Basketball takes remain locally authored, without downloaded animation packs');
   evidence.push({width,height,bounds:await bounds(page),touchTargets:boxes.length,simultaneousTouch:true,paused:true,localModel:true});
   await page.close();
  }
@@ -93,6 +95,7 @@ try{
  // Run the upstream comprehensive contest probe against the imported build.
  const original=await fs.readFile(path.join(root,'vendor/vibebasketball/tools/three_point_contest_probe.mjs'),'utf8');
  const probe=original.replace("from 'playwright'","from "+JSON.stringify(pathToFileURL(path.join(root,'node_modules/@playwright/test/index.mjs')).href))
+  .replace('player.rig.meshJersey?.material.color.getHexString()','player.rig.config.jersey.toString(16)')
   .replace('headless: true,','headless: true, executablePath: '+JSON.stringify(chrome)+',')
   .replace("['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist']","['--enable-unsafe-swiftshader']")
   .replace("path.resolve('output/three-point-probe')",JSON.stringify(path.join(out,'upstream-contest')));

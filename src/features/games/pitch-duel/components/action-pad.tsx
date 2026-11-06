@@ -7,7 +7,11 @@ import type { Turn } from "../engine/match";
 import { blueprintOf, effectFor, tacticPlayable } from "../engine/tactics";
 import type { MatchInput, TacticSlot } from "../engine/types";
 
+import { BoltIcon } from "./icons";
 import styles from "./match.module.css";
+
+/** Your momentum and the surge it buys: `value` 0–100, armed for the next pick when full. */
+export type SurgeControl = { value: number; armed: boolean; theirs: number; onToggle: () => void };
 
 export type MoveOption = { id: string; label: string; hint?: string; tag: string; input: MatchInput };
 
@@ -64,6 +68,7 @@ export function ActionPad({
   armed,
   onArm,
   onSend,
+  surge,
 }: {
   turn: Turn;
   turnKey: string;
@@ -72,15 +77,17 @@ export function ActionPad({
   armed: string | null;
   onArm: (id: string | null) => void;
   onSend: (input: MatchInput) => void;
+  surge: SurgeControl;
 }) {
   const options = moveOptions(turn);
   const role = turn.kind === "attack" ? "attack" : turn.kind === "defend" ? "defend" : turn.kind === "setPiece" ? "setPiece" : null;
   const armedSlot = tactics.find((t) => t.id === armed && !t.used);
   const tacticId = armedSlot && role && tacticPlayable(armedSlot, role) ? armedSlot.id : undefined;
+  const surging = surge.armed && surge.value >= 100;
 
   const send = (input: MatchInput) => {
     if (input.type === "attack" || input.type === "defend") {
-      onSend({ ...input, tacticId });
+      onSend({ ...input, tacticId, ...(surging ? { surge: true } : {}) });
       onArm(null);
     } else onSend(input);
   };
@@ -88,7 +95,7 @@ export function ActionPad({
   useNumberKeys(options.length, (i) => send(options[i].input));
 
   return (
-    <div className={styles.pad}>
+    <div className={styles.pad} data-surging={surging || undefined}>
       <div key={turnKey} className={styles.moves} role="group" aria-label={turn.kind === "attack" ? "Your move" : "Your defence"} data-count={options.length}>
         {options.map((o, i) => (
           <button
@@ -117,6 +124,31 @@ export function ActionPad({
         />
       ) : null}
     </div>
+  );
+}
+
+/**
+ * The momentum bar as a chip beside the move heading. It fills as you win
+ * duels; full, it pulses gold and a tap arms a surge for your next pick.
+ */
+export function SurgeChip({ surge }: { surge: SurgeControl }) {
+  const ready = surge.value >= 100;
+  return (
+    <button
+      type="button"
+      className={styles.surge}
+      disabled={!ready}
+      aria-pressed={ready && surge.armed}
+      data-ready={ready || undefined}
+      onClick={surge.onToggle}
+      style={{ "--m": `${surge.value}%` } as CSSProperties}
+      aria-label={ready ? (surge.armed ? "Surge armed for your next pick. Tap to hold it" : "Surge ready. Tap to arm it") : `Momentum ${surge.value} of 100`}
+      title={ready ? "A surge gives your next pick a big edge" : "Win duels to fill your momentum"}
+    >
+      <i aria-hidden />
+      <BoltIcon size={14} />
+      <b>{ready ? (surge.armed ? "ARMED" : "SURGE") : `${surge.value}%`}</b>
+    </button>
   );
 }
 

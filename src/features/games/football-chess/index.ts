@@ -1,9 +1,8 @@
 /**
  * Football Chess's public API.
  *
- * Only the surface the launcher mounts. The rules, the CPU and the progress
- * store stay internal — nothing outside this module should be able to reach a
- * resolver or a board transition.
+ * Only the surface the launcher mounts. The engine, the opponent and the save
+ * stay internal: nothing outside this module should reach a rule or a save.
  */
 export { FootballChess } from "./components/football-chess";
 export type { FootballChessProps } from "./components/football-chess";

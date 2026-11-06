@@ -1,7 +1,7 @@
 "use client";
 import { typography } from "@/design-system/tokens/typography";
 
-import { useRouter } from "next/navigation";
+import { GamePlayFeedback, useGamePlay, useGamePlayState } from "@/features/device-assets";
 import { useEffect, useState, type ReactNode } from "react";
 
 import {
@@ -61,7 +61,9 @@ export type RivalDossierOverlayProps = {
   xp: number;
   pro?: boolean;
   /** Your own place on that same board, for the head-to-head. */
-  userRank: number;
+  userRank: number | null;
+  /** Optional selected ladder/period; canonical XP remains profile information. */
+  rankContext?: string;
   onClose: () => void;
 };
 
@@ -71,6 +73,7 @@ export function RivalDossierOverlay({
   xp,
   pro = false,
   userRank,
+  rankContext,
   onClose,
 }: RivalDossierOverlayProps) {
   const rival = rivalDossier({ name, xp, pro });
@@ -104,12 +107,13 @@ export function RivalDossierOverlay({
     >
       <div className="flex flex-col gap-3.5 p-4">
         <RivalHero name={name} rank={rank} pro={pro} rival={rival} />
+        {rankContext ? <p className="text-xs text-muted">{rankContext} · leaderboard position</p> : null}
 
-        <RivalActions name={name} level={rival.level} onClose={onClose} />
+        <RivalActions name={name} level={rival.level} />
 
         <VsYouCard
           rows={[
-            { label: "RANK", rival: rank, you: userRank, lowerIsBetter: true },
+            ...(userRank === null ? [] : [{ label: rankContext ? "BOARD RANK" : "RANK", rival: rank, you: userRank, lowerIsBetter: true }]),
             { label: "LEVEL", rival: rival.level, you: you.level },
             {
               label: "WIN %",
@@ -156,13 +160,12 @@ export function RivalDossierOverlay({
 function RivalActions({
   name,
   level,
-  onClose,
 }: {
   name: string;
   level: number;
-  onClose: () => void;
 }) {
-  const router = useRouter();
+  const play = useGamePlay();
+  const download = useGamePlayState("pitch-duel");
   const decks = useDecks();
   const friends = useFriends();
   const [notice, setNotice] = useState<string | null>(null);
@@ -180,14 +183,13 @@ function RivalActions({
       setNotice("Build a match deck to challenge a rival.");
       return;
     }
-    onClose();
-    router.push(`/play/pitch-duel?vs=${encodeURIComponent(name)}&level=${level}`);
+    play("pitch-duel", "PITCH DUEL", `/play/pitch-duel?vs=${encodeURIComponent(name)}&level=${level}`);
   }
 
   return (
     <div className="grid gap-2">
       <div className="grid grid-cols-2 gap-3.5">
-        <ActionPlate label="CHALLENGE" icon={<BoltIcon size={16} />} focal onSelect={challenge} />
+        <ActionPlate label={download.state ? download.label : "CHALLENGE"} pending={download.pending} icon={<BoltIcon size={16} />} focal onSelect={challenge} />
         <ActionPlate
           label={friend ? "FRIEND ✓" : "ADD FRIEND"}
           icon={friend ? <CheckIcon size={16} /> : <PlusIcon size={16} />}
@@ -198,6 +200,7 @@ function RivalActions({
           }}
         />
       </div>
+      <GamePlayFeedback game="pitch-duel" />
       {notice ? (
         <p className="text-center text-xs text-muted" role="status">
           {notice}
@@ -212,17 +215,21 @@ function ActionPlate({
   label,
   icon,
   focal = false,
+  pending = false,
   onSelect,
 }: {
   label: string;
   icon: ReactNode;
   focal?: boolean;
+  pending?: boolean;
   onSelect: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onSelect}
+      disabled={pending}
+      aria-busy={pending || undefined}
       className="flex min-h-11.5 items-center justify-center gap-2 font-display text-2xs font-black tracking-label transition-[filter,transform] duration-150 hover:-translate-y-px hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2"
       style={{
         clipPath: "var(--ds-clip-compact-hud)",

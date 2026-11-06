@@ -22,9 +22,9 @@ import {
   accentVar,
   type IconProps,
 } from "@/design-system";
-import { useGuessPlayerStore } from "@/features/games/guess-player";
-import { useShootoutProgress } from "@/features/games/penalty-shootout";
-import { usePitchDuelProgress } from "@/features/games/pitch-duel";
+import { useGuessPlayerStore } from "@/features/games/guess-player/state/guess-player-store";
+import { useShootoutProgress } from "@/features/games/penalty-shootout/state/shootout-progress";
+import { usePitchDuelCareer as usePitchDuelProgress } from "@/features/games/pitch-duel/state/progress";
 import { PackRevealSequence, type PackRevealItem } from "@/features/packs";
 import { usePicks } from "@/features/picks";
 import { useProfileIdentity } from "@/features/profile";

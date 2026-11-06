@@ -1,0 +1,155 @@
+@import "tailwindcss" source("./");
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: italic;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url(./assets/fonts/archivo-italic.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url(./assets/fonts/archivo-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(./assets/fonts/jetbrains-mono-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Archivo at its widest, black italic, as a static file. Canvas text (car
+ * liveries, LED boards) cannot reach the width axis of the variable font,
+ * so the 3D lettering draws with this face instead.
+ */
+@font-face {
+  font-family: 'Archivo Livery';
+  font-style: italic;
+  font-weight: 900;
+  font-display: swap;
+  src: url('./assets/fonts/archivo-wide-italic-900.woff2') format('woff2');
+}
+
+@theme {
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-ink: #07080a;
+  --color-ink-2: #0d0f12;
+  --color-ink-3: #15181d;
+  --color-paper: #f3f1ec;
+  --color-mute: #a2a7af;
+  --color-dim: #757a83;
+  --color-signal: #ff3b30;
+  --color-artboard: #eeeeea;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Landscape phones: very little height, so layouts switch to compact spacing. */
+@custom-variant short (@media (max-height: 540px) and (orientation: landscape));
+/* Portrait screens of any width use the stage + sheet layout (3D on top, content below). */
+@custom-variant portrait (@media (orientation: portrait));
+/* Phones in either orientation (narrow, or short and wide) and everything else. */
+@custom-variant compact {
+  @media (max-width: 767px) {
+    @slot;
+  }
+  @media (max-height: 540px) and (orientation: landscape) {
+    @slot;
+  }
+}
+@custom-variant roomy {
+  @media (min-width: 768px) and (min-height: 541px) {
+    @slot;
+  }
+  @media (min-width: 768px) and (orientation: portrait) {
+    @slot;
+  }
+}
+
+/* Archivo's width axis gives the broadcast-graphics display style. */
+@utility font-wide {
+  font-stretch: 125%;
+}
+@utility font-semiwide {
+  font-stretch: 112%;
+}
+@utility font-condensed {
+  font-stretch: 80%;
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+  @media (width >= 80rem) {
+    padding-inline: 3.5rem;
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@layer base {
+  html {
+    /* keeps focused elements and anchor targets clear of the fixed header */
+    scroll-padding-top: 5.5rem;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    min-height: 100svh;
+  }
+
+  ::selection {
+    background: var(--color-signal);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-paper);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  dialog::backdrop {
+    background: rgb(7 8 10 / 0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

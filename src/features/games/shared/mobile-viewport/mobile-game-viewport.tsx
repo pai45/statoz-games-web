@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { basePath } from '@/shared/config';
+import { homeLaunchEvent } from '../navigation';
 import { landscapeGeometry, leavesPlatformFrame, phoneQuery } from './policy';
 import styles from './mobile-game-viewport.module.css';
 
@@ -52,16 +53,18 @@ function platformSurface() {
 }
 
 /**
- * The platform tabs (Games, Shop, Top, Profile) on a phone: always drawn in
+ * Most platform tabs on a phone are drawn in
  * landscape, inside the same rotated frame the games use. Holding the phone
  * upright turns the frame; holding it sideways leaves it as is. Tablets,
  * desktops and the page inside the frame render the shell directly.
  */
 export function PlatformLandscape({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const mode = useSyncExternalStore(watchPhone, platformSurface, () => 'pending');
-  if (mode === 'phone') return <LandscapeFrame kind="platform" title="StatOz" allow="autoplay; fullscreen 'none'" />;
+  const nativeShop = /^\/shop(\/|$)/.test(pathname);
+  if (!nativeShop && mode === 'phone') return <LandscapeFrame kind="platform" title="StatOz" allow="autoplay; fullscreen 'none'" />;
   // Same element in every other mode, so the shell is not remounted after hydration.
-  return <div className={mode === 'pending' ? styles.awaitPhone : styles.ready}>{children}</div>;
+  return <div className={!nativeShop && mode === 'pending' ? styles.awaitPhone : styles.ready}>{children}</div>;
 }
 
 /** Pages that take over the screen (games, streaks) never run inside the rotated platform frame;
@@ -174,6 +177,9 @@ export function MobileGameNavigationBridge() {
       if (!anchor || (anchor.target && anchor.target !== '_self') || anchor.hasAttribute('download')) return;
       const url = new URL(anchor.href, location.href);
       if (!sameApp(url) || !leavesPlatformFrame(appPath(url))) return;
+      // PLAY owns the download screen, then opens the verified route in the parent.
+      if (appPath(url).startsWith('/play/')) return;
+      if (appPath(new URL(location.href)) === '/') window.dispatchEvent(new Event(homeLaunchEvent));
       event.preventDefault();
       event.stopPropagation();
       window.parent.postMessage({ type: leaveMessage, href: url.href }, location.origin);

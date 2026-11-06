@@ -13,3 +13,5 @@
 @media(prefers-reduced-motion:reduce){.loading i{animation:none}.controls button{transition:none}}
 
 .credit{position:absolute;z-index:6;bottom:4px;left:50%;transform:translateX(-50%);color:#f8eed5ba;font:8px Arial,sans-serif;white-space:nowrap}.credit a{color:inherit;text-decoration:underline;text-underline-offset:2px;display:inline-flex;align-items:center;min-height:24px;padding:0 3px}
+.root summary{min-height:44px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;font-size:12px;letter-spacing:.06em;border-bottom:1px solid currentColor;touch-action:manipulation}
+.root summary::before{content:'+';font-size:18px}.root details[open]>summary::before{content:'−'}.root summary:focus-visible{outline:3px solid currentColor;outline-offset:2px}

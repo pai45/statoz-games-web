@@ -2,6 +2,7 @@ import type { RandomSource } from "../../shared/engine/random-source";
 
 import { attacks } from "./actions";
 import { createMatch, currentTurn, step, type Turn } from "./match";
+import { surgeMoment, surgeReady } from "./momentum";
 import { seededSource } from "./rng";
 import type { MatchInput, MatchSetup, MatchState } from "./types";
 
@@ -39,9 +40,15 @@ export function autoplay(setup: MatchSetup, policy: Policy = uniformPolicy, poli
   for (let guard = 0; guard < 400; guard += 1) {
     const turn = currentTurn(state);
     if (turn.kind === "over") return state;
-    state = step(state, turn.kind === "continue" ? { type: "continue" } : policy(turn, state, random));
+    state = step(state, turn.kind === "continue" ? { type: "continue" } : withSurge(policy(turn, state, random), state));
   }
   throw new Error("Match did not finish");
+}
+
+/** Spends the human's surge at the same moments the CPU spends its own. */
+export function withSurge(input: MatchInput, state: MatchState): MatchInput {
+  if ((input.type === "attack" || input.type === "defend") && surgeReady(state, "home") && surgeMoment(state, "home")) return { ...input, surge: true };
+  return input;
 }
 
 /** A thinking-ish player: shoots when it can, takes risks in the final third, mixes defensive reads. */

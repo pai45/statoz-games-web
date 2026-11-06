@@ -1,3 +1,4 @@
+.preparing { min-height: 100dvh; background: var(--ds-color-background-primary); }
 .screen { min-height: 100dvh; display: grid; place-items: center; padding: var(--ds-space-24); background: var(--ds-color-background-primary); color: var(--ds-color-text-default); }
 .frame { width: min(100%, 36rem); }
 .panel { width: 100%; }
@@ -12,3 +13,4 @@
 .progress::-webkit-progress-value { background: var(--ds-color-accent-cyan); }
 .progress::-moz-progress-bar { background: var(--ds-color-accent-cyan); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--ds-space-12); margin-top: var(--ds-space-24); }
+.inlineError { display: block; margin-top: var(--ds-space-8); color: var(--ds-color-danger); font-size: var(--ds-text-xs); line-height: var(--ds-leading-body); }

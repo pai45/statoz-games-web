@@ -14,6 +14,7 @@ parser.add_argument('--output', type=Path, default=BASE / 'mobile-build')
 parser.add_argument('--sdk', type=Path, default=BASE / 'emsdk')
 parser.add_argument('--link-only', action='store_true')
 parser.add_argument('--inputs-only', action='store_true', help='Reuse existing objects except common/inputs.c')
+parser.add_argument('--interface-only', action='store_true', help='Reuse existing objects except common/inputs.c and golf/ui.c')
 args = parser.parse_args()
 SOURCE, BUILD, SDK = args.source.resolve(), args.output.resolve(), args.sdk.resolve()
 BUILD.mkdir(parents=True, exist_ok=True)
@@ -52,6 +53,57 @@ inputs = inputs.replace('''    if (event->type == SAPP_EVENTTYPE_MOUSE_DOWN) {
 ''')
 inputs_file.write_text(inputs)
 
+# StatOz shell: the bundle's HTML interface replaces the engine-drawn menus,
+# HUD text, pause and result panels. Aiming visuals, the tutorial pointer,
+# fades and the out-of-bounds flash stay in the engine. The bridge appended
+# below exposes state and routes commands through the upstream transitions.
+def replace_once(text, old, new, count=1):
+    found = text.count(old)
+    if found != count:
+        raise SystemExit(f'ui.c patch expected {count} match(es), found {found}: {old[:60]!r}')
+    return text.replace(old, new)
+
+ui_file = BUILD / 'src/golf/ui.c'
+ui = ui_file.read_text()
+ui = replace_once(ui, 'static golf_t *golf; \n', '''static golf_t *golf; \n
+/* StatOz: menus, HUD and result screens are drawn by the HTML shell. */
+#define STATOZ_HTML_UI 1
+static int statoz_tutorial_step = -1;
+''')
+ui = replace_once(ui, '    _golf_ui_gif_texture_name(layout, "loading_icon", dt);\n',
+                  '    if (!STATOZ_HTML_UI) _golf_ui_gif_texture_name(layout, "loading_icon", dt);\n', 2)
+ui = replace_once(ui, '    _golf_ui_texture_draw(black_texture, pos, size, bg_color, bg_color.w);\n',
+                  '    statoz_tutorial_step = step;\n    if (!STATOZ_HTML_UI) _golf_ui_texture_draw(black_texture, pos, size, bg_color, bg_color.w);\n')
+for name in ['text_1_pos, text_size, text_color, 0, 0, text_1', 'text_2_pos, text_size, text_color, 0, 0, text_2',
+             'pos, text_size, text_color, 0, 0, text_3', 'text_1_pos, text_size, text_color, 0, 0, text_4',
+             'text_2_pos, text_size, text_color, 0, 0, text_5']:
+    ui = replace_once(ui, f'        _golf_ui_draw_text(font, {name}.cstr, 1);\n',
+                      f'        if (!STATOZ_HTML_UI) _golf_ui_draw_text(font, {name}.cstr, 1);\n')
+ui = replace_once(ui, '''    _golf_ui_text_name(layout, "main_text", 1);
+    _golf_ui_text_name(layout, "main2_text", 1);
+''', '''    if (!STATOZ_HTML_UI) {
+    _golf_ui_text_name(layout, "main_text", 1);
+    _golf_ui_text_name(layout, "main2_text", 1);
+''')
+ui = replace_once(ui, '''            _golf_ui_start_fade_out(false, true, clicked_button_num, false);
+        }
+    }
+''', '''            _golf_ui_start_fade_out(false, true, clicked_button_num, false);
+        }
+    }
+    }
+''')
+for menu in ['_golf_ui_in_game_paused', '_golf_ui_in_game_finished']:
+    ui = replace_once(ui, f'static void {menu}(float dt) {{\n    GOLF_UNUSED(dt);\n',
+                      f'static void {menu}(float dt) {{\n    GOLF_UNUSED(dt);\n    if (STATOZ_HTML_UI) return;\n')
+ui = replace_once(ui, '        if (_golf_ui_button_name(layout, "pause_button")) {\n',
+                  '        if (!STATOZ_HTML_UI && _golf_ui_button_name(layout, "pause_button")) {\n')
+ui = replace_once(ui, '    if (golf->in_game.t < time_to_show_level_num + fade_in_length) {\n',
+                  '    if (!STATOZ_HTML_UI && golf->in_game.t < time_to_show_level_num + fade_in_length) {\n')
+ui = replace_once(ui, '    ui.draw_entities.length = 0;\n', '    ui.draw_entities.length = 0;\n    statoz_tutorial_step = -1;\n')
+ui += (BASE / 'open-golf/statoz-ui-bridge.c').read_text()
+ui_file.write_text(ui)
+
 archive = io.BytesIO()
 with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as output:
     for file in sorted((SOURCE / 'data').rglob('*')):
@@ -81,7 +133,8 @@ flags = ['-O2', '-DNDEBUG', '-DSOKOL_GLES3', '-DGOLF_PLATFORM_EMSCRIPTEN',
 
 def compile_one(source):
     obj = BUILD / ('obj-' + source.relative_to(BUILD / 'src').as_posix().replace('/', '-') + '.o')
-    if not args.link_only and (not args.inputs_only or source == BUILD / 'src/common/inputs.c'):
+    interface = source in (BUILD / 'src/common/inputs.c', BUILD / 'src/golf/ui.c')
+    if not args.link_only and (not args.inputs_only or source == BUILD / 'src/common/inputs.c') and (not args.interface_only or interface):
         subprocess.run([str(compiler), *flags, '-c', str(source), '-o', str(obj)], check=True)
     print('Compiled', source.name, flush=True)
     return obj

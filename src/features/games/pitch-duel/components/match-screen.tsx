@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { currentDuel, lineKey, playerRating, stoppageFor } from "../engine/match";
 import { setPieceTitles } from "../engine/set-pieces";
@@ -9,7 +9,8 @@ import { absoluteX, laneNames, mirror, zoneNames } from "../engine/zones";
 import type { MatchInput, MatchState, SetPieceOption, Side } from "../engine/types";
 import { usePitchDuelMatch } from "../state/use-pitch-duel-match";
 
-import { ActionPad, TacticTray, useNumberKeys } from "./action-pad";
+import { ActionPad, SurgeChip, TacticTray, useNumberKeys, type SurgeControl } from "./action-pad";
+import { useSound } from "./audio";
 import { DuelCard, StatBlock, primaryPosition, sideAccent } from "./card-art";
 import { DuelStage, promptFor, type Faceoff } from "./duel-stage";
 import { EventLog, EventsBar, MatchMap, PeriodStats, Scoreboard, SquadList, setPieceSpot } from "./match-parts";
@@ -20,11 +21,22 @@ import styles from "./match.module.css";
 
 type Panel = { kind: "squad"; side: Side; inspect?: string } | { kind: "events" } | { kind: "map" } | null;
 
+/** Confetti for your goals: forty pieces thrown from the top, in your colours and gold. */
+const confetti = Array.from({ length: 40 }, (_, i) => ({
+  x: (i * 37) % 100,
+  delay: ((i * 53) % 40) / 100,
+  spin: ((i * 71) % 360) - 180,
+  drift: ((i * 29) % 30) - 15,
+  colour: ["#60a5fa", "#fbbf24", "#ffffff", "#a855f7", "#38bdf8"][i % 5],
+}));
+
 /**
  * The landscape match screen. Along the top, the scorebug with the lineup
- * buttons either side. Below it three columns: the situation, match map and
- * latest event on the left; the two cards and VS in the middle; your moves
- * (or CONTINUE) on the right, under the thumb.
+ * buttons either side and each side's momentum under its score. Below it
+ * three columns: the situation, match map and latest event on the left; the
+ * two cards and VS in the middle; your moves, momentum and tactics (or
+ * CONTINUE) on the right, under the thumb. The crowd behind the cards and
+ * the sound follow the play.
  */
 export function MatchScreen({
   initial,
@@ -40,9 +52,11 @@ export function MatchScreen({
   onQuit: () => void;
 }) {
   const { state, turn, revealing, send, dismiss, autoHold } = usePitchDuelMatch(initial, haptics);
+  const sound = useSound();
   const [panel, setPanel] = useState<Panel>(null);
   const [quitOpen, setQuitOpen] = useState(false);
   const [armed, setArmed] = useState<string | null>(null);
+  const [surgeArmed, setSurgeArmed] = useState(false);
 
   const res = revealing ? state.lastResolution : null;
   const duel = currentDuel(state);
@@ -77,20 +91,74 @@ export function MatchScreen({
       };
   const scene = pitchScene(state, sceneInput);
   const danger = !res && state.phase === "choose" && state.possession.side === "away" && state.possession.progress >= 6;
+  const chance = !res && state.phase === "choose" && state.possession.side === "home" && state.possession.progress >= 6;
   const situation = situationFor(state);
   const lastEvent = [...state.log].reverse().find((e) => e.kind !== "duel");
   const setPieceTurn = !res && turn.kind === "setPiece" ? turn : null;
+  const heat = res?.goal ? "goal" : danger ? "danger" : chance || setPieceTurn ? "chance" : "calm";
+
+  /* ---- Sound ---------------------------------------------------------------- */
+
+  // The crowd bed rises when either box is under threat; the drums come in for your surge and late drama.
+  const late = state.half === 2 && state.minute >= 80 && Math.abs(state.score.home - state.score.away) <= 1;
+  const crowdLevel = state.phase !== "choose" ? 0.35 : heat === "calm" ? 0.42 : 0.72;
+  const chantLevel = state.phase === "choose" && (state.momentum.home >= 100 || late) ? 0.75 : 0;
+  useEffect(() => {
+    sound.crowd(crowdLevel);
+    sound.chant(chantLevel);
+  }, [sound, crowdLevel, chantLevel]);
+
+  // Each new reveal: the clash, then what happened.
+  const heard = useRef(-1);
+  useEffect(() => {
+    if (!res || heard.current === state.decisions) return;
+    heard.current = state.decisions;
+    const kinds = new Set(res.events.map((e) => e.kind));
+    const big = res.outcome === "success_high" || res.outcome === "fail_high";
+    if (res.surges.length) sound.surge();
+    sound.clash(big || Boolean(res.goal));
+    if (res.goal) {
+      sound.goal(res.goal === "home");
+      return;
+    }
+    const t = setTimeout(() => {
+      if (kinds.has("red") || kinds.has("yellow")) sound.whistle("long");
+      else if (kinds.has("foul") || kinds.has("penalty")) sound.whistle("short");
+      if (kinds.has("save") || kinds.has("post") || kinds.has("miss") || kinds.has("bigChance")) sound.ooh();
+      else if (kinds.has("block") || kinds.has("corner")) sound.swell(0.2);
+      sound.result(res.userWon);
+    }, 160);
+    return () => clearTimeout(t);
+  }, [res, state.decisions, sound]);
+
+  // Whistles for kick-off, half-time and full-time.
+  const lastPhase = useRef(state.phase);
+  useEffect(() => {
+    const from = lastPhase.current;
+    lastPhase.current = state.phase;
+    if (from === state.phase) return;
+    if (state.phase === "choose") {
+      sound.whistle("long");
+      sound.swell(0.35);
+    } else if (state.phase === "halftime" || state.phase === "fulltime") sound.whistle("end");
+  }, [state.phase, sound]);
+
+  /* ---- Input ---------------------------------------------------------------- */
 
   const sendOrFinish = (input: MatchInput) => {
     if (state.phase === "fulltime") {
       onFinish(state);
       return;
     }
+    if (input.type === "attack" || (input.type === "setPiece" && turn.kind === "setPiece" && turn.role === "taker")) sound.kick();
+    else if (input.type !== "continue") sound.tap();
+    if ((input.type === "attack" || input.type === "defend") && input.surge) setSurgeArmed(false);
     send(input);
   };
-  const advance = () => (res && state.phase === "choose" ? dismiss() : sendOrFinish({ type: "continue" }));
+  // A reveal is dismissed first, so half-time and full-time get their own panel before moving on.
+  const advance = () => (res ? dismiss() : sendOrFinish({ type: "continue" }));
   const continueLabel =
-    state.phase === "kickoff" ? "KICK OFF" : state.phase === "halftime" ? "START SECOND HALF" : state.phase === "fulltime" ? "SEE THE RESULT" : res && state.phase === "choose" ? "NEXT" : "CONTINUE";
+    res ? "NEXT" : state.phase === "kickoff" ? "KICK OFF" : state.phase === "halftime" ? "START SECOND HALF" : state.phase === "fulltime" ? "SEE THE RESULT" : "CONTINUE";
   const waiting = Boolean(res) || turn.kind === "continue" || turn.kind === "over";
   useNumberKeys(0, () => {}, waiting && !res?.goal ? advance : undefined);
 
@@ -99,14 +167,24 @@ export function MatchScreen({
 
   const pickSetPiece = (option: SetPieceOption) => {
     const slot = state.teams.home.tactics.find((t) => t.id === armed && !t.used);
-    send({ type: "setPiece", option, tacticId: slot && tacticPlayable(slot, "setPiece") ? slot.id : undefined });
+    sendOrFinish({ type: "setPiece", option, tacticId: slot && tacticPlayable(slot, "setPiece") ? slot.id : undefined });
     setArmed(null);
+  };
+
+  const surge: SurgeControl = {
+    value: state.momentum.home,
+    armed: surgeArmed && state.momentum.home >= 100,
+    theirs: state.momentum.away,
+    onToggle: () => {
+      setSurgeArmed((on) => !on);
+      if (!surgeArmed) sound.sparkle(2);
+    },
   };
 
   const scorer = res?.goal ? state.teams[res.goal].cards[res.attackerId] : undefined;
 
   return (
-    <div className={styles.screen} data-phase={state.phase} data-danger={danger || undefined} aria-label="Pitch Duel match">
+    <div className={styles.screen} data-phase={state.phase} data-danger={danger || undefined} data-heat={heat} aria-label="Fot Duel match">
       <Scoreboard
         state={state}
         onQuit={() => setQuitOpen(true)}
@@ -115,6 +193,12 @@ export function MatchScreen({
       />
 
       <main className={styles.stage}>
+        <span className={styles.crowd} aria-hidden>
+          <i />
+          <i />
+        </span>
+        {res?.surges.length ? <span key={`s${state.decisions}`} className={styles.surgeFlash} data-side={res.surges.includes("home") ? "home" : "away"} aria-hidden /> : null}
+
         <aside className={styles.info} aria-label="Match situation">
           <p className={styles.situation} style={{ "--tone": situation.tone } as CSSProperties}>
             <span>Current situation</span>
@@ -137,11 +221,12 @@ export function MatchScreen({
           <header className={styles.callHead}>
             <b key={call.title ?? prompt.text}>{call.title ?? prompt.text}</b>
             <small>{call.sub}</small>
+            {!waiting && !setPieceTurn ? <SurgeChip surge={surge} /> : null}
           </header>
           {waiting ? (
             res?.goal ? null : (
               <div className={styles.continueRow}>
-                <Pill tone={state.phase === "fulltime" ? "green" : "blue"} onClick={advance} wide pulse={!res}>
+                <Pill tone={state.phase === "fulltime" && !res ? "green" : "blue"} onClick={advance} wide pulse={!res}>
                   {continueLabel}
                 </Pill>
                 {autoHold ? <i key={state.decisions} className={styles.autoFill} style={{ "--hold": `${autoHold}ms` } as CSSProperties} aria-hidden /> : null}
@@ -167,14 +252,17 @@ export function MatchScreen({
               armed={armed}
               onArm={setArmed}
               onSend={sendOrFinish}
+              surge={surge}
             />
           )}
         </section>
       </main>
 
+      {res?.goal ? <Celebration key={state.decisions} side={res.goal} /> : null}
+
       <Modal open={Boolean(res?.goal)} labelledBy="pd-goal-title" tone={res?.goal === "home" ? "blue" : "red"} wide>
         {res?.goal ? (
-          <div className={styles.goalModal}>
+          <div className={styles.goalModal} data-side={res.goal}>
             {scorer ? (
               <div className={styles.goalCard}>
                 <small>GOAL SCORER</small>
@@ -182,7 +270,9 @@ export function MatchScreen({
               </div>
             ) : null}
             <div className={styles.goalText}>
-              <h2 id="pd-goal-title" className={styles.goalWord}>GOAL!!!</h2>
+              <h2 id="pd-goal-title" className={styles.goalWord}>
+                {res.goal === "home" ? "GOAL!!!" : "GOAL…"}
+              </h2>
               <p>
                 {scorer?.name ?? "A shot"} scores for {res.goal === "home" ? "your team" : state.opponentName}
               </p>
@@ -190,7 +280,9 @@ export function MatchScreen({
                 <span className={styles.goalChips}>
                   <b>{scorer.rating} OVR</b>
                   <b>{primaryPosition(scorer)}</b>
-                  <b>{state.score.home}–{state.score.away}</b>
+                  <b>
+                    {state.score.home}–{state.score.away}
+                  </b>
                 </span>
               ) : null}
               <Pill tone="blue" onClick={advance} wide>
@@ -228,11 +320,36 @@ export function MatchScreen({
           <h2 id="pd-quit-title">LEAVE THE MATCH?</h2>
           <p>This match will not count. Your club and league points stay as they are.</p>
           <div className={styles.confirmRow}>
-            <Pill tone="grey" back onClick={() => setQuitOpen(false)}>KEEP PLAYING</Pill>
-            <Pill tone="red" onClick={onQuit}>LEAVE</Pill>
+            <Pill tone="grey" back onClick={() => setQuitOpen(false)}>
+              KEEP PLAYING
+            </Pill>
+            <Pill tone="red" onClick={onQuit}>
+              LEAVE
+            </Pill>
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+/**
+ * The goal moment behind the modal: a flash in the scorer's colour and, for
+ * your goals, confetti; for theirs, a red pulse at the edges.
+ */
+function Celebration({ side }: { side: Side }) {
+  return (
+    <div className={styles.celebration} data-side={side} aria-hidden>
+      <i className={styles.celebrationFlash} />
+      {side === "home"
+        ? confetti.map((c, i) => (
+            <i
+              key={i}
+              className={styles.confetti}
+              style={{ left: `${c.x}%`, "--delay": `${c.delay}s`, "--spin": `${c.spin}deg`, "--drift": `${c.drift}vw`, background: c.colour } as CSSProperties}
+            />
+          ))
+        : null}
     </div>
   );
 }

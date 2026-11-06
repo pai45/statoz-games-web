@@ -45,7 +45,6 @@ const filters: XpHistoryFilter[] = [
   "earned",
   "lost",
   "games",
-  "predictions",
   "rewards",
 ];
 
@@ -77,10 +76,10 @@ export function XpProgressScreen({ initialTrack }: XpProgressScreenProps) {
   const searchParams = useSearchParams();
   const requestedTrack = searchParams.get("track");
   const resolvedTrack =
-    initialTrack ?? progressTracks.find((track) => track === requestedTrack);
+    (initialTrack === "prediction" ? undefined : initialTrack) ?? progressTracks.find((track) => track === requestedTrack && track !== "prediction");
 
   return (
-    <AuthBoundary
+    <AuthBoundary allowGuest
       intent="view your XP progress"
       message="Log in to review your XP level, tracks, and activity."
       returnTo="/profile/xp"
@@ -98,7 +97,7 @@ function XpProgressDashboard({ initialTrack }: XpProgressScreenProps) {
   const [track, setTrack] = useState<ProgressTrack | null>(initialTrack ?? null);
 
   const sorted = useMemo(
-    () => [...ledger].sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp)),
+    () => [...ledger].filter(entry => entry.track !== "prediction" && entry.source !== "prediction").sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp)),
     [ledger],
   );
   const filtered = sorted.filter(
@@ -161,11 +160,11 @@ function XpProgressDashboard({ initialTrack }: XpProgressScreenProps) {
                 getLabel={(item) => item.toUpperCase()}
                 onSelect={setFilter}
               />
-              {progress.tracks.length > 0 ? (
+              {progress.tracks.filter(item => item !== "prediction").length > 0 ? (
                 <div className={styles.trackFilters}>
                   <FilterBar
                     label="XP track filters"
-                    items={progress.tracks}
+                    items={progress.tracks.filter(item => item !== "prediction")}
                     active={track}
                     counts={Object.fromEntries(
                       progress.tracks.map((item) => [item, sorted.filter((entry) => entry.track === item).length]),
@@ -182,7 +181,7 @@ function XpProgressDashboard({ initialTrack }: XpProgressScreenProps) {
                 <p className={styles.empty}>
                   {sorted.length > 0
                     ? "No XP changes match this filter."
-                    : "No XP activity yet. Play a match, make a prediction, or open a pack."}
+                    : "No XP activity yet. Play a game to start your journey."}
                 </p>
               ) : (
                 <div className={styles.feed}>

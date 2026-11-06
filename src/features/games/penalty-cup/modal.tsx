@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
-import styles from './screen.module.css';
+import { menuStyles as styles } from './menu-styles';
 
 export function Modal({title,children,onClose}:{title:string;children:ReactNode;onClose?:()=>void}){
  const ref=useRef<HTMLDivElement>(null),close=useRef(onClose);

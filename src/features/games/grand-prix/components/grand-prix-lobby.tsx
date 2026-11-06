@@ -386,7 +386,7 @@ export function GrandPrixLobby({
           <span aria-hidden className="size-0.75 rounded-full bg-border" />
           <LobbyLink onClick={onBack}>ALL RACING GAMES</LobbyLink>
         </div>
-        <div className="mt-4"><GameLeaderboardCta sport="motorsport" gameId="grand-prix-dash" /></div>
+        <div className="mt-4"><GameLeaderboardCta gameId="grand-prix-dash" /></div>
         <DailyDrop sport="motorsport" />
       </div>
     </div>

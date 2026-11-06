@@ -56,7 +56,7 @@ export function FinalOverLobby({ stats, tier, squadReady, onBack, onTierChange, 
         <nav aria-label="Final Over tools" className={styles.tools}>
           <Link href="/decks/cricket?returnTo=/play/final-over">Cricket Deck <Glyph name="chevron_right" size={18} /></Link>
           <Link href="/profile/history/games">Match History <Glyph name="chevron_right" size={18} /></Link>
-          <GameLeaderboardCta sport="cricket" gameId="final-over" />
+        <GameLeaderboardCta gameId="final-over" />
         </nav>
         {panel === "utilities" && <DailyDrop sport="cricket" />}
       </LobbyPanel>

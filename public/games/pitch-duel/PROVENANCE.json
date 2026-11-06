@@ -1,0 +1,80 @@
+{
+ "game": "pitch-duel",
+ "version": 1,
+ "policy": "Only CC0 recordings, each checked on its original Freesound page. Nothing is fetched from outside at runtime; every file below is served from this folder. Nothing comes from the Ballers repository.",
+ "original": [
+  "Game design, rules, momentum and surges, debut XI draw and reveal (src/features/games/pitch-duel).",
+  "Pack, card back, floodlights, beams, sparks, crowd, pitch and celebration art (CSS gradients and inline SVG).",
+  "Card whooshes, flips, reveal booms, sparkles, risers, duel clashes, surge and result stings (WebAudio synthesis).",
+  "National colour bands for the walkout (plain three-band colours, not flag artwork).",
+  "Interface, layout and copy."
+ ],
+ "audio": [
+  {
+   "file": "audio/crowd.mp3",
+   "title": "stadium.wav",
+   "author": "cognito perceptu",
+   "source": "https://freesound.org/people/cognito%20perceptu/sounds/31150/",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "sha256": "932fa5bd1fb092e3d9732cef8a7157019c4ba73277226cbb36cd5aac4039e866",
+   "bytes": 291578,
+   "adaptations": "Freesound high-quality MP3 preview, cut at MP3 frame boundaries to 0–13 s. Looped at runtime with its last 1.2 s folded into its start."
+  },
+  {
+   "file": "audio/chant.mp3",
+   "title": "Soccer fans screaming and playing drums in a small stadium of Chile",
+   "author": "felix.blume",
+   "source": "https://freesound.org/people/felix.blume/sounds/500250/",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "sha256": "6977bc57d78c8aa8abb87633b64aadaf95cd9d59dac863a8713426d4097a1b20",
+   "bytes": 236448,
+   "adaptations": "Freesound high-quality MP3 preview, cut at MP3 frame boundaries to 152–162 s. Looped at runtime with its last 1.2 s folded into its start."
+  },
+  {
+   "file": "audio/goal.mp3",
+   "title": "19 Football Crowd - Reaction To Goal.flac",
+   "author": "D.jones",
+   "source": "https://freesound.org/people/D.jones/sounds/528799/",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "sha256": "7bea3c0d590f553063f0e8854505147c2f42930fcc294aa8a4407927d8a96bea",
+   "bytes": 191488,
+   "adaptations": "Freesound high-quality MP3 preview, cut at MP3 frame boundaries to 2.6–11 s."
+  },
+  {
+   "file": "audio/ooh.mp3",
+   "title": "Soccer stadium Oehh.wav",
+   "author": "Sandermotions",
+   "source": "https://freesound.org/people/Sandermotions/sounds/494362/",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "sha256": "3fb06d73fc0e9e693846eef8c5e998d95e804f55c46449826330a137e2066549",
+   "bytes": 96384,
+   "adaptations": "Freesound high-quality MP3 preview, cut at MP3 frame boundaries to 2.8–7 s."
+  },
+  {
+   "file": "audio/whistle.mp3",
+   "title": "Referee whistle sound.wav",
+   "author": "Rosa-Orenes256",
+   "source": "https://freesound.org/people/Rosa-Orenes256/sounds/538422/",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "sha256": "1bc56409d3439a16fd54bc8fa83affb7e2bc69519b15ac49979d924e895910bf",
+   "bytes": 16320,
+   "adaptations": "Freesound high-quality MP3 preview, unchanged."
+  },
+  {
+   "file": "audio/kick.mp3",
+   "title": "Soccer Ball Kick",
+   "author": "bittermelonheart",
+   "source": "https://freesound.org/people/bittermelonheart/sounds/555042/",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "sha256": "7b5b6bd8f7567832c98f030e94783dba04108d74fef42fb24d5b2bbf1abb3949",
+   "bytes": 21504,
+   "adaptations": "Freesound high-quality MP3 preview, unchanged."
+  }
+ ]
+}

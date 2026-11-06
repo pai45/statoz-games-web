@@ -58,7 +58,7 @@ try {
   await seed(phone);
   const page = await phone.newPage();
   page.on('pageerror', error => errors.push(error.message));
-  const routes = process.argv.includes('--football-only') ? ['retro-football'] : ['vibe-basketball', 'retro-hoops', 'retro-circuit', 'retro-football', 'retro-innings', 'stadium-cricket', 'penalty-shootout', 'pitch-duel', 'grand-prix'];
+  const routes = process.argv.includes('--football-only') ? ['retro-football'] : ['vibe-basketball', 'retro-hoops', 'retro-circuit', 'retro-football', 'retro-innings', 'stadium-cricket', 'penalty-shootout', 'pitch-duel', 'football-chess', 'rally'];
   for (const route of routes) {
     await page.goto(origin + '/play/' + route, { waitUntil: 'domcontentloaded', timeout: 120000 });
     const frame = await gameFrame(page);
@@ -90,7 +90,7 @@ try {
     evidence.push({ route, ...geometry });
     console.log('Landscape phone:', route, geometry.width, geometry.height);
   }
-  for (const route of ['football-chess', 'tennis']) {
+  for (const route of ['tennis']) {
     await page.goto(origin + '/play/' + route, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(500);
     assert.equal(await page.locator('[data-mobile-game-viewport]').count(), 0, route + ' must keep its original layout');

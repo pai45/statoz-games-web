@@ -1,6 +1,7 @@
 "use client";
 
 import {useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode} from 'react';
+import {closeMenuDisclosure} from '../shared/menu-disclosure';
 import {LEVELS, MATCH_ENDS, OPPONENTS, RANGES, RANGE_UNLOCK_STARS, type Level, type Opponent} from './levels';
 import {
   STEP, DRAW_TIME, STEADY_TIME, cancelDraw, drawAmount, endOf, newGame, nudgeAim, release, skipImpact, startDraw, steadiness, step, totalEnds,
@@ -35,6 +36,7 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
   const resultSent = useRef<string | null>(null), skipSlow = useRef(false), menuRange = useRef(0);
   const [status, setStatus] = useState<Mode>('loading'), [progress, setProgress] = useState<Save>(emptySave()), [hud, setHud] = useState<Hud | null>(null);
   const [notice, setNotice] = useState(''), [error, setError] = useState(''), [attempt, setAttempt] = useState(0), [tab, setTab] = useState(0), [hint, setHint] = useState('');
+  const [lanePage, setLanePage] = useState(0);
   const setMode = useCallback((next: Mode) => {mode.current = next; setStatus(next);}, []);
   const refresh = useCallback(() => {if (game.current) setHud(snapshotHud(game.current));}, []);
   const persist = useCallback((next: Save) => {
@@ -154,7 +156,7 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLElement && e.target.closest('input,select,textarea')) return;
-      if (['Escape', 'KeyP'].includes(e.code)) {if (!e.repeat) {e.preventDefault(); if (mode.current === 'paused') resume(); else pause();} return;}
+      if (['Escape', 'KeyP'].includes(e.code)) {if (!e.repeat) {e.preventDefault(); if (mode.current === 'paused') resume(); else if (mode.current === 'career' || mode.current === 'rivals') setMode('menu'); else pause();} return;}
       if (mode.current !== 'playing') return;
       if (e.code === 'Space') {e.preventDefault(); if (!e.repeat && owner.current === null && press()) owner.current = 'key'; return;}
       if (AIM_KEYS[e.code]) {e.preventDefault(); keys.current.add(e.code);}
@@ -166,7 +168,7 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
     const interrupt = () => pause(), visibility = () => {if (document.hidden) pause();}, rotate = () => {if (innerHeight > innerWidth) pause();};
     window.addEventListener('keydown', down); window.addEventListener('keyup', up); window.addEventListener('blur', interrupt); window.addEventListener('resize', rotate); document.addEventListener('visibilitychange', visibility);
     return () => {window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', interrupt); window.removeEventListener('resize', rotate); document.removeEventListener('visibilitychange', visibility);};
-  }, [letFly, pause, press, resume]);
+  }, [letFly, pause, press, resume, setMode]);
   useEffect(() => {
     if (!hostCommand) return;
     const t = setTimeout(() => {if (hostCommand.type === 'pause') pause(); else if (hostCommand.type === 'resume') resume(); else if (hostCommand.type === 'dispose') {letGo(); audio.current?.suspend();}}, 0);
@@ -180,7 +182,7 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
     panel?.querySelector<HTMLButtonElement>('[data-primary],button:not(:disabled)')?.focus();
     const trap = (e: KeyboardEvent) => {
       if (e.key !== 'Tab' || !panel) return;
-      const items = Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled),input'));
+      const items = Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled),input,summary,select,a[href]')).filter(item => item.getClientRects().length > 0 && (!item.closest('details:not([open])') || item.tagName === 'SUMMARY'));
       const first = items[0], last = items.at(-1);
       if (e.shiftKey && document.activeElement === first) {e.preventDefault(); last?.focus();}
       else if (!e.shiftKey && document.activeElement === last) {e.preventDefault(); first?.focus();}
@@ -218,6 +220,7 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
   const onCancel = (e: ReactPointerEvent<HTMLCanvasElement>) => {if (owner.current !== e.pointerId) return; letGo(); refresh();};
 
   const canContinue = !!progress.checkpoint && !!resumed(progress);
+  const nextCareerLevel = LEVELS.find(level => levelUnlocked(progress, level.index) && !(progress.stars[level.id] > 0)) ?? LEVELS.filter(level => levelUnlocked(progress, level.index)).at(-1) ?? LEVELS[0];
   const playing = ['playing', 'paused', 'finished'].includes(status) && hud;
   const career = hud?.config.mode === 'career' ? hud.config.level : null, rival = hud?.config.mode === 'match' ? hud.config.opponent : null;
   const aiming = status === 'playing' && hud?.turn === 'player' && (hud.phase === 'ready' || hud.phase === 'drawing');
@@ -225,8 +228,9 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
   const panel = (children: ReactNode, label: string, extra = '') => <div className={`${styles.scrim} ${extra}`}><article className={styles.panel} role="dialog" aria-modal="true" aria-label={label}>{children}</article></div>;
   const toggleSound = (on: boolean) => {persist({...save.current, sound: on}); audio.current?.setEnabled(on);};
   const nextLevel = career && LEVELS[career.index + 1] && levelUnlocked(progress, career.index + 1) ? LEVELS[career.index + 1] : null;
+  const nextRival = rival && hud?.won ? OPPONENTS[OPPONENTS.indexOf(rival) + 1] : undefined;
 
-  return <section className={styles.root} ref={root} data-longbow data-mode={status}>
+  return <section onKeyDownCapture={closeMenuDisclosure} className={styles.root} ref={root} data-longbow data-mode={status}>
     <canvas ref={canvas} className={styles.canvas} tabIndex={0} aria-label="Longbow archery range. Press and hold to draw, drag to aim, release to shoot. Space and arrow keys also work."
       onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} onLostPointerCapture={onCancel} onContextMenu={e => e.preventDefault()}/>
     <header className={styles.header}>
@@ -272,10 +276,10 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
       <div className={styles.heroCopy}>
         <div className={styles.eyebrow}>AN ORIGINAL ARCHERY GAME</div>
         <h1>DRAW.<br/>READ THE WIND.<br/><em>LET IT FLY.</em></h1>
-        <p>Thirty lanes across meadow, pine and canyon, and three rivals waiting at the far end.</p>
+        <p>Read the wind and clear the next lane.</p>
         <div className={styles.actions}>
-          {canContinue && <button data-primary className={styles.primary} onClick={() => start(null, true)}>CONTINUE <span>→</span></button>}
-          <button data-primary={!canContinue || undefined} className={canContinue ? styles.secondary : styles.primary} onClick={() => {setTab(LEVELS.reduce((r, l) => levelUnlocked(progress, l.index) ? l.range : r, 0)); setMode('career');}}>CAREER <span>{totalStars(progress)} / 90 ★</span></button>
+          {canContinue ? <button data-primary className={styles.primary} onClick={() => start(null, true)}>CONTINUE <span>→</span></button> : <button data-primary className={styles.primary} onClick={() => start({mode: 'career', level: nextCareerLevel})}>PLAY {nextCareerLevel.name.toUpperCase()} <span>→</span></button>}
+          <button className={styles.secondary} onClick={() => {setTab(LEVELS.reduce((r, l) => levelUnlocked(progress, l.index) ? l.range : r, 0)); setLanePage(0); setMode('career');}}>BROWSE LANES <span>{totalStars(progress)} / 90 ★</span></button>
           <button className={styles.secondary} onClick={() => setMode('rivals')}>DUEL A RIVAL <span>3 ARCHERS</span></button>
         </div>
       </div>
@@ -283,15 +287,16 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
 
     {status === 'career' && panel(<>
       <div className={styles.panelTop}><span className={styles.eyebrow}>CAREER</span><button className={styles.chip} onClick={() => toMenu()}>Back</button></div>
-      <div className={styles.tabs} role="tablist">{RANGES.map((r, i) => <button role="tab" key={r.name} aria-selected={tab === i} disabled={!rangeUnlocked(progress, i)} onClick={() => {setTab(i); menuRange.current = i;}}>
+      <div className={styles.tabs} role="tablist">{RANGES.map((r, i) => <button role="tab" key={r.name} aria-selected={tab === i} disabled={!rangeUnlocked(progress, i)} onClick={() => {setTab(i); setLanePage(0); menuRange.current = i;}}>
         {r.name}<small>{rangeUnlocked(progress, i) ? `${rangeStars(progress, i)} / 30 ★` : `${RANGE_UNLOCK_STARS} ★ in ${RANGES[i - 1].name}`}</small></button>)}</div>
-      <div className={styles.levels}>{LEVELS.filter(l => l.range === tab).map(l => {
+      <div className={styles.levels}>{LEVELS.filter(l => l.range === tab).filter(l => levelUnlocked(progress, l.index)).slice(lanePage * 8, lanePage * 8 + 8).map(l => {
         const open = levelUnlocked(progress, l.index), stars = progress.stars[l.id] ?? 0;
         return <button key={l.id} disabled={!open} onClick={() => start({mode: 'career', level: l})} aria-label={`${l.index + 1}. ${l.name}, ${l.distance} metres${open ? `, ${stars} stars` : ', locked'}`}>
           <span>{String(l.index + 1).padStart(2, '0')}</span><b>{l.name}</b><small>{l.distance} m{l.wind[1] > 0 ? ` · wind ${l.wind[1]}` : ''}{motionLabel(l) ? ` · ${motionLabel(l)}` : ''}</small><i>{open ? starText(stars) : 'LOCKED'}</i>
         </button>;
       })}</div>
-      <p className={styles.footnote}>{RANGES[tab].blurb} One star clears a lane and opens the next.</p>
+      <div className={styles.panelTop}><button className={styles.chip} disabled={lanePage === 0} onClick={() => setLanePage(0)}>Previous</button><span>{lanePage + 1} / {Math.max(1, Math.ceil(LEVELS.filter(l => l.range === tab && levelUnlocked(progress, l.index)).length / 8))}</span><button className={styles.chip} disabled={lanePage > 0 || LEVELS.filter(l => l.range === tab && levelUnlocked(progress, l.index)).length <= 8} onClick={() => setLanePage(1)}>Next</button></div>
+      <p className={styles.footnote}>{LEVELS.filter(l => l.range === tab && !levelUnlocked(progress, l.index)).length} lanes locked · Earn a star to open the next.</p>
     </>, 'Choose a level', styles.wide)}
 
     {status === 'rivals' && panel(<>
@@ -309,11 +314,12 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
     {status === 'paused' && panel(<>
       <span className={styles.eyebrow}>PAUSED</span>
       <h2>Take a breath.</h2>
-      <p>Press and hold to draw, drag to aim, release to shoot. The sight settles once the bow is drawn; let go while it is steady. Aim into the wind.</p>
-      <label><span>Sound</span><input type="checkbox" checked={progress.sound} onChange={e => toggleSound(e.target.checked)}/></label>
+      <details><summary>SETTINGS</summary><label><span>Sound</span><input type="checkbox" checked={progress.sound} onChange={e => toggleSound(e.target.checked)}/></label>
       <label><span>Reduce motion (no shake, flashes or slow motion)</span><input type="checkbox" checked={progress.reducedMotion} onChange={e => persist({...save.current, reducedMotion: e.target.checked})}/></label>
+      </details>
+      <details><summary>HELP</summary><p>Hold to draw, drag to aim, then release while the sight is steady; aim into the wind.</p></details>
       <button data-primary className={styles.primary} onClick={resume}>RESUME <span>→</span></button>
-      <button className={styles.secondary} onClick={() => toMenu()}>SAVE AND QUIT TO MENU</button>
+      <button className={styles.secondary} onClick={() => toMenu()}>EXIT TO MENU</button>
     </>, 'Paused')}
 
     {status === 'finished' && hud && panel(<>
@@ -322,14 +328,12 @@ export function LongbowGame({onExit, onEvent, hostCommand}: Props) {
         <h2>{hud.won ? hud.stars === 3 ? 'Perfect form.' : 'Lane cleared.' : 'Not this time.'}</h2>
         <div className={styles.result}><strong>{hud.score.player}</strong><span className={styles.stars} aria-label={`${hud.stars} stars`}>{starText(hud.stars)}</span><small>{career.stars.map((s, i) => `${'★'.repeat(i + 1)} ${s}`).join(' · ')}</small></div>
         <button data-primary className={styles.primary} onClick={() => start({mode: 'career', level: hud.won && nextLevel ? nextLevel : career})}>{hud.won && nextLevel ? 'NEXT LANE' : 'TRY AGAIN'} <span>→</span></button>
-        {hud.won && nextLevel && <button className={styles.secondary} onClick={() => start({mode: 'career', level: career})}>REPLAY FOR STARS</button>}
       </>}
       {rival && <>
         <span className={styles.eyebrow}>DUEL · {rival.name.toUpperCase()}</span>
         <h2>{hud.won ? 'Victory.' : hud.tied ? 'Dead level.' : `${rival.name.split(' ')[0]} takes it.`}</h2>
         <div className={styles.result}><strong>{hud.score.player}<small> – {hud.score.ai}</small></strong><small>X rings {hud.score.playerX} – {hud.score.aiX}</small></div>
-        <button data-primary className={styles.primary} onClick={() => start({mode: 'match', opponent: rival})}>REMATCH <span>→</span></button>
-        {hud.won && OPPONENTS[OPPONENTS.indexOf(rival) + 1] && <button className={styles.secondary} onClick={() => start({mode: 'match', opponent: OPPONENTS[OPPONENTS.indexOf(rival) + 1]})}>NEXT RIVAL</button>}
+        <button data-primary className={styles.primary} onClick={() => start({mode: 'match', opponent: nextRival ?? rival})}>{nextRival ? 'NEXT RIVAL' : 'REMATCH'} <span>→</span></button>
       </>}
       <button className={styles.secondary} onClick={() => toMenu(career ? 'career' : 'rivals')}>BACK TO {career ? 'LANES' : 'RIVALS'}</button>
     </>, 'Result')}

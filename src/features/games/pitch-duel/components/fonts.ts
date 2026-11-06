@@ -1,7 +1,7 @@
 import localFont from "next/font/local";
 
 /**
- * Pitch Duel's own type, separate from the StatOz system: Bebas Neue for card
+ * Fot Duel's own type, separate from the StatOz system: Bebas Neue for card
  * numbers, Barlow Condensed for labels and buttons, Inter (heavy and italic)
  * for display words such as VS and GOAL. All three are SIL OFL 1.1; the
  * licences sit next to the files in ../fonts.

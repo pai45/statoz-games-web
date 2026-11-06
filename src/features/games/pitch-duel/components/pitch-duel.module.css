@@ -122,6 +122,30 @@
 .counters {
   display: inline-flex;
   gap: 0.35rem;
+  align-items: center;
+}
+
+/* Sound on/off: a round icon button, 44px to tap. */
+.soundButton {
+  display: inline-grid;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  padding: 0;
+  color: var(--pd-text);
+  background: rgba(10, 8, 18, 0.72);
+  border: 1px solid var(--pd-line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.soundButton[aria-pressed="false"] {
+  color: var(--pd-sub);
+}
+
+.soundButton:hover {
+  border-color: var(--pd-violet);
 }
 
 .counter {
@@ -1526,5 +1550,52 @@
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
+  }
+}
+
+/* ---- Full-time celebration: confetti for a win, rewards counting up -------------- */
+
+.summary {
+  position: relative;
+}
+
+.winConfetti {
+  position: absolute;
+  inset: -1rem 0 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.winConfetti i {
+  position: absolute;
+  top: -5%;
+  width: 0.5rem;
+  height: 0.85rem;
+  border-radius: 2px;
+  opacity: 0;
+  animation: winConfetti 3s var(--delay) cubic-bezier(0.25, 0.4, 0.5, 1) both;
+}
+
+@keyframes winConfetti {
+  5%,
+  85% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--drift), 110vh) rotate(var(--spin)) rotateX(720deg);
+  }
+}
+
+.rewards span[data-counting] {
+  color: #fde68a;
+  border-color: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .winConfetti {
+    display: none;
   }
 }

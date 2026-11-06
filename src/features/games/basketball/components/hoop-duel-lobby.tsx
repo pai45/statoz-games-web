@@ -167,7 +167,7 @@ export function HoopDuelLobby({
         >
           HOW TO PLAY
         </Link>
-        <GameLeaderboardCta sport="basketball" gameId="hoop-duel" />
+        <GameLeaderboardCta gameId="hoop-duel" />
       </section>
     </main>
   );

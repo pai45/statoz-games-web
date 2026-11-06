@@ -159,7 +159,7 @@ export function TennisLobby({
             Back to Tennis games
           </button>
         </div>
-        <div className="mt-4"><GameLeaderboardCta sport="tennis" gameId="tennis-rally" /></div>
+        <div className="mt-4"><GameLeaderboardCta gameId="tennis-rally" /></div>
         <DailyDrop sport="tennis" />
       </div>
     </div>

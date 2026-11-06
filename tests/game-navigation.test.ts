@@ -19,3 +19,8 @@ test("old catalogs resolve to the current hub and direct game visits return home
     assert.equal(gameReturnHref(value), "/");
   }
 });
+
+test("catalog URLs retain spotlight and Library search without leaking Library-only state into home", () => {
+  assert.equal(gameCatalogHref("football", true, { game: "pitch-duel", q: "duel", listSport: "football" }), "/?sport=football&view=all&game=pitch-duel&q=duel&listSport=football");
+  assert.equal(gameCatalogHref(null, false, { game: "open-golf", q: "golf", listSport: "golf" }), "/?game=open-golf");
+});

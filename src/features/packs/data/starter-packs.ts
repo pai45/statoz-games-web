@@ -69,9 +69,9 @@ const starterCopy: Record<Sport, StarterCopy> = {
     maxAnimatedPlayerCards: 1,
   },
   motorsport: {
-    brandLabel: "GRAND PRIX DASH",
+    brandLabel: "RALLY DASH",
     headline: "PIT LANE\nSTARTER",
-    ctaLabel: "ENTER GRAND PRIX DASH",
+    ctaLabel: "ENTER RALLY DASH",
     summary: () => "YOUR FIRST DRIVER IS SIGNED",
     groupActionCards: false,
     maxAnimatedPlayerCards: 1,

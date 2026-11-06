@@ -1,5 +1,7 @@
 # Grand Prix Dash — racing rules v2
 
+> Superseded on 2026-11-04 by Rally Dash (docs/RALLY-DASH.md). The `rebuild/` code described here was removed and remains in git history; this file is kept as the record.
+
 Future Games web only. Independent game-owned art direction, following the Designer `independent-game-style`, `pixel-game-design` and `pixel-art-animation` skills. Two modes: Quick Race and Time Trial. No championship, card gate, Shop dependency or shared rewards.
 
 ## Reference and original design

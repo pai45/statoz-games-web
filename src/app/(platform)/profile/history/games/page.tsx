@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { ProfileHistoryScreen } from "@/features/profile";
+import { ProfileScreen } from "@/features/profile";
 
 export const metadata: Metadata = {
   title: "Games History | StatOz",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function GamesHistoryPage() {
-  return <ProfileHistoryScreen section="games" />;
+  return <ProfileScreen initialTab="Career" />;
 }
